@@ -185,6 +185,7 @@ def dispatch_to_all_regions(request, unit_id, quantity):
     for region in Region.objects.filter(ruler=player):
         send_journey(player=player, unit=unit, quantity=quantity, destination=region, origin=None)
 
+    messages.success(request, f"{quantity}x {unit.name} have begun journeys to each region")
     return redirect("army_training")
 
 
