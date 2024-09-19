@@ -8,7 +8,8 @@
 <div class="u-flex u-flex-column u-gap-4">
     <a href="{% url 'regions' %}" class="mb-2">Back to region list</a>
     <div>
-        <h6>{{ region.emoji_name }}</h6>
+        <h4>{{ region.emoji_name }}</h6>
+        <h6>Defense: {{ region.defense|intcomma }}</h6>
         <p>{{ region.description }}</p>
         {% if available_plots > 0 %}
             <h6 class="text-red-300">⚠️ This region has available plots to build ⚠️</h6>

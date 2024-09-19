@@ -233,6 +233,6 @@ def dispatch_to_one_region(request, region_id):
             amount = int(value)
             send_journey(player, unit, amount, region)
 
-    messages.success(request, f"Sent {total_sent} units to {region.name}")
+    messages.success(request, f"Sending {total_sent} units to {region.name}")
     
     return redirect("region", region_id)

@@ -1,8 +1,11 @@
+{% load humanize %}
+
 {% if region %}
 <a href="{% url 'region' region.id %}" class="u-border-1 w-48 p-2 u-flex u-flex-column text-light">
-    <p>{{ region.emoji_name }}</p>
+    <span>{{ region.emoji_name }}</span>
+    <span>Defense: {{ region.defense|intcomma }}</span>
     {% if region.plots_available > 0 %}
-    <p class="font-bold text-red-400">Unconstructed plots: {{ region.plots_available }}</p>
+    <span class="font-bold text-red-400">Unconstructed plots: {{ region.plots_available }}</span>
     {% endif %}
 </a>
 

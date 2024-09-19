@@ -254,6 +254,16 @@ class Region(models.Model):
     def plots_available(self):
         return 3 - self.buildings_here.all().count()
     
+    @property
+    def defense(self):
+        defense = 0
+
+        for unit_id, quantity in self.units_here_dict.items():
+            unit = Unit.objects.get(id=int(unit_id))
+            defense += quantity * unit.dp
+
+        return defense
+    
 
 class Building(models.Model):
     ruler = models.ForeignKey(Player, on_delete=models.PROTECT, null=True)
