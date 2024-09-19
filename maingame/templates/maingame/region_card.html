@@ -1,0 +1,11 @@
+{% if region %}
+<a href="{% url 'region' region.id %}" class="u-border-1 w-48 p-2 u-flex u-flex-column text-light">
+    <p>{{ region.emoji_name }}</p>
+    {% if region.plots_available > 0 %}
+    <p class="font-bold text-red-400">Unconstructed plots: {{ region.plots_available }}</p>
+    {% endif %}
+</a>
+
+{% else %}
+<span>ERROR: NO REGION</span>
+{% endif %}

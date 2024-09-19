@@ -1,0 +1,13 @@
+<a href="{% url 'index' %}" class="text-light">Home</a>
+<a href="#news" class="text-light">News</a>
+<a href="{% url 'regions' %}" class="text-light">Regions{% if active_player.unconstructed_plots > 0 %} ⚠️{% endif %}</a>
+<a href="{% url 'army_training' %}" class="text-light">Army training</a>
+<form action="{% url 'logout' %}" method="post" class="mt-8">
+    {% csrf_token %}
+    <div class="u-flex u-flex-column u-gap-0">
+        <span class="text-xs my-0">User: {{ user.username }}</span>
+    </div>
+    <button type="submit" class="px-1 py-0 w-12 h-4">
+        <span class="font-bold">Log out</span>
+    </button>
+</form>

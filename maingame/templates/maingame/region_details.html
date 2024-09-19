@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load extra_tags %}
+
+{% block title %}{{ region.emoji_name }}{% endblock %}
+
+{% block content %}
+<div class="u-flex u-flex-column u-gap-4">
+    <a href="{% url 'regions' %}" class="mb-2">Back to region list</a>
+    <div>
+        <h4>{{ region.emoji_name }}</h4>
+        <p>{{ region.description }}</p>
+    </div>
+    <div class="u-flex u-flex-wrap u-gap-2">
+        {% for building in buildings_here %}
+            {% include "maingame/building_card.html" with building_type=building.type show_destroy=True region=region is_ideal_terrain=building.built_on_ideal_terrain %}
+        {% endfor %}
+    </div>
+    <span>Available plots: {{ available_plots }}</span>
+    <div class="u-flex u-flex-wrap u-gap-2">
+        {% for building_type in building_types %}
+            {% if building_type.ideal_terrain == region.primary_terrain and primary_terrain_available %}
+            {% include "maingame/building_card.html" with building_type=building_type available_plots=available_plots region=region is_ideal_terrain=True %}
+            {% elif building_type.ideal_terrain == region.secondary_terrain and secondary_terrain_available %}
+            {% include "maingame/building_card.html" with building_type=building_type available_plots=available_plots region=region is_ideal_terrain=True %}
+            {% else %}
+            {% include "maingame/building_card.html" with building_type=building_type available_plots=available_plots region=region %}
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

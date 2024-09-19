@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Regions{% endblock %}
+
+{% block content %}
+<div class="u-flex u-flex-wrap u-gap-2">
+    {% for region in regions %}
+    {% include "maingame/region_card.html" with region=region %}
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+
+
+<div class="u-absolute u-relative-md" id="linkParent">
+    <a class="text-light icon bg-red-800 h-12 u-flex u-center u-none-md" onclick="toggleMenu()">
+        <i class="fa fa-bars text-xl pl-1"></i>
+    </a>
+    <div class="u-none" id="links">
+        {% include "sidebar_links.html" %}
+    </div>
+    
+    <script>
+    function toggleMenu() {
+        var links = document.getElementById("links");
+
+        const baseTopNavClasses = "bg-dark w-100p h-100p text-xl u-center "
+
+        if (links.className.includes("u-none")) {
+            links.className = baseTopNavClasses + "u-flex u-flex-column u-absolute";
+            linkParent.className = ""
+        } else {
+            links.className = baseTopNavClasses + "u-none";
+            linkParent.className = "u-absolute u-relative-md"
+        }
+    }
+    </script>
+
+    <div class="u-none u-block-md min-h-screen h-100p pt-12 px-4 w-24 bg-red-800">
+        <div class="u-flex-md u-flex-column u-center">
+            {% include "sidebar_links.html" %}
+        </div>
+    </div>
+</div>

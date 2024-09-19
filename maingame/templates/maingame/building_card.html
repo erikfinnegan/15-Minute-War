@@ -1,0 +1,47 @@
+<div class="u-flex u-flex-column w-48 u-border-1 p-1
+{% if building_type.ideal_terrain == region.primary_terrain %}border-yellow-200
+{% elif building_type.ideal_terrain == region.secondary_terrain %}border-yellow-200
+{% endif %}
+
+{% if building_type.ideal_terrain == region.primary_terrain and primary_terrain_available %}text-yellow-200
+{% elif building_type.ideal_terrain == region.secondary_terrain and secondary_terrain_available %}text-yellow-200
+{% else %}border-light
+{% endif %}
+
+{% if building.built_on_ideal_terrain %}border-yellow-200 text-yellow-200
+{% endif %}
+">
+    <div class="u-flex u-flex-row u-gap-2 h-6">
+        <div class="u-flex u-flex-row u-gap-1">
+            <h6 class="my-auto">{{ building_type.name|title }}</h6>
+            <h6 class="my-auto">{{ building_type.ideal_terrain.emoji }}</h6>
+        </div>
+        <div class="u-flex u-justify-flex-end u-gap-1 my-auto w-100p">
+            {% if show_destroy %}
+            <a href="{% url 'destroy_building' building.id %}">
+                <button class="btn-danger px-1 py-0">Destroy</button>
+            </a>
+            {% else %}
+                {% if available_plots >= 3 %}
+                <a href="{% url 'build_building' region.id building_type.id 3 %}">
+                    <button class="btn-light px-1 py-0">+3</button>
+                </a>
+                {% endif %}
+
+                {% if available_plots >= 2 %}
+                <a href="{% url 'build_building' region.id building_type.id 2 %}">
+                    <button class="btn-light px-1 py-0">+2</button>
+                </a>
+                {% endif %}
+
+                {% if available_plots >= 1 %}
+                <a href="{% url 'build_building' region.id building_type.id 1 %}">
+                    <button class="btn-light px-1 py-0">+1</button>
+                </a>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    <!-- <span>{{ building_type.description }}</span> -->
+    {% include "maingame/building_description.html" %}
+</div>
