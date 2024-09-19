@@ -9,7 +9,7 @@ def initialize_building_types():
         {
             "name": "farm",
             "resource_produced": "food",
-            "amount_produced": 200,
+            "amount_produced": 100,
             "ideal_terrain": Terrain.objects.get(name="grassy")
         },
         {

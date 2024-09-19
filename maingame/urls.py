@@ -15,5 +15,5 @@ urlpatterns = [
     path("army_training/submit", views.submit_training, name="submit_training"),
     path("army_training", views.army_training, name="army_training"),
     path("dispatch_to_all_regions/<int:unit_id>/<int:quantity>", views.dispatch_to_all_regions, name="dispatch_to_all_regions"),
-    path("dispatch_to_one_region/<int:unit_id>/<int:quantity>/<int:region_id>", views.dispatch_to_one_region, name="dispatch_to_one_region"),
+    path("dispatch_to_one_region/<int:region_id>", views.dispatch_to_one_region, name="dispatch_to_one_region"),
 ]

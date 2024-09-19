@@ -119,6 +119,14 @@ class Player(models.Model):
     @property
     def regions_ruled(self):
         return Region.objects.filter(ruler=self).count()
+    
+    @property
+    def has_marshaled_units(self):
+        return Unit.objects.filter(ruler=self, quantity_marshaled__gt=0).count() > 0
+    
+    @property
+    def is_starving(self):
+        return self.food <= 0
 
 
 class Unit(models.Model):
@@ -143,7 +151,7 @@ class Unit(models.Model):
         base_name = f"{self.name} ({self.op}/{self.dp})"
 
         if self.ruler:
-            return f"{self.ruler}'s {base_name}"
+            return f"{self.ruler.name}'s {base_name}"
         
         return f"🟩Base --- {base_name}"
     
@@ -261,9 +269,8 @@ class Journey(models.Model):
     ruler = models.ForeignKey(Player, on_delete=models.PROTECT)
     unit = models.ForeignKey(Unit, on_delete=models.PROTECT)
     quantity = models.IntegerField(default=0)
-    origin = models.ForeignKey(Region, on_delete=models.PROTECT, null=True, related_name="journey_origin_set")
     destination = models.ForeignKey(Region, on_delete=models.PROTECT, related_name="journey_destination_set")
     ticks_to_arrive = models.IntegerField(default=12)
 
     def __str__(self):
-        return f"{self.quantity} {self.unit} ... {self.origin} -> {self.destination}"
+        return f"{self.quantity}x {self.unit} ... to {self.destination} ({self.ticks_to_arrive} ticks)"

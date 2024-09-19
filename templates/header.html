@@ -26,7 +26,12 @@
 </div>
 
 {% if messages %}
-<div class="m-4">
+<div class="p-4">
+    <style>
+        .error {
+            color: rgb(249, 178, 178);
+        }
+    </style>
     {% for message in messages %}
     <h6 class="font-bold {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</h6>
     {% endfor %}

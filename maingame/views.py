@@ -23,6 +23,17 @@ def region(request, region_id):
         return redirect("/regions")
     
     buildings_here = region.buildings_here.all().order_by("type")
+    marshaled_units = Unit.objects.filter(ruler=player, quantity_marshaled__gt=0)
+    
+    units_here = []
+    
+    class UnitHere:
+        def __init__(self, unit, quantity):
+            self.unit = unit
+            self.quantity = quantity
+
+    for unit_id, quantity in region.units_here_dict.items():
+        units_here.append(UnitHere(Unit.objects.get(id=unit_id), quantity))
 
     context = {
         "buildings_here": buildings_here,
@@ -31,6 +42,8 @@ def region(request, region_id):
         "available_plots": 3 - Building.objects.filter(region=region).count(),
         "primary_terrain_available": region.primary_plots_available,
         "secondary_terrain_available": region.secondary_plots_available,
+        "marshaled_units": marshaled_units,
+        "units_here": units_here,
     }
 
     return render(request, "maingame/region_details.html", context)
@@ -89,7 +102,7 @@ def army_training(request):
     show_cant_afford_error = request.GET.get("cant_afford")
     player = Player.objects.get(associated_user=request.user)
 
-    marshaled_units = Unit.objects.filter(quantity_marshaled__gt=0)
+    marshaled_units = Unit.objects.filter(ruler=player, quantity_marshaled__gt=0)
 
     context = {
         "units": Unit.objects.filter(ruler=player),
@@ -165,11 +178,9 @@ def submit_training(request):
         player.mana -= mana_cost
         player.save()
 
-        total_trained = 0
-
         for key, value in request.POST.items():
             if "train_" in key and value != "":
-                unit = Unit.objects.get(id=key[6:])
+                unit = Unit.objects.get(ruler=player, id=key[6:])
                 amount = int(value)
                 unit.quantity_marshaled += amount
                 unit.save()
@@ -182,31 +193,46 @@ def submit_training(request):
 @login_required
 def dispatch_to_all_regions(request, unit_id, quantity):
     player = Player.objects.get(associated_user=request.user)
-    unit = Unit.objects.get(id=unit_id)
+    unit = Unit.objects.get(ruler=player, id=unit_id)
 
     if quantity * player.regions_ruled > unit.quantity_marshaled:
         return redirect("army_training")
     
     for region in Region.objects.filter(ruler=player):
-        send_journey(player=player, unit=unit, quantity=quantity, destination=region, origin=None)
+        send_journey(player=player, unit=unit, quantity=quantity, destination=region)
 
     messages.success(request, f"{quantity}x {unit.name} have begun journeys to each region")
     return redirect("army_training")
 
 
 @login_required
-def dispatch_to_one_region(request, unit_id, quantity, origin_id, destination_id):
+def dispatch_to_one_region(request, region_id):
     player = Player.objects.get(associated_user=request.user)
-    unit = Unit.objects.get(id=unit_id)
-    origin = Region.objects.get(id=origin_id)
-    destination = Region.objects.get(id=destination_id)
+    region = Region.objects.get(ruler=player, id=region_id)
 
-    if quantity > unit.quantity_marshaled:
-        return redirect("army_training")
+    total_sent = 0
 
-    send_journey(player=player, unit=unit, quantity=quantity, destination=destination, origin=origin)
+    for key, value in request.POST.items():
+        if "send_" in key and value != "":
+            unit = Unit.objects.get(id=key[5:])
+            amount = int(value)
 
-    # return HttpResponseRedirect('army_training'). 
-    # And in success function, you can get that parameter: request.GET.get('status', None)
+            if amount > unit.quantity_marshaled:
+                messages.error(request, f"Attempted to send {amount}x {unit} but there are only {unit.quantity_marshaled} marshaled")
+                return redirect("region", region_id)
 
-    return redirect("army_training")
+            total_sent += amount
+
+    if total_sent < 1:
+        messages.error(request, f"Zero units sent")
+        return redirect("region", region_id)
+
+    for key, value in request.POST.items():
+        if "send_" in key and value != "":
+            unit = Unit.objects.get(id=key[5:])
+            amount = int(value)
+            send_journey(player, unit, amount, region)
+
+    messages.success(request, f"Sent {total_sent} units to {region.name}")
+    
+    return redirect("region", region_id)

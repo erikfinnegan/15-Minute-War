@@ -78,13 +78,29 @@ def assign_faction(player: Player, faction: Faction):
 
     player.save()
 
-def send_journey(player: Player, unit: Unit, quantity: int, destination: Region, origin: Region=None):
+
+def send_journey(player: Player, unit: Unit, quantity: int, destination: Region):
     try:
-        journey = Journey.objects.get(ruler=player, unit=unit, destination=destination, origin=origin)
+        journey = Journey.objects.get(ruler=player, unit=unit, destination=destination, ticks_to_arrive=12)
         journey.quantity += quantity
         journey.save()
     except:
-        Journey.objects.create(ruler=player, unit=unit, quantity=quantity, destination=destination, origin=origin)
+        Journey.objects.create(ruler=player, unit=unit, quantity=quantity, destination=destination)
         
     unit.quantity_marshaled -= quantity
     unit.save()
+
+
+def receive_journey(journey: Journey):
+    region = journey.destination
+    unit = journey.unit
+    unit_id_str = str(unit.id)
+    quantity = journey.quantity
+
+    if unit_id_str in region.units_here_dict.keys():
+        region.units_here_dict[unit_id_str] += quantity
+    else:
+        region.units_here_dict[unit_id_str] = quantity
+
+    region.save()
+    journey.delete()

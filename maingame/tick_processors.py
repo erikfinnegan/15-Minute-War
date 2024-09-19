@@ -1,4 +1,5 @@
-from maingame.models import Player, Region, Building, Terrain
+from maingame.models import Player, Region, Building, Terrain, Unit, Journey
+from maingame.utils import receive_journey
 
 def do_resource_production():
     beautiful_terrain = Terrain.objects.get(name="beautiful")
@@ -32,4 +33,25 @@ def do_resource_production():
                 elif building.type.resource_produced == "food":
                     player.food += amount_produced
 
+        total_units = 0
+
+        for unit in Unit.objects.filter(ruler=player):
+            total_units += unit.quantity_marshaled
+
+        # for each ruled region, go through units_here_dict
+
         player.save()
+
+
+def do_journeys():
+    for journey in Journey.objects.all():
+        journey.ticks_to_arrive -= 1
+        journey.save()
+
+        if journey.ticks_to_arrive == 0:
+            receive_journey(journey)
+
+
+def do_tick():
+    do_resource_production()
+    do_journeys()

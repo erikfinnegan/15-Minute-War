@@ -5,16 +5,10 @@
 {% block title %}Army training{% endblock %}
 
 {% block content %}
-<form action="{% url 'submit_training' %}" method="post">
+<form action="{% url 'submit_training' %}" method="post" class="max-w-sm">
     {% csrf_token %}
-    <style>
-        .error {
-            color: rgb(249, 178, 178);
-        }
-    </style>
-
     <div class="w-100p u-center">
-        <h4>Train units</h4>
+        <h6>Train units</h6>
     </div>
     <table class="table striped">
         <thead>
@@ -81,71 +75,73 @@
     </button>
 </form>
 
-<div class="w-100p u-center mt-12">
-    <h4>Marshaled units</h4>
+<div class="max-w-sm">
+    <div class="w-100p u-center mt-12">
+        <h6>Marshaled units</h6>
+    </div>
+    <table class="table striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Power</th>
+                <th>Amount</th>
+                <th>Send to each of {{ active_player.regions_ruled }} regions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for unit in marshaled_units %}
+            <tr>
+                <th class="u-align-middle">{{ unit.name|title }}</th>
+                <td class="u-align-middle">{{ unit.op }}/{{ unit.dp }}</td>
+                <td class="u-align-middle">{{ unit.quantity_marshaled|intcomma }}</td>
+                <td class="u-align-middle u-flex-md u-flex-row-md u-gap-1 u-center">
+                    {% if unit.quantity_marshaled > active_player.regions_ruled and unit.quantity_marshaled < active_player.regions_ruled|multiply:100 %}
+                    <a href="{% url 'dispatch_to_all_regions' unit.id 1 %}">
+                        <button class="btn-light px-1 py-0">1</button>
+                    </a>
+                    {% endif %}
+
+                    {% if unit.quantity_marshaled > active_player.regions_ruled|multiply:10 and unit.quantity_marshaled < active_player.regions_ruled|multiply:1000 %}
+                    <a href="{% url 'dispatch_to_all_regions' unit.id 10 %}">
+                        <button class="btn-light px-1 py-0">10</button>
+                    </a>
+                    {% endif %}
+
+                    {% if unit.quantity_marshaled > active_player.regions_ruled|multiply:100 and unit.quantity_marshaled < active_player.regions_ruled|multiply:10000 %}
+                    <a href="{% url 'dispatch_to_all_regions' unit.id 100 %}">
+                        <button class="btn-light px-1 py-0">100</button>
+                    </a>
+                    {% endif %}
+
+                    {% if unit.quantity_marshaled > active_player.regions_ruled|multiply:1000 and unit.quantity_marshaled < active_player.regions_ruled|multiply:100000 %}
+                    <a href="{% url 'dispatch_to_all_regions' unit.id 1000 %}">
+                        <button class="btn-light px-1 py-0">1000</button>
+                    </a>
+                    {% endif %}
+
+                    {% if unit.quantity_marshaled > active_player.regions_ruled|multiply:10000 and unit.quantity_marshaled < active_player.regions_ruled|multiply:1000000 %}
+                    <a href="{% url 'dispatch_to_all_regions' unit.id 10000 %}">
+                        <button class="btn-light px-1 py-0">10000</button>
+                    </a>
+                    {% endif %}
+
+                    {% if unit.quantity_marshaled > active_player.regions_ruled|multiply:100000 %}
+                    <a href="{% url 'dispatch_to_all_regions' unit.id 100000 %}">
+                        <button class="btn-light px-1 py-0">100000</button>
+                    </a>
+                    {% endif %}
+
+                    {% if unit.quantity_marshaled >= active_player.regions_ruled %}
+                    <a href="{% url 'dispatch_to_all_regions' unit.id unit.max_marshal_to_all_regions %}">
+                        <button class="btn-light px-1 py-0">{{ unit.max_marshal_to_all_regions }}</button>
+                    </a>
+                    {% else %}
+                    <span>Marshaled quantity is less than number of ruled regions</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
-<table class="table striped">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Power</th>
-            <th>Marshaled</th>
-            <th>Send to each of {{ active_player.regions_ruled }} regions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for unit in marshaled_units %}
-        <tr>
-            <th class="u-align-middle">{{ unit.name|title }}</th>
-            <td class="u-align-middle">{{ unit.op }}/{{ unit.dp }}</td>
-            <td class="u-align-middle">{{ unit.quantity_marshaled|intcomma }}</td>
-            <td class="u-align-middle u-flex-md u-flex-row-md u-gap-1 u-center">
-                {% if unit.quantity_marshaled > active_player.regions_ruled and unit.quantity_marshaled < active_player.regions_ruled|multiply:100 %}
-                <a href="{% url 'dispatch_to_all_regions' unit.id 1 %}">
-                    <button class="btn-light px-1 py-0">1</button>
-                </a>
-                {% endif %}
-
-                {% if unit.quantity_marshaled > active_player.regions_ruled|multiply:10 and unit.quantity_marshaled < active_player.regions_ruled|multiply:1000 %}
-                <a href="{% url 'dispatch_to_all_regions' unit.id 10 %}">
-                    <button class="btn-light px-1 py-0">10</button>
-                </a>
-                {% endif %}
-
-                {% if unit.quantity_marshaled > active_player.regions_ruled|multiply:100 and unit.quantity_marshaled < active_player.regions_ruled|multiply:10000 %}
-                <a href="{% url 'dispatch_to_all_regions' unit.id 100 %}">
-                    <button class="btn-light px-1 py-0">100</button>
-                </a>
-                {% endif %}
-
-                {% if unit.quantity_marshaled > active_player.regions_ruled|multiply:1000 and unit.quantity_marshaled < active_player.regions_ruled|multiply:100000 %}
-                <a href="{% url 'dispatch_to_all_regions' unit.id 1000 %}">
-                    <button class="btn-light px-1 py-0">1000</button>
-                </a>
-                {% endif %}
-
-                {% if unit.quantity_marshaled > active_player.regions_ruled|multiply:10000 and unit.quantity_marshaled < active_player.regions_ruled|multiply:1000000 %}
-                <a href="{% url 'dispatch_to_all_regions' unit.id 10000 %}">
-                    <button class="btn-light px-1 py-0">10000</button>
-                </a>
-                {% endif %}
-
-                {% if unit.quantity_marshaled > active_player.regions_ruled|multiply:100000 %}
-                <a href="{% url 'dispatch_to_all_regions' unit.id 100000 %}">
-                    <button class="btn-light px-1 py-0">100000</button>
-                </a>
-                {% endif %}
-
-                {% if unit.quantity_marshaled > active_player.regions_ruled %}
-                <a href="{% url 'dispatch_to_all_regions' unit.id unit.max_marshal_to_all_regions %}">
-                    <button class="btn-light px-1 py-0">{{ unit.max_marshal_to_all_regions }}</button>
-                </a>
-                {% else %}
-                <span>Marshaled quantity is less than number of ruled regions</span>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
 {% endblock %}
