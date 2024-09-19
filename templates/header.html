@@ -25,3 +25,10 @@
     </div>
 </div>
 
+{% if messages %}
+<div class="m-4">
+    {% for message in messages %}
+    <h6 class="font-bold {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</h6>
+    {% endfor %}
+</div>
+{% endif %}

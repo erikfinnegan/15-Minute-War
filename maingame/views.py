@@ -38,9 +38,14 @@ def region(request, region_id):
 
 @login_required
 def destroy_building(request, building_id):
+    player = Player.objects.get(associated_user=request.user)
     building = Building.objects.get(id=building_id)
     region_id = building.region.id
-    building.delete()
+
+    if building.ruler == player:
+        building.delete()
+    else:
+        messages.error(request, f"That's not your building")
 
     return redirect(f"/regions/{region_id}")
 

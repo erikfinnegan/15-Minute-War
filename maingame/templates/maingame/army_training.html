@@ -13,14 +13,6 @@
         }
     </style>
 
-    {% if messages %}
-    <div class="mb-4">
-        {% for message in messages %}
-        <h6 class="font-bold {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</h6>
-        {% endfor %}
-    </div>
-    {% endif %}
-
     <div class="w-100p u-center">
         <h4>Train units</h4>
     </div>
