@@ -28,8 +28,8 @@
         <thead>
             <tr>
                 <th>Name</th>
-                <th>Power</th>
-                <th>Cost</th>
+                <th>Pwr</th>
+                <th class="w-16">Cost</th>
                 <th>Train</th>
             </tr>
         </thead>
@@ -38,7 +38,28 @@
             <tr>
                 <th class="u-align-middle" onclick="trainMax('{{ unit.id }}', '{{ unit.max_affordable }}')">{{ unit.name|title }}</th>
                 <td class="u-align-middle" onclick="trainMax('{{ unit.id }}', '{{ unit.max_affordable }}')">{{ unit.op }}/{{ unit.dp }}</td>
-                <td class="u-align-middle" onclick="trainMax('{{ unit.id }}', '{{ unit.max_affordable }}')">{{ unit.cost_string }}</td>
+                <td class="u-align-middle" onclick="trainMax('{{ unit.id }}', '{{ unit.max_affordable }}')">
+                    <div class="u-flex u-flex-column">
+                        {% if unit.gold_cost > 0 %}
+                        <span>{{ unit.gold_cost|intcomma }}🪙</span>
+                        {% endif %}
+                        {% if unit.ore_cost > 0 %}
+                        <span>{{ unit.ore_cost }}🪨</span>
+                        {% endif %}
+                        {% if unit.lumber_cost > 0 %}
+                        <span>{{ unit.lumber_cost }}🪵</span>
+                        {% endif %}
+                        {% if unit.food_cost > 0 %}
+                        <span>{{ unit.food_cost }}🍞</span>
+                        {% endif %}
+                        {% if unit.gem_cost > 0 %}
+                        <span>{{ unit.gem_cost }}💎</span>
+                        {% endif %}
+                        {% if unit.mana_cost > 0 %}
+                        <span>{{ unit.mana_cost }}🔮</span>
+                        {% endif %}
+                    </div>
+                </td>
                 <td class="u-align-middle u-flex-md u-flex-row-md">
                     <input 
                         name="train_{{ unit.id }}" 
@@ -46,7 +67,7 @@
                         placeholder="{{ unit.max_affordable }}" 
                         type="number" 
                         max="{{ unit.max_affordable }}" 
-                        class="w-16 ml-auto-md mr-2-md"
+                        class="w-12 w-16-md ml-auto-md mr-2-md"
                     >
                     <button type="button" class="btn-light my-auto u-none u-block-md mr-auto-md" onclick="trainMax('{{ unit.id }}', '{{ unit.max_affordable }}')">
                         Max

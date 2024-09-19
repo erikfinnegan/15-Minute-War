@@ -180,25 +180,25 @@ class Unit(models.Model):
     def cost_string(self):
         cost_string = ""
         if self.gold_cost:
-            cost_string += smart_comma(cost_string, f"{self.gold_cost} gold")
+            cost_string += smart_comma(cost_string, f"{self.gold_cost}🪙")
         
         if self.ore_cost:
-            cost_string += smart_comma(cost_string, f"{self.ore_cost} ore")
+            cost_string += smart_comma(cost_string, f"{self.ore_cost}🪨")
 
         if self.lumber_cost:
-            cost_string += smart_comma(cost_string, f"{self.lumber_cost} lumber")
+            cost_string += smart_comma(cost_string, f"{self.lumber_cost}🪵")
 
         if self.gem_cost:
-            cost_string += smart_comma(cost_string, f"{self.gem_cost} gem")
+            cost_string += smart_comma(cost_string, f"{self.gem_cost}💎")
 
-            if self.gem_cost > 1:
-                cost_string += "s"
+            # if self.gem_cost > 1:
+            #     cost_string += "s"
 
         if self.mana_cost:
-            cost_string += smart_comma(cost_string, f"{self.mana_cost} mana")
+            cost_string += smart_comma(cost_string, f"{self.mana_cost}🔮")
 
         if self.food_cost:
-            cost_string += smart_comma(cost_string, f"{self.food_cost} food")
+            cost_string += smart_comma(cost_string, f"{self.food_cost}🍞")
             
         return cost_string
 

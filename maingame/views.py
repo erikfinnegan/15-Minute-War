@@ -106,10 +106,13 @@ def submit_training(request):
     gem_cost = 0
     mana_cost = 0
 
+    total_trained = 0
+
     for key, value in request.POST.items():
         if "train_" in key and value != "":
             unit = Unit.objects.get(id=key[6:])
             amount = int(value)
+            total_trained += amount
 
             gold_cost += amount * unit.gold_cost
             food_cost += amount * unit.food_cost
@@ -117,6 +120,10 @@ def submit_training(request):
             lumber_cost += amount * unit.lumber_cost
             gem_cost += amount * unit.gem_cost
             mana_cost += amount * unit.mana_cost
+
+    if total_trained < 1:
+        messages.error(request, f"Zero units trained")
+        return redirect("army_training")
 
     training_succeeded = True
 
@@ -159,7 +166,6 @@ def submit_training(request):
             if "train_" in key and value != "":
                 unit = Unit.objects.get(id=key[6:])
                 amount = int(value)
-                total_trained += amount
                 unit.quantity_marshaled += amount
                 unit.save()
 
