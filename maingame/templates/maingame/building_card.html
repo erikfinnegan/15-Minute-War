@@ -1,6 +1,6 @@
-<div class="card bg-gray-900 u-flex u-flex-column w-48 u-border-1 px-2 py-1
-{% if building_type.ideal_terrain == region.primary_terrain %}border-yellow-200
-{% elif building_type.ideal_terrain == region.secondary_terrain %}border-yellow-200
+<div class="card {% if building %}bg-gray-900{% else %}bg-gray-800{% endif %} u-flex u-flex-column w-48 u-border-1 px-2 py-1
+{% if building.built_on_ideal_terrain %}border-yellow-200
+{% elif building.built_on_ideal_terrain %}border-yellow-200
 {% endif %}
 
 {% if building_type.ideal_terrain == region.primary_terrain and primary_terrain_available %}text-yellow-200
@@ -17,7 +17,7 @@
             <h6 class="my-auto">{{ building_type.ideal_terrain.emoji }}</h6>
         </div>
         <div class="u-flex u-justify-flex-end u-gap-1 my-auto w-100p">
-            {% if show_destroy %}
+            {% if building %}
             <a href="{% url 'destroy_building' building.id %}">
                 <button class="btn-danger px-1 py-0">Destroy</button>
             </a>
