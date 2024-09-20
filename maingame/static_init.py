@@ -1,20 +1,20 @@
 from maingame.models import BuildingType, Terrain, Deity, Faction, Region, Player, Building, Unit, Journey
 from django.contrib.auth.models import User
 
-from maingame.utils import assign_faction, generate_bespoke_unit
+from maingame.utils import assign_faction
 
 
 def initialize_building_types():
     building_type_templates = [
         {
             "name": "farm",
-            "resource_produced": "food",
+            "resource_produced": "🍞",
             "amount_produced": 100,
             "ideal_terrain": Terrain.objects.get(name="grassy")
         },
         {
             "name": "quarry",
-            "resource_produced": "ore",
+            "resource_produced": "🪨",
             "amount_produced": 50,
             "ideal_terrain": Terrain.objects.get(name="mountainous")
         },
@@ -25,19 +25,19 @@ def initialize_building_types():
         },
         {
             "name": "lumberyard",
-            "resource_produced": "lumber",
+            "resource_produced": "🪵",
             "amount_produced": 100,
             "ideal_terrain": Terrain.objects.get(name="forested")
         },
         {
             "name": "mine",
-            "resource_produced": "gems",
+            "resource_produced": "💎",
             "amount_produced": 20,
             "ideal_terrain": Terrain.objects.get(name="cavernous")
         },
         {
             "name": "tower",
-            "resource_produced": "mana",
+            "resource_produced": "🔮",
             "amount_produced": 10,
             "ideal_terrain": Terrain.objects.get(name="swampy")
         },
@@ -79,9 +79,37 @@ def initialize_factions():
     # barren = Terrain.objects.get(name="barren")
 
     humans = Faction.objects.create(name="human")
-    generate_bespoke_unit("archer", 2, 4, "lumber", humans),
-    generate_bespoke_unit("knight", 5, 6, "ore", humans),
-    generate_bespoke_unit("trebuchet", 10, 0, "lumber", humans)
+    Unit.objects.create(
+        name="archer",
+        op=2,
+        dp=4,
+        faction_for_which_is_default=humans,
+        cost_dict={
+            "🪙": 150,
+            "🪵": 30,
+        }
+    )
+    Unit.objects.create(
+        name="knight",
+        op=2,
+        dp=4,
+        faction_for_which_is_default=humans,
+        cost_dict={
+            "🪙": 300,
+            "🪵": 30,
+        }
+    )
+    Unit.objects.create(
+        name="trebuchet",
+        op=10,
+        dp=0,
+        faction_for_which_is_default=humans,
+        cost_dict={
+            "🪙": 200,
+            "🪵": 40,
+        }
+    )
+
     humans.starter_building_types.add(*generic_building_types)
 
 

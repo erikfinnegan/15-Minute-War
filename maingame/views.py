@@ -191,6 +191,20 @@ def submit_training(request):
 
 
 @login_required
+def resources(request):
+    player = Player.objects.get(associated_user=request.user)
+
+    # for resource in player.resource_dict:
+	# get production, get consumption, calculate net
+
+    context = {
+        "placeholder": "test",
+    }
+
+    return render(request, "maingame/resources.html", context)
+
+
+@login_required
 def dispatch_to_all_regions(request, unit_id, quantity):
     player = Player.objects.get(associated_user=request.user)
     unit = Unit.objects.get(ruler=player, id=unit_id)

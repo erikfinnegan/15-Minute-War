@@ -1,5 +1,4 @@
-<a href="{% url 'index' %}" class="text-light">Home</a>
-<a href="#news" class="text-light">News</a>
+<a href="{% url 'resources' %}" class="text-light">Resources</a>
 <a href="{% url 'regions' %}" class="text-light">Regions{% if active_player.unconstructed_plots > 0 %} ⚠️{% endif %}</a>
 <a href="{% url 'army_training' %}" class="text-light">Army training</a>
 <form action="{% url 'logout' %}" method="post" class="mt-8">

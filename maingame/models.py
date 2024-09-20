@@ -3,7 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from random import randint
 
-from maingame.formatters import smart_comma
+from maingame.formatters import smart_comma, get_resource_name
 
 
 class Deity(models.Model):
@@ -95,12 +95,7 @@ class Faction(models.Model):
 class Player(models.Model):
     associated_user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, unique=True)
     name = models.CharField(max_length=50, null=True, blank=True, unique=True)
-    gold = models.IntegerField(default=0)
-    ore = models.IntegerField(default=0)
-    food = models.IntegerField(default=0)
-    lumber = models.IntegerField(default=0)
-    gems = models.IntegerField(default=0)
-    mana = models.IntegerField(default=0)
+    resource_dict = models.JSONField(default=dict)
     building_types_available = models.ManyToManyField(BuildingType)
     faction = models.ForeignKey(Faction, on_delete=models.PROTECT, null=True)
 
@@ -125,8 +120,58 @@ class Player(models.Model):
         return Unit.objects.filter(ruler=self, quantity_marshaled__gt=0).count() > 0
     
     @property
-    def is_starving(self):
-        return self.food <= 0
+    def header_rows(self):
+        iterator = -1
+        row_number = 0
+        header_rows = {}
+
+        for resource, amount in self.resource_dict.items():
+            iterator += 1
+            
+            if iterator % math.ceil(len(self.resource_dict) / 2) == 0:
+                row_number += 1
+                header_rows[str(row_number)] = []
+
+            header_rows[str(row_number)].append({
+                "readout": f"{resource}: {amount}",
+                "tooltip": get_resource_name(resource)
+            })
+
+        return header_rows
+
+    
+    def adjust_resource(self, resource, amount):
+        if resource in self.resource_dict:
+            self.resource_dict[resource] += amount
+        else:
+            self.resource_dict[resource] = amount
+
+        self.resource_dict[resource] = max(self.resource_dict[resource], 0)
+
+        self.save()
+
+    def get_production(self, resource):
+        production = 0
+
+        for building in Building.objects.filter(ruler=self):
+            if building.built_on_ideal_terrain:
+                production += (building.type.amount_produced * 2)
+            else:
+                production += building.type.amount_produced
+
+        return production
+    
+    def get_food_consumption(self):
+        total_units = 0
+
+        for unit in Unit.objects.filter(ruler=self):
+            total_units += unit.quantity_marshaled
+
+        for region in Region.objects.filter(ruler=self):
+            for unit_id, amount in region.units_here_dict.items():
+                total_units += amount
+
+        return total_units / 50
 
 
 class Unit(models.Model):
@@ -136,12 +181,7 @@ class Unit(models.Model):
     dp = models.IntegerField(default=0)
     op = models.IntegerField(default=0)
     is_trainable = models.BooleanField(default=True)
-    gold_cost = models.IntegerField(default=0)
-    ore_cost = models.IntegerField(default=0)
-    lumber_cost = models.IntegerField(default=0)
-    gem_cost = models.IntegerField(default=0)
-    mana_cost = models.IntegerField(default=0)
-    food_cost = models.IntegerField(default=0)
+    cost_dict = models.JSONField(default=dict)
     associated_deity = models.ForeignKey(Deity, on_delete=models.PROTECT, null=True, blank=True)
     sacred_site_requirement = models.IntegerField(default=0)
     quantity_marshaled = models.IntegerField(default=0)
@@ -161,23 +201,11 @@ class Unit(models.Model):
         
         max_affordable = 9999999999999
 
-        if self.gold_cost > 0:
-            max_affordable = min(max_affordable, math.floor(self.ruler.gold/self.gold_cost))
-
-        if self.ore_cost > 0:
-            max_affordable = min(max_affordable, math.floor(self.ruler.ore/self.ore_cost))
-
-        if self.lumber_cost > 0:
-            max_affordable = min(max_affordable, math.floor(self.ruler.lumber/self.lumber_cost))
-
-        if self.gem_cost > 0:
-            max_affordable = min(max_affordable, math.floor(self.ruler.gems/self.gem_cost))
-
-        if self.mana_cost > 0:
-            max_affordable = min(max_affordable, math.floor(self.ruler.mana/self.mana_cost))
-
-        if self.food_cost > 0:
-            max_affordable = min(max_affordable, math.floor(self.ruler.food/self.food_cost))
+        for resource, amount in self.cost_dict.items():
+            if self.ruler.resource_dict[resource] > 0:
+                max_affordable = min(max_affordable, math.floor(self.ruler.resource_dict[resource]/amount))
+            else:
+                max_affordable = 0
 
         return max_affordable
     

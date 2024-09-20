@@ -4,8 +4,6 @@ from maingame.models import Player, Terrain, Deity, Region, Unit, Building, Buil
 from django.contrib.auth.models import User
 
 from maingame.tick_processors import do_resource_production, do_tick
-from maingame.utils import get_unit_gold_cost
-
 
 class Command(BaseCommand):
     help = "Initiates a battle"

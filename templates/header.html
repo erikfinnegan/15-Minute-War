@@ -1,18 +1,16 @@
 {% load humanize %}
 
 <div class="h-12 pl-4 pl-0-md u-flex u-flex-wrap u-gap-1 u-items-center bg-red-800 u-none w-100p">
-    <table class="w-100p u-text-center mt-1">
+    <table class="w-100p mt-1 max-w-xs ">
+        {% for key, value in active_player.header_rows.items %}
         <tr>
-            <td><h5 class="px-4-md tooltip tooltip--bottom" data-tooltip="Food">🍞: {{ active_player.food|intcomma }}</h5></td>
-            <td><h5 class="px-4-md tooltip tooltip--bottom" data-tooltip="Gold">🪙: {{ active_player.gold|intcomma }}</h5></td>
-            <td> <h5 class="px-4-md tooltip tooltip--bottom" data-tooltip="Mana">🔮: {{ active_player.mana|intcomma }}</h5></td>
+            {% for resource_readout in value %}
+            <td><h5 class="px-4-md tooltip tooltip--bottom" data-tooltip="{{ resource_readout.tooltip|title }}">{{ resource_readout.readout }}</h5></td>
+            {% endfor %}
         </tr>
-        <tr>
-            <td><h5 class="px-4-md tooltip tooltip--bottom" data-tooltip="Ore">🪨: {{ active_player.ore|intcomma }}</h5></td>
-            <td><h5 class="px-4-md tooltip tooltip--bottom" data-tooltip="Lumber">🪵: {{ active_player.lumber|intcomma }}</h5></td>
-            <td><h5 class="px-4-md tooltip tooltip--bottom" data-tooltip="Gems">💎: {{ active_player.gems|intcomma }}</h5></td>
-        </tr>
+        {% endfor %}
     </table>
+
     <div class="ml-auto">
         {% if not user.is_authenticated %}
         <a href="{% url 'login' %}">

@@ -5,15 +5,15 @@ def do_resource_production():
     beautiful_terrain = Terrain.objects.get(name="beautiful")
 
     for player in Player.objects.all():
-        player.gold += 5000
+        player.adjust_resource("🪙", 5000)
         
         for region in Region.objects.filter(ruler=player):
             if region.primary_terrain == beautiful_terrain:
-                player.gold += 1500
+                player.adjust_resource("🪙", 850)
             elif region.secondary_terrain == beautiful_terrain:
-                player.gold += 1000
+                player.adjust_resource("🪙", 650)
             else:
-                player.gold += 500
+                player.adjust_resource("🪙", 500)
 
         for building in Building.objects.filter(ruler=player):
             if building.type.amount_produced > 0:
@@ -21,24 +21,8 @@ def do_resource_production():
                 
                 if building.built_on_ideal_terrain:
                     amount_produced *= 2
-                
-                elif building.type.resource_produced == "ore":
-                    player.ore += amount_produced
-                elif building.type.resource_produced == "lumber":
-                    player.lumber += amount_produced
-                elif building.type.resource_produced == "mana":
-                    player.mana += amount_produced
-                elif building.type.resource_produced == "gems":
-                    player.gems += amount_produced
-                elif building.type.resource_produced == "food":
-                    player.food += amount_produced
 
-        total_units = 0
-
-        for unit in Unit.objects.filter(ruler=player):
-            total_units += unit.quantity_marshaled
-
-        # for each ruled region, go through units_here_dict
+                player.adjust_resource(building.type.resource_produced, amount_produced)
 
         player.save()
 
