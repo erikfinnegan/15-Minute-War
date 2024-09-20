@@ -4,8 +4,6 @@ from maingame.models import Terrain, Unit, BuildingType, Player, Faction, Region
 
 
 def assign_faction(player: Player, faction: Faction):
-    player.faction = faction
-    
     for unit in Unit.objects.filter(faction_for_which_is_default=faction):
         players_unit = unit
         players_unit.pk = None
@@ -16,13 +14,13 @@ def assign_faction(player: Player, faction: Faction):
             player.adjust_resource(resource, 0)
 
     for building_type in faction.starter_building_types.all():
-        new_building_type = building_type
-        new_building_type.pk = None
-        new_building_type.save()
-        player.building_types_available.add(new_building_type)
+        players_building_type = building_type
+        players_building_type.pk = None
+        players_building_type.ruler = player
+        players_building_type.save()
 
-        if new_building_type.amount_produced > 0:
-            player.adjust_resource(new_building_type.resource_produced, 0)
+        if players_building_type.amount_produced > 0:
+            player.adjust_resource(players_building_type.resource_produced, 0)
 
     player.save()
 
@@ -65,6 +63,27 @@ def receive_journey(journey: Journey):
 
     region.save()
     journey.delete()
+
+
+def construct_building(player, region_id, building_type_id, amount):
+    building_type = BuildingType.objects.get(id=building_type_id)
+    region = Region.objects.get(id=region_id)
+
+    if region.ruler == player and building_type.ruler == player:
+        for _ in range(amount):
+            built_on_ideal_terrain = False
+
+            if building_type.ideal_terrain == region.primary_terrain and region.primary_plots_available:
+                built_on_ideal_terrain = True
+            elif building_type.ideal_terrain == region.secondary_terrain and region.secondary_plots_available:
+                built_on_ideal_terrain = True
+
+            Building.objects.create(
+                ruler=player,
+                type=building_type,
+                region=region,
+                built_on_ideal_terrain=built_on_ideal_terrain,
+            )
 
 
 def get_journey_output_dict(player: Player, region: Region):

@@ -4,7 +4,8 @@ from django.contrib import messages
 
 from maingame.formatters import get_resource_name
 from maingame.models import Building, BuildingType, Player, Region, Unit, Journey
-from maingame.utils import get_journey_output_dict, marshal_from_location, send_journey
+from maingame.tick_processors import do_tick
+from maingame.utils import construct_building, get_journey_output_dict, marshal_from_location, send_journey
 
 
 def index(request):
@@ -40,7 +41,7 @@ def region(request, region_id):
 
     context = {
         "buildings_here": buildings_here,
-        "building_types": player.building_types_available.all(),
+        "building_types": BuildingType.objects.filter(ruler=player),
         "region": region,
         "available_plots": 3 - Building.objects.filter(region=region).count(),
         "primary_terrain_available": region.primary_plots_available,
@@ -69,22 +70,8 @@ def destroy_building(request, building_id):
 
 @login_required
 def build_building(request, region_id, building_type_id, amount):
-    for _ in range(amount):
-        building_type = BuildingType.objects.get(id=building_type_id)
-        region = Region.objects.get(id=region_id)
-        built_on_ideal_terrain = False
-
-        if building_type.ideal_terrain == region.primary_terrain and region.primary_plots_available:
-            built_on_ideal_terrain = True
-        elif building_type.ideal_terrain == region.secondary_terrain and region.secondary_plots_available:
-            built_on_ideal_terrain = True
-
-        Building.objects.create(
-            ruler=Player.objects.get(associated_user=request.user),
-            type=building_type,
-            region=region,
-            built_on_ideal_terrain=built_on_ideal_terrain,
-        )
+    player = Player.objects.get(associated_user=request.user)
+    construct_building(player, region_id, building_type_id, amount)
 
     return redirect(f"/regions/{region_id}")
 
@@ -176,6 +163,8 @@ def submit_training(request):
 
 @login_required
 def resources(request):
+    do_tick()
+
     player = Player.objects.get(associated_user=request.user)
 
     resources_dict = {}

@@ -56,48 +56,10 @@ class Terrain(models.Model):
         verbose_name_plural = "Terrain"
         
 
-class BuildingType(models.Model):
-    name = models.CharField(max_length=50, null=True, blank=True)
-    resource_produced = models.CharField(max_length=15, null=True, blank=True)
-    amount_produced = models.IntegerField(default=0)
-    trade_multiplier = models.IntegerField(default=0)
-    defense_multiplier = models.IntegerField(default=0)
-    ideal_terrain = models.ForeignKey(Terrain, on_delete=models.PROTECT, null=True, blank=True)
-    housing = models.IntegerField(default=10)
-
-    def __str__(self):
-        name = f"{self.name}"
-
-        if self.amount_produced > 0:
-            name += f" @ {self.amount_produced} {self.resource_produced}/tick"
-        
-        is_base = True
-
-        for player in Player.objects.all():
-            if self in player.building_types_available.all():
-                name = f"{player}'s {name}"
-                is_base = False
-
-        if is_base:
-            name = "🟩Base --- " + name
-
-        return name
-    
-
-class Faction(models.Model):
-    name = models.CharField(max_length=50, null=True, blank=True, unique=True)
-    starter_building_types = models.ManyToManyField(BuildingType)
-
-    def __str__(self):
-        return f"{self.name} ({self.id})"
-
-
 class Player(models.Model):
     associated_user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, unique=True)
     name = models.CharField(max_length=50, null=True, blank=True, unique=True)
     resource_dict = models.JSONField(default=dict)
-    building_types_available = models.ManyToManyField(BuildingType, blank=True)
-    faction = models.ForeignKey(Faction, on_delete=models.PROTECT, null=True)
     is_starving = models.BooleanField(default=False)
 
     def __str__(self):
@@ -215,8 +177,33 @@ class Player(models.Model):
         return int(total_units / 50)
 
 
+class BuildingType(models.Model):
+    ruler = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
+    name = models.CharField(max_length=50, null=True, blank=True)
+    resource_produced = models.CharField(max_length=15, null=True, blank=True)
+    amount_produced = models.IntegerField(default=0)
+    trade_multiplier = models.IntegerField(default=0)
+    defense_multiplier = models.IntegerField(default=0)
+    ideal_terrain = models.ForeignKey(Terrain, on_delete=models.PROTECT, null=True, blank=True)
+    housing = models.IntegerField(default=10)
+
+    def __str__(self):
+        if self.ruler:
+            return f"{self.ruler}'s {self.name}"
+        else:
+            return f"🟩Base --- {self.name}"
+
+
+class Faction(models.Model):
+    name = models.CharField(max_length=50, null=True, blank=True, unique=True)
+    starter_building_types = models.ManyToManyField(BuildingType)
+
+    def __str__(self):
+        return f"{self.name} ({self.id})"
+
+
 class Unit(models.Model):
-    ruler = models.ForeignKey(Player, on_delete=models.PROTECT, null=True)
+    ruler = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
     faction_for_which_is_default = models.ForeignKey(Faction, on_delete=models.PROTECT, null=True)
     name = models.CharField(max_length=50, null=True, blank=True)
     dp = models.IntegerField(default=0)
@@ -281,7 +268,7 @@ class Unit(models.Model):
 
 
 class Region(models.Model):
-    ruler = models.ForeignKey(Player, on_delete=models.PROTECT, null=True)
+    ruler = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
     name = models.CharField(max_length=50, null=True, blank=True, unique=True)
     primary_terrain = models.ForeignKey(Terrain, on_delete=models.PROTECT, related_name="regions_as_primary_terrain")
     secondary_terrain = models.ForeignKey(Terrain, on_delete=models.PROTECT, related_name="regions_as_secondary_terrain")
@@ -300,7 +287,7 @@ class Region(models.Model):
             return "something"
         else:
             return f"{self.name} has a mostly {self.primary_terrain} landscape, but is also somewhat {self.secondary_terrain}. It has a site sacred to {self.deity}."
-        
+
     @property
     def primary_plots_available(self):
         primary_plots_available = 2
@@ -335,7 +322,7 @@ class Region(models.Model):
     
 
 class Building(models.Model):
-    ruler = models.ForeignKey(Player, on_delete=models.PROTECT, null=True)
+    ruler = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
     type = models.ForeignKey(BuildingType, on_delete=models.PROTECT)
     region = models.ForeignKey(Region, on_delete=models.PROTECT, related_name="buildings_here")
     built_on_ideal_terrain = models.BooleanField(default=False)

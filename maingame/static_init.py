@@ -1,8 +1,4 @@
 from maingame.models import BuildingType, Terrain, Deity, Faction, Region, Player, Building, Unit, Journey
-from django.contrib.auth.models import User
-
-from maingame.utils import assign_faction
-
 
 def initialize_building_types():
     building_type_templates = [
@@ -176,68 +172,18 @@ def initialize_deities():
     Deity.objects.create(name="The Many Who Are One")
 
 
-def initialize_static_elements():
+def initialize_game_pieces():
     Journey.objects.all().delete()
     Building.objects.all().delete()
     Region.objects.all().delete()
     Unit.objects.all().delete()
+    BuildingType.objects.all().delete()
     Player.objects.all().delete()
     Faction.objects.all().delete()
-    BuildingType.objects.all().delete()
     Terrain.objects.all().delete()
     Deity.objects.all().delete()
-    
-    for user in User.objects.all():
-        Player.objects.create(associated_user=user, name=f"ERROR {user.username}")
-
-    testplayer = Player.objects.get(associated_user=User.objects.get(username="test"))
 
     initialize_terrain()
     initialize_deities()
     initialize_building_types()
     initialize_factions()
-
-    assign_faction(testplayer, Faction.objects.get(name="human"))
-
-    testplayer.adjust_resource("🪙", 5000)
-    testplayer.adjust_resource("🪵", 5000)
-    testplayer.adjust_resource("🪨", 5000)
-    testplayer.save()
-
-    region_templates = [
-        {
-            "ruler": testplayer,
-            "name": "New Rhode Island",
-            "primary_terrain": Terrain.objects.get(name="grassy"),
-            "secondary_terrain": Terrain.objects.get(name="mountainous"),
-            "deity": Deity.objects.get(name="Rubecus"),
-        },
-        {
-            "ruler": testplayer,
-            "name": "New Michigan",
-            "primary_terrain": Terrain.objects.get(name="forested"),
-            "secondary_terrain": Terrain.objects.get(name="coastal"),
-            "deity": Deity.objects.get(name="Hunger Without End"),
-        },
-        {
-            "ruler": testplayer,
-            "name": "Richland",
-            "primary_terrain": Terrain.objects.get(name="beautiful"),
-            "secondary_terrain": Terrain.objects.get(name="swampy"),
-            "deity": Deity.objects.get(name="Hunger Without End"),
-        },
-        {
-            "ruler": testplayer,
-            "name": "Brokeland",
-            "primary_terrain": Terrain.objects.get(name="barren"),
-            "secondary_terrain": Terrain.objects.get(name="swampy"),
-            "deity": Deity.objects.get(name="Hunger Without End"),
-        },
-    ]
-
-    for region_template in region_templates:
-        try:
-            Region.objects.filter(name=region_template['name']).delete()
-            Region.objects.create(**region_template)
-        except Exception as e:
-            continue
