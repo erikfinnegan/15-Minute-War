@@ -96,8 +96,9 @@ class Player(models.Model):
     associated_user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, unique=True)
     name = models.CharField(max_length=50, null=True, blank=True, unique=True)
     resource_dict = models.JSONField(default=dict)
-    building_types_available = models.ManyToManyField(BuildingType)
+    building_types_available = models.ManyToManyField(BuildingType, blank=True)
     faction = models.ForeignKey(Faction, on_delete=models.PROTECT, null=True)
+    is_starving = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.name} ({self.associated_user.username})"
@@ -132,15 +133,42 @@ class Player(models.Model):
                 row_number += 1
                 header_rows[str(row_number)] = []
 
+            readout = f"{resource}: {amount}"
+
+            if resource == "🍞" and self.is_starving:
+                readout += "⚠️"
+
+            tooltip = get_resource_name(resource)
+
+            if resource == "🍞" and self.is_starving:
+                tooltip = "⚠️ YOU ARE STARVING ⚠️"
+
             header_rows[str(row_number)].append({
-                "readout": f"{resource}: {amount}",
-                "tooltip": get_resource_name(resource)
+                "readout": readout,
+                "tooltip": tooltip
             })
 
         return header_rows
-
     
+    @property
+    def gold_production(self):
+        gold_production = 5000
+        beautiful_terrain = Terrain.objects.get(name="beautiful")
+
+        for region in Region.objects.filter(ruler=self):
+            if region.primary_terrain == beautiful_terrain:
+                gold_production += 850
+            elif region.secondary_terrain == beautiful_terrain:
+                gold_production += 650
+            else:
+                gold_production += 500
+
+        return gold_production
+
     def adjust_resource(self, resource, amount):
+        if self.is_starving and resource != "🍞":
+            amount = min(amount, 0)
+
         if resource in self.resource_dict:
             self.resource_dict[resource] += amount
         else:
@@ -153,11 +181,15 @@ class Player(models.Model):
     def get_production(self, resource):
         production = 0
 
+        if resource == "🪙":
+            production += self.gold_production
+
         for building in Building.objects.filter(ruler=self):
-            if building.built_on_ideal_terrain:
-                production += (building.type.amount_produced * 2)
-            else:
-                production += building.type.amount_produced
+            if building.type.resource_produced == resource:
+                if building.built_on_ideal_terrain:
+                    production += (building.type.amount_produced * 2)
+                else:
+                    production += building.type.amount_produced
 
         return production
     
@@ -171,7 +203,7 @@ class Player(models.Model):
             for unit_id, amount in region.units_here_dict.items():
                 total_units += amount
 
-        return total_units / 50
+        return int(total_units / 50)
 
 
 class Unit(models.Model):

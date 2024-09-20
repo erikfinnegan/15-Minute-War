@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
+from maingame.formatters import get_resource_name
 from maingame.models import Building, BuildingType, Player, Region, Unit, Journey
 from maingame.utils import send_journey
 
@@ -167,11 +168,22 @@ def submit_training(request):
 def resources(request):
     player = Player.objects.get(associated_user=request.user)
 
-    # for resource in player.resource_dict:
-	# get production, get consumption, calculate net
+    resources_dict = {}
+
+    for resource in player.resource_dict:
+        resources_dict[resource] = {
+            "name": get_resource_name(resource),
+            "produced": player.get_production(resource),
+            "consumed": 0,
+        }
+
+        if resource == "🍞":
+            resources_dict[resource]["consumed"] = player.get_food_consumption()
+        
+        resources_dict[resource]["net"] = resources_dict[resource]["produced"] - resources_dict[resource]["consumed"]
 
     context = {
-        "placeholder": "test",
+        "resources_dict": resources_dict,
     }
 
     return render(request, "maingame/resources.html", context)

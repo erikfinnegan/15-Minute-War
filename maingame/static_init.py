@@ -91,8 +91,8 @@ def initialize_factions():
     )
     Unit.objects.create(
         name="knight",
-        op=2,
-        dp=4,
+        op=5,
+        dp=6,
         faction_for_which_is_default=humans,
         cost_dict={
             "🪙": 300,
@@ -199,9 +199,9 @@ def initialize_static_elements():
 
     assign_faction(testplayer, Faction.objects.get(name="human"))
 
-    testplayer.gold = 25000
-    testplayer.lumber = 20000
-    testplayer.ore = 10000
+    testplayer.adjust_resource("🪙", 5000)
+    testplayer.adjust_resource("🪵", 5000)
+    testplayer.adjust_resource("🪨", 5000)
     testplayer.save()
 
     region_templates = [

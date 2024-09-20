@@ -5,16 +5,8 @@ def do_resource_production():
     beautiful_terrain = Terrain.objects.get(name="beautiful")
 
     for player in Player.objects.all():
-        player.adjust_resource("🪙", 5000)
+        player.adjust_resource("🪙", player.gold_production)
         
-        for region in Region.objects.filter(ruler=player):
-            if region.primary_terrain == beautiful_terrain:
-                player.adjust_resource("🪙", 850)
-            elif region.secondary_terrain == beautiful_terrain:
-                player.adjust_resource("🪙", 650)
-            else:
-                player.adjust_resource("🪙", 500)
-
         for building in Building.objects.filter(ruler=player):
             if building.type.amount_produced > 0:
                 amount_produced = building.type.amount_produced
@@ -25,6 +17,14 @@ def do_resource_production():
                 player.adjust_resource(building.type.resource_produced, amount_produced)
 
         player.save()
+
+
+def do_food_consumption():
+    for player in Player.objects.all():
+        consumption = player.get_food_consumption()
+        player.is_starving = consumption > player.resource_dict["🍞"]
+        player.adjust_resource("🍞", (consumption * -1))
+        player.save()        
 
 
 def do_journeys():
@@ -38,4 +38,5 @@ def do_journeys():
 
 def do_tick():
     do_resource_production()
+    do_food_consumption()
     do_journeys()

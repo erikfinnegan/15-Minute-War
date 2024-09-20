@@ -1,9 +1,36 @@
 {% extends "base.html" %}
+{% load humanize %}
 
-{% block title %}Regions{% endblock %}
+{% block title %}Resources{% endblock %}
 
 {% block content %}
-<div class="u-flex u-flex-wrap u-gap-2">
-    <p>Table goes here</p>
+<div class="">
+    <!-- {% for key, value in production_dict.items %}
+    <h4>{{ key }}: {{ value }}</h4>
+    {% endfor %} -->
+
+    <table class="table striped max-w-sm">
+        <thead>
+            <tr>
+                <th>Resource</th>
+                <th>Name</th>
+                <th>Produced</th>
+                <th>Consumed</th>
+                <th>Net</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for key, value in resources_dict.items %}
+            <tr>
+                <th class="u-align-middle">{{ key }}</th>
+                <th class="u-align-middle">{{ value.name|title }}</th>
+                <td class="u-align-middle text-green-400">{{ value.produced|intcomma }}</td>
+                <td class="u-align-middle text-red-400">{{ value.consumed|intcomma }}</td>
+                <td class="u-align-middle {% if value.net < 0 %}text-red-400{% else %}text-green-400{% endif %}">{{ value.net|intcomma }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
+
 {% endblock %}
