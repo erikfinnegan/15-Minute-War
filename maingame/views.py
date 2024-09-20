@@ -163,8 +163,6 @@ def submit_training(request):
 
 @login_required
 def resources(request):
-    do_tick()
-
     player = Player.objects.get(associated_user=request.user)
 
     resources_dict = {}
@@ -186,6 +184,13 @@ def resources(request):
     }
 
     return render(request, "maingame/resources.html", context)
+
+
+@login_required
+def run_tick_view(request):
+    do_tick()
+    messages.success(request, f"I hope Erik didn't leave this in production")
+    return redirect("resources")
 
 
 @login_required

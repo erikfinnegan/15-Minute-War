@@ -17,4 +17,5 @@ urlpatterns = [
     path("dispatch_to_all_regions/<int:unit_id>/<int:quantity>", views.dispatch_to_all_regions, name="dispatch_to_all_regions"),
     path("dispatch_to_one_region/<int:region_id>", views.dispatch_to_one_region, name="dispatch_to_one_region"),
     path("marshal_from_region/<int:region_id>", views.marshal_from_region, name="marshal_from_region"),
+    path("run_tick_view", views.run_tick_view, name="run_tick_view"),
 ]
