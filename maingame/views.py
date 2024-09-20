@@ -116,28 +116,23 @@ def army_training(request):
 @login_required
 def submit_training(request):
     player = Player.objects.get(associated_user=request.user)
-
-    gold_cost = 0
-    food_cost = 0
-    ore_cost = 0
-    lumber_cost = 0
-    gem_cost = 0
-    mana_cost = 0
-
     total_trained = 0
+    total_cost_dict = {}
 
-    for key, value in request.POST.items():
-        if "train_" in key and value != "":
+    for key, string_amount in request.POST.items():
+        # key is like "train_123" where 123 is the ID of the Unit
+        if "train_" in key and string_amount != "":
             unit = Unit.objects.get(id=key[6:])
-            amount = int(value)
+            amount = int(string_amount)
             total_trained += amount
 
-            gold_cost += amount * unit.gold_cost
-            food_cost += amount * unit.food_cost
-            ore_cost += amount * unit.ore_cost
-            lumber_cost += amount * unit.lumber_cost
-            gem_cost += amount * unit.gem_cost
-            mana_cost += amount * unit.mana_cost
+            for resource, cost in unit.cost_dict.items():
+                total_of_this_resource = cost * amount
+
+                if resource in total_cost_dict:
+                    total_cost_dict[resource] += total_of_this_resource
+                else:
+                    total_cost_dict[resource] = total_of_this_resource
 
     if total_trained < 1:
         messages.error(request, f"Zero units trained")
@@ -145,43 +140,21 @@ def submit_training(request):
 
     training_succeeded = True
 
-    if gold_cost > player.gold:
-        messages.error(request, f"This would cost {f'{gold_cost:,}'} gold. You have {f'{player.gold:,}'}. You're {f'{gold_cost - player.gold:,}'} short.")
-        training_succeeded = False
-    
-    if mana_cost > player.mana:
-        messages.error(request, f"This would cost {f'{mana_cost:,}'} mana. You have {f'{player.mana:,}'}. You're {f'{mana_cost - player.mana:,}'} short.")
-        training_succeeded = False
-
-    if ore_cost > player.ore:
-        messages.error(request, f"This would cost {f'{ore_cost:,}'} ore. You have {f'{player.ore:,}'}. You're {f'{ore_cost - player.ore:,}'} short.")
-        training_succeeded = False
-
-    if gem_cost > player.gems:
-        messages.error(request, f"This would cost {f'{gem_cost:,}'} gems. You have {f'{player.gems:,}'}. You're {f'{gem_cost - player.gems:,}'} short.")
-        training_succeeded = False
-
-    if food_cost > player.food:
-        messages.error(request, f"This would cost {f'{food_cost:,}'} food. You have {f'{player.food:,}'}. You're {f'{food_cost - player.food:,}'} short.")
-        training_succeeded = False
-
-    if lumber_cost > player.lumber:
-        messages.error(request, f"This would cost {f'{lumber_cost:,}'} lumber. You have {f'{player.lumber:,}'}. You're {f'{lumber_cost - player.lumber:,}'} short.")
-        training_succeeded = False
+    for resource, amount in total_cost_dict.items():
+        if player.resource_dict[resource] < amount:
+            training_succeeded = False
+            messages.error(request, f"This would cost {f'{amount:,}'}{resource}. You have {f'{player.resource_dict[resource]:,}'}. You're {f'{amount - player.resource_dict[resource]:,}'} short.")
 
     if training_succeeded:
-        player.gold -= gold_cost
-        player.food -= food_cost
-        player.ore -= ore_cost
-        player.lumber -= lumber_cost
-        player.gems -= gem_cost
-        player.mana -= mana_cost
+        for resource, amount in total_cost_dict.items():
+            player.resource_dict[resource] -= amount
+
         player.save()
 
-        for key, value in request.POST.items():
-            if "train_" in key and value != "":
+        for key, string_amount in request.POST.items():
+            if "train_" in key and string_amount != "":
                 unit = Unit.objects.get(ruler=player, id=key[6:])
-                amount = int(value)
+                amount = int(string_amount)
                 unit.quantity_marshaled += amount
                 unit.save()
 

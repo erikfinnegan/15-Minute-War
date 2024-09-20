@@ -96,7 +96,7 @@ def initialize_factions():
         faction_for_which_is_default=humans,
         cost_dict={
             "🪙": 300,
-            "🪵": 30,
+            "🪨": 30,
         }
     )
     Unit.objects.create(
