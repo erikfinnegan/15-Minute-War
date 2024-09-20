@@ -129,4 +129,17 @@
         </tbody>
     </table>
 </div>
+
+<div class="mt-12 u-flex u-flex-column u-gap-4">
+    {% for journey_region in journey_regions %}
+    <div>
+        <div class="w-48 w-auto-md max-w-sm">
+            <a href="{% url 'region' journey_region.region.id %}">
+                <h6 class="u-center text-light">Units heading to {{ journey_region.region }}</h6>
+            </a>
+        </div>
+        {% include "maingame/journey_progress_track.html" with output_dict=journey_region.output_dict %}
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}

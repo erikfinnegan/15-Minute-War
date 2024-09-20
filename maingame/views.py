@@ -4,7 +4,7 @@ from django.contrib import messages
 
 from maingame.formatters import get_resource_name
 from maingame.models import Building, BuildingType, Player, Region, Unit, Journey
-from maingame.utils import send_journey
+from maingame.utils import get_journey_output_dict, send_journey
 
 
 def index(request):
@@ -36,25 +36,7 @@ def region(request, region_id):
     for unit_id, quantity in region.units_here_dict.items():
         units_here.append(UnitHere(Unit.objects.get(id=unit_id), quantity))
 
-    journey_dict = {}
-    output_dict = {}
-    incoming_journeys = Journey.objects.filter(ruler=player, destination=region)
-    
-    for journey in incoming_journeys:
-        journey_dict[journey.unit.name] = {}
-        journey_dict[journey.unit.name][str(journey.ticks_to_arrive)] = journey.quantity
-
-        for x in range(1, 12):
-            if str(x) not in journey_dict[journey.unit.name]:
-                journey_dict[journey.unit.name][str(x)] = "-"
-
-    for unit_name, tick_data in journey_dict.items():
-        output_dict[unit_name] = []
-
-        for x in range(1, 13):
-            output_dict[unit_name].append(tick_data[str(x)])
-
-    print(output_dict)
+    output_dict = get_journey_output_dict(player, region)
 
     context = {
         "buildings_here": buildings_here,
@@ -126,10 +108,19 @@ def army_training(request):
 
     marshaled_units = Unit.objects.filter(ruler=player, quantity_marshaled__gt=0)
 
+    journey_regions = []
+
+    for region in Region.objects.filter(ruler=player):
+        if Journey.objects.filter(ruler=player, destination=region).count() > 0:
+            journey_regions.append({"region": region, "output_dict": get_journey_output_dict(player, region)})
+
+    print(journey_regions)
+
     context = {
         "units": Unit.objects.filter(ruler=player),
         "show_cant_afford_error": show_cant_afford_error,
         "marshaled_units": marshaled_units,
+        "journey_regions": journey_regions,
     }
 
     return render(request, "maingame/army_training.html", context)

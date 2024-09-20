@@ -90,37 +90,11 @@
     </form>
     {% endif %}
 
-    
-    <div class="w-48 u-overflow-x-scroll">
-        <table class="table striped">
-            <thead>
-                <tr>
-                    <th>Unit</th>
-                    <th>1</th>
-                    <th>2</th>
-                    <th>3</th>
-                    <th>4</th>
-                    <th>5</th>
-                    <th>6</th>
-                    <th>7</th>
-                    <th>8</th>
-                    <th>9</th>
-                    <th>10</th>
-                    <th>11</th>
-                    <th>12</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for unit_name, journey_details in output_dict.items %}
-                    <tr>
-                        <th class="u-align-middle">{{ unit_name|title }}</th>
-                        {% for quantity in journey_details %}
-                        <td class="u-align-middle">{{ quantity }}</td>
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div>
+        <div class="w-48 w-auto-md max-w-sm">
+            <h6 class="u-center">Units incoming</h6>
+        </div>
+        {% include "maingame/journey_progress_track.html" with output_dict=output_dict %}
     </div>
 
     <div class="u-flex u-flex-wrap u-gap-2">

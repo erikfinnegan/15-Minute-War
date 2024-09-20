@@ -52,3 +52,25 @@ def receive_journey(journey: Journey):
 
     region.save()
     journey.delete()
+
+
+def get_journey_output_dict(player: Player, region: Region):
+    journey_dict = {}
+    output_dict = {}
+    incoming_journeys = Journey.objects.filter(ruler=player, destination=region)
+    
+    for journey in incoming_journeys:
+        journey_dict[journey.unit.name] = {}
+        journey_dict[journey.unit.name][str(journey.ticks_to_arrive)] = journey.quantity
+
+        for x in range(1, 12):
+            if str(x) not in journey_dict[journey.unit.name]:
+                journey_dict[journey.unit.name][str(x)] = "-"
+
+    for unit_name, tick_data in journey_dict.items():
+        output_dict[unit_name] = []
+
+        for x in range(1, 13):
+            output_dict[unit_name].append(tick_data[str(x)])
+
+    return output_dict
