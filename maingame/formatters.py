@@ -12,7 +12,7 @@ def get_resource_name(resource_icon):
         case "🪨":
             return "ore"
         case "🪵":
-            return "lumber"
+            return "wood"
         case "🔮":
             return "mana"
         case "💎":
