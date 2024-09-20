@@ -1,4 +1,4 @@
-from maingame.models import BuildingType, Terrain, Deity, Faction, Region, Player, Building, Unit, Journey
+from maingame.models import BuildingType, Terrain, Deity, Faction, Region, Player, Building, Unit, Journey, Rule
 
 def initialize_building_types():
     building_type_templates = [
@@ -87,22 +87,12 @@ def initialize_factions():
     )
     Unit.objects.create(
         name="knight",
-        op=5,
-        dp=6,
+        op=6,
+        dp=5,
         faction_for_which_is_default=humans,
         cost_dict={
-            "🪙": 300,
-            "🪨": 30,
-        }
-    )
-    Unit.objects.create(
-        name="trebuchet",
-        op=10,
-        dp=0,
-        faction_for_which_is_default=humans,
-        cost_dict={
-            "🪙": 200,
-            "🪵": 40,
+            "🪙": 275,
+            "🪨": 25,
         }
     )
 
@@ -173,6 +163,7 @@ def initialize_deities():
 
 
 def initialize_game_pieces():
+    Rule.objects.all().delete()
     Journey.objects.all().delete()
     Building.objects.all().delete()
     Region.objects.all().delete()
@@ -182,6 +173,8 @@ def initialize_game_pieces():
     Faction.objects.all().delete()
     Terrain.objects.all().delete()
     Deity.objects.all().delete()
+
+    Rule.objects.create()
 
     initialize_terrain()
     initialize_deities()

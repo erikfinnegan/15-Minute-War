@@ -1,9 +1,7 @@
-from maingame.models import Player, Region, Building, Terrain, Unit, Journey
+from maingame.models import Player, Building, Journey
 from maingame.utils import receive_journey
 
 def do_resource_production():
-    beautiful_terrain = Terrain.objects.get(name="beautiful")
-
     for player in Player.objects.all():
         player.adjust_resource("🪙", player.gold_production)
         

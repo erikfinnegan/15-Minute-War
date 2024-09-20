@@ -6,6 +6,10 @@ from random import randint
 from maingame.formatters import smart_comma, get_resource_name
 
 
+class Rule(models.Model):
+    round_started = models.BooleanField(default=False)
+
+
 class Deity(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True, unique=True)
 

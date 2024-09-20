@@ -66,5 +66,5 @@ class Command(BaseCommand):
         # testplayer = Player.objects.get(associated_user=testuser)
 
         generate_bespoke_unit("archer", 2, 4, "🪵"),
-        generate_bespoke_unit("knight", 5, 6, "🪨"),
+        generate_bespoke_unit("knight", 6, 5, "🪨"),
         generate_bespoke_unit("trebuchet", 10, 0, "🪵")
