@@ -39,6 +39,19 @@ def send_journey(player: Player, unit: Unit, quantity: int, destination: Region)
     unit.save()
 
 
+def marshal_from_location(player: Player, unit: Unit, quantity: int, origin: Region):
+    if quantity <= origin.units_here_dict[str(unit.id)] and unit.ruler == player:
+        origin.units_here_dict[str(unit.id)] -= quantity
+        
+        if origin.units_here_dict[str(unit.id)] == 0:
+            del origin.units_here_dict[str(unit.id)]
+
+        origin.save()
+
+        unit.quantity_marshaled += quantity
+        unit.save()
+
+
 def receive_journey(journey: Journey):
     region = journey.destination
     unit = journey.unit

@@ -13,7 +13,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         def get_unit_gold_cost(unit: Unit, discount=0):
             base_value = (unit.dp * 1.2) + (unit.op * 0.8)
+            
             base_gold = 10 * base_value
+            
             scaled_gold = base_gold ** 1.2
             scaled_gold = scaled_gold * ((100-discount)/100)
             rounded_gold = 25 * round(scaled_gold/25)

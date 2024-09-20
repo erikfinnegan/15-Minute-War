@@ -16,78 +16,109 @@
     </div>
 
     <div class="max-w-sm">
-        <div class="w-100p u-center">
-            <h6>Units here</h6>
-        </div>
-        <table class="table striped">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Pwr</th>
-                    <th>Amount</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for unit_here in units_here %}
-                <tr>
-                    <th class="u-align-middle">{{ unit_here.unit.name|title }}</th>
-                    <td class="u-align-middle">{{ unit_here.unit.op }}/{{ unit_here.unit.dp }}</td>
-                    <td class="u-align-middle">{{ unit_here.quantity|intcomma }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <form action="{% url 'marshal_from_region' region.id %}" method="post" class="">
+            {% csrf_token %}
+            <div class="w-100p u-center">
+                <h6>Units here</h6>
+            </div>
+            <table class="table striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Pwr</th>
+                        <th>Amount</th>
+                        <th>Marshal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for unit_here in units_here %}
+                    <tr>
+                        <th class="u-align-middle">{{ unit_here.unit.name|title }}</th>
+                        <td class="u-align-middle">{{ unit_here.unit.op }}/{{ unit_here.unit.dp }}</td>
+                        <td class="u-align-middle">{{ unit_here.quantity|intcomma }}</td>
+                        <td class="u-align-middle u-flex-md u-flex-row-md">
+                            <input 
+                                name="marshall_{{ unit_here.unit.id }}" 
+                                id="marshall_{{ unit_here.unit.id }}" 
+                                placeholder="{{ unit_here.quantity }}" 
+                                type="number" 
+                                max="{{ unit_here.quantity }}" 
+                                class="w-12 w-16-md ml-auto-md mr-2-md"
+                            >
+                            <button type="button" class="btn-light my-auto u-none u-block-md mr-auto-md" onclick="marshallMax('{{ unit_here.unit.id }}', '{{ unit_here.quantity }}')">
+                                Max
+                            </button>
+                            
+                            <script>
+                            function marshallMax(unit_id, quantity_here) {
+                                let thisInput = document.getElementById("marshall_" + unit_id);
+                                thisInput.value = quantity_here;
+                            }
+                            </script>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if region.defense > 0 %}
+            <button class="btn-light mt-1 w-16 h-6 p-0 u-center" type="submit">
+                <span class="font-bold">Marshal</span>
+            </button>
+            {% endif %}
+        </form>
     </div>
 
     {% if active_player.has_marshaled_units %}
-    <form action="{% url 'dispatch_to_one_region' region.id %}" method="post" class="max-w-sm">
-        {% csrf_token %}
-        <div class="w-100p u-center">
-            <h6>Send marshaled units</h6>
-        </div>
-        <table class="table striped">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Pwr</th>
-                    <th>Amount</th>
-                    <th>Send</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for unit in marshaled_units %}
-                <tr>
-                    <th class="u-align-middle">{{ unit.name|title }}</th>
-                    <td class="u-align-middle">{{ unit.op }}/{{ unit.dp }}</td>
-                    <td class="u-align-middle">{{ unit.quantity_marshaled|intcomma }}</td>
-                    <td class="u-align-middle u-flex-md u-flex-row-md">
-                        <input 
-                            name="send_{{ unit.id }}" 
-                            id="send_{{ unit.id }}" 
-                            placeholder="{{ unit.quantity_marshaled }}" 
-                            type="number" 
-                            max="{{ unit.quantity_marshaled }}" 
-                            class="w-12 w-16-md ml-auto-md mr-2-md"
-                        >
-                        <button type="button" class="btn-light my-auto u-none u-block-md mr-auto-md" onclick="sendMax('{{ unit.id }}', '{{ unit.quantity_marshaled }}')">
-                            Max
-                        </button>
-                        
-                        <script>
-                        function sendMax(unit_id, quantity_marshaled) {
-                            let thisInput = document.getElementById("send_" + unit_id);
-                            thisInput.value = quantity_marshaled;
-                        }
-                        </script>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <button class="btn-light mt-1 w-16 h-6 p-0 u-center" type="submit">
-            <span class="font-bold">Send</span>
-        </button>
-    </form>
+    <div class="card max-w-sm bg-gray-900 pt-2">
+        <form action="{% url 'dispatch_to_one_region' region.id %}" method="post" class="">
+            {% csrf_token %}
+            <div class="w-100p u-center">
+                <h6>Send marshaled units to this region</h6>
+            </div>
+            <table class="table striped bg-gray-900">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Pwr</th>
+                        <th>Amount</th>
+                        <th>Send</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for unit in marshaled_units %}
+                    <tr>
+                        <th class="u-align-middle">{{ unit.name|title }}</th>
+                        <td class="u-align-middle">{{ unit.op }}/{{ unit.dp }}</td>
+                        <td class="u-align-middle">{{ unit.quantity_marshaled|intcomma }}</td>
+                        <td class="u-align-middle u-flex-md u-flex-row-md">
+                            <input 
+                                name="send_{{ unit.id }}" 
+                                id="send_{{ unit.id }}" 
+                                placeholder="{{ unit.quantity_marshaled }}" 
+                                type="number" 
+                                max="{{ unit.quantity_marshaled }}" 
+                                class="w-12 w-16-md ml-auto-md mr-2-md"
+                            >
+                            <button type="button" class="btn-light my-auto u-none u-block-md mr-auto-md" onclick="sendMax('{{ unit.id }}', '{{ unit.quantity_marshaled }}')">
+                                Max
+                            </button>
+                            
+                            <script>
+                            function sendMax(unit_id, quantity_marshaled) {
+                                let thisInput = document.getElementById("send_" + unit_id);
+                                thisInput.value = quantity_marshaled;
+                            }
+                            </script>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button class="btn-light mt-1 w-16 h-6 p-0 u-center" type="submit">
+                <span class="font-bold">Send</span>
+            </button>
+        </form>
+    </div>
     {% endif %}
 
     <div>

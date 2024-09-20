@@ -4,7 +4,7 @@ from django.contrib import messages
 
 from maingame.formatters import get_resource_name
 from maingame.models import Building, BuildingType, Player, Region, Unit, Journey
-from maingame.utils import get_journey_output_dict, send_journey
+from maingame.utils import get_journey_output_dict, marshal_from_location, send_journey
 
 
 def index(request):
@@ -113,8 +113,6 @@ def army_training(request):
     for region in Region.objects.filter(ruler=player):
         if Journey.objects.filter(ruler=player, destination=region).count() > 0:
             journey_regions.append({"region": region, "output_dict": get_journey_output_dict(player, region)})
-
-    print(journey_regions)
 
     context = {
         "units": Unit.objects.filter(ruler=player),
@@ -245,5 +243,38 @@ def dispatch_to_one_region(request, region_id):
             send_journey(player, unit, amount, region)
 
     messages.success(request, f"Sending {total_sent} units to {region.name}")
+    
+    return redirect("region", region_id)
+
+
+@login_required
+def marshal_from_region(request, region_id):
+    player = Player.objects.get(associated_user=request.user)
+    region = Region.objects.get(ruler=player, id=region_id)
+
+    total_marshaled = 0
+
+    for key, value in request.POST.items():
+        if "marshall_" in key and value != "":
+            unit = Unit.objects.get(id=key[9:])
+            amount = int(value)
+
+            if amount > region.units_here_dict[str(unit.id)]:
+                messages.error(request, f"Attempted to marshal {amount}x {unit} but there are only {unit.quantity_marshaled} here")
+                return redirect("region", region_id)
+
+            total_marshaled += amount
+
+    if total_marshaled < 1:
+        messages.error(request, f"Zero units marshaled")
+        return redirect("region", region_id)
+
+    for key, value in request.POST.items():
+        if "marshall_" in key and value != "":
+            unit = Unit.objects.get(id=key[9:])
+            amount = int(value)
+            marshal_from_location(player, unit, amount, region)
+
+    messages.success(request, f"Marshaling {total_marshaled} units from {region.name}")
     
     return redirect("region", region_id)

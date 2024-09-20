@@ -104,6 +104,15 @@ class Player(models.Model):
         return f"{self.name} ({self.associated_user.username})"
     
     @property
+    def marshaled_op(self):
+        marshaled_op = 0
+
+        for marshaled_unit in Unit.objects.filter(ruler=self, quantity_marshaled__gt=0):
+            marshaled_op += (marshaled_unit.op * marshaled_unit.quantity_marshaled)
+
+        return marshaled_op
+
+    @property
     def unconstructed_plots(self):
         unconstructed_plots = 0
 
@@ -133,7 +142,7 @@ class Player(models.Model):
                 row_number += 1
                 header_rows[str(row_number)] = []
 
-            readout = f"{resource}: {amount}"
+            readout = f"{resource}: {amount:,}"
 
             if resource == "🍞" and self.is_starving:
                 readout += "⚠️"
