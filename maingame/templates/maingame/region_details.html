@@ -90,6 +90,39 @@
     </form>
     {% endif %}
 
+    
+    <div class="w-48 u-overflow-x-scroll">
+        <table class="table striped">
+            <thead>
+                <tr>
+                    <th>Unit</th>
+                    <th>1</th>
+                    <th>2</th>
+                    <th>3</th>
+                    <th>4</th>
+                    <th>5</th>
+                    <th>6</th>
+                    <th>7</th>
+                    <th>8</th>
+                    <th>9</th>
+                    <th>10</th>
+                    <th>11</th>
+                    <th>12</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for unit_name, journey_details in output_dict.items %}
+                    <tr>
+                        <th class="u-align-middle">{{ unit_name|title }}</th>
+                        {% for quantity in journey_details %}
+                        <td class="u-align-middle">{{ quantity }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
     <div class="u-flex u-flex-wrap u-gap-2">
         {% for building in buildings_here %}
             {% include "maingame/building_card.html" with building_type=building.type show_destroy=True region=region is_ideal_terrain=building.built_on_ideal_terrain %}

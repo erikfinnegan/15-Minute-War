@@ -36,6 +36,26 @@ def region(request, region_id):
     for unit_id, quantity in region.units_here_dict.items():
         units_here.append(UnitHere(Unit.objects.get(id=unit_id), quantity))
 
+    journey_dict = {}
+    output_dict = {}
+    incoming_journeys = Journey.objects.filter(ruler=player, destination=region)
+    
+    for journey in incoming_journeys:
+        journey_dict[journey.unit.name] = {}
+        journey_dict[journey.unit.name][str(journey.ticks_to_arrive)] = journey.quantity
+
+        for x in range(1, 12):
+            if str(x) not in journey_dict[journey.unit.name]:
+                journey_dict[journey.unit.name][str(x)] = "-"
+
+    for unit_name, tick_data in journey_dict.items():
+        output_dict[unit_name] = []
+
+        for x in range(1, 13):
+            output_dict[unit_name].append(tick_data[str(x)])
+
+    print(output_dict)
+
     context = {
         "buildings_here": buildings_here,
         "building_types": player.building_types_available.all(),
@@ -45,6 +65,7 @@ def region(request, region_id):
         "secondary_terrain_available": region.secondary_plots_available,
         "marshaled_units": marshaled_units,
         "units_here": units_here,
+        "output_dict": output_dict,
     }
 
     return render(request, "maingame/region_details.html", context)
