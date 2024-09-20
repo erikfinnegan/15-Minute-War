@@ -13,5 +13,9 @@ class Command(BaseCommand):
         testuser = User.objects.get(username="test")
         testplayer = Player.objects.get(associated_user=testuser)
 
-        for _ in range(12):
-            do_tick()
+        cost = 150
+        for x in range(30):
+            cost = int(cost ** 1.02)
+            ticks = int(cost/140)
+            print(f"{x} {cost} {ticks}")
+            

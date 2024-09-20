@@ -68,17 +68,17 @@ class Command(BaseCommand):
         my_quarry = BuildingType.objects.get(ruler=testplayer, name="quarry")
         my_lumberyard = BuildingType.objects.get(ruler=testplayer, name="lumberyard")
         my_tower = BuildingType.objects.get(ruler=testplayer, name="tower")
-        my_mine = BuildingType.objects.get(ruler=testplayer, name="mine")
+        my_school = BuildingType.objects.get(ruler=testplayer, name="school")
 
         construct_building(testplayer, newri.id, my_farm.id, 2)
         construct_building(testplayer, newri.id, my_quarry.id, 1)
 
         construct_building(testplayer, newmi.id, my_lumberyard.id, 1)
-        construct_building(testplayer, newmi.id, my_mine.id, 2)
+        construct_building(testplayer, newmi.id, my_school.id, 2)
 
         construct_building(testplayer, richland.id, my_tower.id, 1)
-        construct_building(testplayer, richland.id, my_mine.id, 2)
+        construct_building(testplayer, richland.id, my_school.id, 2)
 
-        construct_building(testplayer, brokeland.id, my_mine.id, 3)
+        construct_building(testplayer, brokeland.id, my_school.id, 3)
 
         print("Done generating stuff.")

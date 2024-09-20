@@ -26,11 +26,17 @@ def initialize_building_types():
             "ideal_terrain": Terrain.objects.get(name="forested")
         },
         {
-            "name": "mine",
-            "resource_produced": "💎",
+            "name": "school",
+            "resource_produced": "📜",
             "amount_produced": 20,
-            "ideal_terrain": Terrain.objects.get(name="cavernous")
+            "ideal_terrain": Terrain.objects.get(name="grassy")
         },
+        # {
+        #     "name": "mine",
+        #     "resource_produced": "💎",
+        #     "amount_produced": 20,
+        #     "ideal_terrain": Terrain.objects.get(name="cavernous")
+        # },
         {
             "name": "tower",
             "resource_produced": "🔮",
@@ -41,10 +47,6 @@ def initialize_building_types():
             "name": "stronghold",
             "defense_multiplier": 50,
             "ideal_terrain": Terrain.objects.get(name="defensible")
-        },
-        {
-            "name": "home",
-            "housing": 20,
         },
     ]
 
@@ -58,10 +60,9 @@ def initialize_factions():
         BuildingType.objects.get(name="quarry"),
         BuildingType.objects.get(name="embassy"),
         BuildingType.objects.get(name="lumberyard"),
-        BuildingType.objects.get(name="mine"),
         BuildingType.objects.get(name="tower"),
         BuildingType.objects.get(name="stronghold"),
-        BuildingType.objects.get(name="home"),
+        BuildingType.objects.get(name="school"),
     ]
 
     # grassy = Terrain.objects.get(name="grassy")

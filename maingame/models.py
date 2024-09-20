@@ -190,6 +190,7 @@ class BuildingType(models.Model):
     defense_multiplier = models.IntegerField(default=0)
     ideal_terrain = models.ForeignKey(Terrain, on_delete=models.PROTECT, null=True, blank=True)
     housing = models.IntegerField(default=10)
+    upgrades = models.IntegerField(default=0)
 
     def __str__(self):
         if self.ruler:
@@ -201,6 +202,8 @@ class BuildingType(models.Model):
 class Faction(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True, unique=True)
     starter_building_types = models.ManyToManyField(BuildingType)
+    base_research_cost = models.IntegerField(default=150)
+    base_research_exponent = models.FloatField(default=1.02, null=True, blank=True)
 
     def __str__(self):
         return f"{self.name} ({self.id})"
@@ -212,8 +215,11 @@ class Unit(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
     dp = models.IntegerField(default=0)
     op = models.IntegerField(default=0)
+    dp_upgrades = models.IntegerField(default=0)
+    op_upgrades = models.IntegerField(default=0)
     is_trainable = models.BooleanField(default=True)
     cost_dict = models.JSONField(default=dict)
+    cost_upgrade_dict = models.JSONField(default=dict)
     associated_deity = models.ForeignKey(Deity, on_delete=models.PROTECT, null=True, blank=True)
     sacred_site_requirement = models.IntegerField(default=0)
     quantity_marshaled = models.IntegerField(default=0)

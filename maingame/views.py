@@ -187,6 +187,17 @@ def resources(request):
 
 
 @login_required
+def upgrades(request):
+    player = Player.objects.get(associated_user=request.user)
+
+    context = {
+        "stuff": "stuff",
+    }
+
+    return render(request, "maingame/upgrades.html", context)
+
+
+@login_required
 def run_tick_view(request):
     do_tick()
     messages.success(request, f"I hope Erik didn't leave this in production")

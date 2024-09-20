@@ -11,6 +11,7 @@ urlpatterns = [
     path("regions/<int:region_id>/build/<int:building_type_id>/amount/<int:amount>", views.build_building, name="build_building"),
     path("regions/<int:region_id>", views.region, name="region"),
     path("regions", views.regions, name="regions"),
+    path("upgrades", views.upgrades, name="upgrades"),
     path("army_training/submit", views.submit_training, name="submit_training"),
     path("army_training", views.army_training, name="army_training"),
     path("resources", views.resources, name="resources"),

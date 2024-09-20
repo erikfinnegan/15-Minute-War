@@ -1,6 +1,7 @@
 <a href="{% url 'resources' %}" class="text-light">Resources{% if active_player.is_starving > 0 %} ⚠️{% endif %}</a>
 <a href="{% url 'regions' %}" class="text-light">Regions{% if active_player.unconstructed_plots > 0 %} ⚠️{% endif %}</a>
 <a href="{% url 'army_training' %}" class="text-light">Army training</a>
+<a href="{% url 'upgrades' %}" class="text-light">Upgrades</a>
 <a href="{% url 'run_tick_view' %}" class="text-light">RUN TICK - NOT PRODUCTION SAFE</a>
 <form action="{% url 'logout' %}" method="post" class="mt-8">
     {% csrf_token %}
