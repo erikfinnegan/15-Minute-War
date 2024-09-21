@@ -189,12 +189,36 @@ def resources(request):
 @login_required
 def upgrades(request):
     player = Player.objects.get(associated_user=request.user)
+    building_types = BuildingType.objects.filter(ruler=player)
 
     context = {
-        "stuff": "stuff",
+        "building_types": building_types,
     }
 
     return render(request, "maingame/upgrades.html", context)
+
+
+@login_required
+def upgrade_building_type(request, building_type_id):
+    player = Player.objects.get(associated_user=request.user)
+    building_type = BuildingType.objects.get(ruler=player, id=building_type_id)
+
+    available_research_points = player.resource_dict["📜"]
+
+    if available_research_points < building_type.upgrade_cost:
+        messages.error(request, f"This would cost {f'{building_type.upgrade_cost:,}'}📜. You have {f'{available_research_points:,}'}. You're {f'{building_type.upgrade_cost - available_research_points:,}'} short.")
+        return redirect("upgrades")
+
+    player.resource_dict["📜"] -= building_type.upgrade_cost
+    building_type.upgrades += 1
+    
+    if building_type.amount_produced > 0:
+        building_type.amount_produced += 1
+    
+    building_type.save()
+    player.save()
+
+    return redirect("upgrades")
 
 
 @login_required

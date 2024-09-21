@@ -65,6 +65,8 @@ class Player(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True, unique=True)
     resource_dict = models.JSONField(default=dict)
     is_starving = models.BooleanField(default=False)
+    upgrade_cost = models.IntegerField(default=150)
+    upgrade_exponent = models.FloatField(default=1.02, null=True, blank=True)
 
     def __str__(self):
         return f"{self.name} ({self.associated_user.username})"
@@ -189,7 +191,6 @@ class BuildingType(models.Model):
     trade_multiplier = models.IntegerField(default=0)
     defense_multiplier = models.IntegerField(default=0)
     ideal_terrain = models.ForeignKey(Terrain, on_delete=models.PROTECT, null=True, blank=True)
-    housing = models.IntegerField(default=10)
     upgrades = models.IntegerField(default=0)
 
     def __str__(self):
@@ -197,13 +198,22 @@ class BuildingType(models.Model):
             return f"{self.ruler}'s {self.name}"
         else:
             return f"🟩Base --- {self.name}"
+        
+    @property
+    def upgrade_cost(self):
+        cost = self.ruler.upgrade_cost
+
+        for _ in range(self.upgrades):
+            cost = cost ** self.ruler.upgrade_exponent
+
+        return int(cost)
 
 
 class Faction(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True, unique=True)
     starter_building_types = models.ManyToManyField(BuildingType)
-    base_research_cost = models.IntegerField(default=150)
-    base_research_exponent = models.FloatField(default=1.02, null=True, blank=True)
+    base_upgrade_cost = models.IntegerField(default=150)
+    base_upgrade_exponent = models.FloatField(default=1.02, null=True, blank=True)
 
     def __str__(self):
         return f"{self.name} ({self.id})"
@@ -302,7 +312,12 @@ class Region(models.Model):
             unit = Unit.objects.get(id=int(unit_id))
             defense += quantity * unit.dp
 
-        return defense
+        defense_modifier = 100
+
+        for building in self.buildings_here.all():
+            defense_modifier += building.type.defense_multiplier
+
+        return int(defense * (defense_modifier / 100))
     
 
 class Building(models.Model):

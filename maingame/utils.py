@@ -22,6 +22,9 @@ def assign_faction(player: Player, faction: Faction):
         if players_building_type.amount_produced > 0:
             player.adjust_resource(players_building_type.resource_produced, 0)
 
+    player.upgrade_cost = faction.base_upgrade_cost
+    player.upgrade_exponent = faction.base_upgrade_exponent
+
     player.save()
 
 

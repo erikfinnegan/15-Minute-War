@@ -1,4 +1,4 @@
-<div class="card {% if building %}bg-gray-900{% else %}bg-gray-800{% endif %} u-flex u-flex-column w-48 u-border-1 px-2 py-1
+<div class="card {% if building %}bg-gray-900{% elif show_upgrades %}bg-gray-700{% else %}bg-gray-800{% endif %} u-flex u-flex-column w-48 u-border-1 px-2 py-1
 {% if building.built_on_ideal_terrain %}border-yellow-200
 {% elif building.built_on_ideal_terrain %}border-yellow-200
 {% endif %}
@@ -20,6 +20,10 @@
             {% if building %}
             <a href="{% url 'destroy_building' building.id %}">
                 <button class="btn-danger px-1 py-0">Destroy</button>
+            </a>
+            {% elif show_upgrades %}
+            <a href="{% url 'upgrade_building_type' building_type.id %}">
+                <button class="btn-dark px-1 py-0">{{ building_type.upgrade_cost }}📜</button>
             </a>
             {% else %}
                 {% if available_plots >= 3 %}

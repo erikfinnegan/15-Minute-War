@@ -1,9 +1,16 @@
 {% load humanize %}
 
 {% if region %}
-<a href="{% url 'region' region.id %}" class="u-border-1 w-48 p-2 u-flex u-flex-column text-light">
+<a href="{% url 'region' region.id %}" class="u-border-1 w-48 px-2 pt-1 u-flex u-flex-column text-light">
     <span>{{ region.emoji_name }}</span>
-    <span>Defense: {{ region.defense|intcomma }}</span>
+    <h6>Defense: {{ region.defense|intcomma }}</h6>
+    <div class="u-flex u-flex-row u-gap-1">
+        {% for building in region.buildings_here.all %}
+        <div class="card bg-gray-700 px-1 u-border-1{% if building.built_on_ideal_terrain %} text-yellow-200 u-border-yellow-200{% endif %}" style="width: fit-content;">
+            <span>{{ building.type.name|title }}</span>
+        </div>
+        {% endfor %}
+    </div>
     {% if region.plots_available > 0 %}
     <span class="font-bold text-red-400">Unconstructed plots: {{ region.plots_available }}</span>
     {% endif %}
