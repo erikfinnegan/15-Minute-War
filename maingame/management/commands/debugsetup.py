@@ -15,13 +15,13 @@ class Command(BaseCommand):
         initialize_game_pieces()
 
         for user in User.objects.all():
-            new_player = Player.objects.create(associated_user=user, name=f"ERROR {user.username}")
-            # new_player.resource_dict["🍞"] = 1
+            new_player = Player.objects.create(associated_user=user, name=f"X {user.username}")
             new_player.save()
 
-        testplayer = Player.objects.get(associated_user=User.objects.get(username="test"))
+        for player in Player.objects.all():
+            assign_faction(player, Faction.objects.get(name="human"))
 
-        assign_faction(testplayer, Faction.objects.get(name="human"))
+        testplayer = Player.objects.get(associated_user=User.objects.get(username="test"))
 
         testplayer.adjust_resource("🪙", 5000)
         testplayer.adjust_resource("🪵", 5000)

@@ -4,7 +4,7 @@ from maingame.models import Terrain, Unit, BuildingType, Player, Faction, Region
 
 
 def assign_faction(player: Player, faction: Faction):
-    for unit in Unit.objects.filter(faction_for_which_is_default=faction):
+    for unit in Unit.objects.filter(faction_for_which_is_default=faction, ruler=None):
         players_unit = unit
         players_unit.pk = None
         players_unit.ruler = player
@@ -100,7 +100,7 @@ def get_journey_output_dict(player: Player, region: Region):
         journey_dict[journey.unit.name] = {}
         journey_dict[journey.unit.name][str(journey.ticks_to_arrive)] = journey.quantity
 
-        for x in range(1, 12):
+        for x in range(1, 13):
             if str(x) not in journey_dict[journey.unit.name]:
                 journey_dict[journey.unit.name][str(x)] = "-"
 

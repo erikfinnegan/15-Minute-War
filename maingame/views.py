@@ -214,6 +214,8 @@ def upgrade_building_type(request, building_type_id):
     
     if building_type.amount_produced > 0:
         building_type.amount_produced += 1
+    elif building_type.defense_multiplier > 0:
+        building_type. defense_multiplier += 1
     
     building_type.save()
     player.save()

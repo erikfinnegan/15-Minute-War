@@ -34,7 +34,14 @@ def do_journeys():
             receive_journey(journey)
 
 
+def check_victory():
+    for player in Player.objects.all():
+        if player.resource_dict["👑"] >= 1000:
+            print("They win!")
+
+
 def do_tick():
+    check_victory()
     do_resource_production()
     do_food_consumption()
     do_journeys()

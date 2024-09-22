@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Terrain, Region, Unit, Player, Deity, BuildingType, Building, Faction, Journey, Rule
+from .models import Terrain, Region, Unit, Player, Deity, BuildingType, Building, Faction, Journey, Round
 
 admin.site.register(Terrain)
 admin.site.register(Player)
@@ -13,4 +13,4 @@ admin.site.register(BuildingType)
 admin.site.register(Building)
 admin.site.register(Faction)
 
-admin.site.register(Rule)
+admin.site.register(Round)

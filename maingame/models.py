@@ -6,10 +6,6 @@ from random import randint
 from maingame.formatters import smart_comma, get_resource_name
 
 
-class Rule(models.Model):
-    round_started = models.BooleanField(default=False)
-
-
 class Deity(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True, unique=True)
 
@@ -354,3 +350,9 @@ class Journey(models.Model):
 
     def __str__(self):
         return f"{self.quantity}x {self.unit} ... to {self.destination} ({self.ticks_to_arrive} ticks)"
+    
+
+class Round(models.Model):
+    has_started = models.BooleanField(default=False)
+    has_ended = models.BooleanField(default=False)
+    winnder = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
