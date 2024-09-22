@@ -355,4 +355,5 @@ class Journey(models.Model):
 class Round(models.Model):
     has_started = models.BooleanField(default=False)
     has_ended = models.BooleanField(default=False)
-    winnder = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
+    winner = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
+
