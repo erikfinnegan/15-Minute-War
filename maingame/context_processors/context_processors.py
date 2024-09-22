@@ -1,4 +1,4 @@
-from maingame.models import Player
+from maingame.models import Player, Round
 
 
 def player_context_processor(request):
@@ -9,4 +9,5 @@ def player_context_processor(request):
         
     return {
         "active_player": active_player,
+        "round": Round.objects.first(),
     }

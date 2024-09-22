@@ -1,6 +1,11 @@
 {% load humanize %}
 
 <div class="h-12 pl-4 pl-0-md u-flex u-flex-wrap u-gap-1 u-items-center bg-red-800 u-none w-100p">
+    {% if round.winner %}
+    <div class="u-center u-flex">
+        <h4 class="u-center">{{ round.winner }} has been crowned the ruler</h4>
+    </div>
+    {% else %}
     <table class="w-100p mt-1 max-w-xs{% if active_player.is_starving %} text-red-400{% endif %}">
         {% for key, value in active_player.header_rows.items %}
         <tr>
@@ -10,6 +15,7 @@
         </tr>
         {% endfor %}
     </table>
+    {% endif %}
 
     <div class="ml-auto">
         {% if not user.is_authenticated %}

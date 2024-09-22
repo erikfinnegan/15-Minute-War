@@ -171,6 +171,8 @@ class Player(models.Model):
 
         if resource == "🪙":
             production += self.gold_production
+        elif resource == "👑":
+            production += self.influence_production
 
         for building in Building.objects.filter(ruler=self):
             if building.type.resource_produced == resource:
@@ -279,7 +281,7 @@ class Region(models.Model):
     secondary_terrain = models.ForeignKey(Terrain, on_delete=models.PROTECT, related_name="regions_as_secondary_terrain")
     deity = models.ForeignKey(Deity, on_delete=models.PROTECT)
     ticks_ruled = models.IntegerField(default=0)
-    units_here_dict = models.JSONField(default=dict)
+    units_here_dict = models.JSONField(default=dict, null=True, blank=True)
 
     def __str__(self):
         return f"{self.name} {self.primary_terrain.emoji}{self.primary_terrain.emoji}{self.secondary_terrain.emoji} / {self.deity.emoji}"
@@ -353,7 +355,10 @@ class Journey(models.Model):
     
 
 class Round(models.Model):
-    has_started = models.BooleanField(default=False)
+    has_started = models.BooleanField(default=True)
     has_ended = models.BooleanField(default=False)
     winner = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
 
+    @property
+    def allow_ticks(self):
+        return self.has_started and not self.has_ended
