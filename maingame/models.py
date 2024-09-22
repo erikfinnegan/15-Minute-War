@@ -63,6 +63,7 @@ class Player(models.Model):
     is_starving = models.BooleanField(default=False)
     upgrade_cost = models.IntegerField(default=150)
     upgrade_exponent = models.FloatField(default=1.02, null=True, blank=True)
+    protection_ticks_remaining = models.IntegerField(default=96)
 
     def __str__(self):
         return f"{self.name} ({self.associated_user.username})"
@@ -194,6 +195,51 @@ class Player(models.Model):
                 total_units += amount
 
         return int(total_units / 50)
+    
+    def do_food_consumption(self):
+        consumption = self.get_food_consumption()
+        self.is_starving = consumption > self.resource_dict["🍞"]
+        self.adjust_resource("🍞", (consumption * -1))
+        self.save()
+
+    def do_resource_production(self):
+        self.adjust_resource("🪙", self.gold_production)
+        self.adjust_resource("👑", self.influence_production)
+        
+        for building in Building.objects.filter(ruler=self):
+            if building.type.amount_produced > 0:
+                amount_produced = building.type.amount_produced
+                
+                if building.built_on_ideal_terrain:
+                    amount_produced *= 2
+
+                self.adjust_resource(building.type.resource_produced, amount_produced)
+
+        self.save()
+
+    def progress_journeys(self):
+        for journey in Journey.objects.filter(ruler=self):
+            journey.ticks_to_arrive -= 1
+            journey.save()
+
+            if journey.ticks_to_arrive == 0:
+                region = journey.destination
+                unit = journey.unit
+                unit_id_str = str(unit.id)
+                quantity = journey.quantity
+
+                if unit_id_str in region.units_here_dict.keys():
+                    region.units_here_dict[unit_id_str] += quantity
+                else:
+                    region.units_here_dict[unit_id_str] = quantity
+
+                region.save()
+                journey.delete()
+
+    def do_tick(self):
+        self.do_resource_production()
+        self.do_food_consumption()
+        self.progress_journeys()
 
 
 class BuildingType(models.Model):

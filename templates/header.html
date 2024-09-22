@@ -29,6 +29,20 @@
     </div>
 </div>
 
+{% if active_player.protection_ticks_remaining > 0 %}
+<div class="u-flex u-flex-row u-gap-4 bg-red-900 p-1">
+    <span>{{ active_player.protection_ticks_remaining }} protection ticks remaining</span>
+    <a href="{% url 'protection_tick' 1 %}">
+        <button class="h-4 py-0">+1 tick</button>
+    </a>
+    {% if active_player.protection_ticks_remaining >= 12 %}
+    <a href="{% url 'protection_tick' 12 %}">
+        <button class="h-4 py-0">+12 ticks</button>
+    </a>
+    {% endif %}
+</div>
+{% endif %}
+
 {% if messages %}
 <div class="p-4">
     <style>

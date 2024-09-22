@@ -1,10 +1,11 @@
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 from maingame.formatters import get_resource_name
 from maingame.models import Building, BuildingType, Player, Region, Unit, Journey
-from maingame.tick_processors import do_tick
+from maingame.tick_processors import do_global_tick
 from maingame.utils import construct_building, get_journey_output_dict, marshal_from_location, send_journey
 
 
@@ -225,9 +226,25 @@ def upgrade_building_type(request, building_type_id):
 
 @login_required
 def run_tick_view(request):
-    do_tick()
+    do_global_tick()
     messages.success(request, f"I hope Erik didn't leave this in production")
-    return redirect("resources")
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+@login_required
+def protection_tick(request, quantity):
+    if quantity < 96:
+        player = Player.objects.get(associated_user=request.user)
+        
+        for _ in range(quantity):
+            if player.protection_ticks_remaining > 0:
+                player.do_tick()
+                player.protection_ticks_remaining -= 1
+                player.save()
+    else:
+        messages.error(request, f"Knock it off")
+    
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 @login_required

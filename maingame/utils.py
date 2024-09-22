@@ -55,19 +55,19 @@ def marshal_from_location(player: Player, unit: Unit, quantity: int, origin: Reg
         unit.save()
 
 
-def receive_journey(journey: Journey):
-    region = journey.destination
-    unit = journey.unit
-    unit_id_str = str(unit.id)
-    quantity = journey.quantity
+# def receive_journey(journey: Journey):
+#     region = journey.destination
+#     unit = journey.unit
+#     unit_id_str = str(unit.id)
+#     quantity = journey.quantity
 
-    if unit_id_str in region.units_here_dict.keys():
-        region.units_here_dict[unit_id_str] += quantity
-    else:
-        region.units_here_dict[unit_id_str] = quantity
+#     if unit_id_str in region.units_here_dict.keys():
+#         region.units_here_dict[unit_id_str] += quantity
+#     else:
+#         region.units_here_dict[unit_id_str] = quantity
 
-    region.save()
-    journey.delete()
+#     region.save()
+#     journey.delete()
 
 
 def construct_building(player, region_id, building_type_id, amount):
@@ -95,19 +95,25 @@ def get_journey_output_dict(player: Player, region: Region):
     journey_dict = {}
     output_dict = {}
     incoming_journeys = Journey.objects.filter(ruler=player, destination=region)
-    
+
+    for unit in Unit.objects.filter(ruler=player):
+        journey_dict[unit.name] = {}
+
     for journey in incoming_journeys:
-        journey_dict[journey.unit.name] = {}
-        journey_dict[journey.unit.name][str(journey.ticks_to_arrive)] = journey.quantity
+        if str(journey.ticks_to_arrive) not in journey_dict[journey.unit.name]:
+            journey_dict[journey.unit.name][str(journey.ticks_to_arrive)] = journey.quantity
+        else:
+            journey_dict[journey.unit.name][str(journey.ticks_to_arrive)] += journey.quantity
 
         for x in range(1, 13):
             if str(x) not in journey_dict[journey.unit.name]:
-                journey_dict[journey.unit.name][str(x)] = "-"
+                journey_dict[journey.unit.name][str(x)] = 0
 
     for unit_name, tick_data in journey_dict.items():
-        output_dict[unit_name] = []
+        if len(tick_data) > 0:
+            output_dict[unit_name] = []
 
-        for x in range(1, 13):
-            output_dict[unit_name].append(tick_data[str(x)])
+            for x in range(1, 13):
+                output_dict[unit_name].append(tick_data[str(x)])
 
     return output_dict
