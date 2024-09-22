@@ -21,5 +21,7 @@ def get_resource_name(resource_icon):
             return "food"
         case "📜":
             return "research points"
+        case "👑":
+            return "influence"
         case _:
             return "Erik forgot the tooltip"

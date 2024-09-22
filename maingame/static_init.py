@@ -146,13 +146,19 @@ def initialize_terrain():
     Terrain.objects.create(
         name="barren",
         emoji="🏜",
-        unit_op_dp_ratio=2,
+        unit_op_dp_ratio=1.8,
         unit_perk_options="",
     )
     Terrain.objects.create(
         name="beautiful",
         emoji="🏞️",
         unit_op_dp_ratio=0.7,
+        unit_perk_options="",
+    )
+    Terrain.objects.create(
+        name="influential",
+        emoji="👑",
+        unit_op_dp_ratio=2,
         unit_perk_options="",
     )
 

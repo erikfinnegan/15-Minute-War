@@ -141,6 +141,21 @@ class Player(models.Model):
                 gold_production += 500
 
         return gold_production
+    
+    @property
+    def influence_production(self):
+        influence_production = 0
+        influential_terrain = Terrain.objects.get(name="influential")
+
+        for region in Region.objects.filter(ruler=self):
+            if region.primary_terrain == influential_terrain:
+                influence_production += 3
+            elif region.secondary_terrain == influential_terrain:
+                influence_production += 2
+            else:
+                influence_production += 1
+
+        return influence_production
 
     def adjust_resource(self, resource, amount):
         if self.is_starving and resource != "🍞":

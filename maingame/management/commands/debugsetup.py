@@ -16,7 +16,7 @@ class Command(BaseCommand):
 
         for user in User.objects.all():
             new_player = Player.objects.create(associated_user=user, name=f"ERROR {user.username}")
-            new_player.resource_dict["🍞"] = 1
+            # new_player.resource_dict["🍞"] = 1
             new_player.save()
 
         testplayer = Player.objects.get(associated_user=User.objects.get(username="test"))

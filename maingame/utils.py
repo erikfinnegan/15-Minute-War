@@ -10,6 +10,8 @@ def assign_faction(player: Player, faction: Faction):
         players_unit.ruler = player
         players_unit.save()
 
+        player.adjust_resource("👑", 0)
+
         for resource in players_unit.cost_dict:
             player.adjust_resource(resource, 0)
 
