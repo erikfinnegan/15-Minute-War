@@ -65,16 +65,6 @@ def initialize_factions():
         BuildingType.objects.get(name="school"),
     ]
 
-    # grassy = Terrain.objects.get(name="grassy")
-    # mountainous = Terrain.objects.get(name="mountainous")
-    # coastal = Terrain.objects.get(name="coastal")
-    # densely_forested = Terrain.objects.get(name="forested")
-    # cavernous = Terrain.objects.get(name="cavernous")
-    # swampy = Terrain.objects.get(name="swampy")
-    # beautiful = Terrain.objects.get(name="beautiful")
-    # defensible = Terrain.objects.get(name="defensible")
-    # barren = Terrain.objects.get(name="barren")
-
     humans = Faction.objects.create(name="human")
     Unit.objects.create(
         name="archer",
@@ -96,8 +86,30 @@ def initialize_factions():
             "🪨": 25,
         }
     )
-
     humans.starter_building_types.add(*generic_building_types)
+
+    undead = Faction.objects.create(name="undead")
+    Unit.objects.create(
+        name="skeleton",
+        op=3,
+        dp=3,
+        faction_for_which_is_default=undead,
+        cost_dict={
+            "🪙": 125,
+            "🔮": 2,
+        }
+    )
+    Unit.objects.create(
+        name="necromancer",
+        op=6,
+        dp=5,
+        faction_for_which_is_default=undead,
+        cost_dict={
+            "🪙": 1400,
+            "📜": 50,
+        }
+    )
+    undead.starter_building_types.add(*generic_building_types)
 
 
 def initialize_terrain():

@@ -3,9 +3,24 @@
 {% block title %}Regions{% endblock %}
 
 {% block content %}
-<div class="u-flex u-flex-wrap u-gap-2">
-    {% for region in regions %}
-    {% include "maingame/region_card.html" with region=region %}
-    {% endfor %}
+<div class="u-flex u-flex-column u-gap-8">
+    <div class="u-flex u-flex-wrap u-gap-2 card bg-gray-900 p-2">
+        {% for my_region in my_regions %}
+        {% include "maingame/region_card.html" with region=my_region bordercolor="green" ally=True %}
+        {% endfor %}
+    </div>
+
+    <div class="u-flex u-flex-column u-gap-4">
+        {% for opponents_regions_data in opponents_regions_data_list %}
+        <div class="card bg-gray-900 p-2">
+            <span>{{ opponents_regions_data.ruler }}</span>
+            <div class="u-flex u-flex-wrap u-gap-2 mt-2">
+                {% for their_region in opponents_regions_data.regions %}
+                {% include "maingame/region_card.html" with region=their_region bordercolor="red" enemy=True %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}

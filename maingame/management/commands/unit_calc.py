@@ -4,8 +4,6 @@ from django.core.management.base import BaseCommand
 from maingame.models import Player, Terrain, Deity, Region, Unit, Building, BuildingType, Faction
 from django.contrib.auth.models import User
 
-from maingame.tick_processors import do_resource_production, do_tick
-
 
 class Command(BaseCommand):
     help = "Initiates a battle"
@@ -49,7 +47,11 @@ class Command(BaseCommand):
             secondary_building_ticks = gold_cost / 533
             secondary_resource_production_building = BuildingType.objects.filter(resource_produced=secondary_resource).first()
             secondary_cost_amount = secondary_building_ticks * secondary_resource_production_building.amount_produced
-            secondary_cost_amount = 5 * round(secondary_cost_amount/5)
+
+            if secondary_cost_amount > 5:
+                secondary_cost_amount = 5 * round(secondary_cost_amount/5)
+            else:
+                secondary_cost_amount = int(secondary_cost_amount)
 
             print()
             print(f"{name}")
@@ -65,6 +67,5 @@ class Command(BaseCommand):
         # testuser = User.objects.get(username="test")
         # testplayer = Player.objects.get(associated_user=testuser)
 
-        generate_bespoke_unit("archer", 2, 4, "🪵"),
-        generate_bespoke_unit("knight", 6, 5, "🪨"),
-        generate_bespoke_unit("trebuchet", 10, 0, "🪵")
+        generate_bespoke_unit("skeleton", 3, 3, "🔮"),
+        generate_bespoke_unit("necromancer", 15, 25, "📜"),

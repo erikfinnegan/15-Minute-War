@@ -3,7 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from random import randint
 
-from maingame.formatters import smart_comma, get_resource_name
+from maingame.formatters import create_or_add_to_key, smart_comma, get_resource_name
 
 
 class Deity(models.Model):
@@ -158,10 +158,7 @@ class Player(models.Model):
         if self.is_starving and resource != "🍞":
             amount = min(amount, 0)
 
-        if resource in self.resource_dict:
-            self.resource_dict[resource] += amount
-        else:
-            self.resource_dict[resource] = amount
+        self.resource_dict = create_or_add_to_key(self.resource_dict, resource, amount)
 
         self.resource_dict[resource] = max(self.resource_dict[resource], 0)
 
@@ -228,11 +225,11 @@ class Player(models.Model):
                 unit_id_str = str(unit.id)
                 quantity = journey.quantity
 
-                if unit_id_str in region.units_here_dict.keys():
-                    region.units_here_dict[unit_id_str] += quantity
-                else:
-                    region.units_here_dict[unit_id_str] = quantity
+                region.units_here_dict = create_or_add_to_key(region.units_here_dict, unit_id_str, quantity)
 
+                if region.ruler != self:
+                    region.invasion_this_tick = True
+                
                 region.save()
                 journey.delete()
 
@@ -295,7 +292,7 @@ class Unit(models.Model):
     perk_string = models.CharField(max_length=500, null=True, blank=True)
 
     def __str__(self):
-        base_name = f"{self.name} ({self.op}/{self.dp})"
+        base_name = f"{self.name} ({self.op}/{self.dp}) -- {self.id}"
 
         if self.ruler:
             return f"{self.ruler.name}'s {base_name}"
@@ -328,6 +325,7 @@ class Region(models.Model):
     deity = models.ForeignKey(Deity, on_delete=models.PROTECT)
     ticks_ruled = models.IntegerField(default=0)
     units_here_dict = models.JSONField(default=dict, null=True, blank=True)
+    invasion_this_tick = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.name} {self.primary_terrain.emoji}{self.primary_terrain.emoji}{self.secondary_terrain.emoji} / {self.deity.emoji}"
@@ -377,6 +375,15 @@ class Region(models.Model):
             defense_modifier += building.type.defense_multiplier
 
         return int(defense * (defense_modifier / 100))
+    
+    @property
+    def defense_with_incoming(self):
+        defense_with_incoming = self.defense
+        
+        for journey in Journey.objects.filter(ruler=self.ruler, destination=self):
+            defense_with_incoming += journey.quantity * journey.unit.dp
+
+        return defense_with_incoming
     
 
 class Building(models.Model):

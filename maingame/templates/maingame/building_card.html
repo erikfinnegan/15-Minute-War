@@ -17,7 +17,7 @@
             <h6 class="my-auto">{{ building_type.ideal_terrain.emoji }}</h6>
         </div>
         <div class="u-flex u-justify-flex-end u-gap-1 my-auto w-100p">
-            {% if building %}
+            {% if building and is_my_region %}
             <a href="{% url 'destroy_building' building.id %}">
                 <button class="btn-danger px-1 py-0">Destroy</button>
             </a>
@@ -26,19 +26,19 @@
                 <button class="btn-dark px-1 py-0">{{ building_type.upgrade_cost }}📜</button>
             </a>
             {% else %}
-                {% if available_plots >= 3 %}
+                {% if available_plots >= 3 and is_my_region %}
                 <a href="{% url 'build_building' region.id building_type.id 3 %}">
                     <button class="btn-light px-1 py-0">+3</button>
                 </a>
                 {% endif %}
 
-                {% if available_plots >= 2 %}
+                {% if available_plots >= 2 and is_my_region %}
                 <a href="{% url 'build_building' region.id building_type.id 2 %}">
                     <button class="btn-light px-1 py-0">+2</button>
                 </a>
                 {% endif %}
 
-                {% if available_plots >= 1 %}
+                {% if available_plots >= 1 and is_my_region %}
                 <a href="{% url 'build_building' region.id building_type.id 1 %}">
                     <button class="btn-light px-1 py-0">+1</button>
                 </a>

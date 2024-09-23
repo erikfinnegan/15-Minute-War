@@ -2,9 +2,10 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models import Q
 
-from maingame.formatters import get_resource_name
-from maingame.models import Building, BuildingType, Player, Region, Unit, Journey
+from maingame.formatters import create_or_add_to_key, get_resource_name
+from maingame.models import Building, BuildingType, Player, Region, Unit, Journey, Round
 from maingame.tick_processors import do_global_tick
 from maingame.utils import construct_building, get_journey_output_dict, marshal_from_location, send_journey
 
@@ -41,6 +42,7 @@ def region(request, region_id):
     output_dict = get_journey_output_dict(player, region)
 
     context = {
+        "is_my_region": region.ruler == player,
         "buildings_here": buildings_here,
         "building_types": BuildingType.objects.filter(ruler=player),
         "region": region,
@@ -80,10 +82,27 @@ def build_building(request, region_id, building_type_id, amount):
 @login_required
 def regions(request):
     player = Player.objects.get(associated_user=request.user)
-    regions = Region.objects.filter(ruler=player)
+    my_regions = Region.objects.filter(ruler=player)
+
+    class OpponentsRegionsData:
+        def __init__(self, ruler, regions):
+            self.ruler = ruler
+            self.regions = regions
+
+    opponents_regions_data_list = []
+
+    for opponent in Player.objects.filter(~Q(associated_user=request.user)):
+        opponents_regions_data_list.append(
+            OpponentsRegionsData(opponent, Region.objects.filter(ruler=opponent))
+        )
+
+    # for unit_id, quantity in region.units_here_dict.items():
+        # units_here.append(UnitHere(Unit.objects.get(id=unit_id), quantity))
 
     context = {
-        "regions": regions,
+        "my_regions": my_regions,
+        "show_enemy_details": Round.objects.first().has_started,
+        "opponents_regions_data_list": opponents_regions_data_list,
     }
 
     return render(request, "maingame/regions.html", context)
@@ -127,11 +146,7 @@ def submit_training(request):
 
             for resource, cost in unit.cost_dict.items():
                 total_of_this_resource = cost * amount
-
-                if resource in total_cost_dict:
-                    total_cost_dict[resource] += total_of_this_resource
-                else:
-                    total_cost_dict[resource] = total_of_this_resource
+                total_cost_dict = create_or_add_to_key(total_cost_dict, resource, total_of_this_resource)
 
     if total_trained < 1:
         messages.error(request, f"Zero units trained")
@@ -227,7 +242,6 @@ def upgrade_building_type(request, building_type_id):
 @login_required
 def run_tick_view(request):
     do_global_tick()
-    messages.success(request, f"I hope Erik didn't leave this in production")
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
@@ -265,7 +279,10 @@ def dispatch_to_all_regions(request, unit_id, quantity):
 @login_required
 def dispatch_to_one_region(request, region_id):
     player = Player.objects.get(associated_user=request.user)
-    region = Region.objects.get(ruler=player, id=region_id)
+    region = Region.objects.get(id=region_id)
+
+    if player.protection_ticks_remaining > 0 and region.ruler != player:
+        messages.error(request, "You cannot invade other regions until your protection has ended")
 
     total_sent = 0
 
@@ -300,11 +317,15 @@ def marshal_from_region(request, region_id):
     player = Player.objects.get(associated_user=request.user)
     region = Region.objects.get(ruler=player, id=region_id)
 
+    if region.ruler != player:
+        messages.error(request, f"You can only marshal your own units")
+        return redirect("region", region_id)
+
     total_marshaled = 0
 
     for key, value in request.POST.items():
-        if "marshall_" in key and value != "":
-            unit = Unit.objects.get(id=key[9:])
+        if "marshal_" in key and value != "":
+            unit = Unit.objects.get(id=key[9:], ruler=player)
             amount = int(value)
 
             if amount > region.units_here_dict[str(unit.id)]:
@@ -318,8 +339,8 @@ def marshal_from_region(request, region_id):
         return redirect("region", region_id)
 
     for key, value in request.POST.items():
-        if "marshall_" in key and value != "":
-            unit = Unit.objects.get(id=key[9:])
+        if "marshal_" in key and value != "":
+            unit = Unit.objects.get(id=key[9:], ruler=player)
             amount = int(value)
             marshal_from_location(player, unit, amount, region)
 

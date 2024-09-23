@@ -25,3 +25,12 @@ def get_resource_name(resource_icon):
             return "influence"
         case _:
             return "Erik forgot the tooltip"
+        
+
+def create_or_add_to_key(dict, key, amount):
+    if key in dict:
+        dict[key] += amount
+    else:
+        dict[key] = amount
+
+    return dict

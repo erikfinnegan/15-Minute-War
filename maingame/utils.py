@@ -1,6 +1,9 @@
 from random import randint
 
-from maingame.models import Terrain, Unit, BuildingType, Player, Faction, Region, Journey, Building
+from maingame.formatters import create_or_add_to_key
+from maingame.models import Terrain, Unit, BuildingType, Player, Faction, Region, Journey, Building, Deity
+from django.contrib.auth.models import User
+from django.db.models import Q
 
 
 def assign_faction(player: Player, faction: Faction):
@@ -55,21 +58,6 @@ def marshal_from_location(player: Player, unit: Unit, quantity: int, origin: Reg
         unit.save()
 
 
-# def receive_journey(journey: Journey):
-#     region = journey.destination
-#     unit = journey.unit
-#     unit_id_str = str(unit.id)
-#     quantity = journey.quantity
-
-#     if unit_id_str in region.units_here_dict.keys():
-#         region.units_here_dict[unit_id_str] += quantity
-#     else:
-#         region.units_here_dict[unit_id_str] = quantity
-
-#     region.save()
-#     journey.delete()
-
-
 def construct_building(player, region_id, building_type_id, amount):
     building_type = BuildingType.objects.get(id=building_type_id)
     region = Region.objects.get(id=region_id)
@@ -100,10 +88,7 @@ def get_journey_output_dict(player: Player, region: Region):
         journey_dict[unit.name] = {}
 
     for journey in incoming_journeys:
-        if str(journey.ticks_to_arrive) not in journey_dict[journey.unit.name]:
-            journey_dict[journey.unit.name][str(journey.ticks_to_arrive)] = journey.quantity
-        else:
-            journey_dict[journey.unit.name][str(journey.ticks_to_arrive)] += journey.quantity
+        journey_dict[journey.unit.name] = create_or_add_to_key(journey_dict[journey.unit.name], str(journey.ticks_to_arrive), journey.quantity)
 
         for x in range(1, 13):
             if str(x) not in journey_dict[journey.unit.name]:
@@ -117,3 +102,34 @@ def get_journey_output_dict(player: Player, region: Region):
                 output_dict[unit_name].append(tick_data[str(x)])
 
     return output_dict
+
+
+def mock_up_player(user: User, faction: Faction):
+    player = Player.objects.create(associated_user=user, name=f"P-{user.username}")
+    assign_faction(player, faction)
+
+    region_templates = []
+    
+    for _ in range(4):
+        x = str(randint(1,9999))
+        name = f"{player.name[2:5]}{x}"
+
+        count = Terrain.objects.count()
+        primary_terrain = Terrain.objects.all()[randint(0, count - 1)]
+
+        count = Terrain.objects.count() - 1
+        secondary_terrain = Terrain.objects.filter(~Q(id=primary_terrain.id))[randint(0, count - 1)]
+
+        count = Deity.objects.count()
+        deity = Deity.objects.all()[randint(0, count - 1)]
+
+        region_templates.append({
+            "ruler": player,
+            "name": name,
+            "primary_terrain": primary_terrain,
+            "secondary_terrain": secondary_terrain,
+            "deity": deity,
+        })
+
+    for template in region_templates:
+        Region.objects.create(**template)

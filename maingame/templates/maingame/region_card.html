@@ -1,21 +1,21 @@
 {% load humanize %}
 
-{% if region %}
-<a href="{% url 'region' region.id %}" class="u-border-1 w-48 px-2 pt-1 u-flex u-flex-column text-light">
+<a href="{% url 'region' region.id %}" class="u-border-2 w-48 px-2 pt-1 u-flex u-flex-column text-light{% if ally %} border-green-400{% elif enemy %} border-red-400{% endif %}">
     <span>{{ region.emoji_name }}</span>
-    <h6>Defense: {{ region.defense|intcomma }}</h6>
-    <div class="u-flex u-flex-row u-gap-1">
+
+    {% if show_enemy_details or ally %}
+    <h6>Defense: {{ region.defense_with_incoming|intcomma }}</h6>
+    
+
+    <div class="u-flex u-flex-row u-gap-1 mt-1">
         {% for building in region.buildings_here.all %}
-        <div class="card bg-gray-700 px-1 u-border-1{% if building.built_on_ideal_terrain %} text-yellow-200 u-border-yellow-200{% endif %}" style="width: fit-content;">
+        <div class="card bg-gray-700 px-1 u-border-1{% if building.built_on_ideal_terrain %} text-yellow-200 border-yellow-200{% endif %}" style="width: fit-content;">
             <span>{{ building.type.name|title }}</span>
         </div>
         {% endfor %}
     </div>
-    {% if region.plots_available > 0 %}
+    {% endif %}
+    {% if region.plots_available > 0 and ally %}
     <span class="font-bold text-red-400">Unconstructed plots: {{ region.plots_available }}</span>
     {% endif %}
 </a>
-
-{% else %}
-<span>ERROR: NO REGION</span>
-{% endif %}

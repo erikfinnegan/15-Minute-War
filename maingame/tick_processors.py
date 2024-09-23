@@ -1,4 +1,5 @@
-from maingame.models import Player, Building, Journey, Round
+from maingame.formatters import create_or_add_to_key
+from maingame.models import Player, Region, Round, Unit, Building
 
 # def do_resource_production():
 #     for player in Player.objects.all():
@@ -43,12 +44,52 @@ def check_victory():
             round.save()
 
 
+def do_invasion(region: Region):
+    ruler_power = {}
+
+    for unit_id, quantity in region.units_here_dict.items():
+        unit = Unit.objects.get(id=unit_id)
+
+        if unit.ruler == region.ruler:
+            create_or_add_to_key(ruler_power, str(unit.ruler.id), (quantity * unit.dp) + 0.01)  # Ties go to defender
+        else:
+            create_or_add_to_key(ruler_power, str(unit.ruler.id), (quantity * unit.op))
+
+    winner_id = 0
+    highest_power = 0
+
+    for ruler_id, power in ruler_power.items():
+        if power > highest_power:
+            winner_id = ruler_id
+            highest_power = power
+
+    winner = Player.objects.get(id=winner_id)
+    units_here_dict_clone = region.units_here_dict.copy()
+
+    for unit_id, quantity in units_here_dict_clone.items():
+        unit = Unit.objects.get(id=unit_id)
+
+        if unit.ruler != winner:
+            unit.quantity_marshaled += quantity
+            del region.units_here_dict[unit_id]
+            unit.save()
+
+    for building in Building.objects.filter(region=region):
+        building.ruler = winner
+        building.save()
+
+    region.ruler = winner
+    region.invasion_this_tick = False
+    region.save()
+
+
 def do_global_tick():
     check_victory()
 
     if Round.objects.first().allow_ticks:
         for player in Player.objects.all():
             if player.protection_ticks_remaining == 0:
-                player.do_resource_production()
-                player.do_food_consumption()
-                player.progress_journeys()
+                player.do_tick()
+
+    for region in Region.objects.filter(invasion_this_tick=True):
+        do_invasion(region)
