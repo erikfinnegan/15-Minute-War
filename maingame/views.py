@@ -325,7 +325,7 @@ def marshal_from_region(request, region_id):
 
     for key, value in request.POST.items():
         if "marshal_" in key and value != "":
-            unit = Unit.objects.get(id=key[9:], ruler=player)
+            unit = Unit.objects.get(ruler=player, id=key[8:])
             amount = int(value)
 
             if amount > region.units_here_dict[str(unit.id)]:
@@ -340,7 +340,7 @@ def marshal_from_region(request, region_id):
 
     for key, value in request.POST.items():
         if "marshal_" in key and value != "":
-            unit = Unit.objects.get(id=key[9:], ruler=player)
+            unit = Unit.objects.get(id=key[8:], ruler=player)
             amount = int(value)
             marshal_from_location(player, unit, amount, region)
 

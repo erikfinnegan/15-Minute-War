@@ -10,6 +10,42 @@
     function sendMax(unit_id, quantity_marshaled) {
         let thisInput = document.getElementById("send_" + unit_id);
         thisInput.value = quantity_marshaled;
+        updateOffenseToSend()
+    }
+
+    function marshalMax(unit_id, quantity_here) {
+        let thisInput = document.getElementById("marshal_" + unit_id);
+        thisInput.value = quantity_here;
+    }
+
+    function updateOffenseToSend() {
+        let opReadout = document.getElementById("op-to-send");
+        let unitInputs = document.getElementsByClassName("unitInput")
+        let totalOp = 0
+        let totalDp = 0
+
+        for (const [key, value] of Object.entries(unitInputs)) {
+            unitId = value.id.substr(5)
+            const op = document.getElementById("power_" + unitId).innerHTML.split("/")[0]
+            totalOp = totalOp + value.value * op
+        }
+
+        opReadout.innerHTML = totalOp
+    }
+
+    function updateDefenseHere(regionDefense) {
+        const regionDefenstInt = parseInt(regionDefense)
+        let dpReadout = document.getElementById("dp-left");
+        const unitHereInputs = document.getElementsByClassName("unitHereInput")
+        let totalLostDp = 0
+
+        for (const [key, value] of Object.entries(unitHereInputs)) {
+            unitId = value.id.substr(8)
+            const dp = document.getElementById("unit-here-power_" + unitId).innerHTML.split("/")[1]
+            totalLostDp = totalLostDp + value.value * dp
+        }
+
+        dpReadout.innerHTML = regionDefenstInt - totalLostDp
     }
 </script>
 
@@ -43,7 +79,7 @@
                     {% for unit_here in units_here %}
                     <tr class="{% if unit_here.unit.ruler != active_player %}text-red-400{% endif %}">
                         <th class="u-align-middle">{{ unit_here.unit.name|title }}</th>
-                        <td class="u-align-middle">{{ unit_here.unit.op }}/{{ unit_here.unit.dp }}</td>
+                        <td class="u-align-middle" id="unit-here-power_{{ unit_here.unit.id }}">{{ unit_here.unit.op }}/{{ unit_here.unit.dp }}</td>
                         <td class="u-align-middle">{{ unit_here.quantity|intcomma }}</td>
                         {% if is_my_region %}
                         <td class="u-align-middle u-flex-md u-flex-row-md">
@@ -53,18 +89,16 @@
                                 placeholder="{{ unit_here.quantity }}" 
                                 type="number" 
                                 max="{{ unit_here.quantity }}" 
-                                class="w-12 w-16-md ml-auto-md mr-2-md"
+                                class="w-12 w-16-md ml-auto-md mr-2-md unitHereInput"
+                                oninput="updateDefenseHere('{{ region.defense }}')"
                             >
-                            <button type="button" class="btn-light my-auto u-none u-block-md mr-auto-md" onclick="marshalMax('{{ unit_here.unit.id }}', '{{ unit_here.quantity }}')">
+                            <button 
+                                type="button" 
+                                class="btn-light my-auto u-none u-block-md mr-auto-md" 
+                                onclick="marshalMax('{{ unit_here.unit.id }}', '{{ unit_here.quantity }}'); updateDefenseHere('{{ region.defense }}')"
+                            >
                                 Max
                             </button>
-                            
-                            <script>
-                            function marshalMax(unit_id, quantity_here) {
-                                let thisInput = document.getElementById("marshal_" + unit_id);
-                                thisInput.value = quantity_here;
-                            }
-                            </script>
                         </td>
                         {% endif %}
                     </tr>
@@ -73,9 +107,16 @@
             </table>
             
             {% if region.defense > 0 and is_my_region %}
-            <button class="btn-light mt-1 w-16 h-6 p-0 u-center" type="submit">
-                <span class="font-bold">Marshal</span>
-            </button>
+            <div class="u-flex u-flex-row u-center u-gap-4">
+                <div>
+                    <span id="dp-left">{{ region.defense }}</span>
+                    <span>defense remaining</span>
+                </div>
+                <button class="btn-light mt-1 w-16 h-6 p-0" type="submit">
+                    <span class="font-bold">Marshal</span>
+                </button>
+            </div>
+
             {% endif %}
         </form>
     </div>
@@ -105,7 +146,7 @@
                     {% for unit in marshaled_units %}
                     <tr>
                         <th class="u-align-middle">{{ unit.name|title }}</th>
-                        <td class="u-align-middle">{{ unit.op }}/{{ unit.dp }}</td>
+                        <td class="u-align-middle" id="power_{{ unit.id }}">{{ unit.op }}/{{ unit.dp }}</td>
                         <td class="u-align-middle">{{ unit.quantity_marshaled|intcomma }}</td>
                         <td class="u-align-middle u-flex-md u-flex-row-md">
                             <input 
@@ -114,7 +155,10 @@
                                 placeholder="{{ unit.quantity_marshaled }}" 
                                 type="number" 
                                 max="{{ unit.quantity_marshaled }}" 
-                                class="w-12 w-16-md ml-auto-md mr-2-md"
+                                class="w-12 w-16-md ml-auto-md mr-2-md unitInput"
+                                {% if not is_my_region %}
+                                oninput="updateOffenseToSend()"
+                                {% endif %}
                             >
                             <button type="button" class="btn-light my-auto u-none u-block-md mr-auto-md" onclick="sendMax('{{ unit.id }}', '{{ unit.quantity_marshaled }}')">
                                 Max
@@ -124,9 +168,17 @@
                     {% endfor %}
                 </tbody>
             </table>
-            <button class="btn-light mt-1 w-16 h-6 p-0 u-center" type="submit">
-                <span class="font-bold">Send</span>
-            </button>
+            <div class="u-flex u-flex-row u-center u-gap-4">
+                {% if not is_my_region %}
+                <div>
+                    <span id="op-to-send">0</span>
+                    <span>offense vs. {{ region.defense }} defense</span>
+                </div>
+                {% endif %}
+                <button class="btn-light mt-1 w-16 h-6 p-0" type="submit">
+                    <span class="font-bold">Send</span>
+                </button>
+            </div>
         </form>
     </div>
     {% endif %}
