@@ -420,15 +420,15 @@ class Battle(models.Model):
 
     @property
     def event_text(self):
-        if self.winner in self.attackers.all():
+        if not self.winner in self.attackers.all():
             attackers = ""
 
             for attacker in self.attackers.all():
                 attackers += smart_comma(attackers, attacker.name)
 
-            return f"{self.winner} defended {self.target} against {attackers}"
+            return f"{self.winner} repelled {attackers} to defend {self.target}"
 
-        return f"{self.winner} conquered {self.target} from {self.original_ruler}"
+        return f"{self.winner} defeated {self.original_ruler} to conquer {self.target}"
 
 
 class Event(models.Model):
@@ -436,7 +436,7 @@ class Event(models.Model):
     reference_id = models.IntegerField(default=0)
     reference_type = models.CharField(max_length=50)
     icon = models.CharField(max_length=50, default="?")
-    extra_text = models.CharField(max_length=150, blank=True, null=True)
+    extra_text = models.CharField(max_length=150, default="")
 
     def __str__(self):
         return f"{self.message}"
@@ -449,6 +449,12 @@ class Event(models.Model):
         elif self.reference_type == "signup":
             player = Player.objects.get(id=self.reference_id)
             return f"{player} has joined the game!"
+        elif self.reference_type == "colonize":
+            region = Region.objects.get(id=self.reference_id)
+            return f"{region.ruler} has colonized {region}"
+        elif self.reference_type == "discover":
+            region = Region.objects.get(id=self.reference_id)
+            return f"Explorers have discovered {region}"
         
         return "Unknown event type"
 

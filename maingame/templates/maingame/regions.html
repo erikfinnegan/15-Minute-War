@@ -21,6 +21,14 @@
             </div>
         </div>
         {% endfor %}
+        <div class="card bg-gray-900 p-2">
+            <span>Unoccupied regions</span>
+            <div class="u-flex u-flex-wrap u-gap-2 mt-2">
+                {% for unoccupied_region in unoccupied_regions.regions %}
+                {% include "maingame/region_card.html" with region=unoccupied_region bordercolor="yellow" enemy=True %}
+                {% endfor %}
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

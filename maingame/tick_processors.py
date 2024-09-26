@@ -1,39 +1,6 @@
 from maingame.formatters import create_or_add_to_key
 from maingame.models import Player, Region, Round, Unit, Building, Battle, Event
 
-# def do_resource_production():
-#     for player in Player.objects.all():
-#         player.adjust_resource("🪙", player.gold_production)
-#         player.adjust_resource("👑", player.influence_production)
-        
-#         for building in Building.objects.filter(ruler=player):
-#             if building.type.amount_produced > 0:
-#                 amount_produced = building.type.amount_produced
-                
-#                 if building.built_on_ideal_terrain:
-#                     amount_produced *= 2
-
-#                 player.adjust_resource(building.type.resource_produced, amount_produced)
-
-#         player.save()
-
-
-# def do_food_consumption():
-#     for player in Player.objects.all():
-#         consumption = player.get_food_consumption()
-#         player.is_starving = consumption > player.resource_dict["🍞"]
-#         player.adjust_resource("🍞", (consumption * -1))
-#         player.save()        
-
-
-# def do_journeys():
-#     for journey in Journey.objects.all():
-#         journey.ticks_to_arrive -= 1
-#         journey.save()
-
-#         if journey.ticks_to_arrive == 0:
-#             receive_journey(journey)
-
 
 def check_victory():
     for player in Player.objects.all():
@@ -45,7 +12,6 @@ def check_victory():
 
 
 def do_invasion(region: Region):
-    battle = Battle.objects.create(target=region, units_involved_dict=region.units_here_dict.copy(), original_ruler=region.ruler, dp=region.defense)
     ruler_power = {}
     unit_casualties_dict = {}
 
@@ -56,6 +22,16 @@ def do_invasion(region: Region):
             create_or_add_to_key(ruler_power, str(unit.ruler.id), (quantity * unit.dp) + 0.01)  # Ties go to defender
         else:
             create_or_add_to_key(ruler_power, str(unit.ruler.id), (quantity * unit.op))
+
+    if region.ruler == None and len(ruler_power.keys()) == 1:
+        new_ruler_id = int(list(ruler_power)[0])
+        region.ruler = Player.objects.get(id=new_ruler_id)
+        region.invasion_this_tick = False
+        region.save()
+        event = Event.objects.create(reference_id=region.id, reference_type="colonize", icon="🚩")
+        return
+
+    battle = Battle.objects.create(target=region, units_involved_dict=region.units_here_dict.copy(), original_ruler=region.ruler, dp=region.defense)
 
     winner_id = 0
     highest_power = 0
@@ -71,7 +47,6 @@ def do_invasion(region: Region):
             highest_invader_power = power
 
         if int(ruler_id) != region.ruler.id:
-            print(f"{player} because {ruler_id} isn't {region.ruler.id}")
             battle.attackers.add(player)
 
     winner = Player.objects.get(id=winner_id)
@@ -115,6 +90,10 @@ def do_invasion(region: Region):
     region.ruler = winner
     region.invasion_this_tick = False
     region.save()
+
+
+def find_regions():
+    print("find a region")
 
 
 def do_global_tick():

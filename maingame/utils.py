@@ -1,7 +1,7 @@
-from random import randint
+from random import randint, choice
 
 from maingame.formatters import create_or_add_to_key
-from maingame.models import Terrain, Unit, BuildingType, Player, Faction, Region, Journey, Building, Deity
+from maingame.models import Terrain, Unit, BuildingType, Player, Faction, Region, Journey, Building, Deity, Event
 from django.contrib.auth.models import User
 from django.db.models import Q
 
@@ -102,6 +102,44 @@ def get_journey_output_dict(player: Player, region: Region):
                 output_dict[unit_name].append(tick_data[str(x)])
 
     return output_dict
+
+
+def generate_region():
+    terrain_count = Terrain.objects.count()
+    primary_terrain = Terrain.objects.all()[randint(0, terrain_count - 1)]
+
+    terrain_count = Terrain.objects.count() - 1
+    secondary_terrain = Terrain.objects.filter(~Q(id=primary_terrain.id))[randint(0, terrain_count - 1)]
+
+    deity_count = Deity.objects.count()
+    deity = Deity.objects.all()[randint(0, deity_count - 1)]
+
+    person_names = ["Caul", "Ratclip", "Thomer", "Vaude", "Andrel", "Poley", "Tert", "Menry", "Wester", "Bragon", "Canter", "Card", "Baston", "Edwall", "Octague",
+                    "Micham", "Franter", "Cater", "Catlip", "Carda", "Blance", "Regess", "Archam", "Bastaff", "Erpidge", "Humphin", "Richam", "Priar", "Stalton",
+                    "Gober", "Colk", "Shakir", "Amr", "Imad", "Yazid", "Zayd", "Chanda", "Layla", "Razia", "Helder", "Costa", "Branco", "Rosa", "Nuho", "Miko",
+                    "Hehomu", "Nimopa", "Hops", "Buzz", "Chuck", "Pallas", "Callisto", "Kirk", "Mbizi", "Lapis"]
+    
+    class Place:
+        def __init__(self, before, after):
+            self.before = before
+            self.after = after
+    
+    name_modifiers = [Place("", "town"), Place("", "ton"), Place("", " Meadows"), Place("", " Downs"), Place("", "'s Folly"), Place("", " Priory"), Place("", "wood"),
+                      Place("", "'s Gate"), Place("", " Baths"), Place("The ", "marches"), Place("", "ford"), Place("St. ", ""), Place("", "bridge"), Place("", " Corner"),
+                      Place("", " Junction"), Place("North ", ""), Place("South ", ""), Place("East ", ""), Place("West ", ""), Place("Old ", ""), Place("New ", ""),
+                      Place("", " Heights")]
+    
+    while True:
+        try:
+            person = choice(person_names)
+            modifier = choice(name_modifiers)
+            region_name = f"{modifier.before}{person}{modifier.after}"
+            region = Region.objects.create(name=region_name, primary_terrain=primary_terrain, secondary_terrain=secondary_terrain, deity=deity)
+            break
+        except:
+            pass
+
+    event = Event.objects.create(reference_id=region.id, reference_type="discover", icon="🗺️")
 
 
 def mock_up_player(user: User, faction: Faction):

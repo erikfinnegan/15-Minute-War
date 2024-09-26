@@ -4,6 +4,7 @@ from maingame.models import Player, Terrain, Deity, Region, Unit, Building, Buil
 from django.contrib.auth.models import User
 
 from maingame.tick_processors import do_global_tick
+from maingame.utils import generate_region
 
 class Command(BaseCommand):
     help = "Initiates a battle"
@@ -13,5 +14,7 @@ class Command(BaseCommand):
         # testuser = User.objects.get(username="test")
         # testplayer = Player.objects.get(associated_user=testuser)
 
-        do_global_tick()
+        # do_global_tick()
+        for _ in range(50):
+            generate_region()
         

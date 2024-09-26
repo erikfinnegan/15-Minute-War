@@ -98,13 +98,11 @@ def regions(request):
             OpponentsRegionsData(opponent, Region.objects.filter(ruler=opponent))
         )
 
-    # for unit_id, quantity in region.units_here_dict.items():
-        # units_here.append(UnitHere(Unit.objects.get(id=unit_id), quantity))
-
     context = {
         "my_regions": my_regions,
         "show_enemy_details": Round.objects.first().has_started,
         "opponents_regions_data_list": opponents_regions_data_list,
+        "unoccupied_regions": OpponentsRegionsData("Unoccupied", Region.objects.filter(ruler=None)),
     }
 
     return render(request, "maingame/regions.html", context)
@@ -245,7 +243,7 @@ def upgrade_building_type(request, building_type_id):
 def run_tick_view(request, quantity):
     for _ in range(quantity):
         do_global_tick()
-        
+
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
