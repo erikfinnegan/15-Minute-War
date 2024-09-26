@@ -59,6 +59,7 @@ class Terrain(models.Model):
 class Player(models.Model):
     associated_user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, unique=True)
     name = models.CharField(max_length=50, null=True, blank=True, unique=True)
+    timezone = models.CharField(max_length=50, default="UTC")
     resource_dict = models.JSONField(default=dict)
     is_starving = models.BooleanField(default=False)
     upgrade_cost = models.IntegerField(default=150)
@@ -66,7 +67,7 @@ class Player(models.Model):
     protection_ticks_remaining = models.IntegerField(default=96)
 
     def __str__(self):
-        return f"{self.name} ({self.associated_user.username})"
+        return f"{self.name}"
     
     @property
     def marshaled_op(self):
@@ -367,7 +368,8 @@ class Region(models.Model):
 
         for unit_id, quantity in self.units_here_dict.items():
             unit = Unit.objects.get(id=int(unit_id))
-            defense += quantity * unit.dp
+            if unit.ruler == self.ruler:
+                defense += quantity * unit.dp
 
         defense_modifier = 100
 
@@ -406,6 +408,50 @@ class Journey(models.Model):
     def __str__(self):
         return f"{self.quantity}x {self.unit} ... to {self.destination} ({self.ticks_to_arrive} ticks)"
     
+
+class Battle(models.Model):
+    winner = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, related_name="battles_won")
+    target = models.ForeignKey(Region, on_delete=models.PROTECT)
+    attackers = models.ManyToManyField(Player)
+    units_involved_dict = models.JSONField(default=dict, null=True, blank=True)
+    casualties_dict = models.JSONField(default=dict, null=True, blank=True)
+    original_ruler = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, related_name="battles_defended")
+    dp = models.IntegerField(default=0)
+
+    @property
+    def event_text(self):
+        if self.winner in self.attackers.all():
+            attackers = ""
+
+            for attacker in self.attackers.all():
+                attackers += smart_comma(attackers, attacker.name)
+
+            return f"{self.winner} defended {self.target} against {attackers}"
+
+        return f"{self.winner} conquered {self.target} from {self.original_ruler}"
+
+
+class Event(models.Model):
+    timestamp = models.DateTimeField(auto_now_add=True)
+    reference_id = models.IntegerField(default=0)
+    reference_type = models.CharField(max_length=50)
+    icon = models.CharField(max_length=50, default="?")
+    extra_text = models.CharField(max_length=150, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.message}"
+
+    @property
+    def message(self):
+        if self.reference_type == "battle":
+            battle = Battle.objects.get(id=self.reference_id)
+            return battle.event_text
+        elif self.reference_type == "signup":
+            player = Player.objects.get(id=self.reference_id)
+            return f"{player} has joined the game!"
+        
+        return "Unknown event type"
+
 
 class Round(models.Model):
     has_started = models.BooleanField(default=True)

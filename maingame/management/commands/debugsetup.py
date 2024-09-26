@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 
-from maingame.models import Player, Deity, Terrain, Region, Faction, BuildingType
+from maingame.models import Player, Deity, Terrain, Region, Faction, BuildingType, Unit
 from maingame.static_init import initialize_game_pieces
 from maingame.utils import assign_faction, construct_building, mock_up_player
 
@@ -19,6 +19,12 @@ class Command(BaseCommand):
                 mock_up_player(user, Faction.objects.get(name="human"))
             else:
                 mock_up_player(user, Faction.objects.get(name="undead"))
+
+            player = Player.objects.get(associated_user=user)
+            
+            for unit in Unit.objects.filter(ruler=player):
+                    unit.quantity_marshaled = 500
+                    unit.save()
 
 
         #     new_player = Player.objects.create(associated_user=user, name=f"X {user.username}")

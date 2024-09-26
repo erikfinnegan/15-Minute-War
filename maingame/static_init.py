@@ -1,4 +1,4 @@
-from maingame.models import BuildingType, Terrain, Deity, Faction, Region, Player, Building, Unit, Journey, Round
+from maingame.models import BuildingType, Terrain, Deity, Faction, Region, Player, Building, Unit, Journey, Round, Battle, Event
 
 def initialize_building_types():
     building_type_templates = [
@@ -182,6 +182,8 @@ def initialize_deities():
 
 
 def initialize_game_pieces():
+    Battle.objects.all().delete()
+    Event.objects.all().delete()
     Round.objects.all().delete()
     Journey.objects.all().delete()
     Building.objects.all().delete()

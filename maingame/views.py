@@ -1,3 +1,5 @@
+import zoneinfo
+
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -5,7 +7,7 @@ from django.contrib import messages
 from django.db.models import Q
 
 from maingame.formatters import create_or_add_to_key, get_resource_name
-from maingame.models import Building, BuildingType, Player, Region, Unit, Journey, Round
+from maingame.models import Building, BuildingType, Player, Region, Unit, Journey, Round, Event
 from maingame.tick_processors import do_global_tick
 from maingame.utils import construct_building, get_journey_output_dict, marshal_from_location, send_journey
 
@@ -240,14 +242,16 @@ def upgrade_building_type(request, building_type_id):
 
 
 @login_required
-def run_tick_view(request):
-    do_global_tick()
+def run_tick_view(request, quantity):
+    for _ in range(quantity):
+        do_global_tick()
+        
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 @login_required
 def protection_tick(request, quantity):
-    if quantity < 96:
+    if quantity <= 96:
         player = Player.objects.get(associated_user=request.user)
         
         for _ in range(quantity):
@@ -259,6 +263,30 @@ def protection_tick(request, quantity):
         messages.error(request, f"Knock it off")
     
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+@login_required
+def news(request):
+    TIMEZONES_CHOICES = [tz for tz in zoneinfo.available_timezones()]
+
+    context = {
+        "events": Event.objects.all().order_by('-id')[:20],
+        "timezones": TIMEZONES_CHOICES,
+    }
+
+    return render(request, "maingame/news.html", context)
+
+
+@login_required
+def set_timezone(request):
+    player = Player.objects.get(associated_user=request.user)
+    timezone = request.POST["timezone"]
+    player.timezone = timezone
+    player.save()
+
+    messages.success(request, f"Time zone updated to {timezone}")
+    
+    return redirect("news")
 
 
 @login_required

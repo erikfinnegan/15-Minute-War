@@ -1,5 +1,5 @@
 from maingame.formatters import create_or_add_to_key
-from maingame.models import Player, Region, Round, Unit, Building
+from maingame.models import Player, Region, Round, Unit, Building, Battle, Event
 
 # def do_resource_production():
 #     for player in Player.objects.all():
@@ -45,6 +45,7 @@ def check_victory():
 
 
 def do_invasion(region: Region):
+    battle = Battle.objects.create(target=region, units_involved_dict=region.units_here_dict.copy(), original_ruler=region.ruler, dp=region.defense)
     ruler_power = {}
     unit_casualties_dict = {}
 
@@ -61,12 +62,17 @@ def do_invasion(region: Region):
     highest_invader_power = 0
 
     for ruler_id, power in ruler_power.items():
+        player = Player.objects.get(id=ruler_id)
         if power > highest_power:
             winner_id = ruler_id
             highest_power = power
 
         if ruler_id != region.ruler.id and power > highest_invader_power:
             highest_invader_power = power
+
+        if int(ruler_id) != region.ruler.id:
+            print(f"{player} because {ruler_id} isn't {region.ruler.id}")
+            battle.attackers.add(player)
 
     winner = Player.objects.get(id=winner_id)
     units_here_dict_clone = region.units_here_dict.copy()
@@ -93,6 +99,18 @@ def do_invasion(region: Region):
         building.save()
 
     # unit_casualties_dict: key = unit_id, value = casualties_for_that_unit
+    battle.casualties_dict = unit_casualties_dict
+    battle.winner = winner
+    battle.save()
+
+    event = Event.objects.create(reference_id=battle.id, reference_type="battle", extra_text=f"{battle.dp} DP")
+
+    if battle.winner == region.ruler:
+        event.icon = "🛡"
+    else:
+        event.icon = "🗡"
+
+    event.save()
 
     region.ruler = winner
     region.invasion_this_tick = False

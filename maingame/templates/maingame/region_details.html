@@ -121,7 +121,7 @@
         </form>
     </div>
 
-    {% if active_player.protection_ticks_remaining == 0 or is_my_region %}
+    {% if region.ruler.protection_ticks_remaining == 0 or is_my_region %}
     {% if active_player.has_marshaled_units %}
     <div class="card max-w-sm {% if is_my_region %}bg-gray-900{% else %}bg-red-900{% endif %} pt-2">
         <form action="{% url 'dispatch_to_one_region' region.id %}" method="post" class="">

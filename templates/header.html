@@ -40,6 +40,9 @@
         <button class="h-4 py-0">+12 ticks</button>
     </a>
     {% endif %}
+    <a href="{% url 'protection_tick' active_player.protection_ticks_remaining %}">
+        <button class="h-4 py-0">+{{ active_player.protection_ticks_remaining }} ticks</button>
+    </a>
 </div>
 {% endif %}
 
