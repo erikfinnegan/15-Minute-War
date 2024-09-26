@@ -1,5 +1,7 @@
+from random import randint
 from maingame.formatters import create_or_add_to_key
 from maingame.models import Player, Region, Round, Unit, Building, Battle, Event
+from maingame.utils import generate_region
 
 
 def check_victory():
@@ -93,7 +95,25 @@ def do_invasion(region: Region):
 
 
 def find_regions():
-    print("find a region")
+    total_defense = 0
+    
+    for region in Region.objects.all():
+        total_defense += region.defense
+
+    average_defense = total_defense / Region.objects.count()
+    low_defense_regions = 0
+    
+    for region in Region.objects.all():
+        if region.defense < average_defense / 3:
+            low_defense_regions += 1
+
+        if region.ruler and region.ruler.protection_ticks_remaining > 0:
+            low_defense_regions -= 1
+
+    print("low_defense_regions", low_defense_regions)
+
+    if randint(1,100) <= 20 / (low_defense_regions + 1):
+        generate_region()
 
 
 def do_global_tick():
@@ -106,3 +126,5 @@ def do_global_tick():
 
     for region in Region.objects.filter(invasion_this_tick=True):
         do_invasion(region)
+
+    find_regions()
