@@ -8,36 +8,10 @@ from maingame.formatters import create_or_add_to_key, smart_comma, get_resource_
 
 class Deity(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True, unique=True)
+    icon = models.CharField(max_length=10, null=True, blank=True, unique=True)
 
     def __str__(self):
-        return f"{self.name} ({self.emoji})"
-    
-    @property
-    def emoji(self):
-        if self.name == "Hunger Without End":
-            return "🪙"
-        elif self.name == "Rubecus":
-            return "🪺"
-        elif self.name == "The Many Who Are One":
-            return "🍄"
-        # elif self.name == "The Champion's Majestic Steed":
-        #     return "🦄"
-        # elif self.name == "She Who Ends the World":
-        #     return "👹"
-        # elif self.name == "Akara":
-        #     return "❤️‍🔥"
-        # elif self.name == "The Rumorkin Counsel":
-        #     return "👁️‍🗨️"
-        # elif self.name == "The Prince of Progress":
-        #     return "?"
-        # elif self.name == "Celebara":
-        #     return "🎵"
-        # elif self.name == "Flihara":
-        #     return "🌺"
-        # elif self.name == "Freedom's Unforgettable Sacrifice":
-        #     return "⛓️‍💥"
-        else:
-            return "🆘"
+        return f"{self.name} ({self.icon})"
         
     class Meta: 
         verbose_name_plural = "deities"
@@ -45,7 +19,7 @@ class Deity(models.Model):
 
 class Terrain(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True, unique=True)
-    emoji = models.CharField(max_length=10, null=True, blank=True, unique=True)
+    icon = models.CharField(max_length=10, null=True, blank=True, unique=True)
     unit_op_dp_ratio = models.FloatField(null=True, blank=True)
     unit_perk_options = models.CharField(max_length=500, null=True, blank=True)
 
@@ -291,17 +265,12 @@ class Faction(models.Model):
 
 class Unit(models.Model):
     ruler = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
-    faction_for_which_is_default = models.ForeignKey(Faction, on_delete=models.PROTECT, null=True)
+    faction_for_which_is_default = models.ForeignKey(Faction, on_delete=models.PROTECT, null=True, blank=True)
     name = models.CharField(max_length=50, null=True, blank=True)
     dp = models.IntegerField(default=0)
     op = models.IntegerField(default=0)
-    dp_upgrades = models.IntegerField(default=0)
-    op_upgrades = models.IntegerField(default=0)
     is_trainable = models.BooleanField(default=True)
-    cost_dict = models.JSONField(default=dict)
-    cost_upgrade_dict = models.JSONField(default=dict)
-    associated_deity = models.ForeignKey(Deity, on_delete=models.PROTECT, null=True, blank=True)
-    sacred_site_requirement = models.IntegerField(default=0)
+    cost_dict = models.JSONField(default=dict, blank=True)
     quantity_marshaled = models.IntegerField(default=0)
     perk_string = models.CharField(max_length=500, null=True, blank=True)
 
@@ -342,10 +311,10 @@ class Region(models.Model):
     invasion_this_tick = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.name} {self.primary_terrain.emoji}{self.primary_terrain.emoji}{self.secondary_terrain.emoji} / {self.deity.emoji}"
+        return f"{self.name} {self.primary_terrain.icon}{self.primary_terrain.icon}{self.secondary_terrain.icon} / {self.deity.icon}"
 
-    def emoji_name(self):
-        return f"{self.name} {self.primary_terrain.emoji}{self.primary_terrain.emoji}{self.secondary_terrain.emoji} / {self.deity.emoji}"
+    def icon_name(self):
+        return f"{self.name} {self.primary_terrain.icon}{self.primary_terrain.icon}{self.secondary_terrain.icon} / {self.deity.icon}"
     
     def description(self):
         if self.primary_terrain == "defensible" or self.secondary_terrain == "defensible":

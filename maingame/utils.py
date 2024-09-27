@@ -141,6 +141,8 @@ def generate_region():
 
     Event.objects.create(reference_id=region.id, reference_type="discover", icon="🗺️")
 
+    return region
+
 
 def mock_up_player(user: User, faction: Faction):
     player = Player.objects.create(associated_user=user, name=f"P-{user.username}")
@@ -160,14 +162,6 @@ def mock_up_player(user: User, faction: Faction):
 
         count = Deity.objects.count()
         deity = Deity.objects.all()[randint(0, count - 1)]
-
-        region_templates.append({
-            "ruler": player,
-            "name": name,
-            "primary_terrain": primary_terrain,
-            "secondary_terrain": secondary_terrain,
-            "deity": deity,
-        })
-
-    for template in region_templates:
-        Region.objects.create(**template)
+        region = generate_region()
+        region.ruler = player
+        region.save()

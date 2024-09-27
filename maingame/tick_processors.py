@@ -1,7 +1,8 @@
 from random import randint
 from maingame.formatters import create_or_add_to_key
-from maingame.models import Player, Region, Round, Unit, Building, Battle, Event
+from maingame.models import Player, Region, Round, Unit, Building, Battle, Event, Deity
 from maingame.utils import generate_region
+from django.db.models import Q
 
 
 def check_victory():
@@ -118,10 +119,36 @@ def find_regions():
         if region.ruler and region.ruler.protection_ticks_remaining > 0:
             low_defense_regions -= 1
 
-    print("low_defense_regions", low_defense_regions)
-
     if randint(1,100) <= 20 / (low_defense_regions + 1):
         generate_region()
+
+
+def do_deities():
+    deities_count_dict = {}
+    
+    for deity in Deity.objects.all():
+        deities_count_dict[deity.icon] = {}
+
+    for region in Region.objects.filter(~Q(ruler=None)):
+        deities_count_dict[region.deity.icon] = create_or_add_to_key(deities_count_dict[region.deity.icon], str(region.ruler.id), 1)
+
+    for deity in Deity.objects.all():
+        deity_count_dict = deities_count_dict[deity.icon]
+        favored_player_id = 0
+        favored_player_devotion = 0
+        tied_for_highest = False
+
+        for player_id, devotion in deity_count_dict.items():
+            if devotion > favored_player_devotion:
+                favored_player_devotion = devotion
+                favored_player_id = player_id
+                tied_for_highest = False
+            elif devotion == favored_player_devotion:
+                tied_for_highest = True
+
+        if favored_player_devotion >= 0 and not tied_for_highest:
+            favored_player = Player.objects.get(id=favored_player_id)
+            print(f"{deity} loves {favored_player}!")
 
 
 def do_global_tick():
@@ -135,4 +162,5 @@ def do_global_tick():
     for region in Region.objects.filter(invasion_this_tick=True):
         do_invasion(region)
 
+    do_deities()
     find_regions()

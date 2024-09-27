@@ -2,7 +2,7 @@
 {% load extra_tags %}
 {% load humanize %}
 
-{% block title %}{{ region.emoji_name }}{% endblock %}
+{% block title %}{{ region.icon_name }}{% endblock %}
 
 {% block content %}
 {% if is_my_region or round.has_started %}
@@ -51,8 +51,11 @@
 
 <div class="u-flex u-flex-column u-gap-4">
     <div>
-        <h4>{{ region.emoji_name }}</h6>
+        <h4>{{ region.icon_name }}</h6>
         <h6>Defense: {{ region.defense_with_incoming|intcomma }}</h6>
+        {% if region.is_underdefended %}
+            <h6 class="text-red-300">⚠️ This region is producing only 20% of normal because it's underdefended ⚠️</h6>
+        {% endif %}
         <p>{{ region.description }}</p>
         {% if available_plots > 0 and is_my_region %}
             <h6 class="text-red-300">⚠️ This region has available plots to build ⚠️</h6>

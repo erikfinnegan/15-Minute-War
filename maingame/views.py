@@ -141,12 +141,14 @@ def submit_training(request):
         # key is like "train_123" where 123 is the ID of the Unit
         if "train_" in key and string_amount != "":
             unit = Unit.objects.get(id=key[6:])
-            amount = int(string_amount)
-            total_trained += amount
 
-            for resource, cost in unit.cost_dict.items():
-                total_of_this_resource = cost * amount
-                total_cost_dict = create_or_add_to_key(total_cost_dict, resource, total_of_this_resource)
+            if unit.is_trainable:
+                amount = int(string_amount)
+                total_trained += amount
+
+                for resource, cost in unit.cost_dict.items():
+                    total_of_this_resource = cost * amount
+                    total_cost_dict = create_or_add_to_key(total_cost_dict, resource, total_of_this_resource)
 
     if total_trained < 1:
         messages.error(request, f"Zero units trained")

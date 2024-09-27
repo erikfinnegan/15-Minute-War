@@ -115,70 +115,70 @@ def initialize_factions():
 def initialize_terrain():
     Terrain.objects.create(
         name="grassy",
-        emoji="🌾",
+        icon="🌾",
         unit_op_dp_ratio=0.9,
         unit_perk_options="",
     )
     Terrain.objects.create(
         name="mountainous",
-        emoji="⛰",
+        icon="⛰",
         unit_op_dp_ratio=0.4,
         unit_perk_options="",
     )
     Terrain.objects.create(
         name="coastal",
-        emoji="🌊",
+        icon="🌊",
         unit_op_dp_ratio=0.6,
         unit_perk_options="",
     )
     Terrain.objects.create(
         name="forested",
-        emoji="🌳",
+        icon="🌳",
         unit_op_dp_ratio=1,
         unit_perk_options="",
     )
     Terrain.objects.create(
         name="cavernous",
-        emoji="🕳",
+        icon="🕳",
         unit_op_dp_ratio=1.3,
         unit_perk_options="",
     )
     Terrain.objects.create(
         name="swampy",
-        emoji="🦟",
+        icon="🦟",
         unit_op_dp_ratio=1.1,
         unit_perk_options="",
     )
     Terrain.objects.create(
         name="defensible",
-        emoji="🏰",
+        icon="🏰",
         unit_op_dp_ratio=0,
         unit_perk_options="",
     )
     Terrain.objects.create(
         name="barren",
-        emoji="🏜",
+        icon="🏜",
         unit_op_dp_ratio=1.8,
         unit_perk_options="",
     )
     Terrain.objects.create(
         name="beautiful",
-        emoji="🏞️",
+        icon="🏞️",
         unit_op_dp_ratio=0.7,
         unit_perk_options="",
     )
     Terrain.objects.create(
         name="influential",
-        emoji="👑",
+        icon="👑",
         unit_op_dp_ratio=2,
         unit_perk_options="",
     )
 
 
 def initialize_deities():
-    Deity.objects.create(name="Hunger Without End")
-    Deity.objects.create(name="Rubecus")
-    Deity.objects.create(name="The Many Who Are One")
+    Deity.objects.create(name="Hunger Without End", icon="🪙")
+    Deity.objects.create(name="Rubecus", icon="🪺")
+    Deity.objects.create(name="The Many Who Are One", icon="🍄")
 
 
 def initialize_game_pieces():

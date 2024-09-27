@@ -20,7 +20,8 @@
             </tr>
         </thead>
         <tbody>
-            {% for unit in units%}
+            {% for unit in units %}
+            {% if unit.is_trainable %}
             <tr>
                 <th class="u-align-middle" onclick="trainMax('{{ unit.id }}', '{{ unit.max_affordable }}')">{{ unit.name|title }}</th>
                 <td class="u-align-middle" onclick="trainMax('{{ unit.id }}', '{{ unit.max_affordable }}')">{{ unit.op }}/{{ unit.dp }}</td>
@@ -52,6 +53,7 @@
                     </script>
                 </td>
             </tr>
+            {% endif %}
             {% endfor %}
         </tbody>
     </table>

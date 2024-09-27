@@ -1,10 +1,12 @@
 {% load humanize %}
 
 <a href="{% url 'region' region.id %}" class="u-border-2 w-48 px-2 pt-1 u-flex u-flex-column text-light border-{{bordercolor}}-400">
-    <span>{{ region.emoji_name }}</span>
+    <span>{{ region.icon_name }}</span>
 
     {% if show_enemy_details or ally %}
-    <h6 class="{% if region.is_underdefended %}text-yellow-300{% endif %}">Defense: {{ region.defense_with_incoming|intcomma }}{% if region.is_underdefended %} ⚠️{% endif %}</h6>
+    <h6 class="{% if region.is_underdefended %}text-yellow-300 tooltip{% endif %}" data-tooltip="Output -80% for being underdefended">
+        Defense: {{ region.defense_with_incoming|intcomma }}{% if region.is_underdefended %} ⚠️{% endif %}
+    </h6>
     
 
     <div class="u-flex u-flex-row u-gap-1 mt-1">
