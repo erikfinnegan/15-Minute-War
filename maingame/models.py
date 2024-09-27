@@ -1,5 +1,6 @@
 import math
 from django.db import models
+from django.db.models import Q
 from django.contrib.auth.models import User
 from random import randint
 
@@ -15,7 +16,31 @@ class Deity(models.Model):
         
     class Meta: 
         verbose_name_plural = "deities"
+
+    @property
+    def favored_player(self):
+        player_devotion_dict = {}
+
+        for region in Region.objects.filter(~Q(ruler=None), deity=self):
+            player_devotion_dict = create_or_add_to_key(player_devotion_dict, str(region.ruler.id), 1)
         
+        favored_player_id = 0
+        favored_player_devotion = 0
+        tied_for_highest = False
+
+        for player_id, devotion in player_devotion_dict.items():
+            if devotion > favored_player_devotion:
+                favored_player_devotion = devotion
+                favored_player_id = player_id
+                tied_for_highest = False
+            elif devotion == favored_player_devotion:
+                tied_for_highest = True
+
+        if favored_player_devotion >= 0 and not tied_for_highest:
+            return Player.objects.get(id=favored_player_id)
+        
+        return None
+
 
 class Terrain(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True, unique=True)

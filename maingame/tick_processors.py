@@ -124,31 +124,14 @@ def find_regions():
 
 
 def do_deities():
-    deities_count_dict = {}
-    
     for deity in Deity.objects.all():
-        deities_count_dict[deity.icon] = {}
-
-    for region in Region.objects.filter(~Q(ruler=None)):
-        deities_count_dict[region.deity.icon] = create_or_add_to_key(deities_count_dict[region.deity.icon], str(region.ruler.id), 1)
-
-    for deity in Deity.objects.all():
-        deity_count_dict = deities_count_dict[deity.icon]
-        favored_player_id = 0
-        favored_player_devotion = 0
-        tied_for_highest = False
-
-        for player_id, devotion in deity_count_dict.items():
-            if devotion > favored_player_devotion:
-                favored_player_devotion = devotion
-                favored_player_id = player_id
-                tied_for_highest = False
-            elif devotion == favored_player_devotion:
-                tied_for_highest = True
-
-        if favored_player_devotion >= 0 and not tied_for_highest:
-            favored_player = Player.objects.get(id=favored_player_id)
-            print(f"{deity} loves {favored_player}!")
+        if deity.favored_player:
+            if deity.icon == "🪙":
+                print("drain resources for gold")
+            elif deity.icon == "🍄":
+                print("get a unit idk")
+            elif deity.icon == "🪺":
+                print("do something")
 
 
 def do_global_tick():
