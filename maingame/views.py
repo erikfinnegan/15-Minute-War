@@ -266,9 +266,20 @@ def protection_tick(request, quantity):
 @login_required
 def news(request):
     TIMEZONES_CHOICES = [tz for tz in zoneinfo.available_timezones()]
+    player = Player.objects.get(associated_user=request.user)
+    displayed_events = []
+    
+    for event in Event.objects.all().order_by('-id')[:20]:
+        displayed_events.append({
+            "event": event,
+            "involves_player": event.notified_players.filter(id=player.id).count() > 0,
+        })
+
+    player.has_unread_events = False
+    player.save()
 
     context = {
-        "events": Event.objects.all().order_by('-id')[:20],
+        "displayed_events": displayed_events,
         "timezones": TIMEZONES_CHOICES,
     }
 

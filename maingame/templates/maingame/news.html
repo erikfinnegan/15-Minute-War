@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load extra_tags %}
 {% load tz %}
 
 {% block title %}News{% endblock %}
@@ -34,12 +35,12 @@
 
     <table class="table striped max-w-md">
         <tbody>
-            {% for event in events %}
-            <tr>
-                <th class="u-align-middle">{{ event.timestamp|timezone:active_player.timezone }}</th>
-                <th class="u-align-middle">{{ event.icon }}</th>
-                <th class="u-align-middle">{{ event }}</th>
-                <th class="u-align-middle">{{ event.extra_text }}</th>
+            {% for event in displayed_events %}
+            <tr class="{% if event.involves_player %}text-yellow-300{% endif %}">
+                <th class="u-align-middle">{{ event.event.timestamp }}</th>
+                <th class="u-align-middle">{{ event.event.icon }}</th>
+                <th class="u-align-middle">{{ event.event }}</th>
+                <th class="u-align-middle">{{ event.event.extra_text }}</th>
             </tr>
             {% endfor %}
         </tbody>

@@ -62,6 +62,7 @@ class Player(models.Model):
     timezone = models.CharField(max_length=50, default="UTC")
     resource_dict = models.JSONField(default=dict)
     is_starving = models.BooleanField(default=False)
+    has_unread_events = models.BooleanField(default=False)
     upgrade_cost = models.IntegerField(default=150)
     upgrade_exponent = models.FloatField(default=1.02, null=True, blank=True)
     protection_ticks_remaining = models.IntegerField(default=96)
@@ -453,6 +454,7 @@ class Event(models.Model):
     reference_type = models.CharField(max_length=50)
     icon = models.CharField(max_length=50, default="?")
     extra_text = models.CharField(max_length=150, default="")
+    notified_players = models.ManyToManyField(Player)
 
     def __str__(self):
         return f"{self.message}"

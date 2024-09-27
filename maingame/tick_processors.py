@@ -27,13 +27,19 @@ def do_invasion(region: Region):
 
     if region.ruler == None and len(ruler_power.keys()) == 1:
         new_ruler_id = int(list(ruler_power)[0])
-        region.ruler = Player.objects.get(id=new_ruler_id)
+        player = Player.objects.get(id=new_ruler_id)
+        region.ruler = player
         region.invasion_this_tick = False
         region.save()
         event = Event.objects.create(reference_id=region.id, reference_type="colonize", icon="🚩")
+        event.notified_players.add(player)
+        event.save()
+        player.has_unread_events = True
+        player.save()
         return
 
     battle = Battle.objects.create(target=region, units_involved_dict=region.units_here_dict.copy(), original_ruler=region.ruler, dp=region.defense)
+    event = Event.objects.create(reference_id=battle.id, reference_type="battle", extra_text=f"{battle.dp} DP")
 
     winner_id = 0
     highest_power = 0
@@ -41,6 +47,10 @@ def do_invasion(region: Region):
 
     for ruler_id, power in ruler_power.items():
         player = Player.objects.get(id=ruler_id)
+        event.notified_players.add(player)
+        player.has_unread_events = True
+        player.save()
+
         if power > highest_power:
             winner_id = ruler_id
             highest_power = power
@@ -79,8 +89,6 @@ def do_invasion(region: Region):
     battle.casualties_dict = unit_casualties_dict
     battle.winner = winner
     battle.save()
-
-    event = Event.objects.create(reference_id=battle.id, reference_type="battle", extra_text=f"{battle.dp} DP")
 
     if battle.winner == region.ruler:
         event.icon = "🛡"

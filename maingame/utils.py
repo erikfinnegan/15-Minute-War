@@ -127,7 +127,7 @@ def generate_region():
     name_modifiers = [Place("", "town"), Place("", "ton"), Place("", " Meadows"), Place("", " Downs"), Place("", "'s Folly"), Place("", " Priory"), Place("", "wood"),
                       Place("", "'s Gate"), Place("", " Baths"), Place("The ", "marches"), Place("", "ford"), Place("St. ", ""), Place("", "bridge"), Place("", " Corner"),
                       Place("", " Junction"), Place("North ", ""), Place("South ", ""), Place("East ", ""), Place("West ", ""), Place("Old ", ""), Place("New ", ""),
-                      Place("", " Heights")]
+                      Place("", " Heights"), Place("", " Crossing")]
     
     while True:
         try:
@@ -139,7 +139,7 @@ def generate_region():
         except:
             pass
 
-    event = Event.objects.create(reference_id=region.id, reference_type="discover", icon="🗺️")
+    Event.objects.create(reference_id=region.id, reference_type="discover", icon="🗺️")
 
 
 def mock_up_player(user: User, faction: Faction):

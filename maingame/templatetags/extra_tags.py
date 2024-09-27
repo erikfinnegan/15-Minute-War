@@ -24,6 +24,15 @@ def times(number):
     return range(number)
 
 
-@register.filter
+@register.filter(name='multiply') 
 def multiply(value, arg):
     return value * arg
+
+@register.filter(name='involves_player')
+def involves_player(event, player_id):
+    print()
+    print(event)
+    print()
+    # b_id = int(benefit_id)
+    return event.notified_players.filter(id=int(player_id)).count() > 0
+    # return user.benefits.filter(id=b_id).count() > 0
