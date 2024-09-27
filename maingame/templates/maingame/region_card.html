@@ -4,7 +4,7 @@
     <span>{{ region.emoji_name }}</span>
 
     {% if show_enemy_details or ally %}
-    <h6>Defense: {{ region.defense_with_incoming|intcomma }}</h6>
+    <h6 class="{% if region.is_underdefended %}text-yellow-300{% endif %}">Defense: {{ region.defense_with_incoming|intcomma }}{% if region.is_underdefended %} ⚠️{% endif %}</h6>
     
 
     <div class="u-flex u-flex-row u-gap-1 mt-1">

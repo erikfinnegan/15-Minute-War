@@ -155,6 +155,16 @@ class Player(models.Model):
 
         return influence_production
 
+    @property
+    def average_defense(self):
+        total_defense = 0
+        regions = Region.objects.filter(ruler = self)
+
+        for region in regions:
+            total_defense += region.defense
+
+        return total_defense / regions.count()
+
     def adjust_resource(self, resource, amount):
         if self.is_starving and resource != "🍞":
             amount = min(amount, 0)
@@ -175,10 +185,12 @@ class Player(models.Model):
 
         for building in Building.objects.filter(ruler=self):
             if building.type.resource_produced == resource:
+                defense_multiplier = 0.2 if building.region.is_underdefended else 1
+
                 if building.built_on_ideal_terrain:
-                    production += (building.type.amount_produced * 2)
+                    production += int(building.type.amount_produced * 2 * defense_multiplier)
                 else:
-                    production += building.type.amount_produced
+                    production += int(building.type.amount_produced * defense_multiplier)
 
         return production
     
@@ -386,6 +398,10 @@ class Region(models.Model):
             defense_with_incoming += journey.quantity * journey.unit.dp
 
         return defense_with_incoming
+    
+    @property
+    def is_underdefended(self):
+        return self.ruler and self.defense < (self.ruler.average_defense / 3)
     
 
 class Building(models.Model):
