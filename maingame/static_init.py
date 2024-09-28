@@ -177,8 +177,14 @@ def initialize_terrain():
 
 def initialize_deities():
     Deity.objects.create(name="Hunger Without End", icon="🪙")
-    Deity.objects.create(name="Rubecus", icon="🪺")
+    Deity.objects.create(name="Rubecus Swiftstrike", icon="⚡")
     Deity.objects.create(name="The Many Who Are One", icon="🍄")
+    Unit.objects.create(
+        name="tendril of unity",
+        op=13,
+        dp=0,
+        is_trainable=False,
+    )
 
 
 def initialize_game_pieces():

@@ -126,12 +126,22 @@ def find_regions():
 def do_deities():
     for deity in Deity.objects.all():
         if deity.favored_player:
-            if deity.icon == "🪙":
-                print("drain resources for gold")
+            favored_player = deity.favored_player
+            if deity.icon == "📈" and deity.favored_player.resource_dict["🪙"]:
+                favored_player.resource_dict["🪙"] = int(favored_player.resource_dict["🪙"] * 1.01)
+                favored_player.save()
             elif deity.icon == "🍄":
-                print("get a unit idk")
-            elif deity.icon == "🪺":
-                print("do something")
+                if Unit.objects.filter(name="tendril of unity", ruler=favored_player).count() == 0:
+                    base_tendril_unit = Unit.objects.get(name="tendril of unity", ruler=None)
+                    players_unit = base_tendril_unit
+                    players_unit.pk = None
+                    players_unit.ruler = favored_player
+                    players_unit.save()
+                
+                players_tendril = Unit.objects.get(name="tendril of unity", ruler=favored_player)
+                sacred_sites = Region.objects.filter(ruler=favored_player, deity=deity).count()
+                players_tendril.quantity_marshaled += int(sacred_sites / 2)
+                players_tendril.save()
 
 
 def do_global_tick():

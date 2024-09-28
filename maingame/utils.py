@@ -34,12 +34,20 @@ def assign_faction(player: Player, faction: Faction):
 
 
 def send_journey(player: Player, unit: Unit, quantity: int, destination: Region):
-    try:
-        journey = Journey.objects.get(ruler=player, unit=unit, destination=destination, ticks_to_arrive=12)
-        journey.quantity += quantity
-        journey.save()
-    except:
-        Journey.objects.create(ruler=player, unit=unit, quantity=quantity, destination=destination)
+    if Deity.objects.get(icon="⚡").favored_player == player:
+        try:
+            journey = Journey.objects.get(ruler=player, unit=unit, destination=destination, ticks_to_arrive=2)
+            journey.quantity += quantity
+            journey.save()
+        except:
+            Journey.objects.create(ruler=player, unit=unit, quantity=quantity, destination=destination, ticks_to_arrive=2)
+    else:
+        try:
+            journey = Journey.objects.get(ruler=player, unit=unit, destination=destination, ticks_to_arrive=12)
+            journey.quantity += quantity
+            journey.save()
+        except:
+            Journey.objects.create(ruler=player, unit=unit, quantity=quantity, destination=destination)
         
     unit.quantity_marshaled -= quantity
     unit.save()
