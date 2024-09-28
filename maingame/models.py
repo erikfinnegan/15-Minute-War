@@ -165,6 +165,14 @@ class Player(models.Model):
 
         return total_defense / regions.count()
 
+    @property
+    def has_underdefended_regions(self):
+        for region in Region.objects.filter(ruler=self):
+            if region.is_underdefended:
+                return True
+            
+        return False
+
     def adjust_resource(self, resource, amount):
         if self.is_starving and resource != "🍞":
             amount = min(amount, 0)
@@ -174,6 +182,9 @@ class Player(models.Model):
         self.resource_dict[resource] = max(self.resource_dict[resource], 0)
 
         self.save()
+
+    def get_devotion(self, deity):
+        return Region.objects.filter(ruler=self, deity=deity).count()
 
     def get_production(self, resource):
         production = 0

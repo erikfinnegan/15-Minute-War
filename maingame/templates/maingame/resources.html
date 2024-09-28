@@ -4,33 +4,55 @@
 {% block title %}Resources{% endblock %}
 
 {% block content %}
-<div class="">
-    <!-- {% for key, value in production_dict.items %}
-    <h4>{{ key }}: {{ value }}</h4>
-    {% endfor %} -->
+<div class="max-w-sm">
+    <div class="u-center">
+        <h4 class="font-bold text-red-400">⚠️YOU ARE STARVING⚠️</h4>
+    </div>
+    <div class="">
+        <table class="table striped max-w-sm">
+            <thead>
+                <tr>
+                    <th>Resource</th>
+                    <th>Name</th>
+                    <th>Produced</th>
+                    <th>Consumed</th>
+                    <th>Net</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key, value in resources_dict.items %}
+                <tr>
+                    <th class="u-align-middle">{{ key }}</th>
+                    <th class="u-align-middle">{{ value.name|title }}</th>
+                    <td class="u-align-middle text-green-400">{{ value.produced|intcomma }}</td>
+                    <td class="u-align-middle text-red-400">{{ value.consumed|intcomma }}</td>
+                    <td class="u-align-middle {% if value.net < 0 %}text-red-400{% else %}text-green-400{% endif %}">{{ value.net|intcomma }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-    <table class="table striped max-w-sm">
-        <thead>
-            <tr>
-                <th>Resource</th>
-                <th>Name</th>
-                <th>Produced</th>
-                <th>Consumed</th>
-                <th>Net</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for key, value in resources_dict.items %}
-            <tr>
-                <th class="u-align-middle">{{ key }}</th>
-                <th class="u-align-middle">{{ value.name|title }}</th>
-                <td class="u-align-middle text-green-400">{{ value.produced|intcomma }}</td>
-                <td class="u-align-middle text-red-400">{{ value.consumed|intcomma }}</td>
-                <td class="u-align-middle {% if value.net < 0 %}text-red-400{% else %}text-green-400{% endif %}">{{ value.net|intcomma }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="">
+        <table class="table striped max-w-sm">
+            <thead>
+                <tr>
+                    <th>Deity</th>
+                    <th>Favored</th>
+                    <th>Runner up</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for deity_info in deities_list %}
+                <tr>
+                    <th class="u-align-middle">{{ deity_info.name }}</th>
+                    <th class="u-align-middle{% if deity_info.favored == active_player.name %} text-green-400{% endif %}">{{ deity_info.favored }} @ {{ deity_info.favored_devotion }}</th>
+                    <th class="u-align-middle{% if deity_info.other == active_player.name %} text-green-400{% endif %}">{{ deity_info.other }} @ {{ deity_info.other_devotion }}</th>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
 {% endblock %}

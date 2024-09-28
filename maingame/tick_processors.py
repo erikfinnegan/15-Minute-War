@@ -78,15 +78,18 @@ def do_invasion(region: Region):
             region.units_here_dict[unit_id] -= offensive_casualties_for_this_unit
 
         if unit.ruler != winner:
-            unit.quantity_marshaled += quantity - defensive_casualties_for_this_unit
+            survivors_to_each_region = int((quantity - defensive_casualties_for_this_unit) / Region.objects.filter(~Q(id=region.id), ruler=unit.ruler).count())
+
+            for retreat_region in Region.objects.filter(ruler=unit.ruler):
+                retreat_region.units_here_dict = create_or_add_to_key(retreat_region.units_here_dict, unit_id, survivors_to_each_region)
+                retreat_region.save()
+            
             del region.units_here_dict[unit_id]
-            unit.save()
 
     for building in Building.objects.filter(region=region):
         building.ruler = winner
         building.save()
 
-    # unit_casualties_dict: key = unit_id, value = casualties_for_that_unit
     battle.casualties_dict = unit_casualties_dict
     battle.winner = winner
     battle.save()

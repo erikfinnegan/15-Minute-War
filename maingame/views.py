@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.db.models import Q
 
 from maingame.formatters import create_or_add_to_key, get_resource_name
-from maingame.models import Building, BuildingType, Player, Region, Unit, Journey, Round, Event
+from maingame.models import Building, BuildingType, Player, Region, Unit, Journey, Round, Event, Deity
 from maingame.tick_processors import do_global_tick
 from maingame.utils import construct_building, get_journey_output_dict, marshal_from_location, send_journey
 
@@ -85,6 +85,7 @@ def build_building(request, region_id, building_type_id, amount):
 def regions(request):
     player = Player.objects.get(associated_user=request.user)
     my_regions = Region.objects.filter(ruler=player)
+    show_underdefended_only = "underdefended" in request.GET
 
     class OpponentsRegionsData:
         def __init__(self, ruler, regions):
@@ -94,9 +95,27 @@ def regions(request):
     opponents_regions_data_list = []
 
     for opponent in Player.objects.filter(~Q(associated_user=request.user)):
-        opponents_regions_data_list.append(
-            OpponentsRegionsData(opponent, Region.objects.filter(ruler=opponent))
-        )
+        if show_underdefended_only:
+            underdefended_regions = []
+
+            for region in Region.objects.filter(ruler=opponent):
+                if region.is_underdefended:
+                    underdefended_regions.append(region)
+            
+            opponents_regions_data_list.append(
+                OpponentsRegionsData(opponent, underdefended_regions)
+            )
+        else:
+            opponents_regions_data_list.append(
+                OpponentsRegionsData(opponent, Region.objects.filter(ruler=opponent))
+            )
+
+    if show_underdefended_only:
+        my_regions = []
+
+        for region in Region.objects.filter(ruler=player):
+            if region.is_underdefended:
+                my_regions.append(region)
 
     context = {
         "my_regions": my_regions,
@@ -181,6 +200,7 @@ def submit_training(request):
 
 @login_required
 def resources(request):
+    print(request.GET)
     player = Player.objects.get(associated_user=request.user)
 
     resources_dict = {}
@@ -197,8 +217,62 @@ def resources(request):
         
         resources_dict[resource]["net"] = resources_dict[resource]["produced"] - resources_dict[resource]["consumed"]
 
+    deities_list = []
+
+    for deity in Deity.objects.all():
+        if not deity.favored_player:
+            most_devotion_amount = 0
+
+            for other_player in Player.objects.filter(~Q(id=player.id)):
+                other_player_devotion_amount = other_player.get_devotion(deity)
+                if other_player_devotion_amount > most_devotion_amount:
+                    most_devotion_amount = other_player_devotion_amount
+
+            deities_list.append({
+                "name": deity,
+                "favored": "None",
+                "favored_devotion": most_devotion_amount,
+                "other": player.name,
+                "other_devotion": player.get_devotion(deity),
+            })
+        elif deity.favored_player == player:
+            second_most_devotion_amount = 0
+            second_most_devoted_player = None
+
+            for other_player in Player.objects.filter(~Q(id=player.id)):
+                other_player_devotion_amount = other_player.get_devotion(deity)
+                if other_player_devotion_amount > second_most_devotion_amount:
+                    second_most_devoted_player = other_player
+                    second_most_devotion_amount = other_player_devotion_amount
+
+            deities_list.append({
+                "name": deity,
+                "favored": player.name,
+                "favored_devotion": player.get_devotion(deity),
+                "other": second_most_devoted_player.name,
+                "other_devotion": second_most_devotion_amount,
+            })
+        else:
+            deities_list.append({
+                "name": deity,
+                "favored": deity.favored_player.name,
+                "favored_devotion": deity.favored_player.get_devotion(deity),
+                "other": player.name,
+                "other_devotion": player.get_devotion(deity),
+            })
+
+    my_underdefended_regions = []
+    other_underdefended_regions = []
+
+    for region in Region.objects.all():
+        if region.is_underdefended and region.ruler == player:
+            my_underdefended_regions.append(region)
+        elif region.is_underdefended:
+            other_underdefended_regions.append(region)
+
     context = {
         "resources_dict": resources_dict,
+        "deities_list": deities_list,
     }
 
     return render(request, "maingame/resources.html", context)
