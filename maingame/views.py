@@ -20,6 +20,17 @@ def index(request):
     return render(request, "maingame/index.html", context)
 
 
+def join(request):
+    if Player.objects.filter(associated_user=request.user).count() > 0:
+        return redirect("regions")
+    
+    context = {
+        "testcontext": "Context test successful",
+    }
+
+    return render(request, "maingame/join.html", context)
+
+
 @login_required
 def region(request, region_id):
     try:
@@ -200,7 +211,6 @@ def submit_training(request):
 
 @login_required
 def resources(request):
-    print(request.GET)
     player = Player.objects.get(associated_user=request.user)
 
     resources_dict = {}

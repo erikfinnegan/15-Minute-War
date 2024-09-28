@@ -7,6 +7,7 @@ urlpatterns = [
     path("accounts/", include("accounts.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
     path("", views.index, name="index"),
+    path("join", views.join, name="join"),
     path("buildings/destroy/<int:building_id>", views.destroy_building, name="destroy_building"),
     path("regions/<int:region_id>/build/<int:building_type_id>/amount/<int:amount>", views.build_building, name="build_building"),
     path("regions/<int:region_id>", views.region, name="region"),
