@@ -139,7 +139,7 @@ def regions(request):
 
 
 @login_required
-def army_training(request):
+def legions(request):
     show_cant_afford_error = request.GET.get("cant_afford")
     player = Player.objects.get(associated_user=request.user)
 
@@ -158,7 +158,7 @@ def army_training(request):
         "journey_regions": journey_regions,
     }
 
-    return render(request, "maingame/army_training.html", context)
+    return render(request, "maingame/legions.html", context)
 
 
 @login_required
@@ -182,7 +182,7 @@ def submit_training(request):
 
     if total_trained < 1:
         messages.error(request, f"Zero units trained")
-        return redirect("army_training")
+        return redirect("legions")
 
     training_succeeded = True
 
@@ -206,7 +206,7 @@ def submit_training(request):
 
         messages.success(request, f"Training of {total_trained} units successful")
     
-    return redirect("army_training")
+    return redirect("legions")
 
 
 @login_required
@@ -390,13 +390,13 @@ def dispatch_to_all_regions(request, unit_id, quantity):
     unit = Unit.objects.get(ruler=player, id=unit_id)
 
     if quantity * player.regions_ruled > unit.quantity_marshaled:
-        return redirect("army_training")
+        return redirect("legions")
     
     for region in Region.objects.filter(ruler=player):
         send_journey(player=player, unit=unit, quantity=quantity, destination=region)
 
     messages.success(request, f"{quantity}x {unit.name} have begun journeys to each region")
-    return redirect("army_training")
+    return redirect("legions")
 
 
 @login_required

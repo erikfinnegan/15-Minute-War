@@ -4,16 +4,21 @@
 
 {% block content %}
 <div>
-    <a href="{% url 'regions' %}?underdefended=true" class="text-light">Show underdefended only</a>
-    <div class="u-flex u-flex-column u-gap-8 mt-1">
-        <div class="u-flex u-flex-wrap u-gap-2 card bg-gray-900 p-2">
-            {% for my_region in my_regions %}
-            {% if my_region.is_underdefended or my_region.plots_available > 0 %}
-            {% include "maingame/region_card.html" with region=my_region bordercolor="yellow" ally=True %}
-            {% else %}
-            {% include "maingame/region_card.html" with region=my_region bordercolor="green" ally=True %}
-            {% endif %}
-            {% endfor %}
+    <a href="{% url 'regions' %}?underdefended=true" class="text-light">
+        <button>Show underdefended only</button>
+    </a>
+    <div class="u-flex u-flex-column u-gap-8 mt-2">
+        <div class="card bg-gray-900 p-2">
+            <h6>My regions</h6>
+            <div class="u-flex u-flex-wrap u-gap-2">
+                {% for my_region in my_regions %}
+                {% if my_region.is_underdefended or my_region.plots_available > 0 %}
+                {% include "maingame/region_card.html" with region=my_region bordercolor="yellow" ally=True %}
+                {% else %}
+                {% include "maingame/region_card.html" with region=my_region bordercolor="green" ally=True %}
+                {% endif %}
+                {% endfor %}
+            </div>
         </div>
 
         <div class="u-flex u-flex-column u-gap-4">

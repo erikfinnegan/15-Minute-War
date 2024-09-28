@@ -3,5 +3,15 @@
 {% block title %}index test page{% endblock %}
 
 {% block content %}
-<p>maingame index</p>
+<p>Welcome to Regions and Legions!</p>
+{% if active_player %}
+<p>Go play the game, silly</p>
+{% else %}
+<a href="{% url 'login' %}">
+    <button>Log In</button>
+</a>
+<a href="{% url 'signup' %}">
+    <button>Sign Up</button>
+</a>
+{% endif %}
 {% endblock %}
