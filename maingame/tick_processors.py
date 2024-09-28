@@ -103,7 +103,7 @@ def do_invasion(region: Region):
     region.save()
 
 
-def find_regions():
+def discover_regions():
     total_defense = 0
     
     for region in Region.objects.all():
@@ -156,4 +156,4 @@ def do_global_tick():
         do_invasion(region)
 
     do_deities()
-    find_regions()
+    discover_regions()
