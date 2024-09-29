@@ -126,16 +126,16 @@ class Player(models.Model):
     
     @property
     def gold_production(self):
-        gold_production = 5000
+        gold_production = 3000
         beautiful_terrain = Terrain.objects.get(name="beautiful")
 
         for region in Region.objects.filter(ruler=self):
             if region.primary_terrain == beautiful_terrain:
-                gold_production += 850
-            elif region.secondary_terrain == beautiful_terrain:
-                gold_production += 650
-            else:
                 gold_production += 500
+            elif region.secondary_terrain == beautiful_terrain:
+                gold_production += 400
+            else:
+                gold_production += 300
 
         return gold_production
     
@@ -216,7 +216,7 @@ class Player(models.Model):
                 if not "no_food" in Unit.objects.get(id=unit_id).perk_dict:
                     total_units += amount
 
-        return int(total_units / 50)
+        return int(total_units / 25)
     
     def do_food_consumption(self):
         consumption = self.get_food_consumption()
@@ -227,6 +227,7 @@ class Player(models.Model):
     def do_resource_production(self):
         self.adjust_resource("🪙", self.gold_production)
         self.adjust_resource("👑", self.influence_production)
+        self.adjust_resource("📜", 100)
         
         for building in Building.objects.filter(ruler=self):
             if building.type.amount_produced > 0:

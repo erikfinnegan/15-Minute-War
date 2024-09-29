@@ -28,7 +28,7 @@ def initialize_building_types():
         {
             "name": "school",
             "resource_produced": "📜",
-            "amount_produced": 20,
+            "amount_produced": 1,
             "ideal_terrain": Terrain.objects.get(name="grassy")
         },
         # {
