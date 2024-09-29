@@ -94,7 +94,11 @@ def build_building(request, region_id, building_type_id, amount):
 
 @login_required
 def regions(request):
-    player = Player.objects.get(associated_user=request.user)
+    try:
+        player = Player.objects.get(associated_user=request.user)
+    except:
+        return redirect("join")
+
     my_regions = Region.objects.filter(ruler=player)
     show_underdefended_only = "underdefended" in request.GET
 
@@ -141,7 +145,11 @@ def regions(request):
 @login_required
 def legions(request):
     show_cant_afford_error = request.GET.get("cant_afford")
-    player = Player.objects.get(associated_user=request.user)
+
+    try:
+        player = Player.objects.get(associated_user=request.user)
+    except:
+        return redirect("join")
 
     marshaled_units = Unit.objects.filter(ruler=player, quantity_marshaled__gt=0)
 
@@ -211,7 +219,10 @@ def submit_training(request):
 
 @login_required
 def resources(request):
-    player = Player.objects.get(associated_user=request.user)
+    try:
+        player = Player.objects.get(associated_user=request.user)
+    except:
+        return redirect("join")
 
     resources_dict = {}
 
@@ -290,7 +301,11 @@ def resources(request):
 
 @login_required
 def upgrades(request):
-    player = Player.objects.get(associated_user=request.user)
+    try:
+        player = Player.objects.get(associated_user=request.user)
+    except:
+        return redirect("join")
+    
     building_types = BuildingType.objects.filter(ruler=player)
 
     context = {
@@ -352,7 +367,12 @@ def protection_tick(request, quantity):
 @login_required
 def news(request):
     TIMEZONES_CHOICES = [tz for tz in zoneinfo.available_timezones()]
-    player = Player.objects.get(associated_user=request.user)
+    
+    try:
+        player = Player.objects.get(associated_user=request.user)
+    except:
+        return redirect("join")
+    
     displayed_events = []
     
     for event in Event.objects.all().order_by('-id')[:20]:

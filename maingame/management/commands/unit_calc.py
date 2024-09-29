@@ -63,6 +63,15 @@ class Command(BaseCommand):
             unit.delete()
 
 
+        def generate_researched_unit(name, op, dp, primary_resource, secondary_resourece):
+            battering_ram = "🪵🪨"
+            scarecrow = "🪵🔮"
+            battlement = "🪨🪵"
+            golem = "🪨🔮"
+            dryad = "🔮🪵"
+            earth_elemental = "🔮🪨"
+
+
         print("IT'S DEBUG TIME BABY")
         # testuser = User.objects.get(username="test")
         # testplayer = Player.objects.get(associated_user=testuser)

@@ -7,7 +7,7 @@ from django.db.models import Q
 
 def check_victory():
     for player in Player.objects.all():
-        if player.resource_dict["👑"] >= 1000:
+        if hasattr(player.resource_dict, "👑") and player.resource_dict["👑"] >= 1000:
             round = Round.objects.first()
             round.winner = player
             round.has_ended = True
@@ -78,11 +78,16 @@ def do_invasion(region: Region):
             region.units_here_dict[unit_id] -= offensive_casualties_for_this_unit
 
         if unit.ruler != winner:
-            survivors_to_each_region = int((quantity - defensive_casualties_for_this_unit) / Region.objects.filter(~Q(id=region.id), ruler=unit.ruler).count())
+            survivors = quantity - defensive_casualties_for_this_unit
 
-            for retreat_region in Region.objects.filter(ruler=unit.ruler):
-                retreat_region.units_here_dict = create_or_add_to_key(retreat_region.units_here_dict, unit_id, survivors_to_each_region)
-                retreat_region.save()
+            if Region.objects.filter(~Q(id=region.id), ruler=unit.ruler).count() > 0:
+                survivors_to_each_region = int(survivors / Region.objects.filter(~Q(id=region.id), ruler=unit.ruler).count())
+
+                for retreat_region in Region.objects.filter(ruler=unit.ruler):
+                    retreat_region.units_here_dict = create_or_add_to_key(retreat_region.units_here_dict, unit_id, survivors_to_each_region)
+                    retreat_region.save()
+            else:
+                unit.quantity_marshaled += survivors
             
             del region.units_here_dict[unit_id]
 

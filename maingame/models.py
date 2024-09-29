@@ -2,7 +2,6 @@ import math
 from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import User
-from random import randint
 
 from maingame.formatters import create_or_add_to_key, smart_comma, get_resource_name
 
@@ -209,11 +208,13 @@ class Player(models.Model):
         total_units = 0
 
         for unit in Unit.objects.filter(ruler=self):
-            total_units += unit.quantity_marshaled
+            if not "no_food" in unit.perk_dict:
+                total_units += unit.quantity_marshaled
 
         for region in Region.objects.filter(ruler=self):
             for unit_id, amount in region.units_here_dict.items():
-                total_units += amount
+                if not "no_food" in Unit.objects.get(id=unit_id).perk_dict:
+                    total_units += amount
 
         return int(total_units / 50)
     
@@ -308,7 +309,7 @@ class Unit(models.Model):
     is_trainable = models.BooleanField(default=True)
     cost_dict = models.JSONField(default=dict, blank=True)
     quantity_marshaled = models.IntegerField(default=0)
-    perk_string = models.CharField(max_length=500, null=True, blank=True)
+    perk_dict = models.JSONField(default=dict, blank=True)
 
     def __str__(self):
         base_name = f"{self.name} ({self.op}/{self.dp}) -- {self.id}"
@@ -334,6 +335,18 @@ class Unit(models.Model):
     
     def max_marshal_to_all_regions(self):
         return math.floor(self.quantity_marshaled / self.ruler.regions_ruled)
+    
+    @property
+    def perk_text(self):
+        print(self.perk_dict)
+        if "no_food" in self.perk_dict:
+            return "Consumes no food"
+        
+        return ""
+    
+    @property
+    def has_perks(self):
+        return self.perk_dict != {}
 
 
 class Region(models.Model):

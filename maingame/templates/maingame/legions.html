@@ -23,7 +23,7 @@
             {% for unit in units %}
             {% if unit.is_trainable %}
             <tr>
-                <th class="u-align-middle" onclick="trainMax('{{ unit.id }}', '{{ unit.max_affordable }}')">{{ unit.name|title }}</th>
+                {% include "maingame/unit_name_row.html" %}
                 <td class="u-align-middle" onclick="trainMax('{{ unit.id }}', '{{ unit.max_affordable }}')">{{ unit.op }}/{{ unit.dp }}</td>
                 <td class="u-align-middle" onclick="trainMax('{{ unit.id }}', '{{ unit.max_affordable }}')">
                     <div class="u-flex u-flex-column">
@@ -78,7 +78,7 @@
         <tbody>
             {% for unit in marshaled_units %}
             <tr>
-                <th class="u-align-middle">{{ unit.name|title }}</th>
+                {% include "maingame/unit_name_row.html" %}
                 <td class="u-align-middle">{{ unit.op }}/{{ unit.dp }}</td>
                 <td class="u-align-middle">{{ unit.quantity_marshaled|intcomma }}</td>
                 <td class="u-align-middle u-flex-md u-flex-row-md u-gap-1 u-center">

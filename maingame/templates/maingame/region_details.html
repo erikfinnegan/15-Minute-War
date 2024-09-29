@@ -82,7 +82,7 @@
                 <tbody>
                     {% for unit_here in units_here %}
                     <tr class="{% if unit_here.unit.ruler != active_player %}text-red-400{% endif %}">
-                        <th class="u-align-middle">{{ unit_here.unit.name|title }}</th>
+                        {% include "maingame/unit_name_row.html" with unit=unit_here.unit %}
                         <td class="u-align-middle" id="unit-here-power_{{ unit_here.unit.id }}">{{ unit_here.unit.op }}/{{ unit_here.unit.dp }}</td>
                         <td class="u-align-middle">{{ unit_here.quantity|intcomma }}</td>
                         {% if is_my_region %}
@@ -150,9 +150,9 @@
                 <tbody>
                     {% for unit in marshaled_units %}
                     <tr>
-                        <th class="u-align-middle">{{ unit.name|title }}</th>
-                        <td class="u-align-middle" id="power_{{ unit.id }}">{{ unit.op }}/{{ unit.dp }}</td>
-                        <td class="u-align-middle">{{ unit.quantity_marshaled|intcomma }}</td>
+                        {% include "maingame/unit_name_row.html" %}
+                        <td class="u-align-middle" id="power_{{ unit.id }}" onclick="sendMax('{{ unit.id }}', '{{ unit.quantity_marshaled }}')">{{ unit.op }}/{{ unit.dp }}</td>
+                        <td class="u-align-middle" onclick="sendMax('{{ unit.id }}', '{{ unit.quantity_marshaled }}')">{{ unit.quantity_marshaled|intcomma }}</td>
                         <td class="u-align-middle u-flex-md u-flex-row-md">
                             <input 
                                 name="send_{{ unit.id }}" 
