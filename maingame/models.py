@@ -59,6 +59,7 @@ class Player(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True, unique=True)
     timezone = models.CharField(max_length=50, default="UTC")
     resource_dict = models.JSONField(default=dict)
+    xp_dict = models.JSONField(default=dict, blank=True, null=True)
     is_starving = models.BooleanField(default=False)
     has_unread_events = models.BooleanField(default=False)
     upgrade_cost = models.IntegerField(default=150)
@@ -107,7 +108,7 @@ class Player(models.Model):
                 row_number += 1
                 header_rows[str(row_number)] = []
 
-            readout = f"{resource}: {amount:,}"
+            readout = f"{resource}: {int(amount):,}"
 
             if resource == "🍞" and self.is_starving:
                 readout += "⚠️"
@@ -146,9 +147,9 @@ class Player(models.Model):
 
         for region in Region.objects.filter(ruler=self):
             if region.primary_terrain == influential_terrain:
-                influence_production += 3
-            elif region.secondary_terrain == influential_terrain:
                 influence_production += 2
+            elif region.secondary_terrain == influential_terrain:
+                influence_production += 1.5
             else:
                 influence_production += 1
 
@@ -177,9 +178,12 @@ class Player(models.Model):
             amount = min(amount, 0)
 
         self.resource_dict = create_or_add_to_key(self.resource_dict, resource, amount)
-
         self.resource_dict[resource] = max(self.resource_dict[resource], 0)
+        self.save()
 
+    def adjust_xp(self, terrain: Terrain, amount):
+        self.xp_dict = create_or_add_to_key(self.xp_dict, terrain.icon, amount)
+        self.xp_dict[terrain.icon] = max(self.xp_dict[terrain.icon], 0)
         self.save()
 
     def get_devotion(self, deity):
@@ -195,12 +199,12 @@ class Player(models.Model):
 
         for building in Building.objects.filter(ruler=self):
             if building.type.resource_produced == resource:
-                defense_multiplier = 0.2 if building.region.is_underdefended else 1
+                underdefended_penalty = 0.2 if building.region.is_underdefended else 1
 
                 if building.built_on_ideal_terrain:
-                    production += int(building.type.amount_produced * 2 * defense_multiplier)
+                    production += int(building.type.amount_produced * 2 * underdefended_penalty)
                 else:
-                    production += int(building.type.amount_produced * defense_multiplier)
+                    production += int(building.type.amount_produced * underdefended_penalty)
 
         return production
     
@@ -228,6 +232,7 @@ class Player(models.Model):
         self.adjust_resource("🪙", self.gold_production)
         self.adjust_resource("👑", self.influence_production)
         self.adjust_resource("📜", 100)
+        self.save()
         
         for building in Building.objects.filter(ruler=self):
             if building.type.amount_produced > 0:
@@ -238,7 +243,9 @@ class Player(models.Model):
 
                 self.adjust_resource(building.type.resource_produced, amount_produced)
 
-        self.save()
+        for region in Region.objects.filter(ruler=self):
+            self.adjust_xp(region.primary_terrain, 2)
+            self.adjust_xp(region.secondary_terrain, 1)
 
     def progress_journeys(self):
         for journey in Journey.objects.filter(ruler=self):
@@ -274,6 +281,7 @@ class BuildingType(models.Model):
     defense_multiplier = models.IntegerField(default=0)
     ideal_terrain = models.ForeignKey(Terrain, on_delete=models.PROTECT, null=True, blank=True)
     upgrades = models.IntegerField(default=0)
+    is_starter = models.BooleanField(default=False)
 
     def __str__(self):
         if self.ruler:
@@ -291,19 +299,8 @@ class BuildingType(models.Model):
         return int(cost)
 
 
-class Faction(models.Model):
-    name = models.CharField(max_length=50, null=True, blank=True, unique=True)
-    starter_building_types = models.ManyToManyField(BuildingType)
-    base_upgrade_cost = models.IntegerField(default=150)
-    base_upgrade_exponent = models.FloatField(default=1.02, null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.name} ({self.id})"
-
-
 class Unit(models.Model):
     ruler = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
-    faction_for_which_is_default = models.ForeignKey(Faction, on_delete=models.PROTECT, null=True, blank=True)
     name = models.CharField(max_length=50, null=True, blank=True)
     dp = models.IntegerField(default=0)
     op = models.IntegerField(default=0)
@@ -311,6 +308,7 @@ class Unit(models.Model):
     cost_dict = models.JSONField(default=dict, blank=True)
     quantity_marshaled = models.IntegerField(default=0)
     perk_dict = models.JSONField(default=dict, blank=True)
+    is_starter = models.BooleanField(default=False)
 
     def __str__(self):
         base_name = f"{self.name} ({self.op}/{self.dp}) -- {self.id}"
@@ -500,7 +498,10 @@ class Round(models.Model):
     has_started = models.BooleanField(default=True)
     has_ended = models.BooleanField(default=False)
     winner = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
+    trade_price_dict = models.JSONField(default=dict, blank=True)
+    resource_bank_dict = models.JSONField(default=dict, blank=True)
 
     @property
     def allow_ticks(self):
         return self.has_started and not self.has_ended
+        

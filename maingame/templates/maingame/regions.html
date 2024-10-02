@@ -4,9 +4,15 @@
 
 {% block content %}
 <div>
+    {% if show_underdefended_only %}
+    <a href="{% url 'regions' %}" class="text-light">
+        <button>Show all</button>
+    </a>
+    {% else %}
     <a href="{% url 'regions' %}?underdefended=true" class="text-light">
         <button>Show underdefended only</button>
     </a>
+    {% endif %}
     <div class="u-flex u-flex-column u-gap-8 mt-2">
         <div class="card bg-gray-900 p-2">
             <h6>My regions</h6>

@@ -1,7 +1,7 @@
 from random import randint
 from django.core.management.base import BaseCommand
 
-from maingame.models import Player, Terrain, Deity, Region, Unit, Building, BuildingType, Faction
+from maingame.models import Player, Terrain, Deity, Region, Unit, Building, BuildingType
 from django.contrib.auth.models import User
 
 

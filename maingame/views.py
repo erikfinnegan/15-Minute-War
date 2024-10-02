@@ -1,3 +1,4 @@
+import json
 import zoneinfo
 
 from django.http import HttpResponseRedirect
@@ -9,7 +10,7 @@ from django.db.models import Q
 from maingame.formatters import create_or_add_to_key, get_resource_name
 from maingame.models import Building, BuildingType, Player, Region, Unit, Journey, Round, Event, Deity
 from maingame.tick_processors import do_global_tick
-from maingame.utils import construct_building, get_journey_output_dict, marshal_from_location, send_journey
+from maingame.utils import construct_building, get_journey_output_dict, marshal_from_location, send_journey, update_trade_prices
 
 
 def index(request):
@@ -137,6 +138,7 @@ def regions(request):
         "show_enemy_details": Round.objects.first().has_started,
         "opponents_regions_data_list": opponents_regions_data_list,
         "unoccupied_regions": OpponentsRegionsData("Unoccupied", Region.objects.filter(ruler=None)),
+        "show_underdefended_only": show_underdefended_only,
     }
 
     return render(request, "maingame/regions.html", context)
@@ -291,12 +293,43 @@ def resources(request):
         elif region.is_underdefended:
             other_underdefended_regions.append(region)
 
+    update_trade_prices()
+    print(Round.objects.first().trade_price_dict)
+
     context = {
         "resources_dict": resources_dict,
         "deities_list": deities_list,
+        "resources_json": json.dumps(player.resource_dict),
+        "trade_price_json": json.dumps(Round.objects.first().trade_price_dict),
     }
 
     return render(request, "maingame/resources.html", context)
+
+
+@login_required
+def trade(request):
+    player = Player.objects.get(associated_user=request.user)
+    round = Round.objects.first()
+
+    input_resource = request.POST["inputResource"]
+    amount = int(request.POST["resourceAmount"])
+    output_resource = request.POST["outputResource"]
+
+    credit = round.trade_price_dict[input_resource] * amount
+    payout = int(credit / round.trade_price_dict[output_resource])
+
+    player.resource_dict[input_resource] -= amount
+    player.resource_dict[output_resource] += payout
+    player.save()
+
+    round.resource_bank_dict[input_resource] += amount
+    round.resource_bank_dict[output_resource] -= payout
+    round.save()
+
+    update_trade_prices()
+
+    messages.success(request, f"Traded {amount:2,} {input_resource} for {payout:2,} {output_resource}")
+    return redirect("resources")
 
 
 @login_required

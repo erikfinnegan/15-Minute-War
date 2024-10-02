@@ -1,39 +1,40 @@
 from random import randint, choice
 
 from maingame.formatters import create_or_add_to_key
-from maingame.models import Terrain, Unit, BuildingType, Player, Faction, Region, Journey, Building, Deity, Event
+from maingame.models import Terrain, Unit, BuildingType, Player, Region, Journey, Building, Deity, Event, Round
 from django.contrib.auth.models import User
 from django.db.models import Q
 
 
-def assign_faction(player: Player, faction: Faction):
-    for unit in Unit.objects.filter(faction_for_which_is_default=faction, ruler=None):
+def initialize_player(user: User):
+    player = Player.objects.create(associated_user=user, name=f"P-{user.username}")
+    player.adjust_resource("👑", 0)
+
+    for unit in Unit.objects.filter(is_starter=True, ruler=None):
         players_unit = unit
         players_unit.pk = None
         players_unit.ruler = player
         players_unit.save()
 
-        player.adjust_resource("👑", 0)
-
-        for resource in players_unit.cost_dict:
+        for resource in unit.cost_dict:
             player.adjust_resource(resource, 0)
 
-    for building_type in faction.starter_building_types.all():
+    for building_type in BuildingType.objects.filter(is_starter=True, ruler=None):
         players_building_type = building_type
         players_building_type.pk = None
         players_building_type.ruler = player
         players_building_type.save()
 
-        if players_building_type.amount_produced > 0:
-            player.adjust_resource(players_building_type.resource_produced, 0)
+        if building_type.amount_produced > 0:
+            player.adjust_resource(building_type.resource_produced, 0)
 
-    player.upgrade_cost = faction.base_upgrade_cost
-    player.upgrade_exponent = faction.base_upgrade_exponent
+    for _ in range(4):
+        region = generate_region()
+        region.ruler = player
+        region.save()
 
-    player.save()
 
-
-def send_journey(player: Player, unit: Unit, quantity: int, destination: Region):
+def send_journey(player: Player, unit: Unit, quantity, destination: Region):
     if Deity.objects.get(icon="⚡").favored_player == player:
         try:
             journey = Journey.objects.get(ruler=player, unit=unit, destination=destination, ticks_to_arrive=2)
@@ -53,7 +54,7 @@ def send_journey(player: Player, unit: Unit, quantity: int, destination: Region)
     unit.save()
 
 
-def marshal_from_location(player: Player, unit: Unit, quantity: int, origin: Region):
+def marshal_from_location(player: Player, unit: Unit, quantity, origin: Region):
     if quantity <= origin.units_here_dict[str(unit.id)] and unit.ruler == player:
         origin.units_here_dict[str(unit.id)] -= quantity
         
@@ -152,24 +153,29 @@ def generate_region():
     return region
 
 
-def mock_up_player(user: User, faction: Faction):
-    player = Player.objects.create(associated_user=user, name=f"P-{user.username}")
-    assign_faction(player, faction)
+def get_trade_value(resource):
+        if resource == "🪙":
+            return 15
 
-    region_templates = []
-    
-    for _ in range(4):
-        x = str(randint(1,9999))
-        name = f"{player.name[2:5]}{x}"
+        round = Round.objects.first()
+        building_type = BuildingType.objects.get(resource_produced=resource, ruler=None)
+        total_production = 0
 
-        count = Terrain.objects.count()
-        primary_terrain = Terrain.objects.all()[randint(0, count - 1)]
+        for player in Player.objects.all():
+            total_production += player.get_production(resource)
+        
+        price_modifier = 1
 
-        count = Terrain.objects.count() - 1
-        secondary_terrain = Terrain.objects.filter(~Q(id=primary_terrain.id))[randint(0, count - 1)]
+        if total_production > 0 and resource in round.resource_bank_dict:
+            price_modifier = 1 + ((round.resource_bank_dict[resource] / total_production) * -0.2)
 
-        count = Deity.objects.count()
-        deity = Deity.objects.all()[randint(0, count - 1)]
-        region = generate_region()
-        region.ruler = player
-        region.save()
+        return (500 / building_type.amount_produced) * price_modifier
+
+
+def update_trade_prices():
+    round = Round.objects.first()
+
+    for resource in round.resource_bank_dict:
+        round.trade_price_dict[resource] = get_trade_value(resource)
+
+    round.save()

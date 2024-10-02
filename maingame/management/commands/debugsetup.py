@@ -1,9 +1,9 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 
-from maingame.models import Player, Deity, Terrain, Region, Faction, BuildingType, Unit
+from maingame.models import Player, Deity, Terrain, Region, BuildingType, Unit
 from maingame.static_init import initialize_game_pieces
-from maingame.utils import assign_faction, construct_building, mock_up_player, generate_region
+from maingame.utils import generate_region, initialize_player
 
 
 class Command(BaseCommand):
@@ -15,10 +15,7 @@ class Command(BaseCommand):
         initialize_game_pieces()
 
         for user in User.objects.all():
-            if "test" in user.username:
-                mock_up_player(user, Faction.objects.get(name="human"))
-            else:
-                mock_up_player(user, Faction.objects.get(name="undead"))
+            initialize_player(user)
 
             player = Player.objects.get(associated_user=user)
             

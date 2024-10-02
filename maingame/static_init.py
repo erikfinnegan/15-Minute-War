@@ -1,4 +1,6 @@
-from maingame.models import BuildingType, Terrain, Deity, Faction, Region, Player, Building, Unit, Journey, Round, Battle, Event
+from maingame.models import BuildingType, Terrain, Deity, Region, Player, Building, Unit, Journey, Round, Battle, Event
+from maingame.formatters import create_or_add_to_key
+from maingame.utils import update_trade_prices
 
 def initialize_building_types():
     building_type_templates = [
@@ -6,110 +8,58 @@ def initialize_building_types():
             "name": "farm",
             "resource_produced": "🍞",
             "amount_produced": 100,
-            "ideal_terrain": Terrain.objects.get(name="grassy")
+            "ideal_terrain": Terrain.objects.get(name="grassy"),
+            "is_starter": True,
         },
         {
             "name": "quarry",
             "resource_produced": "🪨",
             "amount_produced": 50,
-            "ideal_terrain": Terrain.objects.get(name="mountainous")
-        },
-        {
-            "name": "embassy",
-            "trade_multiplier": 30,
-            "ideal_terrain": Terrain.objects.get(name="coastal")
+            "ideal_terrain": Terrain.objects.get(name="mountainous"),
+            "is_starter": True,
         },
         {
             "name": "lumberyard",
             "resource_produced": "🪵",
             "amount_produced": 100,
-            "ideal_terrain": Terrain.objects.get(name="forested")
+            "ideal_terrain": Terrain.objects.get(name="forested"),
+            "is_starter": True,
         },
         {
             "name": "school",
             "resource_produced": "📜",
             "amount_produced": 1,
-            "ideal_terrain": Terrain.objects.get(name="grassy")
+            "ideal_terrain": Terrain.objects.get(name="grassy"),
+            "is_starter": True,
         },
-        # {
-        #     "name": "mine",
-        #     "resource_produced": "💎",
-        #     "amount_produced": 20,
-        #     "ideal_terrain": Terrain.objects.get(name="cavernous")
-        # },
+        {
+            "name": "stronghold",
+            "defense_multiplier": 20,
+            "ideal_terrain": Terrain.objects.get(name="defensible"),
+            "is_starter": True,
+        },
+
+        {
+            "name": "mine",
+            "resource_produced": "💎",
+            "amount_produced": 20,
+            "ideal_terrain": Terrain.objects.get(name="cavernous")
+        },
         {
             "name": "tower",
             "resource_produced": "🔮",
             "amount_produced": 10,
-            "ideal_terrain": Terrain.objects.get(name="swampy")
+            "ideal_terrain": Terrain.objects.get(name="swampy"),
         },
         {
-            "name": "stronghold",
-            "defense_multiplier": 50,
-            "ideal_terrain": Terrain.objects.get(name="defensible")
+            "name": "embassy",
+            "trade_multiplier": 30,
+            "ideal_terrain": Terrain.objects.get(name="coastal"),
         },
     ]
 
     for building_template in building_type_templates:
         BuildingType.objects.create(**building_template)
-
-
-def initialize_factions():
-    generic_building_types = [
-        BuildingType.objects.get(name="farm"),
-        BuildingType.objects.get(name="quarry"),
-        BuildingType.objects.get(name="embassy"),
-        BuildingType.objects.get(name="lumberyard"),
-        BuildingType.objects.get(name="tower"),
-        BuildingType.objects.get(name="stronghold"),
-        BuildingType.objects.get(name="school"),
-    ]
-
-    humans = Faction.objects.create(name="human")
-    Unit.objects.create(
-        name="archer",
-        op=2,
-        dp=4,
-        faction_for_which_is_default=humans,
-        cost_dict={
-            "🪙": 150,
-            "🪵": 30,
-        }
-    )
-    Unit.objects.create(
-        name="knight",
-        op=6,
-        dp=5,
-        faction_for_which_is_default=humans,
-        cost_dict={
-            "🪙": 275,
-            "🪨": 25,
-        }
-    )
-    humans.starter_building_types.add(*generic_building_types)
-
-    undead = Faction.objects.create(name="undead")
-    Unit.objects.create(
-        name="skeleton",
-        op=3,
-        dp=3,
-        faction_for_which_is_default=undead,
-        cost_dict={
-            "🪙": 125,
-            "🔮": 2,
-        }
-    )
-    Unit.objects.create(
-        name="necromancer",
-        op=6,
-        dp=5,
-        faction_for_which_is_default=undead,
-        cost_dict={
-            "🪙": 1400,
-            "📜": 50,
-        }
-    )
-    undead.starter_building_types.add(*generic_building_types)
 
 
 def initialize_terrain():
@@ -187,6 +137,41 @@ def initialize_deities():
     )
 
 
+def initialize_units():
+    Unit.objects.create(
+        name="archer",
+        op=2,
+        dp=4,
+        cost_dict={
+            "🪙": 150,
+            "🪵": 30,
+        },
+        is_starter=True
+    )
+    Unit.objects.create(
+        name="knight",
+        op=6,
+        dp=5,
+        cost_dict={
+            "🪙": 275,
+            "🪨": 25,
+        },
+        is_starter=True
+    )
+
+
+def initialize_trade_prices():
+    round = Round.objects.first()
+
+    for building_type in BuildingType.objects.all():
+        if building_type.amount_produced > 0:
+            round.resource_bank_dict[building_type.resource_produced] = 0
+
+    round.resource_bank_dict["🪙"] = 0
+    update_trade_prices()
+    round.save()
+
+
 def initialize_game_pieces():
     Battle.objects.all().delete()
     Event.objects.all().delete()
@@ -197,13 +182,12 @@ def initialize_game_pieces():
     Unit.objects.all().delete()
     BuildingType.objects.all().delete()
     Player.objects.all().delete()
-    Faction.objects.all().delete()
     Terrain.objects.all().delete()
     Deity.objects.all().delete()
-
     Round.objects.create()
 
     initialize_terrain()
     initialize_deities()
     initialize_building_types()
-    initialize_factions()
+    initialize_units()
+    initialize_trade_prices()

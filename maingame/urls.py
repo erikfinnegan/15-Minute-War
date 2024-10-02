@@ -19,6 +19,7 @@ urlpatterns = [
     path("legions/submit", views.submit_training, name="submit_training"),
     path("legions", views.legions, name="legions"),
     path("resources", views.resources, name="resources"),
+    path("trade/submit", views.trade, name="trade"),
     path("dispatch_to_all_regions/<int:unit_id>/<int:quantity>", views.dispatch_to_all_regions, name="dispatch_to_all_regions"),
     path("dispatch_to_one_region/<int:region_id>", views.dispatch_to_one_region, name="dispatch_to_one_region"),
     path("marshal_from_region/<int:region_id>", views.marshal_from_region, name="marshal_from_region"),

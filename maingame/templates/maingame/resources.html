@@ -5,17 +5,20 @@
 
 {% block content %}
 <div class="max-w-sm">
+    {% if active_player.is_starving %}
     <div class="u-center">
         <h4 class="font-bold text-red-400">⚠️YOU ARE STARVING⚠️</h4>
     </div>
+    {% endif %}
     <div class="">
         <table class="table striped max-w-sm">
             <thead>
                 <tr>
                     <th>Resource</th>
+                    <th>Sell price</th>
                     <th>Name</th>
-                    <th>Produced</th>
-                    <th>Consumed</th>
+                    <th>+</th>
+                    <th>-</th>
                     <th>Net</th>
                 </tr>
             </thead>
@@ -23,6 +26,7 @@
                 {% for key, value in resources_dict.items %}
                 <tr>
                     <th class="u-align-middle">{{ key }}</th>
+                    <td class="u-align-middle">123</td>
                     <th class="u-align-middle">{{ value.name|title }}</th>
                     <td class="u-align-middle text-green-400">{{ value.produced|intcomma }}</td>
                     <td class="u-align-middle text-red-400">{{ value.consumed|intcomma }}</td>
@@ -53,6 +57,87 @@
             </tbody>
         </table>
     </div>
+
+    <div>
+        <form action="{% url 'trade' %}" method="post">
+            {% csrf_token %}
+            <div class="u-center">
+                <span id="ratioNumerator">1</span>
+                <span>:</span>
+                <span id="ratioDenominator">1</span>
+            </div>
+            <div class="u-flex u-flex-row u-gap-2">
+                <select class="w-10 bg-dark text-light" id="inputResource" name="inputResource" oninput="showRatio()">
+                    {% for key, value in resources_dict.items %}
+                    {% if key != "👑" %}
+                    <option {% if key == "🪙" %} selected{% endif %}>{{ key }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+                <input type="range" min="1" max="100" value="0" id="resourceRange" name="resourceAmount" oninput="showCurrentValue()">
+                <select class="w-10 bg-dark text-light" id="outputResource" name="outputResource" oninput="showRatio()">
+                    {% for key, value in resources_dict.items %}
+                    <option {% if key == "🪙" %} selected{% endif %}>{{ key }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="u-center u-gap-1">
+                <span id="resourceRangeValue">1</span>
+                <span id="soldResource">🪙</span>
+                <span>for</span>
+                <span id="boughtResourceAmount">1</span>
+                <span id="boughtResource">🪙</span>
+            </div>
+            <div class="u-center mt-2">
+                <button class="btn-light mt-1 w-16 h-6 p-0 u-center" type="submit">
+                    <span class="font-bold">Trade</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const resourcesDict = JSON.parse('{{ resources_json|escapejs }}');
+        const tradePrices = JSON.parse('{{ trade_price_json|escapejs }}');
+        document.getElementById("resourceRange").max = resourcesDict["🪙"];
+
+        function showCurrentValue() {
+            document.getElementById("resourceRangeValue").innerHTML = document.getElementById("resourceRange").value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            const inputResource = document.getElementById("inputResource").value;
+            const outputResource = document.getElementById("outputResource").value;
+            const amount = document.getElementById("resourceRange").value
+            const credit = tradePrices[inputResource] * amount
+            const outputAmount = Math.floor(credit / tradePrices[outputResource])
+            document.getElementById("boughtResourceAmount").innerHTML = outputAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        function showRatio() {
+            document.getElementById("resourceRangeValue").innerHTML = "1";
+            const inputResource = document.getElementById("inputResource").value;
+            const outputResource = document.getElementById("outputResource").value;
+            document.getElementById("resourceRange").value = 0
+            document.getElementById("resourceRange").max = resourcesDict[inputResource];
+            document.getElementById("soldResource").innerHTML = inputResource
+            document.getElementById("boughtResource").innerHTML = outputResource
+            const inputPrice = tradePrices[inputResource]
+            const outputPrice = tradePrices[outputResource]
+
+            decToFrac = dec =>
+                [...Array(100).keys()].flatMap(
+                    i => [...Array(100).keys()].map(
+                    j => [
+                        i + 1, j + 1, (i + 1) / (j + 1),
+                        Math.abs(((i + 1) / (j + 1)) - dec)
+                    ]
+                    )
+                ).sort((a, b) => a[3] - b[3])[0].slice(0, 2)
+            let decfrac = decToFrac(inputPrice/outputPrice)
+
+            document.getElementById("ratioNumerator").innerHTML = decfrac[0]
+            document.getElementById("ratioDenominator").innerHTML = decfrac[1]
+            showCurrentValue()
+        }
+    </script>
 </div>
 
 {% endblock %}
