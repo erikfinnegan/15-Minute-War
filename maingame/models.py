@@ -35,7 +35,7 @@ class Deity(models.Model):
             elif devotion == favored_player_devotion:
                 tied_for_highest = True
 
-        if favored_player_devotion >= 0 and not tied_for_highest:
+        if favored_player_devotion >= 2 and not tied_for_highest:
             return Player.objects.get(id=favored_player_id)
         
         return None
@@ -337,7 +337,6 @@ class Unit(models.Model):
     
     @property
     def perk_text(self):
-        print(self.perk_dict)
         if "no_food" in self.perk_dict:
             return "Consumes no food"
         
@@ -353,16 +352,22 @@ class Region(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True, unique=True)
     primary_terrain = models.ForeignKey(Terrain, on_delete=models.PROTECT, related_name="regions_as_primary_terrain")
     secondary_terrain = models.ForeignKey(Terrain, on_delete=models.PROTECT, related_name="regions_as_secondary_terrain")
-    deity = models.ForeignKey(Deity, on_delete=models.PROTECT)
+    deity = models.ForeignKey(Deity, on_delete=models.PROTECT, null=True, blank=True)
     ticks_ruled = models.IntegerField(default=0)
     units_here_dict = models.JSONField(default=dict, null=True, blank=True)
     invasion_this_tick = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.name} {self.primary_terrain.icon}{self.primary_terrain.icon}{self.secondary_terrain.icon} / {self.deity.icon}"
+        if self.deity:
+            return f"{self.name} {self.primary_terrain.icon}{self.primary_terrain.icon}{self.secondary_terrain.icon} / {self.deity.icon}"
+        
+        return f"{self.name} {self.primary_terrain.icon}{self.primary_terrain.icon}{self.secondary_terrain.icon}"
 
     def icon_name(self):
-        return f"{self.name} {self.primary_terrain.icon}{self.primary_terrain.icon}{self.secondary_terrain.icon} / {self.deity.icon}"
+        if self.deity:
+            return f"{self.name} {self.primary_terrain.icon}{self.primary_terrain.icon}{self.secondary_terrain.icon} / {self.deity.icon}"
+        
+        return f"{self.name} {self.primary_terrain.icon}{self.primary_terrain.icon}{self.secondary_terrain.icon}"
     
     def description(self):
         if self.primary_terrain == "defensible" or self.secondary_terrain == "defensible":

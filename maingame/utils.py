@@ -29,7 +29,7 @@ def initialize_player(user: User):
             player.adjust_resource(building_type.resource_produced, 0)
 
     for _ in range(4):
-        region = generate_region()
+        region = generate_region(starter_region=True)
         region.ruler = player
         region.save()
 
@@ -113,15 +113,17 @@ def get_journey_output_dict(player: Player, region: Region):
     return output_dict
 
 
-def generate_region():
+def generate_region(starter_region=False):
     terrain_count = Terrain.objects.count()
     primary_terrain = Terrain.objects.all()[randint(0, terrain_count - 1)]
 
     terrain_count = Terrain.objects.count() - 1
     secondary_terrain = Terrain.objects.filter(~Q(id=primary_terrain.id))[randint(0, terrain_count - 1)]
+    deity = None
 
-    deity_count = Deity.objects.count()
-    deity = Deity.objects.all()[randint(0, deity_count - 1)]
+    if not starter_region:
+        deity_count = Deity.objects.count()
+        deity = Deity.objects.all()[randint(0, deity_count - 1)]
 
     person_names = ["Caul", "Ratclip", "Thomer", "Vaude", "Andrel", "Poley", "Tert", "Menry", "Wester", "Bragon", "Canter", "Card", "Baston", "Edwall", "Octague",
                     "Micham", "Franter", "Cater", "Catlip", "Carda", "Blance", "Regess", "Archam", "Bastaff", "Erpidge", "Humphin", "Richam", "Priar", "Stalton",
@@ -148,7 +150,8 @@ def generate_region():
         except:
             pass
 
-    Event.objects.create(reference_id=region.id, reference_type="discover", icon="🗺️")
+    if not starter_region:
+        Event.objects.create(reference_id=region.id, reference_type="discover", icon="🗺️")
 
     return region
 

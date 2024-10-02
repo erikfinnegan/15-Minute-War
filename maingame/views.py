@@ -294,7 +294,6 @@ def resources(request):
             other_underdefended_regions.append(region)
 
     update_trade_prices()
-    print(Round.objects.first().trade_price_dict)
 
     context = {
         "resources_dict": resources_dict,

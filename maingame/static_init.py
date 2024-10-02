@@ -134,6 +134,7 @@ def initialize_deities():
         op=13,
         dp=0,
         is_trainable=False,
+        perk_dict={"no_food": True}
     )
 
 
