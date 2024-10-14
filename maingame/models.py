@@ -165,7 +165,7 @@ class Player(models.Model):
                 resource = Resource.objects.get(ruler=self, icon=resource_icon)
 
                 if resource_name == resource.name:
-                    consumption += int(unit.quantity * upkeep)
+                    consumption += int(unit.quantity_trained_and_alive * upkeep)
 
         return consumption
     
@@ -177,7 +177,11 @@ class Player(models.Model):
             if resource.quantity < 0:
                 for unit in Unit.objects.filter(ruler=self):
                     if resource.icon in unit.upkeep_dict:
-                        unit.quantity = int(unit.quantity * 0.99)
+                        unit.quantity_at_home = int(unit.quantity_at_home * 0.99)
+                        
+                        for tick, quantity in unit.returning_dict.items():
+                            unit.returning_dict[tick] = int(quantity * 0.99)
+
                         unit.save()
 
             resource.quantity = max(0, resource.quantity)            
@@ -307,7 +311,7 @@ class Unit(models.Model):
     upkeep_dict = models.JSONField(default=dict, blank=True)
     training_dict = models.JSONField(default=dict, blank=True)
     returning_dict = models.JSONField(default=dict, blank=True)
-    quantity = models.IntegerField(default=0)
+    quantity_at_home = models.IntegerField(default=0)
     perk_dict = models.JSONField(default=dict, blank=True)
     faction = models.ForeignKey(Faction, on_delete=models.PROTECT, null=True, blank=True)
 
@@ -320,8 +324,8 @@ class Unit(models.Model):
         return f"🟩Base --- {base_name}"
     
     @property
-    def quantity_at_home(self):
-        return self.quantity - self.quantity_returning
+    def quantity_trained_and_alive(self):
+        return self.quantity_at_home + self.quantity_returning
 
     @property
     def max_affordable(self):
@@ -354,7 +358,7 @@ class Unit(models.Model):
     def advance_training_and_returning(self):
         for key, value in self.training_dict.items():
             if key == "1":
-                self.quantity += value
+                self.quantity_at_home += value
             else:
                 new_key = str(int(key) - 1)
                 self.training_dict[new_key] = value
@@ -363,7 +367,7 @@ class Unit(models.Model):
 
         for key, value in self.returning_dict.items():
             if key == "1":
-                self.quantity += value
+                self.quantity_at_home += value
             else:
                 new_key = str(int(key) - 1)
                 self.returning_dict[new_key] = value

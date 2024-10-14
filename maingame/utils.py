@@ -181,14 +181,14 @@ def unlock_discovery(player: Player, discovery_name):
             print("Implement spells, silly")
         case "Archmagus":
             archmagus = give_player_unit(player, Unit.objects.get(ruler=None, name="Archmagus"))
-            archmagus.quantity = 1
+            archmagus.quantity_at_home = 1
             archmagus.save()
             player.has_tick_units = True
         case "Fireball":
             give_player_unit(player, Unit.objects.get(ruler=None, name="Fireball"))
         case "Grudgestoker":
             grudgestoker = give_player_unit(player, Unit.objects.get(ruler=None, name="Grudgestoker"))
-            grudgestoker.quantity = 1
+            grudgestoker.quantity_at_home = 1
             grudgestoker.save()
             player.has_tick_units = True
 
@@ -228,7 +228,7 @@ def cast_spell(spell: Spell):
                         overwhelming_unit.pk = None
                         overwhelming_unit.name = f"Overwhelming {unit.name}"
                         overwhelming_unit.op *= 2
-                        overwhelming_unit.quantity = 0
+                        overwhelming_unit.quantity_at_home = 0
                         overwhelming_unit.is_trainable = False
                         overwhelming_unit.cost_dict = {}
                         overwhelming_unit_upkeep = overwhelming_unit.op / 5
@@ -238,9 +238,9 @@ def cast_spell(spell: Spell):
 
                         overwhelming_unit.upkeep_dict[mana.icon] = overwhelming_unit_upkeep
                         
-                    overwhelming_quantity = int(unit.quantity * 0.2)
-                    overwhelming_unit.quantity += overwhelming_quantity
-                    unit.quantity -= overwhelming_quantity
+                    overwhelming_quantity = int(unit.quantity_at_home * 0.2)
+                    overwhelming_unit.quantity_at_home += overwhelming_quantity
+                    unit.quantity_at_home -= overwhelming_quantity
 
                     unit.save()
                     overwhelming_unit.save()

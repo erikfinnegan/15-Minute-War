@@ -255,7 +255,12 @@ def submit_release(request):
         if "release_" in key and string_amount != "":
             unit = Unit.objects.get(id=key[8:])
             amount = int(string_amount)
-            unit.quantity = max(0, unit.quantity - amount)
+
+            if total_released > unit.quantity_at_home:
+                messages.error(request, f"You can't release more units than you have at home.")
+                return redirect("military")
+
+            unit.quantity_at_home = max(0, unit.quantity_at_home - amount)
             unit.save()
             total_released += amount
 
@@ -597,6 +602,8 @@ def submit_invasion(request, player_id):
                     "unit": unit,
                     "quantity_sent": amount,
                 }
+                unit.quantity_at_home -= amount
+                unit.save()
             else:
                 messages.error(request, f"You can't send more units than you have at home.")
                 return redirect("overview", player_id=player_id)
@@ -685,15 +692,12 @@ def submit_invasion(request, player_id):
         if "always_dies_on_offense" in unit.perk_dict:
             survivors = 0
 
-        casualties = quantity_sent - survivors
-        unit.quantity -= casualties
         unit.returning_dict["12"] += survivors
-
         unit.save()
 
     # Apply defensive casualties
     for unit in Unit.objects.filter(ruler=target_player):
-        unit.quantity = math.ceil(unit.quantity * defensive_survival)
+        unit.quantity_at_home = math.ceil(unit.quantity_at_home * defensive_survival)
         unit.save()
 
     return redirect("overview", player_id=player_id)

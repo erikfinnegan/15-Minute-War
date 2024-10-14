@@ -25,7 +25,7 @@ class Command(BaseCommand):
         invade_me_test.name = "Invade me"
 
         for unit in Unit.objects.filter(ruler=invade_me_test):
-            unit.quantity = 10
+            unit.quantity_at_home = 10
             unit.save()
 
         invade_me_test.protection_ticks_remaining = 0
@@ -39,7 +39,7 @@ class Command(BaseCommand):
             building.save()
 
         for unit in Unit.objects.filter(ruler=testplayer):
-            unit.quantity = 500
+            unit.quantity_at_home = 500
             unit.save()
 
         for resource in Resource.objects.filter(ruler=testplayer):

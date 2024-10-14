@@ -27,7 +27,7 @@
                 {% include "maingame/unit_name_row.html" %}
                 <td class="u-align-middle" onclick="trainMax('{{ unit.id }}', '{{ unit.max_affordable }}')">{{ unit.op }}/{{ unit.dp }}</td>
                 <td class="u-align-middle" onclick="trainMax('{{ unit.id }}', '{{ unit.max_affordable }}')">
-                    {{ unit.quantity|intcomma }}
+                    {{ unit.quantity_trained_and_alive|intcomma }}
                     {% if unit.quantity_in_training > 0 %} ({{ unit.quantity_in_training|intcomma }}){% endif %}
                 </td>
                 <td class="u-align-middle" onclick="trainMax('{{ unit.id }}', '{{ unit.max_affordable }}')">
@@ -230,7 +230,7 @@
             <tr>
                 <th>Name</th>
                 <th>Pwr</th>
-                <th>Quantity (Training)</th>
+                <th>Quantity at home</th>
                 <th class="w-16">Release</th>
             </tr>
         </thead>
@@ -240,8 +240,7 @@
                 {% include "maingame/unit_name_row.html" %}
                 <td class="u-align-middle">{{ unit.op }}/{{ unit.dp }}</td>
                 <td class="u-align-middle">
-                    {{ unit.quantity|intcomma }}
-                    {% if unit.quantity_in_training > 0 %} ({{ unit.quantity_in_training|intcomma }}){% endif %}
+                    {{ unit.quantity_at_home|intcomma }}
                 </td>
                 <td class="u-align-middle u-flex-md u-flex-row-md">
                     <input 
