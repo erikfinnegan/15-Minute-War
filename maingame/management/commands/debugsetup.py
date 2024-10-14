@@ -1,9 +1,9 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 
-from maingame.models import Player, Deity, Terrain, Region, BuildingType, Unit
+from maingame.models import Player, Deity, Unit, Faction, Resource, Building
 from maingame.static_init import initialize_game_pieces
-from maingame.utils import generate_region, initialize_player
+from maingame.utils import initialize_player
 
 
 class Command(BaseCommand):
@@ -15,15 +15,35 @@ class Command(BaseCommand):
         initialize_game_pieces()
 
         for user in User.objects.all():
-            initialize_player(user)
+            if user.username != "test":
+                player = initialize_player(user=user, faction=Faction.objects.get(name="human"), display_name=f"p-{user.username}")
+                farm = Building.objects.get(ruler=player, name="farm")
+                farm.quantity = 10
+                farm.save()
+        
+        invade_me_test = Player.objects.get(name="p-nofaction")
+        invade_me_test.name = "Invade me"
 
-            player = Player.objects.get(associated_user=user)
-            
-            for unit in Unit.objects.filter(ruler=player):
-                    unit.quantity_marshaled = 500
-                    unit.save()
+        for unit in Unit.objects.filter(ruler=invade_me_test):
+            unit.quantity = 10
+            unit.save()
 
-        for _ in range(3):
-            generate_region()
+        invade_me_test.protection_ticks_remaining = 0
+        invade_me_test.save()
+
+        testuser = User.objects.get(username="test")
+        testplayer = initialize_player(user=testuser, faction=Faction.objects.get(name="dwarf"), display_name="ERIKTEST")
+
+        for building in Building.objects.filter(ruler=testplayer):
+            building.quantity = 20
+            building.save()
+
+        for unit in Unit.objects.filter(ruler=testplayer):
+            unit.quantity = 500
+            unit.save()
+
+        for resource in Resource.objects.filter(ruler=testplayer):
+            resource.quantity = 1000000
+            resource.save()
 
         print("Done generating stuff.")

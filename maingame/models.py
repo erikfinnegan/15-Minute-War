@@ -1,122 +1,135 @@
-import math
+import math, random
 from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import User
 
-from maingame.formatters import create_or_add_to_key, smart_comma, get_resource_name
-
 
 class Deity(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True, unique=True)
-    icon = models.CharField(max_length=10, null=True, blank=True, unique=True)
-
-    def __str__(self):
-        return f"{self.name} ({self.icon})"
-        
-    class Meta: 
-        verbose_name_plural = "deities"
-
-    @property
-    def favored_player(self):
-        player_devotion_dict = {}
-
-        for region in Region.objects.filter(~Q(ruler=None), deity=self):
-            player_devotion_dict = create_or_add_to_key(player_devotion_dict, str(region.ruler.id), 1)
-        
-        favored_player_id = 0
-        favored_player_devotion = 0
-        tied_for_highest = False
-
-        for player_id, devotion in player_devotion_dict.items():
-            if devotion > favored_player_devotion:
-                favored_player_devotion = devotion
-                favored_player_id = player_id
-                tied_for_highest = False
-            elif devotion == favored_player_devotion:
-                tied_for_highest = True
-
-        if favored_player_devotion >= 2 and not tied_for_highest:
-            return Player.objects.get(id=favored_player_id)
-        
-        return None
-
-
-class Terrain(models.Model):
-    name = models.CharField(max_length=50, null=True, blank=True, unique=True)
-    icon = models.CharField(max_length=10, null=True, blank=True, unique=True)
-    unit_op_dp_ratio = models.FloatField(null=True, blank=True)
-    unit_perk_options = models.CharField(max_length=500, null=True, blank=True)
-
+    
     def __str__(self):
         return f"{self.name}"
         
     class Meta: 
-        verbose_name_plural = "Terrain"
+        verbose_name_plural = "deities"
         
 
 class Player(models.Model):
     associated_user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, unique=True)
     name = models.CharField(max_length=50, null=True, blank=True, unique=True)
     timezone = models.CharField(max_length=50, default="UTC")
-    resource_dict = models.JSONField(default=dict)
-    xp_dict = models.JSONField(default=dict, blank=True, null=True)
     is_starving = models.BooleanField(default=False)
     has_unread_events = models.BooleanField(default=False)
-    upgrade_cost = models.IntegerField(default=150)
-    upgrade_exponent = models.FloatField(default=1.02, null=True, blank=True)
-    protection_ticks_remaining = models.IntegerField(default=96)
+    protection_ticks_remaining = models.IntegerField(default=72)
+    complacency = models.IntegerField(default=0)
+    has_tick_units = models.BooleanField(default=False)
+
+    acres = models.IntegerField(default=100)
+    incoming_acres_dict = models.JSONField(default=dict, blank=True)
+
+    primary_resource_name = models.CharField(max_length=50, null=True, blank=True)
+    primary_resource_per_acre = models.IntegerField(default=0)
+    
+    building_primary_resource_name = models.CharField(max_length=50, null=True, blank=True)
+    building_secondary_resource_name = models.CharField(max_length=50, null=True, blank=True)
+    building_primary_cost_per_acre = models.IntegerField(default=100)
+    building_secondary_cost_per_acre = models.IntegerField(default=10)
+
+    upgrade_cost = models.IntegerField(default=300)
+    upgrade_exponent = models.FloatField(default=1.03, null=True, blank=True)
+    
+    perk_dict = models.JSONField(default=dict, blank=True)
+    faction_name = models.CharField(max_length=50, null=True, blank=True)
+
+    discovery_points = models.IntegerField(default=0)
+    available_discoveries = models.JSONField(default=list, blank=True)
 
     def __str__(self):
         return f"{self.name}"
-    
-    @property
-    def marshaled_op(self):
-        marshaled_op = 0
-
-        for marshaled_unit in Unit.objects.filter(ruler=self, quantity_marshaled__gt=0):
-            marshaled_op += (marshaled_unit.op * marshaled_unit.quantity_marshaled)
-
-        return marshaled_op
 
     @property
-    def unconstructed_plots(self):
-        unconstructed_plots = 0
+    def complacency_penalty_readout(self):
+        penalty = self.complacency / 2
 
-        for region in Region.objects.filter(ruler=self):
-            unconstructed_plots += region.plots_available
+        return penalty
 
-        return unconstructed_plots
+    @property
+    def offense_multiplier(self):
+        return 1
+
+    @property
+    def defense(self):
+        defense = 0
+
+        for unit in Unit.objects.filter(ruler=self):
+            defense += unit.quantity_at_home * unit.dp
+
+        multiplier = 1 - (self.complacency / 200)
+
+        return max(0, int(defense * multiplier))
+
+    @property
+    def strid(self):
+        return f"{self.id}"
+
+    @property
+    def building_count(self):
+        building_count = 0
+        
+        for building in Building.objects.filter(ruler=self):
+            building_count += building.quantity
+
+        return building_count
+
+    @property
+    def has_units_returning(self):
+        for unit in Unit.objects.filter(ruler=self):
+            if unit.quantity_returning > 0:
+                return True
+            
+        return False
+
+    @property
+    def building_primary_cost(self):
+        return self.building_primary_cost_per_acre * self.acres
     
     @property
-    def regions_ruled(self):
-        return Region.objects.filter(ruler=self).count()
+    def building_secondary_cost(self):
+        return self.building_secondary_cost_per_acre * self.acres
     
+    @property 
+    def barren_acres(self):
+        barren_acres = self.acres
+
+        for building in Building.objects.filter(ruler=self):
+            barren_acres -= building.quantity
+
+        return barren_acres
+
     @property
-    def has_marshaled_units(self):
-        return Unit.objects.filter(ruler=self, quantity_marshaled__gt=0).count() > 0
-    
+    def incoming_acres(self):
+        total = 0
+
+        for key, value in self.incoming_acres_dict.items():
+            total += value
+
+        return total
+
     @property
     def header_rows(self):
         iterator = -1
         row_number = 0
         header_rows = {}
 
-        for resource, amount in self.resource_dict.items():
+        for resource in Resource.objects.filter(ruler=self):
             iterator += 1
             
-            if iterator % math.ceil(len(self.resource_dict) / 2) == 0:
+            if iterator % math.ceil(Resource.objects.filter(ruler=self).count() / 2) == 0:
                 row_number += 1
                 header_rows[str(row_number)] = []
 
-            readout = f"{resource}: {int(amount):,}"
-
-            if resource == "🍞" and self.is_starving:
-                readout += "⚠️"
-
-            tooltip = get_resource_name(resource)
-
-            if resource == "🍞" and self.is_starving:
-                tooltip = "⚠️ YOU ARE STARVING ⚠️"
+            readout = f"{resource.icon}: {int(resource.quantity):,}"
+            tooltip = resource.name
 
             header_rows[str(row_number)].append({
                 "readout": readout,
@@ -124,164 +137,131 @@ class Player(models.Model):
             })
 
         return header_rows
+
+    @property
+    def ticks_to_next_discovery(self):
+        return max(0, 50 - self.discovery_points % 50)
     
     @property
-    def gold_production(self):
-        gold_production = 3000
-        beautiful_terrain = Terrain.objects.get(name="beautiful")
+    def discoveries_to_make(self):
+        return int(self.discovery_points / 50)
 
-        for region in Region.objects.filter(ruler=self):
-            if region.primary_terrain == beautiful_terrain:
-                gold_production += 500
-            elif region.secondary_terrain == beautiful_terrain:
-                gold_production += 400
-            else:
-                gold_production += 300
-
-        return gold_production
-    
-    @property
-    def influence_production(self):
-        influence_production = 0
-        influential_terrain = Terrain.objects.get(name="influential")
-
-        for region in Region.objects.filter(ruler=self):
-            if region.primary_terrain == influential_terrain:
-                influence_production += 2
-            elif region.secondary_terrain == influential_terrain:
-                influence_production += 1.5
-            else:
-                influence_production += 1
-
-        return influence_production
-
-    @property
-    def average_defense(self):
-        total_defense = 0
-        regions = Region.objects.filter(ruler = self)
-
-        for region in regions:
-            total_defense += region.defense
-
-        return total_defense / regions.count()
-
-    @property
-    def has_underdefended_regions(self):
-        for region in Region.objects.filter(ruler=self):
-            if region.is_underdefended:
-                return True
-            
-        return False
-
-    def adjust_resource(self, resource, amount):
-        if self.is_starving and resource != "🍞":
-            amount = min(amount, 0)
-
-        self.resource_dict = create_or_add_to_key(self.resource_dict, resource, amount)
-        self.resource_dict[resource] = max(self.resource_dict[resource], 0)
-        self.save()
-
-    def adjust_xp(self, terrain: Terrain, amount):
-        self.xp_dict = create_or_add_to_key(self.xp_dict, terrain.icon, amount)
-        self.xp_dict[terrain.icon] = max(self.xp_dict[terrain.icon], 0)
-        self.save()
-
-    def get_devotion(self, deity):
-        return Region.objects.filter(ruler=self, deity=deity).count()
-
-    def get_production(self, resource):
+    def get_production(self, resource_name):
         production = 0
 
-        if resource == "🪙":
-            production += self.gold_production
-        elif resource == "👑":
-            production += self.influence_production
+        for building in Building.objects.filter(ruler=self, resource_produced_name=resource_name):
+            production += building.amount_produced * building.quantity
 
-        for building in Building.objects.filter(ruler=self):
-            if building.type.resource_produced == resource:
-                underdefended_penalty = 0.2 if building.region.is_underdefended else 1
-
-                if building.built_on_ideal_terrain:
-                    production += int(building.type.amount_produced * 2 * underdefended_penalty)
-                else:
-                    production += int(building.type.amount_produced * underdefended_penalty)
+        if resource_name == self.primary_resource_name:
+            production += self.primary_resource_per_acre * self.acres
 
         return production
     
-    def get_food_consumption(self):
-        total_units = 0
+    def get_consumption(self, resource_name):
+        consumption = 0
 
         for unit in Unit.objects.filter(ruler=self):
-            if not "no_food" in unit.perk_dict:
-                total_units += unit.quantity_marshaled
+            for resource_icon, upkeep in unit.upkeep_dict.items():
+                resource = Resource.objects.get(ruler=self, icon=resource_icon)
 
-        for region in Region.objects.filter(ruler=self):
-            for unit_id, amount in region.units_here_dict.items():
-                if not "no_food" in Unit.objects.get(id=unit_id).perk_dict:
-                    total_units += amount
+                if resource_name == resource.name:
+                    consumption += int(unit.quantity * upkeep)
 
-        return int(total_units / 25)
+        return consumption
     
-    def do_food_consumption(self):
-        consumption = self.get_food_consumption()
-        self.is_starving = consumption > self.resource_dict["🍞"]
-        self.adjust_resource("🍞", (consumption * -1))
-        self.save()
-
     def do_resource_production(self):
-        self.adjust_resource("🪙", self.gold_production)
-        self.adjust_resource("👑", self.influence_production)
-        self.adjust_resource("📜", 100)
+        for resource in Resource.objects.filter(ruler=self):
+            resource.quantity += self.get_production(resource.name)
+            resource.quantity -= self.get_consumption(resource.name)
+
+            if resource.quantity < 0:
+                for unit in Unit.objects.filter(ruler=self):
+                    if resource.icon in unit.upkeep_dict:
+                        unit.quantity = int(unit.quantity * 0.99)
+                        unit.save()
+
+            resource.quantity = max(0, resource.quantity)            
+            resource.save()
+
+    def advance_land_returning(self):
+        for key, value in self.incoming_acres_dict.items():
+            if key == "1":
+                self.acres += value
+            else:
+                new_key = str(int(key) - 1)
+                self.incoming_acres_dict[new_key] = value
+            
+            self.incoming_acres_dict[key] = 0
+
         self.save()
-        
-        for building in Building.objects.filter(ruler=self):
-            if building.type.amount_produced > 0:
-                amount_produced = building.type.amount_produced
-                
-                if building.built_on_ideal_terrain:
-                    amount_produced *= 2
 
-                self.adjust_resource(building.type.resource_produced, amount_produced)
-
-        for region in Region.objects.filter(ruler=self):
-            self.adjust_xp(region.primary_terrain, 2)
-            self.adjust_xp(region.secondary_terrain, 1)
-
-    def progress_journeys(self):
-        for journey in Journey.objects.filter(ruler=self):
-            journey.ticks_to_arrive -= 1
-            journey.save()
-
-            if journey.ticks_to_arrive == 0:
-                region = journey.destination
-                unit = journey.unit
-                unit_id_str = str(unit.id)
-                quantity = journey.quantity
-
-                region.units_here_dict = create_or_add_to_key(region.units_here_dict, unit_id_str, quantity)
-
-                if region.ruler != self:
-                    region.invasion_this_tick = True
-                
-                region.save()
-                journey.delete()
+    def do_perks(self):
+        if "book_of_grudges" in self.perk_dict and self.protection_ticks_remaining == 0:
+            for player in Player.objects.filter(~Q(id=self.id), protection_ticks_remaining=0):
+                if str(player.id) in self.perk_dict["book_of_grudges"]:
+                    self.perk_dict["book_of_grudges"][str(player.id)]["animosity"] += self.perk_dict["book_of_grudges"][str(player.id)]["pages"]
 
     def do_tick(self):
         self.do_resource_production()
-        self.do_food_consumption()
-        self.progress_journeys()
+        self.advance_land_returning()
+        self.do_perks()
+        
+        self.discovery_points += 1
+
+        for unit in Unit.objects.filter(ruler=self):
+            unit.advance_training_and_returning()
+        
+        if self.protection_ticks_remaining == 0:
+            self.complacency += 1
+
+        if self.has_tick_units:
+            do_tick_units(self)
+
+        self.save()
 
 
-class BuildingType(models.Model):
+class Resource(models.Model):
+    name = models.CharField(max_length=50, null=True, blank=True)
+    icon = models.CharField(max_length=50, null=True, blank=True)
+    ruler = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
+    quantity = models.IntegerField(default=0)
+    
+    def __str__(self):
+        if self.ruler:
+            return f"{self.ruler}'s {self.icon} {self.name}"
+            
+        return f"{self.icon} {self.name}"
+    
+    @property
+    def production(self):
+        return self.ruler.get_production(self.name)
+
+
+class Faction(models.Model):
+    name = models.CharField(max_length=50, null=True, blank=True)
+    primary_resource_name = models.CharField(max_length=50, null=True, blank=True)
+    primary_resource_per_acre = models.IntegerField(default=0)
+    building_primary_resource_name = models.CharField(max_length=50, null=True, blank=True)
+    building_secondary_resource_name = models.CharField(max_length=50, null=True, blank=True)
+    starting_buildings = models.JSONField(default=list, blank=True)
+    building_primary_cost_per_acre = models.IntegerField(default=10)
+    building_secondary_cost_per_acre = models.IntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.name}"
+
+
+class Building(models.Model):
     ruler = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
     name = models.CharField(max_length=50, null=True, blank=True)
-    resource_produced = models.CharField(max_length=15, null=True, blank=True)
+    resource_produced_name = models.CharField(max_length=50, null=True, blank=True)
     amount_produced = models.IntegerField(default=0)
+    quantity = models.IntegerField(default=0)
     trade_multiplier = models.IntegerField(default=0)
     defense_multiplier = models.IntegerField(default=0)
-    ideal_terrain = models.ForeignKey(Terrain, on_delete=models.PROTECT, null=True, blank=True)
     upgrades = models.IntegerField(default=0)
-    is_starter = models.BooleanField(default=False)
+    is_buildable = models.BooleanField(default=True)
+    construction_dict = models.JSONField(default=dict, blank=True, null=True)
 
     def __str__(self):
         if self.ruler:
@@ -297,7 +277,25 @@ class BuildingType(models.Model):
             cost = cost ** self.ruler.upgrade_exponent
 
         return int(cost)
+    
+    @property
+    def description(self):
+        perks = []
+        if self.amount_produced > 0:
+            resource_produced = Resource.objects.get(ruler=self.ruler, name=self.resource_produced_name)
+            perks.append(f"Produces {self.amount_produced} {resource_produced.icon} per tick.")
 
+        return " ".join(perks)
+    
+    @property
+    def percent(self):
+        percent = (self.quantity / self.ruler.acres) * 100
+
+        if percent.is_integer():
+            return int(percent)
+        
+        return round(percent, 2)
+    
 
 class Unit(models.Model):
     ruler = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
@@ -306,9 +304,12 @@ class Unit(models.Model):
     op = models.IntegerField(default=0)
     is_trainable = models.BooleanField(default=True)
     cost_dict = models.JSONField(default=dict, blank=True)
-    quantity_marshaled = models.IntegerField(default=0)
+    upkeep_dict = models.JSONField(default=dict, blank=True)
+    training_dict = models.JSONField(default=dict, blank=True)
+    returning_dict = models.JSONField(default=dict, blank=True)
+    quantity = models.IntegerField(default=0)
     perk_dict = models.JSONField(default=dict, blank=True)
-    is_starter = models.BooleanField(default=False)
+    faction = models.ForeignKey(Faction, on_delete=models.PROTECT, null=True, blank=True)
 
     def __str__(self):
         base_name = f"{self.name} ({self.op}/{self.dp}) -- {self.id}"
@@ -318,22 +319,26 @@ class Unit(models.Model):
         
         return f"🟩Base --- {base_name}"
     
+    @property
+    def quantity_at_home(self):
+        return self.quantity - self.quantity_returning
+
+    @property
     def max_affordable(self):
         if not self.ruler:
             return 0
         
         max_affordable = 9999999999999
 
-        for resource, amount in self.cost_dict.items():
-            if self.ruler.resource_dict[resource] > 0:
-                max_affordable = min(max_affordable, math.floor(self.ruler.resource_dict[resource]/amount))
+        for resource_name, amount in self.cost_dict.items():
+            resource = Resource.objects.get(ruler=self.ruler, icon=resource_name)
+
+            if resource.quantity > 0:
+                max_affordable = min(max_affordable, math.floor(resource.quantity/amount))
             else:
                 max_affordable = 0
 
         return max_affordable
-    
-    def max_marshal_to_all_regions(self):
-        return math.floor(self.quantity_marshaled / self.ruler.regions_ruled)
     
     @property
     def perk_text(self):
@@ -345,129 +350,63 @@ class Unit(models.Model):
     @property
     def has_perks(self):
         return self.perk_dict != {}
-
-
-class Region(models.Model):
-    ruler = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
-    name = models.CharField(max_length=50, null=True, blank=True, unique=True)
-    primary_terrain = models.ForeignKey(Terrain, on_delete=models.PROTECT, related_name="regions_as_primary_terrain")
-    secondary_terrain = models.ForeignKey(Terrain, on_delete=models.PROTECT, related_name="regions_as_secondary_terrain")
-    deity = models.ForeignKey(Deity, on_delete=models.PROTECT, null=True, blank=True)
-    ticks_ruled = models.IntegerField(default=0)
-    units_here_dict = models.JSONField(default=dict, null=True, blank=True)
-    invasion_this_tick = models.BooleanField(default=False)
-
-    def __str__(self):
-        if self.deity:
-            return f"{self.name} {self.primary_terrain.icon}{self.primary_terrain.icon}{self.secondary_terrain.icon} / {self.deity.icon}"
-        
-        return f"{self.name} {self.primary_terrain.icon}{self.primary_terrain.icon}{self.secondary_terrain.icon}"
-
-    def icon_name(self):
-        if self.deity:
-            return f"{self.name} {self.primary_terrain.icon}{self.primary_terrain.icon}{self.secondary_terrain.icon} / {self.deity.icon}"
-        
-        return f"{self.name} {self.primary_terrain.icon}{self.primary_terrain.icon}{self.secondary_terrain.icon}"
     
-    def description(self):
-        if self.primary_terrain == "defensible" or self.secondary_terrain == "defensible":
-            return "something"
-        else:
-            return f"{self.name} has a mostly {self.primary_terrain} landscape, but is also somewhat {self.secondary_terrain}. It has a site sacred to {self.deity}."
+    def advance_training_and_returning(self):
+        for key, value in self.training_dict.items():
+            if key == "1":
+                self.quantity += value
+            else:
+                new_key = str(int(key) - 1)
+                self.training_dict[new_key] = value
+            
+            self.training_dict[key] = 0
+
+        for key, value in self.returning_dict.items():
+            if key == "1":
+                self.quantity += value
+            else:
+                new_key = str(int(key) - 1)
+                self.returning_dict[new_key] = value
+            
+            self.returning_dict[key] = 0
+
+        self.save()
 
     @property
-    def primary_plots_available(self):
-        primary_plots_available = 2
+    def quantity_in_training(self):
+        total = 0
 
-        for building in self.buildings_here.all():
-            if building.type.ideal_terrain == self.primary_terrain:
-                primary_plots_available -= 1
+        for key, value in self.training_dict.items():
+            total += value
 
-        return primary_plots_available > 0
+        return total
     
     @property
-    def secondary_plots_available(self):
-        for building in self.buildings_here.all():
-            if building.type.ideal_terrain == self.secondary_terrain:
-                return False
+    def quantity_returning(self):
+        total = 0
 
-        return True
-    
-    @property
-    def plots_available(self):
-        return 3 - self.buildings_here.all().count()
-    
-    @property
-    def defense(self):
-        defense = 0
+        for key, value in self.returning_dict.items():
+            total += value
 
-        for unit_id, quantity in self.units_here_dict.items():
-            unit = Unit.objects.get(id=int(unit_id))
-            if unit.ruler == self.ruler:
-                defense += quantity * unit.dp
+        return total
 
-        defense_modifier = 100
-
-        for building in self.buildings_here.all():
-            defense_modifier += building.type.defense_multiplier
-
-        return int(defense * (defense_modifier / 100))
-    
-    @property
-    def defense_with_incoming(self):
-        defense_with_incoming = self.defense
-        
-        for journey in Journey.objects.filter(ruler=self.ruler, destination=self):
-            defense_with_incoming += journey.quantity * journey.unit.dp
-
-        return defense_with_incoming
-    
-    @property
-    def is_underdefended(self):
-        return self.ruler and self.defense < (self.ruler.average_defense / 3)
-    
-
-class Building(models.Model):
-    ruler = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
-    type = models.ForeignKey(BuildingType, on_delete=models.PROTECT)
-    region = models.ForeignKey(Region, on_delete=models.PROTECT, related_name="buildings_here")
-    built_on_ideal_terrain = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"{self.region} --- {self.type}"
-    
-
-class Journey(models.Model):
-    ruler = models.ForeignKey(Player, on_delete=models.PROTECT)
-    unit = models.ForeignKey(Unit, on_delete=models.PROTECT)
-    quantity = models.IntegerField(default=0)
-    destination = models.ForeignKey(Region, on_delete=models.PROTECT, related_name="journey_destination_set")
-    ticks_to_arrive = models.IntegerField(default=12)
-
-    def __str__(self):
-        return f"{self.quantity}x {self.unit} ... to {self.destination} ({self.ticks_to_arrive} ticks)"
-    
 
 class Battle(models.Model):
+    attacker = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, related_name="battles_attacked")
+    defender = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, related_name="battles_defended")
     winner = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, related_name="battles_won")
-    target = models.ForeignKey(Region, on_delete=models.PROTECT)
-    attackers = models.ManyToManyField(Player)
     units_involved_dict = models.JSONField(default=dict, null=True, blank=True)
     casualties_dict = models.JSONField(default=dict, null=True, blank=True)
-    original_ruler = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, related_name="battles_defended")
+    op = models.IntegerField(default=0)
     dp = models.IntegerField(default=0)
+    acres_conquered = models.IntegerField(default=0)
 
     @property
     def event_text(self):
-        if not self.winner in self.attackers.all():
-            attackers = ""
-
-            for attacker in self.attackers.all():
-                attackers += smart_comma(attackers, attacker.name)
-
-            return f"{self.winner} repelled {attackers} to defend {self.target}"
-
-        return f"{self.winner} defeated {self.original_ruler} to conquer {self.target}"
+        if self.winner == self.attacker:
+            return f"{self.winner} invaded {self.defender} and conquered {self.acres_conquered:2,} acres, plus {self.acres_conquered:2,} more from surrounding areas"
+        else:
+            return f"{self.winner} repelled an attack from {self.attacker}"
 
 
 class Event(models.Model):
@@ -475,7 +414,7 @@ class Event(models.Model):
     reference_id = models.IntegerField(default=0)
     reference_type = models.CharField(max_length=50)
     icon = models.CharField(max_length=50, default="?")
-    extra_text = models.CharField(max_length=150, default="")
+    message_override = models.CharField(max_length=150, default="")
     notified_players = models.ManyToManyField(Player)
 
     def __str__(self):
@@ -487,14 +426,7 @@ class Event(models.Model):
             battle = Battle.objects.get(id=self.reference_id)
             return battle.event_text
         elif self.reference_type == "signup":
-            player = Player.objects.get(id=self.reference_id)
-            return f"{player} has joined the game!"
-        elif self.reference_type == "colonize":
-            region = Region.objects.get(id=self.reference_id)
-            return f"{region.ruler} has colonized {region}"
-        elif self.reference_type == "discover":
-            region = Region.objects.get(id=self.reference_id)
-            return f"Explorers have discovered {region}"
+            return self.message_override
         
         return "Unknown event type"
 
@@ -504,9 +436,70 @@ class Round(models.Model):
     has_ended = models.BooleanField(default=False)
     winner = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
     trade_price_dict = models.JSONField(default=dict, blank=True)
+    base_price_dict = models.JSONField(default=dict, blank=True)
     resource_bank_dict = models.JSONField(default=dict, blank=True)
 
     @property
     def allow_ticks(self):
         return self.has_started and not self.has_ended
         
+
+class Discovery(models.Model):
+    name = models.CharField(max_length=50, null=True, blank=True)
+    description = models.CharField(max_length=500, null=True, blank=True)
+    requirement = models.CharField(max_length=50, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.name}"
+
+
+class Spell(models.Model):
+    name = models.CharField(max_length=50, null=True, blank=True)
+    ruler = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
+    description = models.CharField(max_length=500, null=True, blank=True)
+    requirement = models.CharField(max_length=50, null=True, blank=True)
+    mana_cost_per_acre = models.IntegerField(default=99)
+    is_starter = models.BooleanField(default=False)
+
+    def __str__(self):
+        if self.ruler:
+            return f"{self.ruler}'s {self.name}"
+        
+        return f"🟩Base --- {self.name}"
+    
+    @property
+    def mana_cost(self):
+        if self.ruler == None:
+            return 1
+        
+        return self.ruler.acres * self.mana_cost_per_acre
+    
+
+def do_tick_units(player: Player):
+    for unit in Unit.objects.filter(ruler=player):
+        for perk, value in unit.perk_dict.items():
+            match perk:
+                case "surplus_research_consumed_to_add_one_op_and_dp":
+                    research = Resource.objects.get(ruler=player, name="research")
+                    highest_upgrade_cost = 0
+
+                    for building in Building.objects.filter(ruler=player):
+                        highest_upgrade_cost = max(highest_upgrade_cost, building.upgrade_cost)
+
+                    if research.quantity > highest_upgrade_cost + 10:
+                        surplus_research_points = research.quantity - highest_upgrade_cost
+                        consumable_research_points = int(surplus_research_points * 0.1)
+                        instances_consumed = int(consumable_research_points / value)
+
+                        research.quantity -= instances_consumed * value
+                        unit.op += instances_consumed
+                        unit.dp += instances_consumed
+                        research.save()
+                        unit.save()
+                case "random_grudge_book_pages_per_tick":
+                    keys_list = list(player.perk_dict["book_of_grudges"].keys())
+
+                    if len(keys_list) > 0:
+                        random_key = random.choice(keys_list)
+                        player.perk_dict["book_of_grudges"][random_key]["pages"] += value
+                        player.save()

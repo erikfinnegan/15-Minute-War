@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load extra_tags %}
+
+{% block title %}The World{% endblock %}
+
+{% block content %}
+<div>
+    <p>Click a player's name for more info</p>
+    <table class="table striped max-w-sm">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Faction</th>
+                <th>Acres</th>
+                <th>Defense</th>
+                {% if "book_of_grudges" in active_player.perk_dict %}
+                <th>Book of Grudges</th>
+                {% endif %}
+                <th>Units returning</th>
+                <th>Link</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for player in players %}
+                <tr class="{% if player.protection_ticks_remaining > 0 %}text-teal-400{% else %}text-light{% endif %}">
+                    <th class="u-align-middle">{{ player.name }}</th>
+                    <th class="u-align-middle">{{ player.faction_name|title }}</th>
+                    <td class="u-align-middle">{{ player.acres }}</td>
+                    <td class="u-align-middle">{% if player.protection_ticks_remaining == 0 and round.has_started %}{{ player.defense|intcomma }}{% else %}Magical protection{% endif %}</th>
+                    {% if "book_of_grudges" in active_player.perk_dict %}
+                    <td class="u-align-middle">
+                        {% if player.strid in active_player.perk_dict.book_of_grudges %}
+                        {{ active_player.perk_dict.book_of_grudges|getattr:player.strid|getattr:"pages" }} pages,
+                        {{ active_player.perk_dict.book_of_grudges|getattr:player.strid|getattr:"animosity" }} animosity
+                        {% else %}
+                        None
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                    <td class="u-align-middle">{% if player.has_units_returning %}Yes{% else %}No{% endif %}</td>
+                    <td class="u-align-middle">
+                    {% if player.protection_ticks_remaining == 0 %}
+                        <a href="{% url 'overview' player.id %}">
+                            <button class="py-0">Info</button>
+                        </a>
+                    {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

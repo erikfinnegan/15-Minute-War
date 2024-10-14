@@ -14,9 +14,8 @@
         <table class="table striped max-w-sm">
             <thead>
                 <tr>
-                    <th>Resource</th>
-                    <th>Sell price</th>
                     <th>Name</th>
+                    <th>Icon</th>
                     <th>+</th>
                     <th>-</th>
                     <th>Net</th>
@@ -25,9 +24,9 @@
             <tbody>
                 {% for key, value in resources_dict.items %}
                 <tr>
-                    <th class="u-align-middle">{{ key }}</th>
-                    <td class="u-align-middle">123</td>
                     <th class="u-align-middle">{{ value.name|title }}</th>
+                    <th class="u-align-middle">{{ key }}</th>
+                    
                     <td class="u-align-middle text-green-400">{{ value.produced|intcomma }}</td>
                     <td class="u-align-middle text-red-400">{{ value.consumed|intcomma }}</td>
                     <td class="u-align-middle {% if value.net < 0 %}text-red-400{% else %}text-green-400{% endif %}">{{ value.net|intcomma }}</td>
@@ -37,27 +36,7 @@
         </table>
     </div>
 
-    <div class="">
-        <table class="table striped max-w-sm">
-            <thead>
-                <tr>
-                    <th>Deity</th>
-                    <th>Favored</th>
-                    <th>Runner up</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for deity_info in deities_list %}
-                <tr>
-                    <th class="u-align-middle">{{ deity_info.name }}</th>
-                    <th class="u-align-middle{% if deity_info.favored == active_player.name %} text-green-400{% endif %}">{{ deity_info.favored }} @ {{ deity_info.favored_devotion }}</th>
-                    <th class="u-align-middle{% if deity_info.other == active_player.name %} text-green-400{% endif %}">{{ deity_info.other }} @ {{ deity_info.other_devotion }}</th>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
+    {% if active_player.protection_ticks_remaining == 0 and round.has_started and not round.has_ended %}
     <div>
         <form action="{% url 'trade' %}" method="post">
             {% csrf_token %}
@@ -69,15 +48,13 @@
             <div class="u-flex u-flex-row u-gap-2">
                 <select class="w-10 bg-dark text-light" id="inputResource" name="inputResource" oninput="showRatio()">
                     {% for key, value in resources_dict.items %}
-                    {% if key != "👑" %}
-                    <option {% if key == "🪙" %} selected{% endif %}>{{ key }}</option>
-                    {% endif %}
+                    <option {% if key == "gold" %} selected{% endif %}>{{ key }}</option>
                     {% endfor %}
                 </select>
                 <input type="range" min="1" max="100" value="0" id="resourceRange" name="resourceAmount" oninput="showCurrentValue()">
                 <select class="w-10 bg-dark text-light" id="outputResource" name="outputResource" oninput="showRatio()">
                     {% for key, value in resources_dict.items %}
-                    <option {% if key == "🪙" %} selected{% endif %}>{{ key }}</option>
+                    <option {% if key == "gold" %} selected{% endif %}>{{ key }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -94,20 +71,55 @@
                 </button>
             </div>
         </form>
+
+        <table class="table striped max-w-sm">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Icon</th>
+                    <th>Price</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for resource_name, details in trade_price_data.items %}
+                <tr>
+                    <td class="u-align-middle">{{ resource_name|title }}</td>
+                    <td class="u-align-middle">{{ details.icon }}</td>
+                    <td class="u-align-middle">{{ details.price }}</td>
+                    <td class="u-align-middle
+                    {% if details.difference >= 200 %}text-green-500 font-bold
+                    {% elif details.difference >= 175 %}text-green-400
+                    {% elif details.difference >= 150 %}text-green-300
+                    {% elif details.difference >= 125 %}text-green-200
+                    {% elif details.difference <= 20 %}text-red-500 font-bold
+                    {% elif details.difference <= 40 %}text-red-400
+                    {% elif details.difference <= 60 %}text-red-300
+                    {% elif details.difference <= 80 %}text-red-200
+                    {% endif %}
+                    ">{{ details.difference }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+    {% endif %}
 
     <script>
-        const resourcesDict = JSON.parse('{{ resources_json|escapejs }}');
+        const playerResourcesDict = JSON.parse('{{ player_resources_json|escapejs }}');
+        const resourceInfoDict = JSON.parse('{{ resources_dict_json|escapejs }}');
         const tradePrices = JSON.parse('{{ trade_price_json|escapejs }}');
-        document.getElementById("resourceRange").max = resourcesDict["🪙"];
+        document.getElementById("resourceRange").max = playerResourcesDict["gold"];
 
         function showCurrentValue() {
             document.getElementById("resourceRangeValue").innerHTML = document.getElementById("resourceRange").value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             const inputResource = document.getElementById("inputResource").value;
             const outputResource = document.getElementById("outputResource").value;
             const amount = document.getElementById("resourceRange").value
-            const credit = tradePrices[inputResource] * amount
-            const outputAmount = Math.floor(credit / tradePrices[outputResource])
+            inputResourceName = resourceInfoDict[inputResource].name
+            outputResourceName = resourceInfoDict[outputResource].name
+            const credit = tradePrices[inputResourceName] * amount
+            const outputAmount = Math.floor(credit / tradePrices[outputResourceName])
             document.getElementById("boughtResourceAmount").innerHTML = outputAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
 
@@ -116,7 +128,7 @@
             const inputResource = document.getElementById("inputResource").value;
             const outputResource = document.getElementById("outputResource").value;
             document.getElementById("resourceRange").value = 0
-            document.getElementById("resourceRange").max = resourcesDict[inputResource];
+            document.getElementById("resourceRange").max = playerResourcesDict[inputResource];
             document.getElementById("soldResource").innerHTML = inputResource
             document.getElementById("boughtResource").innerHTML = outputResource
             const inputPrice = tradePrices[inputResource]

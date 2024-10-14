@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<form action="{% url 'submit_register' %}" method="post" class="w-64 u-flex u-flex-column u-gap-4">
+    {% csrf_token %}
+    <div>
+        <label for="playerName">Display name</label>
+        <input type="text" name="playerName" id="playerName" maxlength="50" />
+    </div>
+    
+    <div>
+        <label for="factionChoice">Select a faction</label>
+        <select class="bg-dark text-light" name="factionChoice">
+            {% for faction in factions %}
+            <option>{{ faction.name|title }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div>
+        <label for="timezoneChoice">Select your time zone</label>
+        <div class="max-w-sm u-flex-grow-1 my-auto">
+            <select id="tom-select-it" name="timezone">
+                {% for timezone in timezones %}
+                <option {% if timezone == active_player.timezone %}selected{% endif %}>{{ timezone }}</option>
+                {% endfor %}
+            </select>
+
+            <script>
+                var config = {
+                    sortField: {
+                    field: "text",
+                    direction: "asc"
+                }
+                };
+                new TomSelect('#tom-select-it', config);
+            </script>
+        </div>
+    </div>
+
+    <button class="btn-light mt-1 w-16 h-6 p-0 u-center" type="submit">
+        <span class="font-bold">Register</span>
+    </button>
+</form>
+{% endblock %}

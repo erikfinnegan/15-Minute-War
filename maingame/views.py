@@ -1,4 +1,5 @@
 import json
+import math
 import zoneinfo
 
 from django.http import HttpResponseRedirect
@@ -7,10 +8,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 
-from maingame.formatters import create_or_add_to_key, get_resource_name
-from maingame.models import Building, BuildingType, Player, Region, Unit, Journey, Round, Event, Deity
+from maingame.formatters import create_or_add_to_key
+from maingame.models import Building, Player, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell
 from maingame.tick_processors import do_global_tick
-from maingame.utils import construct_building, get_journey_output_dict, marshal_from_location, send_journey, update_trade_prices
+from maingame.utils import get_grudge_bonus, initialize_player, prune_buildings, unlock_discovery, update_trade_prices, cast_spell
 
 
 def index(request):
@@ -21,159 +22,175 @@ def index(request):
     return render(request, "maingame/index.html", context)
 
 
-def join(request):
-    if Player.objects.filter(associated_user=request.user).count() > 0:
-        return redirect("regions")
-    
+def register(request):
+    try:
+        player = Player.objects.get(associated_user=request.user)
+        return redirect("resources")
+    except:
+        pass
+
+    TIMEZONES_CHOICES = [tz for tz in zoneinfo.available_timezones()]
+
     context = {
-        "testcontext": "Context test successful",
+        "factions": Faction.objects.all(),
+        "timezones": TIMEZONES_CHOICES,
     }
 
-    return render(request, "maingame/join.html", context)
+    return render(request, "maingame/register.html", context)
 
 
 @login_required
-def region(request, region_id):
+def submit_register(request):
+    display_name = request.POST["playerName"]
+    faction = Faction.objects.get(name=request.POST["factionChoice"].lower())
+    timezone = request.POST["timezone"]
+
+    initialize_player(user=request.user, faction=faction, display_name=display_name, timezone=timezone)
+
+    return redirect("buildings")
+
+
+@login_required
+def buildings(request):
     try:
-        region = Region.objects.get(id=region_id)
         player = Player.objects.get(associated_user=request.user)
     except:
-        return redirect("/regions")
-    
-    buildings_here = region.buildings_here.all().order_by("type")
-    marshaled_units = Unit.objects.filter(ruler=player, quantity_marshaled__gt=0)
-    
-    units_here = []
-    
-    class UnitHere:
-        def __init__(self, unit, quantity):
-            self.unit = unit
-            self.quantity = quantity
-
-    for unit_id, quantity in region.units_here_dict.items():
-        units_here.append(UnitHere(Unit.objects.get(id=unit_id), quantity))
-
-    output_dict = get_journey_output_dict(player, region)
+        return redirect("register")
 
     context = {
-        "is_my_region": region.ruler == player,
-        "buildings_here": buildings_here,
-        "building_types": BuildingType.objects.filter(ruler=player),
-        "region": region,
-        "available_plots": 3 - Building.objects.filter(region=region).count(),
-        "primary_terrain_available": region.primary_plots_available,
-        "secondary_terrain_available": region.secondary_plots_available,
-        "marshaled_units": marshaled_units,
-        "units_here": units_here,
-        "output_dict": output_dict,
+        "buildings": Building.objects.filter(ruler=player),
     }
-
-    return render(request, "maingame/region_details.html", context)
+    
+    return render(request, "maingame/buildings.html", context)
 
 
 @login_required
-def destroy_building(request, building_id):
-    player = Player.objects.get(associated_user=request.user)
-    building = Building.objects.get(id=building_id)
-    region_id = building.region.id
+def discoveries(request):
+    try:
+        player = Player.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
 
-    if building.ruler == player:
-        building.delete()
+    available_discoveries = []
+
+    for discovery_name in player.available_discoveries:
+        available_discoveries.append(Discovery.objects.get(name=discovery_name))
+
+    context = {
+        "available_discoveries": available_discoveries,
+    }
+    
+    return render(request, "maingame/discoveries.html", context)
+
+
+@login_required
+def submit_discovery(request):
+    try:
+        player = Player.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    discovery_name = request.POST["discovery_name"]
+    
+    if player.discovery_points < 50:
+        messages.error(request, f"Insufficient discovery points")
+        return redirect("discoveries")
+    elif not Discovery.objects.filter(name=discovery_name).exists():
+        messages.error(request, f"That discovery doesn't exist")
+        return redirect("discoveries")
     else:
-        messages.error(request, f"That's not your building")
+        player.discovery_points -= 50
+        unlock_discovery(player, discovery_name)
 
-    return redirect(f"/regions/{region_id}")
-
-
-@login_required
-def build_building(request, region_id, building_type_id, amount):
-    player = Player.objects.get(associated_user=request.user)
-    construct_building(player, region_id, building_type_id, amount)
-
-    return redirect(f"/regions/{region_id}")
+    return redirect("discoveries")
 
 
 @login_required
-def regions(request):
+def submit_building(request):
     try:
         player = Player.objects.get(associated_user=request.user)
     except:
-        return redirect("join")
+        return redirect("register")
+    
+    primary_resource = Resource.objects.get(ruler=player, name=player.building_primary_resource_name)
+    secondary_resource = Resource.objects.get(ruler=player, name=player.building_secondary_resource_name)
+    total_built = 0
 
-    my_regions = Region.objects.filter(ruler=player)
-    show_underdefended_only = "underdefended" in request.GET
+    destroy_mode = request.POST["buildOrDestroy"] == "Destroy"
 
-    class OpponentsRegionsData:
-        def __init__(self, ruler, regions):
-            self.ruler = ruler
-            self.regions = regions
+    for key, string_amount in request.POST.items():
+        # key is like "build_123" where 123 is the ID of the Building
+        if "build_" in key and string_amount != "":
+            building = Building.objects.get(id=key[6:])
 
-    opponents_regions_data_list = []
+            if destroy_mode:
+                amount = int(string_amount)
+                total_built += min(amount, building.quantity)
+                building.quantity -= amount
+                building.quantity = max(0, building.quantity)
+                building.save()
+            elif building.is_buildable:
+                total_built += int(string_amount)
 
-    for opponent in Player.objects.filter(~Q(associated_user=request.user)):
-        if show_underdefended_only:
-            underdefended_regions = []
+    if total_built < 1:
+        verb = "destroyed" if destroy_mode else "built"
+        messages.error(request, f"Zero buildings {verb}")
+        return redirect("buildings")
+    elif destroy_mode:
+        messages.success(request, f"Destruction of {total_built} buildings successful")
+        return redirect("buildings")
+    elif total_built > player.barren_acres:
+        messages.error(request, f"You tried to build {total_built} buildings but only have {player.barren_acres} acres of barren land")
+        return redirect("buildings")
 
-            for region in Region.objects.filter(ruler=opponent):
-                if region.is_underdefended:
-                    underdefended_regions.append(region)
-            
-            opponents_regions_data_list.append(
-                OpponentsRegionsData(opponent, underdefended_regions)
-            )
-        else:
-            opponents_regions_data_list.append(
-                OpponentsRegionsData(opponent, Region.objects.filter(ruler=opponent))
-            )
+    building_succeeded = True
 
-    if show_underdefended_only:
-        my_regions = []
+    if total_built * player.building_primary_cost > primary_resource.quantity:
+        building_succeeded = False
+        messages.error(request, f"This would cost {f'{total_built * player.building_primary_cost:,}'} {primary_resource.icon}. You have {f'{primary_resource.quantity:,}'}.")
+    elif total_built * player.building_secondary_cost > secondary_resource.quantity:
+        building_succeeded = False
+        messages.error(request, f"This would cost {f'{total_built * player.building_secondary_cost:,}'} {secondary_resource.icon}. You have {f'{secondary_resource.quantity:,}'}.")
 
-        for region in Region.objects.filter(ruler=player):
-            if region.is_underdefended:
-                my_regions.append(region)
+    if building_succeeded:
+        primary_resource.quantity -= total_built * player.building_primary_cost
+        primary_resource.save()
+        secondary_resource.quantity -= total_built * player.building_secondary_cost
+        secondary_resource.save()
+        player.save()
 
-    context = {
-        "my_regions": my_regions,
-        "show_enemy_details": Round.objects.first().has_started,
-        "opponents_regions_data_list": opponents_regions_data_list,
-        "unoccupied_regions": OpponentsRegionsData("Unoccupied", Region.objects.filter(ruler=None)),
-        "show_underdefended_only": show_underdefended_only,
-    }
+        for key, string_amount in request.POST.items():
+            if "build_" in key and string_amount != "":
+                building = Building.objects.get(id=key[6:])
+                building.quantity += int(string_amount)
+                building.save()
 
-    return render(request, "maingame/regions.html", context)
+        messages.success(request, f"Construction of {total_built} buildings successful")
+    
+    return redirect("buildings")
 
 
 @login_required
-def legions(request):
-    show_cant_afford_error = request.GET.get("cant_afford")
-
+def military(request):
     try:
         player = Player.objects.get(associated_user=request.user)
     except:
-        return redirect("join")
-
-    marshaled_units = Unit.objects.filter(ruler=player, quantity_marshaled__gt=0)
-
-    journey_regions = []
-
-    for region in Region.objects.filter(ruler=player):
-        if Journey.objects.filter(ruler=player, destination=region).count() > 0:
-            journey_regions.append({"region": region, "output_dict": get_journey_output_dict(player, region)})
+        return redirect("register")
 
     context = {
         "units": Unit.objects.filter(ruler=player),
-        "show_cant_afford_error": show_cant_afford_error,
-        "marshaled_units": marshaled_units,
-        "journey_regions": journey_regions,
     }
 
-    return render(request, "maingame/legions.html", context)
+    return render(request, "maingame/military.html", context)
 
 
 @login_required
 def submit_training(request):
-    player = Player.objects.get(associated_user=request.user)
+    try:
+        player = Player.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
     total_trained = 0
     total_cost_dict = {}
 
@@ -189,34 +206,66 @@ def submit_training(request):
                 for resource, cost in unit.cost_dict.items():
                     total_of_this_resource = cost * amount
                     total_cost_dict = create_or_add_to_key(total_cost_dict, resource, total_of_this_resource)
+            else:
+                messages.error(request, f"Knock it off")
+                return redirect("military")
 
     if total_trained < 1:
         messages.error(request, f"Zero units trained")
-        return redirect("legions")
+        return redirect("military")
 
     training_succeeded = True
 
     for resource, amount in total_cost_dict.items():
-        if player.resource_dict[resource] < amount:
+        players_resource = Resource.objects.get(ruler=player, icon=resource)
+
+        if players_resource.quantity < amount:
             training_succeeded = False
-            messages.error(request, f"This would cost {f'{amount:,}'}{resource}. You have {f'{player.resource_dict[resource]:,}'}. You're {f'{amount - player.resource_dict[resource]:,}'} short.")
+            messages.error(request, f"This would cost {f'{amount:,}'}{resource}. You have {f'{players_resource.quantity:,}'}. You're {f'{amount - players_resource.quantity:,}'} short.")
 
     if training_succeeded:
         for resource, amount in total_cost_dict.items():
-            player.resource_dict[resource] -= amount
-
-        player.save()
+            players_resource = Resource.objects.get(ruler=player, icon=resource)
+            players_resource.quantity -= amount
+            players_resource.save()
 
         for key, string_amount in request.POST.items():
             if "train_" in key and string_amount != "":
                 unit = Unit.objects.get(ruler=player, id=key[6:])
                 amount = int(string_amount)
-                unit.quantity_marshaled += amount
+                unit.training_dict["12"] += amount
                 unit.save()
 
         messages.success(request, f"Training of {total_trained} units successful")
     
-    return redirect("legions")
+    return redirect("military")
+
+
+@login_required
+def submit_release(request):
+    try:
+        player = Player.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    total_released = 0
+
+    for key, string_amount in request.POST.items():
+        # key is like "release_123" where 123 is the ID of the Unit
+        if "release_" in key and string_amount != "":
+            unit = Unit.objects.get(id=key[8:])
+            amount = int(string_amount)
+            unit.quantity = max(0, unit.quantity - amount)
+            unit.save()
+            total_released += amount
+
+    if total_released < 1:
+        messages.error(request, f"Zero units released")
+        return redirect("military")
+
+    messages.success(request, f"{total_released} units released")
+
+    return redirect("military")
 
 
 @login_required
@@ -224,82 +273,42 @@ def resources(request):
     try:
         player = Player.objects.get(associated_user=request.user)
     except:
-        return redirect("join")
-
+        return redirect("register")
+    
+    round = Round.objects.first()
     resources_dict = {}
+    player_resource_total_dict = {}
 
-    for resource in player.resource_dict:
-        resources_dict[resource] = {
-            "name": get_resource_name(resource),
-            "produced": player.get_production(resource),
-            "consumed": 0,
+    for resource in Resource.objects.filter(ruler=player):
+        player_resource_total_dict[resource.icon] = resource.quantity
+
+        resources_dict[resource.icon] = {
+            "name": resource.name,
+            "produced": player.get_production(resource.name),
+            "consumed": player.get_consumption(resource.name),
         }
 
-        if resource == "🍞":
-            resources_dict[resource]["consumed"] = player.get_food_consumption()
-        
-        resources_dict[resource]["net"] = resources_dict[resource]["produced"] - resources_dict[resource]["consumed"]
-
-    deities_list = []
-
-    for deity in Deity.objects.all():
-        if not deity.favored_player:
-            most_devotion_amount = 0
-
-            for other_player in Player.objects.filter(~Q(id=player.id)):
-                other_player_devotion_amount = other_player.get_devotion(deity)
-                if other_player_devotion_amount > most_devotion_amount:
-                    most_devotion_amount = other_player_devotion_amount
-
-            deities_list.append({
-                "name": deity,
-                "favored": "None",
-                "favored_devotion": most_devotion_amount,
-                "other": player.name,
-                "other_devotion": player.get_devotion(deity),
-            })
-        elif deity.favored_player == player:
-            second_most_devotion_amount = 0
-            second_most_devoted_player = None
-
-            for other_player in Player.objects.filter(~Q(id=player.id)):
-                other_player_devotion_amount = other_player.get_devotion(deity)
-                if other_player_devotion_amount > second_most_devotion_amount:
-                    second_most_devoted_player = other_player
-                    second_most_devotion_amount = other_player_devotion_amount
-
-            deities_list.append({
-                "name": deity,
-                "favored": player.name,
-                "favored_devotion": player.get_devotion(deity),
-                "other": second_most_devoted_player.name,
-                "other_devotion": second_most_devotion_amount,
-            })
-        else:
-            deities_list.append({
-                "name": deity,
-                "favored": deity.favored_player.name,
-                "favored_devotion": deity.favored_player.get_devotion(deity),
-                "other": player.name,
-                "other_devotion": player.get_devotion(deity),
-            })
-
-    my_underdefended_regions = []
-    other_underdefended_regions = []
-
-    for region in Region.objects.all():
-        if region.is_underdefended and region.ruler == player:
-            my_underdefended_regions.append(region)
-        elif region.is_underdefended:
-            other_underdefended_regions.append(region)
+        resources_dict[resource.icon]["net"] = resources_dict[resource.icon]["produced"] - resources_dict[resource.icon]["consumed"]
 
     update_trade_prices()
 
+    trade_price_dict = round.trade_price_dict
+
+    trade_price_data = {}
+
+    for resource_name, price in trade_price_dict.items():
+        trade_price_data[resource_name] = {
+            "icon": Resource.objects.get(ruler=player, name=resource_name).icon,
+            "price": price,
+            "difference": int((price / round.base_price_dict[resource_name]) * 100)
+        }
+
     context = {
         "resources_dict": resources_dict,
-        "deities_list": deities_list,
-        "resources_json": json.dumps(player.resource_dict),
-        "trade_price_json": json.dumps(Round.objects.first().trade_price_dict),
+        "trade_price_data": trade_price_data,
+        "resources_dict_json": json.dumps(resources_dict),
+        "player_resources_json": json.dumps(player_resource_total_dict),
+        "trade_price_json": json.dumps(trade_price_dict),
     }
 
     return render(request, "maingame/resources.html", context)
@@ -307,22 +316,30 @@ def resources(request):
 
 @login_required
 def trade(request):
-    player = Player.objects.get(associated_user=request.user)
+    try:
+        player = Player.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
     round = Round.objects.first()
-
-    input_resource = request.POST["inputResource"]
+    input_resource_icon = request.POST["inputResource"]
     amount = int(request.POST["resourceAmount"])
-    output_resource = request.POST["outputResource"]
+    output_resource_icon = request.POST["outputResource"]
 
-    credit = round.trade_price_dict[input_resource] * amount
-    payout = int(credit / round.trade_price_dict[output_resource])
+    input_resource = Resource.objects.get(ruler=player, icon=input_resource_icon)
+    output_resource = Resource.objects.get(ruler=player, icon=output_resource_icon)
 
-    player.resource_dict[input_resource] -= amount
-    player.resource_dict[output_resource] += payout
-    player.save()
+    credit = round.trade_price_dict[input_resource.name] * amount
+    payout = int(credit / round.trade_price_dict[output_resource.name])
 
-    round.resource_bank_dict[input_resource] += amount
-    round.resource_bank_dict[output_resource] -= payout
+    input_resource.quantity -= amount
+    input_resource.save()
+
+    output_resource.quantity += payout
+    output_resource.save()
+
+    round.resource_bank_dict[input_resource.name] += amount
+    round.resource_bank_dict[output_resource.name] -= payout
     round.save()
 
     update_trade_prices()
@@ -336,40 +353,84 @@ def upgrades(request):
     try:
         player = Player.objects.get(associated_user=request.user)
     except:
-        return redirect("join")
+        return redirect("register")
     
-    building_types = BuildingType.objects.filter(ruler=player)
+    research_resource = Resource.objects.get(ruler=player, name="research")
+    buildings = Building.objects.filter(ruler=player)
 
     context = {
-        "building_types": building_types,
+        "buildings": buildings,
+        "research_points_available": research_resource.quantity,
     }
 
     return render(request, "maingame/upgrades.html", context)
 
 
 @login_required
-def upgrade_building_type(request, building_type_id):
-    player = Player.objects.get(associated_user=request.user)
-    building_type = BuildingType.objects.get(ruler=player, id=building_type_id)
+def upgrade_building(request, building_id):
+    try:
+        player = Player.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    building = Building.objects.get(ruler=player, id=building_id)
+    research_resource = Resource.objects.get(ruler=player, name="research")
 
-    available_research_points = player.resource_dict["📜"]
+    available_research_points = research_resource.quantity
 
-    if available_research_points < building_type.upgrade_cost:
-        messages.error(request, f"This would cost {f'{building_type.upgrade_cost:,}'}📜. You have {f'{available_research_points:,}'}. You're {f'{building_type.upgrade_cost - available_research_points:,}'} short.")
+    if available_research_points < building.upgrade_cost:
+        messages.error(request, f"This would cost {f'{building.upgrade_cost:,}'}📜. You have {f'{available_research_points:,}'}. You're {f'{building.upgrade_cost - available_research_points:,}'} short.")
         return redirect("upgrades")
 
-    player.resource_dict["📜"] -= building_type.upgrade_cost
-    building_type.upgrades += 1
+    research_resource.quantity -= building.upgrade_cost
+    research_resource.save()
+    building.upgrades += 1
     
-    if building_type.amount_produced > 0:
-        building_type.amount_produced += 1
-    elif building_type.defense_multiplier > 0:
-        building_type. defense_multiplier += 1
+    if building.amount_produced > 0:
+        building.amount_produced += 1
+    elif building.defense_multiplier > 0:
+        building. defense_multiplier += 1
     
-    building_type.save()
+    building.save()
     player.save()
 
     return redirect("upgrades")
+
+
+@login_required
+def spells(request):
+    try:
+        player = Player.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    spells = Spell.objects.filter(ruler=player)
+
+    context = {
+        "spells": spells,
+        "mana_quantity": Resource.objects.get(ruler=player, name="mana").quantity,
+    }
+
+    return render(request, "maingame/spells.html", context)
+
+
+@login_required
+def submit_spell(request, spell_id):
+    try:
+        player = Player.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    spell = Spell.objects.get(id=spell_id)
+    mana = Resource.objects.get(ruler=player, name="mana")
+
+    if spell.mana_cost > mana.quantity:
+        messages.error(request, f"This would cost {f'{spell.mana_cost:,}'}🔮. You have {f'{mana.quantity:,}'}. You're {f'{spell.mana_cost - mana.quantity:,}'} short.")
+        return redirect("spells")
+    
+    cast_spell(spell)
+
+    return redirect("spells")
 
 
 @login_required
@@ -383,7 +444,10 @@ def run_tick_view(request, quantity):
 @login_required
 def protection_tick(request, quantity):
     if quantity <= 96:
-        player = Player.objects.get(associated_user=request.user)
+        try:
+            player = Player.objects.get(associated_user=request.user)
+        except:
+            return redirect("register")
         
         for _ in range(quantity):
             if player.protection_ticks_remaining > 0:
@@ -399,11 +463,10 @@ def protection_tick(request, quantity):
 @login_required
 def news(request):
     TIMEZONES_CHOICES = [tz for tz in zoneinfo.available_timezones()]
-    
     try:
         player = Player.objects.get(associated_user=request.user)
     except:
-        return redirect("join")
+        return redirect("register")
     
     displayed_events = []
     
@@ -426,7 +489,11 @@ def news(request):
 
 @login_required
 def set_timezone(request):
-    player = Player.objects.get(associated_user=request.user)
+    try:
+        player = Player.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
     timezone = request.POST["timezone"]
     player.timezone = timezone
     player.save()
@@ -437,88 +504,196 @@ def set_timezone(request):
 
 
 @login_required
-def dispatch_to_all_regions(request, unit_id, quantity):
-    player = Player.objects.get(associated_user=request.user)
-    unit = Unit.objects.get(ruler=player, id=unit_id)
-
-    if quantity * player.regions_ruled > unit.quantity_marshaled:
-        return redirect("legions")
+def overview(request, player_id):
+    try:
+        my_player = Player.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
     
-    for region in Region.objects.filter(ruler=player):
-        send_journey(player=player, unit=unit, quantity=quantity, destination=region)
+    player = Player.objects.get(id=player_id)
 
-    messages.success(request, f"{quantity}x {unit.name} have begun journeys to each region")
-    return redirect("legions")
+    if player_id != my_player.id and player.protection_ticks_remaining > 0:
+        return redirect("world")
+
+    my_units = Unit.objects.filter(ruler=my_player)
+
+    player = Player.objects.get(id=player_id)
+    units = Unit.objects.filter(ruler=player)
+    buildings = Building.objects.filter(ruler=player, quantity__gte=1)
+    resources = Resource.objects.filter(ruler=player, quantity__gte=1)
+
+    if "book_of_grudges" in player.perk_dict and my_player.protection_ticks_remaining == 0 and my_player.id != player_id:
+        if str(my_player.id) in player.perk_dict["book_of_grudges"]:
+            player.perk_dict["book_of_grudges"][str(my_player.id)]["pages"] += 1
+        else:
+            player.perk_dict["book_of_grudges"][str(my_player.id)] = {}
+            player.perk_dict["book_of_grudges"][str(my_player.id)]["pages"] = 1
+            player.perk_dict["book_of_grudges"][str(my_player.id)]["animosity"] = 0
+        
+        player.save()
+
+    context = {
+        "player": player,
+        "units": units,
+        "buildings": buildings,
+        "resources": resources,
+        "my_units": my_units,
+        "offense_multiplier": my_player.offense_multiplier + get_grudge_bonus(my_player, player)
+    }
+
+    return render(request, "maingame/overview.html", context)
 
 
 @login_required
-def dispatch_to_one_region(request, region_id):
-    player = Player.objects.get(associated_user=request.user)
-    region = Region.objects.get(id=region_id)
+def world(request):
+    try:
+        my_player = Player.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    players = Player.objects.order_by('acres').all()
 
-    if player.protection_ticks_remaining > 0 and region.ruler != player:
-        messages.error(request, "You cannot invade other regions until your protection has ended")
+    if "book_of_grudges" in my_player.perk_dict:
+        for player in players:
+            if str(player.id) not in my_player.perk_dict["book_of_grudges"]:
+                my_player.perk_dict["book_of_grudges"][str(player.id)] = {}
+                my_player.perk_dict["book_of_grudges"][str(player.id)]["pages"] = 0
+                my_player.perk_dict["book_of_grudges"][str(player.id)]["animosity"] = 0
 
-    total_sent = 0
+    context = {
+        "players": players,
+    }
 
-    for key, value in request.POST.items():
-        if "send_" in key and value != "":
+    return render(request, "maingame/world.html", context)
+
+
+@login_required
+def submit_invasion(request, player_id):
+    try:
+        my_player = Player.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    target_player = Player.objects.get(id=player_id)
+    round = Round.objects.first()
+
+    if target_player.protection_ticks_remaining > 0 or my_player.protection_ticks_remaining > 0 or not round.has_started or round.has_ended:
+        messages.error(request, f"Illegal invasion")
+        return redirect("overview", player_id=player_id)
+    
+    total_units_sent = 0
+    units_sent_dict = {}
+
+    # Create a dict of the units sent
+    for key, string_amount in request.POST.items():
+        # key is like "send_123" where 123 is the ID of the Unit
+        if "send_" in key and string_amount != "":
             unit = Unit.objects.get(id=key[5:])
-            amount = int(value)
+            amount = int(string_amount)
 
-            if amount > unit.quantity_marshaled:
-                messages.error(request, f"Attempted to send {amount}x {unit} but there are only {unit.quantity_marshaled} marshaled")
-                return redirect("region", region_id)
+            if amount <= unit.quantity_at_home:
+                total_units_sent += amount
+                units_sent_dict[str(unit.id)] = {
+                    "unit": unit,
+                    "quantity_sent": amount,
+                }
+            else:
+                messages.error(request, f"You can't send more units than you have at home.")
+                return redirect("overview", player_id=player_id)
 
-            total_sent += amount
-
-    if total_sent < 1:
+    if total_units_sent < 1:
         messages.error(request, f"Zero units sent")
-        return redirect("region", region_id)
-
-    for key, value in request.POST.items():
-        if "send_" in key and value != "":
-            unit = Unit.objects.get(id=key[5:])
-            amount = int(value)
-            send_journey(player, unit, amount, region)
-
-    messages.success(request, f"Sending {total_sent} units to {region.name}")
+        return redirect("overview", player_id=player_id)
     
-    return redirect("region", region_id)
-
-
-@login_required
-def marshal_from_region(request, region_id):
-    player = Player.objects.get(associated_user=request.user)
-    region = Region.objects.get(ruler=player, id=region_id)
-
-    if region.ruler != player:
-        messages.error(request, f"You can only marshal your own units")
-        return redirect("region", region_id)
-
-    total_marshaled = 0
-
-    for key, value in request.POST.items():
-        if "marshal_" in key and value != "":
-            unit = Unit.objects.get(ruler=player, id=key[8:])
-            amount = int(value)
-
-            if amount > region.units_here_dict[str(unit.id)]:
-                messages.error(request, f"Attempted to marshal {amount}x {unit} but there are only {unit.quantity_marshaled} here")
-                return redirect("region", region_id)
-
-            total_marshaled += amount
-
-    if total_marshaled < 1:
-        messages.error(request, f"Zero units marshaled")
-        return redirect("region", region_id)
-
-    for key, value in request.POST.items():
-        if "marshal_" in key and value != "":
-            unit = Unit.objects.get(id=key[8:], ruler=player)
-            amount = int(value)
-            marshal_from_location(player, unit, amount, region)
-
-    messages.success(request, f"Marshaling {total_marshaled} units from {region.name}")
+    offense_sent = 0
     
-    return redirect("region", region_id)
+    # Calculate OP
+    for unit_details_dict in units_sent_dict.values():
+        unit = unit_details_dict["unit"]
+        quantity_sent = unit_details_dict["quantity_sent"]
+        offense_sent += unit.op * quantity_sent
+
+    offense_sent *= (my_player.offense_multiplier + get_grudge_bonus(my_player, target_player))
+
+    # Determine victor
+    if offense_sent >= target_player.defense:
+        attacker_victory = True
+        target_player.complacency = 0
+        target_player.save()
+        my_player.complacency = int(my_player.complacency / 2)
+        my_player.save()
+
+        if "book_of_grudges" in target_player.perk_dict:
+            if str(my_player.id) in target_player.perk_dict["book_of_grudges"]:
+                target_player.perk_dict["book_of_grudges"][str(my_player.id)]["pages"] += 100
+            else:
+                target_player.perk_dict["book_of_grudges"][str(my_player.id)] = {}
+                target_player.perk_dict["book_of_grudges"][str(my_player.id)]["pages"] = 100
+                target_player.perk_dict["book_of_grudges"][str(my_player.id)]["animosity"] = 0
+    else:
+        attacker_victory = False
+
+    battle = Battle.objects.create(
+        attacker=my_player,
+        defender=target_player,
+        winner=my_player if attacker_victory else target_player,
+        op=offense_sent,
+        dp=target_player.defense,
+    )
+
+    event = Event.objects.create(
+        reference_id=battle.id, 
+        reference_type="battle", 
+        icon="🗡" if attacker_victory else "🛡"
+    )
+    event.notified_players.add(my_player)
+    event.notified_players.add(target_player)
+    target_player.has_unread_events = True
+    target_player.save()
+
+    # Determine casualty rates and handle victory triggers
+    if attacker_victory:
+        offensive_survival = 0.9
+        defensive_survival = 0.95
+        acres_conquered = int(0.06 * target_player.acres * (target_player.acres / my_player.acres))
+
+        target_player.acres -= acres_conquered
+        target_player.save()
+        prune_buildings(target_player)
+
+        my_player.incoming_acres_dict["12"] += acres_conquered
+        my_player.save()
+        
+        battle.acres_conquered = acres_conquered
+        battle.save()
+
+        # Dwarves erase their grudges for a player once they hit them
+        if "book_of_grudges" in my_player.perk_dict and str(target_player.id) in my_player.perk_dict["book_of_grudges"]:
+            my_player.perk_dict["book_of_grudges"][str(target_player.id)]["pages"] = 0
+            my_player.perk_dict["book_of_grudges"][str(target_player.id)]["animosity"] = 0
+            my_player.save()
+    else:
+        offensive_survival = 0.85
+        defensive_survival = 0.98
+
+    # Apply offensive casualties and return the survivors home
+    for unit_details_dict in units_sent_dict.values():
+        unit = unit_details_dict["unit"]
+        quantity_sent = unit_details_dict["quantity_sent"]
+        survivors = math.ceil(quantity_sent * offensive_survival)
+
+        if "always_dies_on_offense" in unit.perk_dict:
+            survivors = 0
+
+        casualties = quantity_sent - survivors
+        unit.quantity -= casualties
+        unit.returning_dict["12"] += survivors
+
+        unit.save()
+
+    # Apply defensive casualties
+    for unit in Unit.objects.filter(ruler=target_player):
+        unit.quantity = math.ceil(unit.quantity * defensive_survival)
+        unit.save()
+
+    return redirect("overview", player_id=player_id)

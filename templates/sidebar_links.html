@@ -1,15 +1,16 @@
-<a href="{% url 'resources' %}" class="text-light">Resources{% if active_player.is_starving > 0 %} ⚠️{% endif %}</a>
-<a href="{% url 'regions' %}" class="text-light">Regions{% if active_player.unconstructed_plots > 0 or active_player.has_underdefended_regions %} ⚠️{% endif %}</a>
-<a href="{% url 'legions' %}" class="text-light">Legions</a>
+{% if active_player %}
+<a href="{% url 'overview' active_player.id %}" class="text-light">Overview</a>
+<a href="{% url 'resources' %}" class="text-light">Resources</a>
+<a href="{% url 'buildings' %}" class="text-light">Buildings</a>
+<a href="{% url 'military' %}" class="text-light">Military</a>
+<a href="{% url 'spells' %}" class="text-light">Spells</a>
 <a href="{% url 'upgrades' %}" class="text-light">Upgrades</a>
+<a href="{% url 'discoveries' %}" class="text-light">Discoveries{% if active_player.discovery_points >= 50 %} 💡{% endif %}</a>
+<a href="{% url 'world' %}" class="text-light">The World</a>
 <a href="{% url 'news' %}" class="text-light">News{% if active_player.has_unread_events > 0 %} ⚠️{% endif %}</a>
-<a href="{% url 'run_tick_view' 1 %}" class="text-light">RUN TICK</a>
-<a href="{% url 'run_tick_view' 12 %}" class="text-light">RUN TICK x12</a>
 
-{% if active_player.is_starving > 0 %}
-<div class="mt-2 u-border-2 border-yellow-300 px-1">
-    <span class="font-bold">⚠️YOU ARE STARVING⚠️</span>
-</div>
+<a href="{% url 'run_tick_view' 1 %}" class="text-light mt-12">RUN TICK</a>
+<a href="{% url 'run_tick_view' 12 %}" class="text-light">RUN TICK x12</a>
 {% endif %}
 
 <form action="{% url 'logout' %}" method="post" class="mt-8">

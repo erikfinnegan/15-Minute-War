@@ -1,51 +1,26 @@
-<div class="card {% if building %}bg-gray-900{% elif show_upgrades %}bg-gray-700{% else %}bg-gray-800{% endif %} u-flex u-flex-column w-48 u-border-1 px-2 py-1
-{% if building.built_on_ideal_terrain %}border-yellow-200
-{% elif building.built_on_ideal_terrain %}border-yellow-200
-{% endif %}
-
-{% if building_type.ideal_terrain == region.primary_terrain and primary_terrain_available %}text-yellow-200
-{% elif building_type.ideal_terrain == region.secondary_terrain and secondary_terrain_available %}text-yellow-200
-{% else %}border-light
-{% endif %}
-
-{% if building.built_on_ideal_terrain %}border-yellow-200 text-yellow-200
-{% endif %}
-">
-    <div class="u-flex u-flex-row u-gap-2 h-6">
-        <div class="u-flex u-flex-row u-gap-1">
-            <h6 class="my-auto">{{ building_type.name|title }}</h6>
-            <h6 class="my-auto">{{ building_type.ideal_terrain.icon }}</h6>
-        </div>
-        <div class="u-flex u-justify-flex-end u-gap-1 my-auto w-100p">
-            {% if building and is_my_region %}
-            <a href="{% url 'destroy_building' building.id %}">
-                <button class="btn-danger px-1 py-0">Destroy</button>
-            </a>
-            {% elif show_upgrades %}
-            <a href="{% url 'upgrade_building_type' building_type.id %}">
-                <button class="btn-dark px-1 py-0">{{ building_type.upgrade_cost }}📜</button>
-            </a>
-            {% else %}
-                {% if available_plots >= 3 and is_my_region %}
-                <a href="{% url 'build_building' region.id building_type.id 3 %}">
-                    <button class="btn-light px-1 py-0">+3</button>
-                </a>
-                {% endif %}
-
-                {% if available_plots >= 2 and is_my_region %}
-                <a href="{% url 'build_building' region.id building_type.id 2 %}">
-                    <button class="btn-light px-1 py-0">+2</button>
-                </a>
-                {% endif %}
-
-                {% if available_plots >= 1 and is_my_region %}
-                <a href="{% url 'build_building' region.id building_type.id 1 %}">
-                    <button class="btn-light px-1 py-0">+1</button>
-                </a>
-                {% endif %}
-            {% endif %}
-        </div>
+<div class="card bg-gray-800 px-2 pb-2 pt-1 u-flex u-flex-column w-48{% if building.quantity > 0 %} u-border-1 u-border-gray-700{% endif %}">
+    <div class="u-flex u-justify-space-between">
+        <span class="text-xl">{{ building.name|title }}</span>
+        {% if building.quantity == 0 %}
+        <span>None</span>
+        {% else %}
+        <span>{{ building.quantity}}</span>
+        {% endif %}
+        <span>{{ building.percent }}%</span>
     </div>
-    <!-- <span>{{ building_type.description }}</span> -->
-    {% include "maingame/building_description.html" %}
+    
+    <div class="">
+        <span class="u-align-middle mr-2">{{ building.description }}</span>
+        {% if show_upgrades %}
+        <a href="{% url 'upgrade_building' building.id %}">
+            <button class="btn-dark px-1 py-0" {% if spell.mana_cost < mana_quantity %}disabled{% endif %}>Upgrade: {{ spell.mana_cost }}🔮</button>
+        </a>
+        {% elif building.is_buildable %}
+        <input type="number" class="w-16" name="build_{{ building.id }}" />
+        {% else %}
+        <div>
+            <span class="text-red-400">Can't be built</span>
+        </div>
+        {% endif %}
+    </div>
 </div>

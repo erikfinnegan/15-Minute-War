@@ -12,7 +12,7 @@
         <div class="max-w-sm u-flex-grow-1 my-auto">
             <select id="tom-select-it" name="timezone">
                 {% for timezone in timezones %}
-                <option>{{ timezone }}</option>
+                <option {% if timezone == active_player.timezone %}selected{% endif %}>{{ timezone }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -31,13 +31,11 @@
         new TomSelect('#tom-select-it', config);
     </script>
 
-
-
     <table class="table striped max-w-md">
         <tbody>
             {% for event in displayed_events %}
             <tr class="{% if event.involves_player %}text-yellow-300{% endif %}">
-                <th class="u-align-middle">{{ event.event.timestamp }}</th>
+                <th class="u-align-middle">{{ event.event.timestamp|timezone:active_player.timezone }}</th>
                 <th class="u-align-middle">{{ event.event.icon }}</th>
                 <th class="u-align-middle">{{ event.event }}</th>
                 <th class="u-align-middle">{{ event.event.extra_text }}</th>

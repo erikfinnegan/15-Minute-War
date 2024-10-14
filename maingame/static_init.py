@@ -1,144 +1,108 @@
-from maingame.models import BuildingType, Terrain, Deity, Region, Player, Building, Unit, Journey, Round, Battle, Event
-from maingame.formatters import create_or_add_to_key
+from maingame.models import Faction, Deity, Player, Building, Unit, Discovery, Round, Battle, Event, Resource, Spell
 from maingame.utils import update_trade_prices
 
-def initialize_building_types():
-    building_type_templates = [
+
+def initialize_resources():
+    resource_templates = [
+        {
+            "name": "gold",
+            "icon": "🪙",
+        },
+        {
+            "name": "wood",
+            "icon": "🪵",
+        },
+        {
+            "name": "ore",
+            "icon": "🪨",
+        },
+        {
+            "name": "food",
+            "icon": "🍞",
+        },
+        {
+            "name": "research",
+            "icon": "📜",
+        },
+        {
+            "name": "mana",
+            "icon": "🔮",
+        },
+        {
+            "name": "corpse",
+            "icon": "🪦",
+        },
+    ]
+
+    for resource_template in resource_templates:
+        Resource.objects.create(**resource_template)
+
+
+def initialize_buildings():
+    building_templates = [
         {
             "name": "farm",
-            "resource_produced": "🍞",
+            "resource_produced_name": "food",
             "amount_produced": 100,
-            "ideal_terrain": Terrain.objects.get(name="grassy"),
-            "is_starter": True,
         },
         {
             "name": "quarry",
-            "resource_produced": "🪨",
+            "resource_produced_name": "ore",
             "amount_produced": 50,
-            "ideal_terrain": Terrain.objects.get(name="mountainous"),
-            "is_starter": True,
         },
         {
             "name": "lumberyard",
-            "resource_produced": "🪵",
+            "resource_produced_name": "wood",
             "amount_produced": 100,
-            "ideal_terrain": Terrain.objects.get(name="forested"),
-            "is_starter": True,
         },
         {
             "name": "school",
-            "resource_produced": "📜",
-            "amount_produced": 1,
-            "ideal_terrain": Terrain.objects.get(name="grassy"),
-            "is_starter": True,
+            "resource_produced_name": "research",
+            "amount_produced": 5,
         },
         {
             "name": "stronghold",
             "defense_multiplier": 20,
-            "ideal_terrain": Terrain.objects.get(name="defensible"),
-            "is_starter": True,
-        },
-
-        {
-            "name": "mine",
-            "resource_produced": "💎",
-            "amount_produced": 20,
-            "ideal_terrain": Terrain.objects.get(name="cavernous")
         },
         {
             "name": "tower",
-            "resource_produced": "🔮",
+            "resource_produced_name": "mana",
             "amount_produced": 10,
-            "ideal_terrain": Terrain.objects.get(name="swampy"),
-        },
-        {
-            "name": "embassy",
-            "trade_multiplier": 30,
-            "ideal_terrain": Terrain.objects.get(name="coastal"),
         },
     ]
 
-    for building_template in building_type_templates:
-        BuildingType.objects.create(**building_template)
-
-
-def initialize_terrain():
-    Terrain.objects.create(
-        name="grassy",
-        icon="🌾",
-        unit_op_dp_ratio=0.9,
-        unit_perk_options="",
-    )
-    Terrain.objects.create(
-        name="mountainous",
-        icon="⛰",
-        unit_op_dp_ratio=0.4,
-        unit_perk_options="",
-    )
-    Terrain.objects.create(
-        name="coastal",
-        icon="🌊",
-        unit_op_dp_ratio=0.6,
-        unit_perk_options="",
-    )
-    Terrain.objects.create(
-        name="forested",
-        icon="🌳",
-        unit_op_dp_ratio=1,
-        unit_perk_options="",
-    )
-    Terrain.objects.create(
-        name="cavernous",
-        icon="🕳",
-        unit_op_dp_ratio=1.3,
-        unit_perk_options="",
-    )
-    Terrain.objects.create(
-        name="swampy",
-        icon="🦟",
-        unit_op_dp_ratio=1.1,
-        unit_perk_options="",
-    )
-    Terrain.objects.create(
-        name="defensible",
-        icon="🏰",
-        unit_op_dp_ratio=0,
-        unit_perk_options="",
-    )
-    Terrain.objects.create(
-        name="barren",
-        icon="🏜",
-        unit_op_dp_ratio=1.8,
-        unit_perk_options="",
-    )
-    Terrain.objects.create(
-        name="beautiful",
-        icon="🏞️",
-        unit_op_dp_ratio=0.7,
-        unit_perk_options="",
-    )
-    Terrain.objects.create(
-        name="influential",
-        icon="👑",
-        unit_op_dp_ratio=2,
-        unit_perk_options="",
-    )
+    for building_template in building_templates:
+        Building.objects.create(**building_template)
 
 
 def initialize_deities():
-    Deity.objects.create(name="Hunger Without End", icon="🪙")
-    Deity.objects.create(name="Rubecus Swiftstrike", icon="⚡")
-    Deity.objects.create(name="The Many Who Are One", icon="🍄")
-    Unit.objects.create(
-        name="tendril of unity",
-        op=13,
-        dp=0,
-        is_trainable=False,
-        perk_dict={"no_food": True}
+    Deity.objects.create(name="Hunger Without End")
+    Deity.objects.create(name="Rubecus Swiftstrike")
+    Deity.objects.create(name="The Many Who Are One")
+
+
+def initialize_factions():
+    Faction.objects.create(
+        name="human",
+        primary_resource_name="gold",
+        primary_resource_per_acre="50",
+        building_primary_resource_name="gold",
+        building_secondary_resource_name="wood",
+        starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"]
+    )
+
+    Faction.objects.create(
+        name="dwarf",
+        primary_resource_name="gold",
+        primary_resource_per_acre="50",
+        building_primary_resource_name="gold",
+        building_secondary_resource_name="wood",
+        starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"]
     )
 
 
 def initialize_units():
+    human = Faction.objects.get(name="human")
     Unit.objects.create(
         name="archer",
         op=2,
@@ -147,7 +111,11 @@ def initialize_units():
             "🪙": 150,
             "🪵": 30,
         },
-        is_starter=True
+        upkeep_dict={
+            "🪙": 3,
+            "🍞": 1,
+        },
+        faction=human
     )
     Unit.objects.create(
         name="knight",
@@ -157,38 +125,223 @@ def initialize_units():
             "🪙": 275,
             "🪨": 25,
         },
-        is_starter=True
+        upkeep_dict={
+            "🪙": 3,
+            "🍞": 1,
+        },
+        faction=human
+    )
+
+    dwarf = Faction.objects.get(name="dwarf")
+    Unit.objects.create(
+        name="Stoneshield",
+        op=3,
+        dp=6,
+        cost_dict={
+            "🪙": 1200,
+            "🪨": 450,
+        },
+        upkeep_dict={
+            "🪙": 3,
+            "🍞": 1,
+        },
+        faction=dwarf
+    )
+    Unit.objects.create(
+        name="Hammerer",
+        op=5,
+        dp=4,
+        cost_dict={
+            "🪙": 1300,
+            "🪨": 500,
+        },
+        upkeep_dict={
+            "🪙": 3,
+            "🍞": 1,
+        },
+        faction=dwarf
+    )
+    Unit.objects.create(
+        name="Grudgestoker",
+        op=0,
+        dp=0,
+        upkeep_dict={
+            "🪙": 3,
+            "🍞": 1,
+            "📜": 1,
+        },
+        perk_dict={"random_grudge_book_pages_per_tick": 3}
+    )
+
+    Unit.objects.create(
+        name="Battering Ram",
+        op=15,
+        dp=0,
+        cost_dict={
+            "🪵": 4000,
+            "🪨": 2200,
+        },
+    )
+    Unit.objects.create(
+        name="Palisade",
+        op=0,
+        dp=5,
+        cost_dict={
+            "🪵": 3000,
+        },
+        upkeep_dict={
+            "🪵": 1,
+        },
+    )
+    Unit.objects.create(
+        name="Bastion",
+        op=0,
+        dp=30,
+        cost_dict={
+            "🪨": 20000,
+        },
+    )
+    Unit.objects.create(
+        name="Zombie",
+        op=4,
+        dp=3,
+        cost_dict={
+            "🔮": 100,
+            "🪦": 1,
+        },
+        upkeep_dict={
+            "🔮": 0.1,
+        },
+    )
+    Unit.objects.create(
+        name="Archmagus",
+        op=0,
+        dp=0,
+        upkeep_dict={
+            "🪙": 3,
+            "🍞": 1,
+        },
+        is_trainable=False,
+        perk_dict={"surplus_research_consumed_to_add_one_op_and_dp": 75}
+    )
+    Unit.objects.create(
+        name="Fireball",
+        op=9,
+        dp=0,
+        cost_dict={
+            "🔮": 250,
+        },
+        perk_dict={"always_dies_on_offense": True}
+    )
+
+    timer_template = {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0,
+        "10": 0,
+        "11": 0,
+        "12": 0,
+    }
+
+    for unit in Unit.objects.all():
+        unit.training_dict = timer_template
+        unit.returning_dict = timer_template
+        unit.save()
+
+
+def initialize_spells():
+    Spell.objects.create(
+        name="Power Overwhelming",
+        description="Double the offensive power of 20% of your units that have higher OP than DP and no mana upkeep, but they'll gain a hefty mana upkeep equal to 10% of their new OP.",
+        mana_cost_per_acre=20,
+        is_starter=True,
+    )
+
+
+def initialize_discoveries():
+    Discovery.objects.create(
+        name="Battering Ram",
+        description="Allows for the creation of a powerful offensive unit costing wood and ore."
+    )
+
+    Discovery.objects.create(
+        name="Palisade",
+        description="Unlocks the ability to build cheap defenses using only wood."
+    )
+
+    Discovery.objects.create(
+        name="Bastion",
+        description="A blueprint for building large fortifications out of ore."
+    )
+
+    Discovery.objects.create(
+        name="Zombies",
+        description="Harvest the bodies of the dead to magically raise them as undead soldiers."
+    )
+
+    Discovery.objects.create(
+        name="Butcher",
+        requirement="Zombies",
+        description="Learn a terrifying ritual to slaughter a portion of your army for bodies."
+    )
+
+    Discovery.objects.create(
+        name="Archmagus",
+        description="Gain the allegiance of a terrifyingly powerful sorcerer who will consume 10% of your surplus research points each tick to gain 1 OP and DP per 75 consumed."
+    )
+
+    Discovery.objects.create(
+        name="Fireball",
+        description="Conjure massive fireballs to support your invasions."
+    )
+
+    Discovery.objects.create(
+        name="Grudgestoker",
+        description="A holy scribe takes up residence with you and appends three pages to your book of grudges each tick.",
+        requirement="dwarf",
     )
 
 
 def initialize_trade_prices():
     round = Round.objects.first()
 
-    for building_type in BuildingType.objects.all():
-        if building_type.amount_produced > 0:
-            round.resource_bank_dict[building_type.resource_produced] = 0
+    for building in Building.objects.all():
+        if building.amount_produced > 0:
+            round.resource_bank_dict[building.resource_produced_name] = 0
 
-    round.resource_bank_dict["🪙"] = 0
+    round.resource_bank_dict["gold"] = 0
+    round.save()
     update_trade_prices()
+    round.base_price_dict = round.trade_price_dict.copy()
     round.save()
 
 
 def initialize_game_pieces():
+    Resource.objects.all().delete()
     Battle.objects.all().delete()
     Event.objects.all().delete()
     Round.objects.all().delete()
-    Journey.objects.all().delete()
+    Discovery.objects.all().delete()
     Building.objects.all().delete()
-    Region.objects.all().delete()
     Unit.objects.all().delete()
-    BuildingType.objects.all().delete()
+    Spell.objects.all().delete()
+    Faction.objects.all().delete()
     Player.objects.all().delete()
-    Terrain.objects.all().delete()
     Deity.objects.all().delete()
     Round.objects.create()
 
-    initialize_terrain()
+    initialize_discoveries()
+    initialize_factions()
+    initialize_resources()
     initialize_deities()
-    initialize_building_types()
+    initialize_buildings()
     initialize_units()
+    initialize_spells()
     initialize_trade_prices()
+    update_trade_prices()

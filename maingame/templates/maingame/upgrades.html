@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="">
-    {% for building_type in building_types %}
+    {% for building in buildings %}
     {% include "maingame/building_card.html" with show_upgrades=True %}
     {% endfor %}
 </div>
