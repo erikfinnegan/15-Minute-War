@@ -662,7 +662,7 @@ def submit_invasion(request, player_id):
 
     offense_sent *= (my_player.offense_multiplier + get_grudge_bonus(my_player, target_player))
 
-    # Determine victor
+    # Determine winner
     if offense_sent >= target_player.defense:
         attacker_victory = True
         target_player.complacency = 0
