@@ -1,0 +1,22 @@
+name: Continuous Integration and Delivery
+
+on:
+  push:
+    branches: [main, develop]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Executing remote  command and deployment to digital ocean for dev enviroment
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.SSH_HOST}}
+          USERNAME: ${{secrets.SSH_USERNAME}}
+          KEY: ${{ secrets.SSH_KEY}}
+          script: |
+            cd /root/odalike
+            git pull
+            source venv/bin/activate
+            ./manage.py migrate
+            sudo systemctl restart gunicorn
