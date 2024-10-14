@@ -6,7 +6,11 @@
 
 {% block content %}
 <div>
-    <p>Click a player's name for more info</p>
+    {% if active_player.show_tutorials %}
+    <p>These are all the players at the moment. Yours is the one with the green background. Anyone still in a state of magical protection has teal text.</p>
+    <p>You can click the info button next to anyone's name to see an overview of their dominion.</p>
+    <p>When someone makes an invasion, the units they send take 12 ticks to return home, leaving them more vulnerable to attack in the meantime.</p>
+    {% endif %}
     <table class="table striped max-w-sm">
         <thead>
             <tr>
@@ -17,13 +21,14 @@
                 {% if "book_of_grudges" in active_player.perk_dict %}
                 <th>Book of Grudges</th>
                 {% endif %}
+                <th>Complacency</th>
                 <th>Units returning</th>
                 <th>Link</th>
             </tr>
         </thead>
         <tbody>
             {% for player in players %}
-                <tr class="{% if player.protection_ticks_remaining > 0 %}text-teal-400{% else %}text-light{% endif %}">
+                <tr class="{% if player.id == active_player.id %}bg-green-900 {% endif %}{% if player.protection_ticks_remaining > 0 %}text-teal-400{% else %}text-light{% endif %}">
                     <th class="u-align-middle">{{ player.name }}</th>
                     <th class="u-align-middle">{{ player.faction_name|title }}</th>
                     <td class="u-align-middle">{{ player.acres }}</td>
@@ -38,6 +43,7 @@
                         {% endif %}
                     </td>
                     {% endif %}
+                    <td class="u-align-middle">{{ player.complacency|intcomma }}</td>
                     <td class="u-align-middle">{% if player.has_units_returning %}Yes{% else %}No{% endif %}</td>
                     <td class="u-align-middle">
                     {% if player.protection_ticks_remaining == 0 %}

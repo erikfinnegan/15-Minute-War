@@ -11,6 +11,15 @@
 
 <a href="{% url 'run_tick_view' 1 %}" class="text-light mt-12">RUN TICK</a>
 <a href="{% url 'run_tick_view' 12 %}" class="text-light">RUN TICK x12</a>
+<div class="form-ext-control pl-0">
+    <label class="form-ext-toggle__label u-flex u-flex-row u-gap-2" onclick="location.href = '/toggle_tutorials'">
+        <span>Tutorials</span>
+        <div class="form-ext-toggle">
+            <input name="toggleCheckbox" type="checkbox" class="form-ext-input" {% if active_player.show_tutorials %}checked{% endif %} />
+            <div class="form-ext-toggle__toggler"><i></i></div>
+        </div>
+    </label>
+</div>
 {% endif %}
 
 <form action="{% url 'logout' %}" method="post" class="mt-8">

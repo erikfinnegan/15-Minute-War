@@ -556,8 +556,9 @@ def world(request):
     except:
         return redirect("register")
     
-    players = Player.objects.order_by('acres').all()
+    players = Player.objects.all().order_by('-acres')
 
+    # If you don't have grudge values set for someone, set them now
     if "book_of_grudges" in my_player.perk_dict:
         for player in players:
             if str(player.id) not in my_player.perk_dict["book_of_grudges"]:
@@ -570,6 +571,19 @@ def world(request):
     }
 
     return render(request, "maingame/world.html", context)
+
+
+@login_required
+def toggle_tutorials(request):
+    try:
+        my_player = Player.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    my_player.show_tutorials = not my_player.show_tutorials
+    my_player.save()
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 @login_required
@@ -668,7 +682,7 @@ def submit_invasion(request, player_id):
         target_player.save()
         prune_buildings(target_player)
 
-        my_player.incoming_acres_dict["12"] += acres_conquered
+        my_player.incoming_acres_dict["12"] += acres_conquered * 2
         my_player.save()
         
         battle.acres_conquered = acres_conquered

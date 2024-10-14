@@ -29,4 +29,5 @@ urlpatterns = [
     path("discoveries", views.discoveries, name="discoveries"),
     path("spells", views.spells, name="spells"),
     path("spells/<int:spell_id>", views.submit_spell, name="submit_spell"),
+    path("toggle_tutorials", views.toggle_tutorials, name="toggle_tutorials"),
 ]

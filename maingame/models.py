@@ -23,6 +23,7 @@ class Player(models.Model):
     protection_ticks_remaining = models.IntegerField(default=72)
     complacency = models.IntegerField(default=0)
     has_tick_units = models.BooleanField(default=False)
+    show_tutorials = models.BooleanField(default=True)
 
     acres = models.IntegerField(default=100)
     incoming_acres_dict = models.JSONField(default=dict, blank=True)
