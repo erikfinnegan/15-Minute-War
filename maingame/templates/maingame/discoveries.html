@@ -5,6 +5,11 @@
 
 {% block content %}
 <div>
+    {% if active_player.show_tutorials %}
+    <p>
+        You'll gain the ability to make a new Discovery every 50 ticks. These grant access to new units, buildings, spells, etc.
+    </p>
+    {% endif %}
     <p>Ticks to next discovery: {{ active_player.ticks_to_next_discovery }}</p>
     <p>Discoveries available: {{ active_player.discoveries_to_make }}</p>
 
@@ -17,7 +22,7 @@
                 <option value="{{ discovery.name }}">{{ discovery.name }}</option>
                 {% endfor %}
             </select>
-            <button class="btn-light w-16 h-6 p-0 u-center" type="submit">
+            <button class="btn-light w-16 h-6 p-0 u-center" type="submit" {% if active_player.discoveries_to_make < 1 %}disabled{% endif %}>
                 <span class="font-bold">Submit</span>
             </button>
         </div>

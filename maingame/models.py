@@ -44,6 +44,7 @@ class Player(models.Model):
 
     discovery_points = models.IntegerField(default=0)
     available_discoveries = models.JSONField(default=list, blank=True)
+    learned_discoveries = models.JSONField(default=list, blank=True)
 
     def __str__(self):
         return f"{self.name}"
@@ -348,12 +349,16 @@ class Unit(models.Model):
     @property
     def perk_text(self):
         perk_text = ""
-
-        if "no_food" in self.perk_dict:
-            perk_text += "Consumes no food. "
         
         if "surplus_research_consumed_to_add_one_op_and_dp" in self.perk_dict:
             perk_text += f"Consumes 10% of your surplus research points each tick to gain 1 OP and DP per {self.perk_dict['surplus_research_consumed_to_add_one_op_and_dp']} consumed. "
+
+        if "random_grudge_book_pages_per_tick" in self.perk_dict:
+            pages_per_tick = self.perk_dict["random_grudge_book_pages_per_tick"]
+            perk_text += f"Adds {pages_per_tick} pages to an existing grudge in your book of grudges each tick. "
+
+        if "always_dies_on_offense" in self.perk_dict:
+            perk_text += "Always dies when sent on an invasion. "
         
         return perk_text
     

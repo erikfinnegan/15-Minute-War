@@ -21,9 +21,9 @@
     </div>
 
     {% if player != active_player and player.protection_ticks_remaining == 0 and active_player.protection_ticks_remaining == 0 and round.has_started and not round.has_ended %}
-    <details class="accordion card bg-gray-900 max-w-sm">
+    <details class="accordion card bg-gray-900 max-w-md">
         <summary class="accordion__summary">Plan invasion</summary>
-        <form action="{% url 'submit_invasion' player.id %}" method="post" class="max-w-sm">
+        <form action="{% url 'submit_invasion' player.id %}" method="post" class="max-w-md">
             {% csrf_token %}
             <div class="w-100p u-center">
                 <h6>Invade</h6>
@@ -41,7 +41,7 @@
                     {% for unit in my_units %}
                     <tr>
                         {% include "maingame/unit_name_row.html" %}
-                        <td class="u-align-middle" id="power_{{ unit.id }}">{{ unit.op }}/{{ unit.dp }}</td>
+                        <td class="u-align-middle" id="power_{{ unit.id }}">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
                         <td class="u-align-middle">{{ unit.quantity_at_home|intcomma }}</td>
                         <td class="u-align-middle u-flex-md u-flex-row-md">
                             <input 
@@ -126,7 +126,7 @@
     {% endif %}
 
     <div>
-        <table class="table striped small max-w-sm">
+        <table class="table striped small max-w-md">
             <thead>
                 <tr>
                     <th>Resource</th>
@@ -147,7 +147,7 @@
     </div>
     
     <div>
-        <table class="table striped small max-w-sm">
+        <table class="table striped small max-w-md">
             <thead>
                 <tr>
                     <th>Unit</th>
@@ -160,7 +160,7 @@
                 {% for unit in units %}
                     <tr>
                         {% include "maingame/unit_name_row.html" %}
-                        <td class="u-align-middle">{{ unit.op }}/{{ unit.dp }}</td>
+                        <td class="u-align-middle">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
                         <td>{{ unit.quantity_trained_and_alive|intcomma }} {% if unit.quantity_in_training > 0 %} ({{ unit.quantity_in_training|intcomma }}){% endif %}</td>
                         <td class="u-align-middle">{{ unit.quantity_at_home|intcomma }}</td>
                     </tr>
@@ -170,7 +170,7 @@
     </div>
 
     <div>
-        <table class="table striped small max-w-sm">
+        <table class="table striped small max-w-md">
             <thead>
                 <tr>
                     <th>Building</th>
@@ -194,7 +194,7 @@
         </table>
     </div>
 
-    <div class="u-flex u-flex-column max-w-sm card bg-gray-900 p-1">
+    <div class="u-flex u-flex-column max-w-md card bg-gray-900 p-1">
         <div>
             <h6 class="u-center text-light">Units returning from battle</h6>
         </div>
@@ -242,7 +242,7 @@
         </div>
     </div>
 
-    <div class="mt-4 u-flex u-flex-column max-w-sm card bg-gray-900 p-1">
+    <div class="mt-4 u-flex u-flex-column max-w-md card bg-gray-900 p-1">
         <div>
             <h6 class="u-center text-light">Incoming acres</h6>
         </div>
@@ -288,7 +288,7 @@
         </div>
     </div>
 
-    <div class="u-flex u-flex-column max-w-sm card bg-gray-900 p-1">
+    <div class="u-flex u-flex-column max-w-md card bg-gray-900 p-1">
         <div>
             <h6 class="u-center text-light">Units in training</h6>
         </div>
@@ -330,6 +330,56 @@
                             <td class="u-align-middle">{{ unit.training_dict.12 }}</td>
                         </tr>
                     {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-4 u-flex u-flex-column max-w-md card bg-gray-900 p-1">
+        <div>
+            <h6 class="u-center text-light">Spells</h6>
+        </div>
+        <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
+            <table class="table striped small">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Mana cost (per acre)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for spell in spells %}
+                    <tr>
+                        <td class="u-align-middle">{{ spell.name }}</td>
+                        <td class="u-align-middle">{{ spell.description }}</td>
+                        <td class="u-align-middle">{{ spell.mana_cost }} ({{ spell.mana_cost_per_acre}})</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-4 u-flex u-flex-column max-w-md card bg-gray-900 p-1">
+        <div>
+            <h6 class="u-center text-light">Discoveries</h6>
+        </div>
+        <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
+            <table class="table striped small">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for discovery in learned_discoveries %}
+                    <tr>
+                        <td class="u-align-middle">{{ discovery.name }}</td>
+                        <td class="u-align-middle">{{ discovery.description }}</td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>

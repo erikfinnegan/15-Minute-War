@@ -6,17 +6,18 @@
 
 {% block content %}
 
-<form action="{% url 'submit_training' %}" method="post" class="max-w-sm">
+<form action="{% url 'submit_training' %}" method="post" class="max-w-md">
     {% csrf_token %}
     {% if active_player.show_tutorials %}
     <p>
         Train units to defend your dominion and attack others. Units cost resources to train and will arrive after 12 ticks. Once a unit is trained,
         their upkeep cost must be paid each tick. If a unit's upkeep can't be paid, you'll lose 1% of your current stock of that unit each tick until you can
-        afford it.
+        afford it. You can also manually release units. This is instant and free, but has no benefit other than reducing your upkeep or other negative impact 
+        of the unit.
     </p>
     <p>Clicking the max button or the unit or upkeep cost will fill in the maximum you can afford into the input field. Some units can't be trained.</p>
     <p>
-        Some units have special perks. These are marked by an asterisk after the unit name and the description can be seen by mousing over the name (desktop)
+        Some units have special perks. These are marked by yellow text and the description can be seen by mousing over the name (desktop)
         or tapping on the name (mobile).
     </p>
     {% endif %}
@@ -48,7 +49,7 @@
             </div>
             <tr>
                 {% include "maingame/unit_name_row.html" %}
-                <td class="u-align-middle">{{ unit.op }}/{{ unit.dp }}</td>
+                <td class="u-align-middle">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
                 <td class="u-align-middle">
                     {{ unit.quantity_trained_and_alive|intcomma }}
                     {% if unit.quantity_in_training > 0 %} ({{ unit.quantity_in_training|intcomma }}){% endif %}
@@ -100,7 +101,7 @@
     </button>
 </form>
 
-<div class="mt-8 u-flex u-flex-column max-w-sm card bg-gray-900 p-1">
+<div class="mt-8 u-flex u-flex-column max-w-md card bg-gray-900 p-1">
     <div class="">
         <h6 class="u-center text-light">Units returning from battle</h6>
     </div>
@@ -148,7 +149,7 @@
     </div>
 </div>
 
-<div class="mt-4 u-flex u-flex-column max-w-sm card bg-gray-900 p-1">
+<div class="mt-4 u-flex u-flex-column max-w-md card bg-gray-900 p-1">
     <div>
         <h6 class="u-center text-light">Incoming acres</h6>
     </div>
@@ -194,7 +195,7 @@
     </div>
 </div>
 
-<div class="mt-4 u-flex u-flex-column max-w-sm card bg-gray-900 p-1">
+<div class="mt-4 u-flex u-flex-column max-w-md card bg-gray-900 p-1">
     <div>
         <h6 class="u-center text-light">Units in training</h6>
     </div>
@@ -242,7 +243,7 @@
     </div>
 </div>
 
-<form action="{% url 'submit_release' %}" method="post" class="max-w-sm card bg-red-900 p-1 mt-8">
+<form action="{% url 'submit_release' %}" method="post" class="max-w-md card bg-red-900 p-1 mt-8">
     {% csrf_token %}
     <div class="w-100p u-center u-flex u-flex-column">
         <h6>Release units</h6>
@@ -261,7 +262,7 @@
             {% for unit in units %}
             <tr>
                 {% include "maingame/unit_name_row.html" %}
-                <td class="u-align-middle">{{ unit.op }}/{{ unit.dp }}</td>
+                <td class="u-align-middle">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
                 <td class="u-align-middle">
                     {{ unit.quantity_at_home|intcomma }}
                 </td>

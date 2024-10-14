@@ -170,7 +170,8 @@ def initialize_units():
             "🍞": 1,
             "📜": 1,
         },
-        perk_dict={"random_grudge_book_pages_per_tick": 3}
+        perk_dict={"random_grudge_book_pages_per_tick": 3},
+        is_trainable=False,
     )
 
     Unit.objects.create(
@@ -282,7 +283,7 @@ def initialize_discoveries():
 
     Discovery.objects.create(
         name="Zombies",
-        description="Harvest the bodies of the dead to magically raise them as undead soldiers."
+        description="Gain bodies from invasion casualties of non-magic units and use them to magically raise undead soldiers."
     )
 
     Discovery.objects.create(

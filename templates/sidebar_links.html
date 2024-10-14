@@ -11,6 +11,9 @@
 
 <a href="{% url 'run_tick_view' 1 %}" class="text-light mt-12">RUN TICK</a>
 <a href="{% url 'run_tick_view' 12 %}" class="text-light">RUN TICK x12</a>
+{% if active_player.show_tutorials %}
+<a href="{% url 'tutorial' %}" class="text-light">Tutorial</a>
+{% endif %}
 <div class="form-ext-control pl-0">
     <label class="form-ext-toggle__label u-flex u-flex-row u-gap-2" onclick="location.href = '/toggle_tutorials'">
         <span>Tutorials</span>

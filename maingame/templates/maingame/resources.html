@@ -4,14 +4,25 @@
 {% block title %}Resources{% endblock %}
 
 {% block content %}
-<div class="max-w-sm">
+<div class="max-w-md">
     {% if active_player.is_starving %}
     <div class="u-center">
         <h4 class="font-bold text-red-400">⚠️YOU ARE STARVING⚠️</h4>
     </div>
     {% endif %}
+    {% if active_player.show_tutorials %}
+    <p>
+        This shows your resource generation and consumption. Generally speaking, buildings generate resources and units consume them. Note that if you run out of
+        a resource that's being consumed, you'll lose units until you can afford all of your upkeeps.
+    </p>
+    <p>
+        Additionally, you can trade resources. All things equal, you can trade resources at the same ratio they're produced, but when a trade is made, it shifts
+        the value of resources accordingly. The more a resource is sold, the cheaper it becomes, and the more it's bought, the more expensive it becomes. Keep
+        an eye on the trends of the economy - you might be able to get more of a certain resource by producing something in high demand and trading for it.
+    </p>
+    {% endif %}
     <div class="">
-        <table class="table striped max-w-sm">
+        <table class="table striped max-w-md">
             <thead>
                 <tr>
                     <th>Name</th>
@@ -72,7 +83,7 @@
             </div>
         </form>
 
-        <table class="table striped max-w-sm">
+        <table class="table striped max-w-md">
             <thead>
                 <tr>
                     <th>Name</th>

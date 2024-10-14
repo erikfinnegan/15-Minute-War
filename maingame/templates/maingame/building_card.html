@@ -1,4 +1,6 @@
-<div class="card bg-gray-800 px-2 pb-2 pt-1 u-flex u-flex-column w-48{% if building.quantity > 0 %} u-border-1 u-border-gray-700{% endif %}">
+{% load humanize %}
+
+<div class="card bg-gray-800 px-2 pb-2 pt-1 u-flex u-flex-column w-64{% if building.quantity > 0 %} u-border-1 u-border-gray-700{% endif %}">
     <div class="u-flex u-justify-space-between">
         <span class="text-xl">{{ building.name|title }}</span>
         {% if building.quantity == 0 %}
@@ -13,7 +15,9 @@
         <span class="u-align-middle mr-2">{{ building.description }}</span>
         {% if show_upgrades %}
         <a href="{% url 'upgrade_building' building.id %}">
-            <button class="btn-dark px-1 py-0" {% if spell.mana_cost < mana_quantity %}disabled{% endif %}>Upgrade: {{ building.upgrade_cost }}📜</button>
+            <button class="btn-dark px-1 py-0" {% if building.upgrade_cost > research_points_available %}disabled{% endif %}>
+                Upgrade: {{ building.upgrade_cost|intcomma }}📜
+            </button>
         </a>
         {% elif building.is_buildable %}
         <input type="number" class="w-16" name="build_{{ building.id }}" />

@@ -56,9 +56,14 @@ def buildings(request):
         player = Player.objects.get(associated_user=request.user)
     except:
         return redirect("register")
+    
+    primary_resource = Resource.objects.get(ruler=player, name=player.building_primary_resource_name)
+    secondary_resource = Resource.objects.get(ruler=player, name=player.building_secondary_resource_name)
 
     context = {
         "buildings": Building.objects.filter(ruler=player),
+        "primary_resource": primary_resource,
+        "secondary_resource": secondary_resource,
     }
     
     return render(request, "maingame/buildings.html", context)
@@ -526,6 +531,11 @@ def overview(request, player_id):
     units = Unit.objects.filter(ruler=player)
     buildings = Building.objects.filter(ruler=player, quantity__gte=1)
     resources = Resource.objects.filter(ruler=player, quantity__gte=1)
+    learned_discoveries = []
+
+    for discovery in Discovery.objects.all():
+        if discovery.name in player.learned_discoveries:
+            learned_discoveries.append(discovery)
 
     if "book_of_grudges" in player.perk_dict and my_player.protection_ticks_remaining == 0 and my_player.id != player_id:
         if str(my_player.id) in player.perk_dict["book_of_grudges"]:
@@ -543,7 +553,9 @@ def overview(request, player_id):
         "buildings": buildings,
         "resources": resources,
         "my_units": my_units,
-        "offense_multiplier": my_player.offense_multiplier + get_grudge_bonus(my_player, player)
+        "offense_multiplier": my_player.offense_multiplier + get_grudge_bonus(my_player, player),
+        "spells": Spell.objects.filter(ruler=player),
+        "learned_discoveries": learned_discoveries,
     }
 
     return render(request, "maingame/overview.html", context)
@@ -571,6 +583,20 @@ def world(request):
     }
 
     return render(request, "maingame/world.html", context)
+
+
+@login_required
+def tutorial(request):
+    try:
+        my_player = Player.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+
+    context = {
+        "asdf": "asdf",
+    }
+
+    return render(request, "maingame/tutorial.html", context)
 
 
 @login_required
@@ -641,8 +667,6 @@ def submit_invasion(request, player_id):
         attacker_victory = True
         target_player.complacency = 0
         target_player.save()
-        my_player.complacency = int(my_player.complacency / 2)
-        my_player.save()
 
         if "book_of_grudges" in target_player.perk_dict:
             if str(my_player.id) in target_player.perk_dict["book_of_grudges"]:
@@ -697,6 +721,8 @@ def submit_invasion(request, player_id):
         offensive_survival = 0.85
         defensive_survival = 0.98
 
+    total_casualties = 0
+
     # Apply offensive casualties and return the survivors home
     for unit_details_dict in units_sent_dict.values():
         unit = unit_details_dict["unit"]
@@ -706,12 +732,29 @@ def submit_invasion(request, player_id):
         if "always_dies_on_offense" in unit.perk_dict:
             survivors = 0
 
+        if "🔮" not in unit.upkeep_dict and "🔮" not in unit.cost_dict:
+            total_casualties += (quantity_sent - survivors)
+
         unit.returning_dict["12"] += survivors
         unit.save()
 
     # Apply defensive casualties
     for unit in Unit.objects.filter(ruler=target_player):
-        unit.quantity_at_home = math.ceil(unit.quantity_at_home * defensive_survival)
+        survivors = math.ceil(unit.quantity_at_home * defensive_survival)
+
+        if "🔮" not in unit.upkeep_dict and "🔮" not in unit.cost_dict:
+            total_casualties += (unit.quantity_at_home - survivors)
+
+        unit.quantity_at_home = survivors
         unit.save()
+
+    if attacker_victory and Resource.objects.filter(ruler=my_player, icon="🪦").exists():
+        my_bodies = Resource.objects.get(ruler=my_player, icon="🪦")
+        my_bodies.quantity += total_casualties
+        my_bodies.save()
+    elif not attacker_victory and Resource.objects.filter(ruler=target_player, icon="🪦").exists():
+        targets_bodies = Resource.objects.get(ruler=target_player, icon="🪦")
+        targets_bodies.quantity += total_casualties
+        targets_bodies.save()
 
     return redirect("overview", player_id=player_id)

@@ -21,7 +21,7 @@
 
     <div>
         <label for="timezoneChoice">Select your time zone</label>
-        <div class="max-w-sm u-flex-grow-1 my-auto">
+        <div class="max-w-md u-flex-grow-1 my-auto">
             <select id="tom-select-it" name="timezone">
                 {% for timezone in timezones %}
                 <option {% if timezone == active_player.timezone %}selected{% endif %}>{{ timezone }}</option>

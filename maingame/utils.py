@@ -164,6 +164,7 @@ def unlock_discovery(player: Player, discovery_name):
         return
     
     player.available_discoveries.remove(discovery_name)
+    player.learned_discoveries.append(discovery_name)
 
     for unlocked_discovery in Discovery.objects.filter(requirement=discovery_name):
         player.available_discoveries.append(unlocked_discovery.name)
@@ -176,7 +177,7 @@ def unlock_discovery(player: Player, discovery_name):
         case "Bastion":
             give_player_unit(player, Unit.objects.get(ruler=None, name="Bastion"))
         case "Zombies":
-            give_player_unit(player, Unit.objects.get(ruler=None, name="Zombies"))
+            give_player_unit(player, Unit.objects.get(ruler=None, name="Zombie"))
         case "Butcher":
             print("Implement spells, silly")
         case "Archmagus":
