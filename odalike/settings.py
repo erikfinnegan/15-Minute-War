@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-=(e95jdntvp&2g!l_mctd==c$6l#+84txnms#14zao(#9^tnog
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG') == "True"
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "137.184.134.18", ".15minutewar.com", "15minutewar.com"]
+ALLOWED_HOSTS = [*]
 
 LOGIN_REDIRECT_URL = "/regions"
 LOGOUT_REDIRECT_URL = "/"
