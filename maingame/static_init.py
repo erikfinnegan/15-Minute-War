@@ -258,7 +258,7 @@ def initialize_units():
 def initialize_spells():
     Spell.objects.create(
         name="Power Overwhelming",
-        description="Double the offensive power of 20% of your units that have higher OP than DP and no mana upkeep, but they'll gain a hefty mana upkeep equal to 10% of their new OP.",
+        description="Double the offensive power of 20% of your units that have higher OP than DP and no mana upkeep, but they'll gain a hefty mana upkeep equal to 20% of their new OP.",
         mana_cost_per_acre=20,
         is_starter=True,
     )

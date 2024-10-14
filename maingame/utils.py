@@ -224,19 +224,20 @@ def cast_spell(spell: Spell):
                     try:
                         overwhelming_unit = Unit.objects.get(ruler=player, name=f"Overwhelming {unit.name}")
                     except:
-                        overwhelming_unit = unit
+                        overwhelming_unit = Unit.objects.get(id=unit.id)  # If I set it to 'unit' then it fucks up
                         overwhelming_unit.pk = None
                         overwhelming_unit.name = f"Overwhelming {unit.name}"
                         overwhelming_unit.op *= 2
                         overwhelming_unit.quantity = 0
-                        overwhelming_unit_upkeep = overwhelming_unit.op / 10
+                        overwhelming_unit.is_trainable = False
+                        overwhelming_unit.cost_dict = {}
+                        overwhelming_unit_upkeep = overwhelming_unit.op / 5
 
                         if overwhelming_unit_upkeep == int(overwhelming_unit_upkeep):
                             overwhelming_unit_upkeep = int(overwhelming_unit_upkeep)
 
                         overwhelming_unit.upkeep_dict[mana.icon] = overwhelming_unit_upkeep
                         
-
                     overwhelming_quantity = int(unit.quantity * 0.2)
                     overwhelming_unit.quantity += overwhelming_quantity
                     unit.quantity -= overwhelming_quantity
