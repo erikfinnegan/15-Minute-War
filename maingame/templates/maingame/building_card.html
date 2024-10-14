@@ -13,7 +13,7 @@
         <span class="u-align-middle mr-2">{{ building.description }}</span>
         {% if show_upgrades %}
         <a href="{% url 'upgrade_building' building.id %}">
-            <button class="btn-dark px-1 py-0" {% if spell.mana_cost < mana_quantity %}disabled{% endif %}>Upgrade: {{ spell.mana_cost }}🔮</button>
+            <button class="btn-dark px-1 py-0" {% if spell.mana_cost < mana_quantity %}disabled{% endif %}>Upgrade: {{ building.upgrade_cost }}📜</button>
         </a>
         {% elif building.is_buildable %}
         <input type="number" class="w-16" name="build_{{ building.id }}" />

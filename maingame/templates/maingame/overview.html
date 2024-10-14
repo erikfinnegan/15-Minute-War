@@ -4,7 +4,16 @@
 {% block title %}Overview{% endblock %}
 
 {% block content %}
+
 <div class="u-flex u-flex-column u-gap-4">
+    {% if active_player.show_tutorials %}
+        <div>
+            <p>
+                This shows just about everything about this dominion at a glance. If you and this dominion are both out of protection, it also has
+                the interface for invading them.
+            </p>
+        </div>
+    {% endif %}
     <div>
         <h6>{{ player.name }}</h6>
         <h6>{{ player.acres }} acres</h6>
@@ -142,16 +151,18 @@
             <thead>
                 <tr>
                     <th>Unit</th>
-                    <th>Quantity</th>
                     <th>Pwr</th>
+                    <th>Quantity (Training)</th>
+                    <th>Quantity at home</th>
                 </tr>
             </thead>
             <tbody>
                 {% for unit in units %}
                     <tr>
-                        <th class="u-align-middle {% if unit.has_perks %}tooltip tooltip--right{% endif %}" data-tooltip="{{ unit.perk_text }}">{{ unit.name|title }}</th>
-                        <td>{{ unit.quantity|intcomma }} {% if unit.quantity_in_training > 0 %} ({{ unit.quantity_in_training|intcomma }}){% endif %}</td>
+                        {% include "maingame/unit_name_row.html" %}
                         <td class="u-align-middle">{{ unit.op }}/{{ unit.dp }}</td>
+                        <td>{{ unit.quantity_trained_and_alive|intcomma }} {% if unit.quantity_in_training > 0 %} ({{ unit.quantity_in_training|intcomma }}){% endif %}</td>
+                        <td class="u-align-middle">{{ unit.quantity_at_home|intcomma }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -165,6 +176,7 @@
                     <th>Building</th>
                     <th>Quantity</th>
                     <th>Percent</th>
+                    <th>Upgrades</th>
                     <th>Description</th>
                 </tr>
             </thead>
@@ -174,6 +186,7 @@
                         <th class="u-align-middle">{{ building.name|title }}</th>
                         <td class="u-align-middle">{{ building.quantity|intcomma }}</td>
                         <td class="u-align-middle">{{ building.percent }}%</th>
+                        <td class="u-align-middle">{{ building.upgrades }}</th>
                         <td class="u-align-middle">{{ building.description }}</td>
                     </tr>
                 {% endfor %}

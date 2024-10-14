@@ -5,8 +5,21 @@
 {% block title %}Army training{% endblock %}
 
 {% block content %}
+
 <form action="{% url 'submit_training' %}" method="post" class="max-w-sm">
     {% csrf_token %}
+    {% if active_player.show_tutorials %}
+    <p>
+        Train units to defend your dominion and attack others. Units cost resources to train and will arrive after 12 ticks. Once a unit is trained,
+        their upkeep cost must be paid each tick. If a unit's upkeep can't be paid, you'll lose 1% of your current stock of that unit each tick until you can
+        afford it.
+    </p>
+    <p>Clicking the max button or the unit or upkeep cost will fill in the maximum you can afford into the input field. Some units can't be trained.</p>
+    <p>
+        Some units have special perks. These are marked by an asterisk after the unit name and the description can be seen by mousing over the name (desktop)
+        or tapping on the name (mobile).
+    </p>
+    {% endif %}
     <div class="w-100p u-center">
         <h6>Train units</h6>
     </div>
@@ -23,10 +36,20 @@
         </thead>
         <tbody>
             {% for unit in units %}
+            <div class="modal bg-gray-900 w-32 h-24 u-center u-align-middle my-auto" id="test-modal">
+                <div class="modal-header u-flex u-flex-column u-justify-space-between">
+                    <p>{{ unit.perk_text }}</p>
+                    <a href="#anchor-to-background" aria-label="Close">
+                        <button class="btn-light w-16 h-6 p-0 u-center" type="submit">
+                            <span class="font-bold">Close</span>
+                        </button>
+                    </a>
+                </div>
+            </div>
             <tr>
                 {% include "maingame/unit_name_row.html" %}
-                <td class="u-align-middle" onclick="trainMax('{{ unit.id }}', '{{ unit.max_affordable }}')">{{ unit.op }}/{{ unit.dp }}</td>
-                <td class="u-align-middle" onclick="trainMax('{{ unit.id }}', '{{ unit.max_affordable }}')">
+                <td class="u-align-middle">{{ unit.op }}/{{ unit.dp }}</td>
+                <td class="u-align-middle">
                     {{ unit.quantity_trained_and_alive|intcomma }}
                     {% if unit.quantity_in_training > 0 %} ({{ unit.quantity_in_training|intcomma }}){% endif %}
                 </td>

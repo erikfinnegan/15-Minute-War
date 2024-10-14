@@ -1,1 +1,14 @@
-<th class="u-align-middle {% if unit.has_perks %}tooltip tooltip--right{% endif %}" data-tooltip="{{ unit.perk_text }}">{{ unit.name|title }}</th>
+<style>
+    [data-tooltip]:hover::after {
+        display: block;
+        position: absolute;
+        content: attr(data-tooltip);
+        border: 1px solid black;
+        background: #111;
+        padding: .25em;
+    }
+</style>
+
+<td class="u-align-middle {% if unit.has_perks %}text-yellow-200{% endif %}" {% if unit.has_perks %}data-tooltip="{{ unit.perk_text }}"{% endif %}>
+    {{ unit.name|title }}
+</td>

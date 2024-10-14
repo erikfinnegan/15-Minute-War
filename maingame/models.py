@@ -347,10 +347,15 @@ class Unit(models.Model):
     
     @property
     def perk_text(self):
+        perk_text = ""
+
         if "no_food" in self.perk_dict:
-            return "Consumes no food"
+            perk_text += "Consumes no food. "
         
-        return ""
+        if "surplus_research_consumed_to_add_one_op_and_dp" in self.perk_dict:
+            perk_text += f"Consumes 10% of your surplus research points each tick to gain 1 OP and DP per {self.perk_dict['surplus_research_consumed_to_add_one_op_and_dp']} consumed. "
+        
+        return perk_text
     
     @property
     def has_perks(self):
