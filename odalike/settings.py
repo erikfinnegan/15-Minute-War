@@ -31,7 +31,9 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-=(e95jdntvp&2g
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "137.184.134.18", ".15minutewar.com", "15minutewar.com"]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "137.184.134.18", ".15minutewar.com", "15minutewar.com", "15minutewar.pythonanywhere.com"]
+
+CSRF_TRUSTED_ORIGINS = ["https://15minutewar.pythonanywhere.com"]
 
 LOGIN_REDIRECT_URL = "/regions"
 LOGOUT_REDIRECT_URL = "/"
