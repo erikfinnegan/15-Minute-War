@@ -324,6 +324,18 @@ def initialize_trade_prices():
 
 
 def initialize_game_pieces():
+    print()
+    print("-- PLAYERS --")
+
+    for player in Player.objects.all():
+        print(player)
+
+    print()
+    print("-- EVENTS --")
+
+    for event in Event.objects.all():
+        print(event)
+
     Resource.objects.all().delete()
     Battle.objects.all().delete()
     Event.objects.all().delete()
@@ -336,6 +348,19 @@ def initialize_game_pieces():
     Player.objects.all().delete()
     Deity.objects.all().delete()
     Round.objects.create()
+
+    print()
+    print("After delete players")
+
+    for player in Player.objects.all():
+        print(player)
+
+    print("After delete events")
+
+    for event in Event.objects.all():
+        print(event)
+
+    print()
 
     initialize_discoveries()
     initialize_factions()
