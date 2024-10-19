@@ -31,4 +31,5 @@ urlpatterns = [
     path("spells/<int:spell_id>", views.submit_spell, name="submit_spell"),
     path("toggle_tutorials", views.toggle_tutorials, name="toggle_tutorials"),
     path("tutorial", views.tutorial, name="tutorial"),
+    path("battle_report/<int:battle_id>", views.battle_report, name="battle_report"),
 ]

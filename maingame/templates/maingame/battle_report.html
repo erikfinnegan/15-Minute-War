@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Battle Report{% endblock %}
+
+{% block content %}
+<div>
+    <h4>{{ battle.event_text }}</h4>
+
+    <div class="u-flex u-flex-row u-gap-4">
+        <div class="">
+            <p class="u-center">{{ battle.op|intcomma }} OP</p>
+            <table class="table striped u-border-1">
+                {% for name, quantity in units_sent_dict.items %}
+                <tr>
+                    <td>{{ name|title }}</td>
+                    <td>{{ quantity|intcomma }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <span>VS.</span>
+
+        <div class="">
+            <p class="u-center">{{ battle.dp|intcomma }} DP</p>
+            <table class="table striped u-border-1">
+                {% for name, quantity in units_defending_dict.items %}
+                    <tr>
+                        <td>{{ name|title }}</td>
+                        <td>{{ quantity|intcomma }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

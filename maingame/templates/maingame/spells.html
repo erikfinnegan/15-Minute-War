@@ -16,7 +16,7 @@
         <span>{{ spell.mana_cost_per_acre }} 🔮/acre</span>
         <span>{{ spell.description }}</span>
         <a href="{% url 'submit_spell' spell.id %}">
-            <button class="btn-dark px-1 py-0" {% if mana_quantity < spell.mana_cost %}disabled{% endif %}>Cast: {{ spell.mana_cost }}🔮</button>
+            <button class="btn-dark px-1 py-0" {% if mana_quantity < spell.mana_cost %}disabled{% endif %}>Cast: {{ spell.mana_cost|intcomma }}🔮</button>
         </a>
     </div>
     {% endfor %}

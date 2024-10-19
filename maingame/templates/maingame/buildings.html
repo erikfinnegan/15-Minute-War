@@ -13,7 +13,10 @@
     <p>You can construct one building per acre. If you have fewer than that, the available space is referred to as "barren" acres.</p>
     {% endif %}
     <h6>{{ active_player.barren_acres}} barren acres</h6>
-    <p>Buildings cost {{ active_player.building_primary_cost }}{{ primary_resource.icon }} and {{ active_player.building_secondary_cost }}{{ secondary_resource.icon }}</p>
+    <p>
+        Buildings cost {{ active_player.building_primary_cost }}{{ primary_resource.icon }} and 
+        {{ active_player.building_secondary_cost }}{{ secondary_resource.icon }}. You can build {{ max_buildable }}.
+    </p>
     <form action="{% url 'submit_building' %}" method="post" class="">
         {% csrf_token %}
 

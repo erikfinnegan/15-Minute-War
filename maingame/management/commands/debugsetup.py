@@ -33,6 +33,8 @@ class Command(BaseCommand):
 
         testuser = User.objects.get(username="test")
         testplayer = initialize_player(user=testuser, faction=Faction.objects.get(name="dwarf"), display_name="ERIKTEST")
+        testplayer.protection_ticks_remaining = 0
+        testplayer.save()
 
         for building in Building.objects.filter(ruler=testplayer):
             building.quantity = 20

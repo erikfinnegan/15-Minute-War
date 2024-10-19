@@ -18,7 +18,15 @@
                 <th class="u-align-middle">{{ event.event.timestamp|timezone:active_player.timezone }}</th>
                 <th class="u-align-middle">{{ event.event.icon }}</th>
                 <th class="u-align-middle">{{ event.event }}</th>
-                <th class="u-align-middle">{{ event.event.extra_text }}</th>
+                <th class="u-align-middle">
+                    {% if event.event.reference_type == "battle" %}
+                    <a href="{% url 'battle_report' event.event.reference_id %}">
+                        <button class="py-0">Info</button>
+                    </a>
+                    {% else %}
+                    {{ event.event.extra_text }}
+                    {% endif %}
+                </th>
             </tr>
             {% endfor %}
         </tbody>

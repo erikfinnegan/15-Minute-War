@@ -60,10 +60,13 @@ def buildings(request):
     primary_resource = Resource.objects.get(ruler=player, name=player.building_primary_resource_name)
     secondary_resource = Resource.objects.get(ruler=player, name=player.building_secondary_resource_name)
 
+    max_affordable = int(min(primary_resource.quantity / player.building_primary_cost, secondary_resource.quantity / player.building_secondary_cost))
+
     context = {
         "buildings": Building.objects.filter(ruler=player),
         "primary_resource": primary_resource,
         "secondary_resource": secondary_resource,
+        "max_buildable": min(player.barren_acres, max_affordable),
     }
     
     return render(request, "maingame/buildings.html", context)
@@ -471,6 +474,35 @@ def protection_tick(request, quantity):
 
 
 @login_required
+def battle_report(request, battle_id):
+    try:
+        player = Player.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    battle = Battle.objects.get(id=battle_id)
+
+    units_sent_dict = {}
+    units_defending_dict = {}
+
+    for unit_id, quantity in battle.units_sent_dict.items():
+        unit = Unit.objects.get(id=unit_id)
+        units_sent_dict[unit.name] = quantity
+
+    for unit_id, quantity in battle.units_defending_dict.items():
+        unit = Unit.objects.get(id=unit_id)
+        units_defending_dict[unit.name] = quantity
+
+    context = {
+        "battle": battle,
+        "units_sent_dict": units_sent_dict,
+        "units_defending_dict": units_defending_dict,
+    }
+
+    return render(request, "maingame/battle_report.html", context)
+
+
+@login_required
 def news(request):
     TIMEZONES_CHOICES = [tz for tz in zoneinfo.available_timezones()]
     try:
@@ -678,12 +710,26 @@ def submit_invasion(request, player_id):
     else:
         attacker_victory = False
 
+    battle_units_sent_dict = {}
+    battle_units_defending_dict = {}
+
+    for unit_id, data in units_sent_dict.items():
+        battle_units_sent_dict[unit_id] = data["quantity_sent"]
+
+    for unit in Unit.objects.filter(ruler=target_player):
+        if unit.quantity_at_home > 0:
+            battle_units_defending_dict[str(unit.id)] = unit.quantity_at_home
+    
+    print(battle_units_defending_dict)
+
     battle = Battle.objects.create(
         attacker=my_player,
         defender=target_player,
         winner=my_player if attacker_victory else target_player,
         op=offense_sent,
         dp=target_player.defense,
+        units_sent_dict=battle_units_sent_dict,
+        units_defending_dict=battle_units_defending_dict,
     )
 
     event = Event.objects.create(
@@ -757,4 +803,4 @@ def submit_invasion(request, player_id):
         targets_bodies.quantity += total_casualties
         targets_bodies.save()
 
-    return redirect("overview", player_id=player_id)
+    return redirect("battle_report", battle_id=battle.id)

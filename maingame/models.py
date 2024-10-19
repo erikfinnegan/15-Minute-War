@@ -302,6 +302,9 @@ class Building(models.Model):
         
         return round(percent, 2)
     
+    def max_x_or_self_quantity(self, x):
+        return max(x, self.quantity)
+    
 
 class Unit(models.Model):
     ruler = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
@@ -410,7 +413,8 @@ class Battle(models.Model):
     attacker = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, related_name="battles_attacked")
     defender = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, related_name="battles_defended")
     winner = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, related_name="battles_won")
-    units_involved_dict = models.JSONField(default=dict, null=True, blank=True)
+    units_sent_dict = models.JSONField(default=dict, null=True, blank=True)
+    units_defending_dict = models.JSONField(default=dict, null=True, blank=True)
     casualties_dict = models.JSONField(default=dict, null=True, blank=True)
     op = models.IntegerField(default=0)
     dp = models.IntegerField(default=0)
@@ -422,7 +426,7 @@ class Battle(models.Model):
             return f"{self.winner} invaded {self.defender} and conquered {self.acres_conquered:2,} acres, plus {self.acres_conquered:2,} more from surrounding areas"
         else:
             return f"{self.winner} repelled an attack from {self.attacker}"
-
+        
 
 class Event(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
