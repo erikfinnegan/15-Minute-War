@@ -98,6 +98,7 @@ def initialize_factions():
         building_primary_resource_name="gold",
         building_secondary_resource_name="wood",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"]
+        description="""This is a placeholder created during prototyping. None of the costs are balanced and they don't have any unique mechanics."""
     )
 
     Faction.objects.create(
@@ -299,11 +300,11 @@ def initialize_discoveries():
         description="Gain bodies from invasion casualties of non-magic units and use them to magically raise undead soldiers."
     )
 
-    Discovery.objects.create(
-        name="Butcher",
-        requirement="Zombies",
-        description="Learn a terrifying ritual to slaughter a portion of your army for bodies."
-    )
+    # Discovery.objects.create(
+    #     name="Butcher",
+    #     requirement="Zombies",
+    #     description="Learn a terrifying ritual to slaughter a portion of your army for bodies."
+    # )
 
     Discovery.objects.create(
         name="Archmagus",
