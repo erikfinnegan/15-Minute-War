@@ -1,32 +1,48 @@
-
-
 <div class="u-absolute u-relative-md" id="linkParent" style="z-index: 10;">
     <a class="text-light icon bg-red-800 h-12 u-flex u-center u-none-md" onclick="toggleMenu()">
         <i class="fa fa-bars text-xl pl-1"></i>
     </a>
+
     <div class="u-none" id="links">
+        <span id="time" class="u-center">Time goes here</span>
         {% include "sidebar_links.html" %}
     </div>
     
     <script>
-    function toggleMenu() {
-        var links = document.getElementById("links");
+        function toggleMenu() {
+            var links = document.getElementById("links");
+            const baseTopNavClasses = "bg-dark w-100p h-100p text-xl u-center "
 
-        const baseTopNavClasses = "bg-dark w-100p h-100p text-xl u-center "
-
-        if (links.className.includes("u-none")) {
-            links.className = baseTopNavClasses + "u-flex u-flex-column u-absolute";
-            linkParent.className = ""
-        } else {
-            links.className = baseTopNavClasses + "u-none";
-            linkParent.className = "u-absolute u-relative-md"
+            if (links.className.includes("u-none")) {
+                links.className = baseTopNavClasses + "u-flex u-flex-column u-absolute";
+                linkParent.className = ""
+            } else {
+                links.className = baseTopNavClasses + "u-none";
+                linkParent.className = "u-absolute u-relative-md"
+            }
         }
-    }
     </script>
 
     <div class="u-none u-block-md min-h-screen h-100p pt-12 px-4 w-24 bg-red-800">
+        <span id="time" class="u-center">Time goes here</span>
         <div class="u-flex-md u-flex-column u-center">
             {% include "sidebar_links.html" %}
         </div>
     </div>
+
+    <script>
+        function getTime() {
+            let d = new Date()
+            let h = `${d.getHours()}`.padStart(2, '0')
+            let m = `${d.getMinutes()}`.padStart(2, '0')
+            let s = `${d.getSeconds()}`.padStart(2, '0')
+            return h + ":" + m + ":" + s
+        }
+
+        document.getElementById('time').innerHTML = getTime();
+
+        setInterval(() => {
+            document.getElementById('time').innerHTML = getTime();
+        }, 1000);
+    </script>
 </div>

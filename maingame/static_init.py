@@ -97,7 +97,7 @@ def initialize_factions():
         primary_resource_per_acre="50",
         building_primary_resource_name="gold",
         building_secondary_resource_name="wood",
-        starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"]
+        starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"],
         description="""This is a placeholder created during prototyping. None of the costs are balanced and they don't have any unique mechanics."""
     )
 
