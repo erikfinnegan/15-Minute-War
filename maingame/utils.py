@@ -87,6 +87,8 @@ def initialize_player(user: User, faction: Faction, display_name, timezone="UTC"
     primary_building_resource = Resource.objects.get(ruler=player, name=player.building_primary_resource_name)
     primary_building_resource.quantity = player.acres * player.building_primary_cost
     primary_building_resource.save()
+    player.last_bought_resource_name = primary_building_resource.name
+    player.last_sold_resource_name = primary_building_resource.name
 
     secondary_building_resource = Resource.objects.get(ruler=player, name=player.building_secondary_resource_name)
     secondary_building_resource.quantity = player.acres * player.building_secondary_cost
@@ -104,6 +106,13 @@ def initialize_player(user: User, faction: Faction, display_name, timezone="UTC"
     create_faction_perk_dict(player, faction)
 
     return player
+
+
+def abandon_player(player: Player):
+    print("Abandoning", player)
+    player.is_abandoned = True
+    player.associated_user = None
+    player.save()
 
 
 def get_trade_value(resource_name):

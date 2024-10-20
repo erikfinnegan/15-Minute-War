@@ -1,6 +1,6 @@
 {% load humanize %}
 
-<div class="card bg-gray-900 px-2 pb-2 pt-1 u-flex u-flex-column w-64{% if building.quantity > 0 %} u-border-1 u-border-gray-700{% endif %}">
+<div class="card card_bgcolor px-2 pb-2 pt-1 u-flex u-flex-column w-64{% if building.quantity > 0 %} u-border-1 u-border-gray-700{% endif %}">
     <div class="u-flex u-justify-space-between">
         <span class="text-xl">{{ building.name|title }}</span>
         {% if building.quantity == 0 %}

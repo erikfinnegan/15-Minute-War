@@ -33,4 +33,6 @@ urlpatterns = [
     path("tutorial", views.tutorial, name="tutorial"),
     path("battle_report/<int:battle_id>", views.battle_report, name="battle_report"),
     path("faction_info", views.faction_info, name="faction_info"),
+    path("options", views.options, name="options"),
+    path("submit_options", views.submit_options, name="submit_options"),
 ]

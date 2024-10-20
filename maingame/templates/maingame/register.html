@@ -12,7 +12,7 @@
     
     <div>
         <label for="factionChoice">Select a faction</label>
-        <select class="bg-dark text-light" name="factionChoice">
+        <select class="base_bgcolor my_textcolor" name="factionChoice">
             {% for faction in factions %}
             <option>{{ faction.name|title }}</option>
             {% endfor %}

@@ -24,6 +24,8 @@ class Player(models.Model):
     complacency = models.IntegerField(default=0)
     has_tick_units = models.BooleanField(default=False)
     show_tutorials = models.BooleanField(default=True)
+    dark_mode = models.BooleanField(default=False)
+    is_abandoned = models.BooleanField(default=False)
 
     acres = models.IntegerField(default=100)
     incoming_acres_dict = models.JSONField(default=dict, blank=True)
@@ -232,7 +234,6 @@ class Player(models.Model):
 
                     self.perk_dict["book_of_grudges"][str(player.id)]["animosity"] = round(self.perk_dict["book_of_grudges"][str(player.id)]["animosity"], rounding)
 
-
     def do_tick(self):
         self.do_resource_production()
         self.advance_land_returning()
@@ -381,7 +382,8 @@ class Unit(models.Model):
         perk_text = ""
         
         if "surplus_research_consumed_to_add_one_op_and_dp" in self.perk_dict:
-            perk_text += f"Consumes 10% of your surplus research points each tick to gain 1 OP and DP per {self.perk_dict['surplus_research_consumed_to_add_one_op_and_dp']} consumed. "
+            perk_text += f"""Consumes 10% of any research points beyond your most expensive upgrade each tick. Gains 1 OP and 1 DP per  
+            {self.perk_dict['surplus_research_consumed_to_add_one_op_and_dp']} consumed"""
 
         if "random_grudge_book_pages_per_tick" in self.perk_dict:
             pages_per_tick = self.perk_dict["random_grudge_book_pages_per_tick"]

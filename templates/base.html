@@ -22,7 +22,33 @@
 		<meta property="og:type" content="website">
 	</head>
 
-	<body class="bg-dark text-light h-full">
+    <style>
+        .base_bgcolor {
+            {% if active_player.dark_mode %}
+            background: #363636
+            {% else %}
+            background: white
+            {% endif %}
+        }
+
+        .card_bgcolor {
+            {% if active_player.dark_mode %}
+            background: #181818
+            {% else %}
+            background: white
+            {% endif %}
+        }
+
+        .my_textcolor {
+            {% if active_player.dark_mode %}
+            color: white
+            {% else %}
+            color: black
+            {% endif %}
+        }
+    </style>
+
+	<body class="base_bgcolor my_textcolor h-full">
         <div class="u-flex u-flex-row">
             {% include "sidebar.html" %}
             <div class="u-flex-grow-1">

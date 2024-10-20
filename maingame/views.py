@@ -11,7 +11,7 @@ from django.db.models import Q
 from maingame.formatters import create_or_add_to_key
 from maingame.models import Building, Player, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell
 from maingame.tick_processors import do_global_tick
-from maingame.utils import get_grudge_bonus, initialize_player, prune_buildings, unlock_discovery, update_trade_prices, cast_spell
+from maingame.utils import abandon_player, get_grudge_bonus, initialize_player, prune_buildings, unlock_discovery, update_trade_prices, cast_spell
 
 
 def index(request):
@@ -643,6 +643,34 @@ def world(request):
 
 
 @login_required
+def options(request):
+    try:
+        player = Player.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    return render(request, "maingame/options.html")
+
+
+@login_required
+def submit_options(request):
+    try:
+        player = Player.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    if "abandon" in request.POST and request.POST["confirm_abandon"] == "DELETE ME FOREVER":
+        print("ABANDON TIME")
+        abandon_player(player)
+    
+    player.show_tutorials = "show_tutorials" in request.POST
+    player.dark_mode = "dark_mode" in request.POST
+    player.save()
+
+    return redirect("options")
+
+
+@login_required
 def tutorial(request):
     try:
         my_player = Player.objects.get(associated_user=request.user)
@@ -790,7 +818,12 @@ def submit_invasion(request, player_id):
             my_player.save()
     else:
         offensive_survival = 0.85
-        defensive_survival = 0.98
+
+        # If you're not close, then no casualties
+        if offense_sent < target_player.defense / 2:
+            defensive_survival = 1
+        else:
+            defensive_survival = 0.98
 
     total_casualties = 0
 

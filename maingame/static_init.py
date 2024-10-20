@@ -308,7 +308,8 @@ def initialize_discoveries():
 
     Discovery.objects.create(
         name="Archmagus",
-        description="Gain the allegiance of a terrifyingly powerful sorcerer who will consume 10% of your surplus research points each tick to gain 1 OP and DP per 75 consumed."
+        description="""Gain the allegiance of a terrifyingly powerful sorcerer who will, each tick, consume 10% of any research points beyond your most 
+        expensive upgrade to gain 1 OP and DP per 75 consumed."""
     )
 
     Discovery.objects.create(
