@@ -324,9 +324,7 @@ def resources(request):
         resources_dict[resource.icon]["net"] = resources_dict[resource.icon]["produced"] - resources_dict[resource.icon]["consumed"]
 
     update_trade_prices()
-
     trade_price_dict = round.trade_price_dict
-
     trade_price_data = {}
 
     for resource_name, price in trade_price_dict.items():
