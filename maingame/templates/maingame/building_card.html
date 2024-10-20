@@ -21,7 +21,7 @@
         </a>
         {% elif building.is_buildable %}
         
-        {% if max_affordable >= building.quantity %}
+        {% if max_buildable >= building.quantity %}
         <input type="number" class="w-16" name="build_{{ building.id }}" min="0" max="{{ max_buildable }}" />
         {% else %}
         <input type="number" class="w-16" name="build_{{ building.id }}" min="0" max="{{ building.quantity }}" />

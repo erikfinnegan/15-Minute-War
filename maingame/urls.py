@@ -32,4 +32,5 @@ urlpatterns = [
     path("toggle_tutorials", views.toggle_tutorials, name="toggle_tutorials"),
     path("tutorial", views.tutorial, name="tutorial"),
     path("battle_report/<int:battle_id>", views.battle_report, name="battle_report"),
+    path("faction_info", views.faction_info, name="faction_info"),
 ]

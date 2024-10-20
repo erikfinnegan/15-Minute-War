@@ -107,26 +107,29 @@ def initialize_player(user: User, faction: Faction, display_name, timezone="UTC"
 
 
 def get_trade_value(resource_name):
-        this_round = Round.objects.first()
-        total_production = 0
+    this_round = Round.objects.first()
+    total_production = 0
 
-        for player in Player.objects.all():
-            total_production += player.get_production(resource_name)
-        
-        price_modifier = 1
+    for player in Player.objects.all():
+        total_production += player.get_production(resource_name)
+    
+    price_modifier = 1
 
-        if total_production > 0 and resource_name in this_round.resource_bank_dict:
-            price_modifier = 1 + ((this_round.resource_bank_dict[resource_name] / (total_production * 12)) * -0.2)
+    if total_production > 0 and resource_name in this_round.resource_bank_dict:
+        price_modifier = 1 + ((this_round.resource_bank_dict[resource_name] / (total_production * 12)) * -0.2)
 
-        if resource_name == "gold":
-            trade_value = 5 * price_modifier
-        else:
-            building = Building.objects.get(resource_produced_name=resource_name, ruler=None)
-            trade_value = (500 / building.amount_produced) * price_modifier
+    if resource_name == "gold":
+        trade_value = 5 * price_modifier
+    else:
+        building = Building.objects.get(resource_produced_name=resource_name, ruler=None)
+        trade_value = (500 / building.amount_produced) * price_modifier
 
-        trade_value = round(trade_value, 2)
-        
-        return max(1, trade_value)
+    trade_value = round(trade_value, 2)
+
+    if resource_name == "gems":
+        trade_value *= 1.3
+    
+    return max(1, trade_value)
 
 
 def update_trade_prices():
@@ -192,6 +195,8 @@ def unlock_discovery(player: Player, discovery_name):
             grudgestoker.quantity_at_home = 1
             grudgestoker.save()
             player.has_tick_units = True
+        case "Gem Mines":
+            give_player_building(player, Building.objects.get(ruler=None, name="mine"))
 
     player.save()
 
@@ -206,6 +211,18 @@ def give_player_unit(player: Player, unit: Unit):
         create_resource_for_player(resource, player)
 
     return players_unit
+
+
+def give_player_building(player: Player, building: Building):
+    players_building = building
+    players_building.pk = None
+    players_building.ruler = player
+    players_building.save()
+
+    if building.amount_produced > 0:
+        create_resource_for_player(building.resource_produced_name, player)
+
+    return players_building
 
 
 def cast_spell(spell: Spell):

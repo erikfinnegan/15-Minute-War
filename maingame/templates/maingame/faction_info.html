@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Faction Info{% endblock %}
+
+{% block content %}
+<div>
+    <div class="u-flex u-flex-column u-gap-4">
+        {% for faction_dict in factions %}
+        <div class="card bg-gray-900 p-1 max-w-xs">
+            <h6>{{ faction_dict.faction.name|title }}</h6>
+            <table class="table striped">
+                <tr>
+                    <th>Name</th>
+                    <th>Pwr</th>
+                    <th>Upkeep</th>
+                    <th>Cost</th>
+                </tr>
+                {% for unit in faction_dict.units %}
+                <tr>
+                    {% include "maingame/unit_name_row.html" %}
+                    <td class="u-align-middle">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
+                    <td class="u-align-middle">
+                        <div class="u-flex u-flex-column">
+                            {% for resource, amount in unit.upkeep_dict.items %}
+                            <span>{{ amount|intcomma }}{{ resource }}</span>
+                            {% endfor %}
+                        </div>
+                    </td>
+                    <td class="u-align-middle">
+                        <div class="u-flex u-flex-column">
+                            {% for resource, amount in unit.cost_dict.items %}
+                            <span>{{ amount|intcomma }}{{ resource }}</span>
+                            {% endfor %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+            <span>{{ faction_dict.faction.description }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

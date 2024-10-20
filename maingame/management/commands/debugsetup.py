@@ -15,7 +15,7 @@ class Command(BaseCommand):
         initialize_game_pieces()
 
         for user in User.objects.all():
-            if user.username != "test":
+            if user.username != "test" and user.username != "dontplayerme":
                 player = initialize_player(user=user, faction=Faction.objects.get(name="human"), display_name=f"p-{user.username}")
                 farm = Building.objects.get(ruler=player, name="farm")
                 farm.quantity = 10
@@ -34,6 +34,7 @@ class Command(BaseCommand):
         testuser = User.objects.get(username="test")
         testplayer = initialize_player(user=testuser, faction=Faction.objects.get(name="dwarf"), display_name="ERIKTEST")
         testplayer.protection_ticks_remaining = 0
+        testplayer.discovery_points = 5000
         testplayer.save()
 
         for building in Building.objects.filter(ruler=testplayer):

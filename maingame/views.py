@@ -22,6 +22,22 @@ def index(request):
     return render(request, "maingame/index.html", context)
 
 
+def faction_info(request):
+    faction_list = []
+    
+    for faction in Faction.objects.all():
+        faction_list.append({
+            "faction": faction,
+            "units": Unit.objects.filter(ruler=None, faction=faction)
+        })
+
+    context = {
+        "factions": faction_list
+    }
+
+    return render(request, "maingame/faction_info.html", context)
+
+
 def register(request):
     try:
         player = Player.objects.get(associated_user=request.user)

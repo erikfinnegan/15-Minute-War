@@ -29,8 +29,12 @@ def initialize_resources():
             "icon": "🔮",
         },
         {
-            "name": "corpse",
+            "name": "corpses",
             "icon": "🪦",
+        },
+        {
+            "name": "gems",
+            "icon": "💎",
         },
     ]
 
@@ -69,6 +73,11 @@ def initialize_buildings():
             "resource_produced_name": "mana",
             "amount_produced": 10,
         },
+        {
+            "name": "mine",
+            "resource_produced_name": "gems",
+            "amount_produced": 8,
+        },
     ]
 
     for building_template in building_templates:
@@ -97,7 +106,12 @@ def initialize_factions():
         primary_resource_per_acre="50",
         building_primary_resource_name="gold",
         building_secondary_resource_name="wood",
-        starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"]
+        starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"],
+        description="""Dwarves keep a book of grudges, chronicling any slight against them, no matter how minor. When a player invades a dwarf, 100 pages of 
+        grudges are added. Every tick, dwarves gain animosity against each player equal to the number of pages of grudges they have about that player and each
+        point of animosity grants +0.003% offense against them. It doesn't sound like much, but it adds up quick. When a dwarf invades another player, any 
+        grudges and animosity they have against that player are satisfied and cleared. Oh, and simply viewing a dwarf's overview page is enough to warrant one
+        page of grudges."""
     )
 
 
@@ -300,6 +314,11 @@ def initialize_discoveries():
     Discovery.objects.create(
         name="Fireball",
         description="Conjure massive fireballs to support your invasions."
+    )
+
+    Discovery.objects.create(
+        name="Gem Mines",
+        description="Construct a new building to mine for precious gems. When trade values are determined, gems get a +30% bonus."
     )
 
     Discovery.objects.create(

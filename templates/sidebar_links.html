@@ -25,6 +25,8 @@
 </div>
 {% endif %}
 
+<a href="{% url 'faction_info' %}" class="text-light">Faction Info</a>
+
 <form action="{% url 'logout' %}" method="post" class="mt-8">
     {% csrf_token %}
     <div class="u-flex u-flex-column u-gap-0">
