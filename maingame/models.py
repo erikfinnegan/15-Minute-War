@@ -46,6 +46,9 @@ class Player(models.Model):
     available_discoveries = models.JSONField(default=list, blank=True)
     learned_discoveries = models.JSONField(default=list, blank=True)
 
+    last_sold_resource_name = models.CharField(max_length=50, null=True, blank=True)
+    last_bought_resource_name = models.CharField(max_length=50, null=True, blank=True)
+
     def __str__(self):
         return f"{self.name}"
 

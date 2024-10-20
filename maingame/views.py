@@ -341,6 +341,8 @@ def resources(request):
         "resources_dict_json": json.dumps(resources_dict),
         "player_resources_json": json.dumps(player_resource_total_dict),
         "trade_price_json": json.dumps(trade_price_dict),
+        "last_sold_resource_icon": Resource.objects.get(name=player.last_sold_resource_name, ruler=player).icon,
+        "last_bought_resource_icon": Resource.objects.get(name=player.last_bought_resource_name, ruler=player).icon,
     }
 
     return render(request, "maingame/resources.html", context)
@@ -373,6 +375,10 @@ def trade(request):
     round.resource_bank_dict[input_resource.name] += amount
     round.resource_bank_dict[output_resource.name] -= payout
     round.save()
+
+    player.last_sold_resource_name = input_resource.name
+    player.last_bought_resource_name = output_resource.name
+    player.save()
 
     update_trade_prices()
 
