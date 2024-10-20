@@ -4,7 +4,7 @@
     </a>
 
     <div class="u-none" id="links">
-        <span id="time" class="u-center">Time goes here</span>
+        <span id="time-a" class="u-center">Time goes here</span>
         {% include "sidebar_links.html" %}
     </div>
     
@@ -24,7 +24,7 @@
     </script>
 
     <div class="u-none u-block-md min-h-screen h-100p pt-12 px-4 w-24 bg-red-800">
-        <span id="time" class="u-center">Time goes here</span>
+        <span id="time-b" class="u-center">Time goes here</span>
         <div class="u-flex-md u-flex-column u-center">
             {% include "sidebar_links.html" %}
         </div>
@@ -39,10 +39,12 @@
             return h + ":" + m + ":" + s
         }
 
-        document.getElementById('time').innerHTML = getTime();
+        document.getElementById('time-a').innerHTML = getTime();
+        document.getElementById('time-b').innerHTML = getTime();
 
         setInterval(() => {
-            document.getElementById('time').innerHTML = getTime();
+            document.getElementById('time-a').innerHTML = getTime();
+            document.getElementById('time-b').innerHTML = getTime();
         }, 1000);
     </script>
 </div>
