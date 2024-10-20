@@ -4,9 +4,9 @@
 
 {% block content %}
 <div>
-    <form action="{% url 'submit_options' %}" method="post" class="u-flex u-flex-column">
+    <form action="{% url 'submit_options' %}" method="post" class="u-flex u-flex-column u-gap-4">
         {% csrf_token %}
-        <div class="form-ext-control pl-0 w-24">
+        <div class="form-ext-control pl-0 w-12">
             <label class="form-ext-toggle__label u-flex u-flex-row u-gap-2">
                 <span>Tutorials</span>
                 <div class="form-ext-toggle">
@@ -16,20 +16,19 @@
             </label>
         </div>
 
-        <div class="form-ext-control pl-0 w-24">
-            <label class="form-ext-toggle__label u-flex u-flex-row u-gap-2">
-                <span>Dark mode</span>
-                <div class="form-ext-toggle">
-                    <input name="dark_mode" type="checkbox" class="form-ext-input" {% if active_player.dark_mode %}checked{% endif %} />
-                    <div class="form-ext-toggle__toggler"><i></i></div>
-                </div>
-            </label>
+        <div class="u-flex u-flex-column">
+            <label for="theme">Theme</label>
+            <select name="theme" class="w-48">
+                {% for theme in themes %}
+                <option {% if theme == active_player.theme %}selected{% endif %}>{{ theme }}</option>
+                {% endfor %}
+            </select>
         </div>
 
         <div class="form-ext-control pl-0 w-32 mt-8">
             <div class="u-flex u-flex-column">
                 <h6>Abandon</h6>
-                <span>This will delete everything you have and you can re-register</span>
+                <span>You will lose ownership of your dominion and you can re-register with a new one.</span>
             </div>
             <label class="form-ext-toggle__label u-flex u-flex-row w-24 mt-2">
                 <span>Do it</span>
@@ -42,7 +41,7 @@
                 <span class="w-24">Really do it</span>
                 <select name="confirm_abandon">
                     <option></option>
-                    <option>DELETE ME FOREVER</option>
+                    <option>REALLY DO IT</option>
                 </select>
             </label>
         </div>

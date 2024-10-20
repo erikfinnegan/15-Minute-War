@@ -23,32 +23,108 @@
 	</head>
 
     <style>
-        .base_bgcolor {
-            {% if active_player.dark_mode %}
-            background: #363636
-            {% else %}
-            background: white
-            {% endif %}
+        :root {
+        {% if active_player.theme == "Mustard and blue" %}
+            --base_background: #003049;
+            --base_text: white;
+
+            --card_background: #181818;
+            --card_text: #edede9;
+
+            --header_background: #fca311;
+            --header_text: black;
+        {% elif active_player.theme == "Blood and beige" %}
+            --base_background: #fdf0d5;
+            --base_text: black;
+
+            --card_background: #003049;
+            --card_text: white;
+
+            --header_background: #780000;
+            --header_text: white;
+        {% elif active_player.theme == "It's a boy" %}
+            --base_background: #caf0f8;
+            --base_text: black;
+
+            --card_background: #003049;
+            --card_text: white;
+
+            --header_background: #0077b6;
+            --header_text: white;
+        {% elif active_player.theme == "Elesh Norn" %}
+            --base_background: #800020;
+            --base_text: white;
+
+            --card_background: #334149;
+            --card_text: white;
+
+            --header_background: #fffff0;
+            --header_text: black;
+        {% elif active_player.theme == "Swampy" %}
+            --base_background: #59a96a;
+            --base_text: black;
+
+            --card_background: #636940;
+            --card_text: white;
+
+            --header_background: #474a2c;
+            --header_text: white;
+        {% elif active_player.theme == "OpenDominion" %}
+            --base_background: white;
+            --base_text: black;
+
+            --card_background: #ecf0f5;
+            --card_text: black;
+
+            --header_background: #3c8dbc;
+            --header_text: white;
+        {% elif active_player.theme == "ODA" %}
+            --base_background: white;
+            --base_text: black;
+
+            --card_background: #ecf0f5;
+            --card_text: black;
+
+            --header_background: #dd4b39;
+            --header_text: white;
+        {% else %}
+            --base_background: white;
+            --base_text: black;
+
+            --card_background: #ecf0f5;
+            --card_text: black;
+
+            --header_background: #dd4b39;
+            --header_text: white;
+        {% endif %}
         }
 
-        .card_bgcolor {
-            {% if active_player.dark_mode %}
-            background: #181818
-            {% else %}
-            background: white
-            {% endif %}
+        .base_colors {
+            background: var(--base_background);
+            color: var(--base_text);
+            a {
+                color: var(--base_text);
+            }
         }
 
-        .my_textcolor {
-            {% if active_player.dark_mode %}
-            color: white
-            {% else %}
-            color: black
-            {% endif %}
+        .card_colors {
+            background: var(--card_background);
+            color: var(--card_text);
+            a {
+                color: var(--card_text);
+            }
+        }
+
+        .header_colors {
+            background: var(--header_background);
+            color: var(--header_text);
+            a {
+                color: var(--header_text);
+            }
         }
     </style>
 
-	<body class="base_bgcolor my_textcolor h-full">
+	<body class="base_colors h-full">
         <div class="u-flex u-flex-row">
             {% include "sidebar.html" %}
             <div class="u-flex-grow-1">

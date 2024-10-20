@@ -649,7 +649,13 @@ def options(request):
     except:
         return redirect("register")
     
-    return render(request, "maingame/options.html")
+    themes = ["Mustard and blue", "Blood and beige", "It's a boy", "Elesh Norn", "Swampy", "OpenDominion", "ODA"]
+
+    context = {
+        "themes": themes,
+    }
+    
+    return render(request, "maingame/options.html", context)
 
 
 @login_required
@@ -663,6 +669,7 @@ def submit_options(request):
         print("ABANDON TIME")
         abandon_player(player)
     
+    player.theme = request.POST["theme"]
     player.show_tutorials = "show_tutorials" in request.POST
     player.dark_mode = "dark_mode" in request.POST
     player.save()

@@ -1,23 +1,24 @@
 {% if active_player %}
-<a href="{% url 'overview' active_player.id %}" class="text-light">Overview</a>
-<a href="{% url 'resources' %}" class="text-light">Resources</a>
-<a href="{% url 'buildings' %}" class="text-light">Buildings{% if active_player.barren_acres > 0 %} ⚠️{% endif %}</a>
-<a href="{% url 'military' %}" class="text-light">Military</a>
-<a href="{% url 'spells' %}" class="text-light">Spells</a>
-<a href="{% url 'upgrades' %}" class="text-light">Upgrades</a>
-<a href="{% url 'discoveries' %}" class="text-light">Discoveries{% if active_player.discovery_points >= 50 %} 💡{% endif %}</a>
-<a href="{% url 'world' %}" class="text-light">The World</a>
-<a href="{% url 'news' %}" class="text-light">News{% if active_player.has_unread_events > 0 %} ⚠️{% endif %}</a>
+<a href="{% url 'overview' active_player.id %}" class="">Overview</a>
+<a href="{% url 'resources' %}" class="">Resources</a>
+<a href="{% url 'buildings' %}" class="">Buildings{% if active_player.barren_acres > 0 %} ⚠️{% endif %}</a>
+<a href="{% url 'military' %}" class="">Military</a>
+<a href="{% url 'spells' %}" class="">Spells</a>
+<a href="{% url 'upgrades' %}" class="">Upgrades</a>
+<a href="{% url 'discoveries' %}" class="">Discoveries{% if active_player.discovery_points >= 50 %} 💡{% endif %}</a>
+<a href="{% url 'world' %}" class="">The World</a>
+<a href="{% url 'news' %}" class="">News{% if active_player.has_unread_events > 0 %} ⚠️{% endif %}</a>
 
-<a href="{% url 'run_tick_view' 1 %}" class="text-light mt-12">RUN TICK</a>
-<a href="{% url 'run_tick_view' 12 %}" class="text-light">RUN TICK x12</a>
+<a href="{% url 'run_tick_view' 1 %}" class=" mt-12">RUN TICK</a>
+<a href="{% url 'run_tick_view' 12 %}" class="">RUN TICK x12</a>
+
 {% if active_player.show_tutorials %}
-<a href="{% url 'tutorial' %}" class="text-light">Tutorial</a>
+<a href="{% url 'tutorial' %}" class="">Tutorial</a>
 {% endif %}
-<a href="{% url 'options' %}" class="text-light">Options</a>
+<a href="{% url 'options' %}" class="">Options</a>
 {% endif %}
 
-<a href="{% url 'faction_info' %}" class="text-light">Faction Info</a>
+<a href="{% url 'faction_info' %}" class="">Faction Info</a>
 
 <form action="{% url 'logout' %}" method="post" class="mt-8">
     {% csrf_token %}

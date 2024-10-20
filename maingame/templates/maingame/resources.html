@@ -57,13 +57,13 @@
                 <span id="ratioDenominator">1</span>
             </div>
             <div class="u-flex u-flex-row u-gap-2">
-                <select class="w-10 bg-dark text-light" id="inputResource" name="inputResource" oninput="showRatio()">
+                <select class="w-10 header_colors" id="inputResource" name="inputResource" oninput="showRatio()">
                     {% for key, value in resources_dict.items %}
                     <option {% if key == active_player.last_sold_resource_name %} selected{% endif %}>{{ key }}</option>
                     {% endfor %}
                 </select>
                 <input type="range" min="1" max="100" value="0" id="resourceRange" name="resourceAmount" oninput="showCurrentValue()">
-                <select class="w-10 bg-dark text-light" id="outputResource" name="outputResource" oninput="showRatio()">
+                <select class="w-10 header_colors" id="outputResource" name="outputResource" oninput="showRatio()">
                     {% for key, value in resources_dict.items %}
                     <option {% if key == active_player.last_bought_resource_name %} selected{% endif %}>{{ key }}</option>
                     {% endfor %}

@@ -24,7 +24,7 @@ class Player(models.Model):
     complacency = models.IntegerField(default=0)
     has_tick_units = models.BooleanField(default=False)
     show_tutorials = models.BooleanField(default=True)
-    dark_mode = models.BooleanField(default=False)
+    theme = models.CharField(max_length=50, null=True, blank=True, unique=True)
     is_abandoned = models.BooleanField(default=False)
 
     acres = models.IntegerField(default=100)
@@ -196,18 +196,22 @@ class Player(models.Model):
             resource.quantity += self.get_production(resource.name)
             resource.quantity -= self.get_consumption(resource.name)
 
+            self.is_starving = False
+
             if resource.quantity < 0:
+                self.is_starving = True
                 for unit in Unit.objects.filter(ruler=self):
                     if resource.icon in unit.upkeep_dict:
-                        unit.quantity_at_home = int(unit.quantity_at_home * 0.99)
+                        unit.quantity_at_home = math.ceil(unit.quantity_at_home * 0.99)
                         
                         for tick, quantity in unit.returning_dict.items():
-                            unit.returning_dict[tick] = int(quantity * 0.99)
+                            unit.returning_dict[tick] = math.ceil(quantity * 0.99)
 
                         unit.save()
 
             resource.quantity = max(0, resource.quantity)            
             resource.save()
+            self.save()
 
     def advance_land_returning(self):
         for key, value in self.incoming_acres_dict.items():

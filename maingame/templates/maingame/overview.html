@@ -21,7 +21,7 @@
     </div>
 
     {% if player != active_player and player.protection_ticks_remaining == 0 and active_player.protection_ticks_remaining == 0 and round.has_started and not round.has_ended %}
-    <details class="accordion card bg-gray-900 max-w-md">
+    <details class="accordion card card_colors max-w-md">
         <summary class="accordion__summary">Plan invasion</summary>
         <form action="{% url 'submit_invasion' player.id %}" method="post" class="max-w-md">
             {% csrf_token %}
@@ -89,7 +89,9 @@
 
             for (const [key, value] of Object.entries(unitInputs)) {
                 unitId = value.id.substr(5)
-                const op = document.getElementById("power_" + unitId).innerHTML.split("/")[0]
+                let op = document.getElementById("power_" + unitId).innerHTML.split("/")[0]
+                op = parseInt(op.replace(/,/g, ''))
+                console.log("op", op)
                 totalOp = totalOp + value.value * op
             }
 
@@ -99,12 +101,10 @@
             if (totalOp >= dpHere) {
                 readoutSection.classList.remove("text-red-400")
                 readoutSection.classList.add("text-green-400")
-
                 invadeButtonText.classList.remove("text-red-400")
             } else {
                 readoutSection.classList.remove("text-green-400")
                 readoutSection.classList.add("text-red-400")
-
                 invadeButtonText.classList.add("text-red-400")
             }
         }
@@ -195,9 +195,9 @@
         </table>
     </div>
 
-    <div class="u-flex u-flex-column max-w-md card bg-gray-900 p-1">
+    <div class="u-flex u-flex-column max-w-md card card_colors p-1">
         <div>
-            <h6 class="u-center text-light">Units returning from battle</h6>
+            <h6 class="u-center">Units returning from battle</h6>
         </div>
         <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
             <table class="table striped">
@@ -243,9 +243,9 @@
         </div>
     </div>
 
-    <div class="mt-4 u-flex u-flex-column max-w-md card bg-gray-900 p-1">
+    <div class="mt-4 u-flex u-flex-column max-w-md card card_colors p-1">
         <div>
-            <h6 class="u-center text-light">Incoming acres</h6>
+            <h6 class="u-center ">Incoming acres</h6>
         </div>
         <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
             <table class="table striped">
@@ -289,9 +289,9 @@
         </div>
     </div>
 
-    <div class="u-flex u-flex-column max-w-md card bg-gray-900 p-1">
+    <div class="u-flex u-flex-column max-w-md card card_colors p-1">
         <div>
-            <h6 class="u-center text-light">Units in training</h6>
+            <h6 class="u-center">Units in training</h6>
         </div>
         <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
             <table class="table striped">
@@ -337,9 +337,9 @@
         </div>
     </div>
 
-    <div class="mt-4 u-flex u-flex-column max-w-md card bg-gray-900 p-1">
+    <div class="mt-4 u-flex u-flex-column max-w-md card card_colors p-1">
         <div>
-            <h6 class="u-center text-light">Spells</h6>
+            <h6 class="u-center">Spells</h6>
         </div>
         <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
             <table class="table striped small">
@@ -363,9 +363,9 @@
         </div>
     </div>
 
-    <div class="mt-4 u-flex u-flex-column max-w-md card bg-gray-900 p-1">
+    <div class="mt-4 u-flex u-flex-column max-w-md card card_colors p-1">
         <div>
-            <h6 class="u-center text-light">Discoveries</h6>
+            <h6 class="u-center">Discoveries</h6>
         </div>
         <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
             <table class="table striped small">
