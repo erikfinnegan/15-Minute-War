@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load humanize %}
 
 {% block title %}Buildings{% endblock %}
 
@@ -14,8 +15,8 @@
     {% endif %}
     <h6>{{ active_player.barren_acres}} barren acres</h6>
     <p>
-        Buildings cost {{ active_player.building_primary_cost }}{{ primary_resource.icon }} and 
-        {{ active_player.building_secondary_cost }}{{ secondary_resource.icon }}. You can build {{ max_buildable }}.
+        Buildings cost {{ active_player.building_primary_cost|intcomma }}{{ primary_resource.icon }} and 
+        {{ active_player.building_secondary_cost|intcomma }}{{ secondary_resource.icon }}. You can build {{ max_buildable|intcomma }}.
     </p>
     <form action="{% url 'submit_building' %}" method="post" class="">
         {% csrf_token %}

@@ -330,6 +330,7 @@ def resources(request):
     trade_price_data = {}
 
     for resource_name, price in trade_price_dict.items():
+        print(resource_name)
         trade_price_data[resource_name] = {
             "icon": Resource.objects.get(ruler=player, name=resource_name).icon,
             "price": price,

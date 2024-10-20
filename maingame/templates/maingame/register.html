@@ -35,7 +35,9 @@
                     direction: "asc"
                 }
                 };
-                new TomSelect('#tom-select-it', config);
+                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone; // e.g. "America/New_York"
+                tzSelect = new TomSelect('#tom-select-it', config);
+                tzSelect.setValue(timezone)
             </script>
         </div>
     </div>

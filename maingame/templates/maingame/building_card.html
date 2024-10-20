@@ -6,7 +6,7 @@
         {% if building.quantity == 0 %}
         <span>None</span>
         {% else %}
-        <span>{{ building.quantity}}</span>
+        <span>{{ building.quantity|intcomma}}</span>
         {% endif %}
         <span>{{ building.percent }}%</span>
     </div>
