@@ -184,9 +184,13 @@ def military(request):
         player = Player.objects.get(associated_user=request.user)
     except:
         return redirect("register")
+    
+    print("sorted units")
+    print(player.sorted_units)
 
     context = {
-        "units": Unit.objects.filter(ruler=player),
+        # "units": Unit.objects.filter(ruler=player),
+        "units": player.sorted_units
     }
 
     return render(request, "maingame/military.html", context)
@@ -557,10 +561,10 @@ def overview(request, player_id):
     if player_id != my_player.id and player.protection_ticks_remaining > 0:
         return redirect("world")
 
-    my_units = Unit.objects.filter(ruler=my_player)
+    my_units = my_player.sorted_units
 
     player = Player.objects.get(id=player_id)
-    units = Unit.objects.filter(ruler=player)
+    units = player.sorted_units
     buildings = Building.objects.filter(ruler=player, quantity__gte=1)
     resources = Resource.objects.filter(ruler=player, quantity__gte=1)
     learned_discoveries = []

@@ -147,6 +147,21 @@ class Player(models.Model):
     @property
     def discoveries_to_make(self):
         return int(self.discovery_points / 50)
+    
+    @property
+    def sorted_units(self):
+        sorted_list = list(Unit.objects.filter(ruler=self))
+
+        def op_dp_ratio(unit: Unit):
+            if unit.dp == 0:
+                return 99999999
+            else:
+                return unit.op / unit.dp
+        
+        sorted_list.sort(key=op_dp_ratio)
+        print(sorted_list)
+
+        return sorted_list
 
     def get_production(self, resource_name):
         production = 0

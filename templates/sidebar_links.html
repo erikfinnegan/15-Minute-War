@@ -1,7 +1,7 @@
 {% if active_player %}
 <a href="{% url 'overview' active_player.id %}" class="text-light">Overview</a>
 <a href="{% url 'resources' %}" class="text-light">Resources</a>
-<a href="{% url 'buildings' %}" class="text-light">Buildings</a>
+<a href="{% url 'buildings' %}" class="text-light">Buildings{% if active_player.barren_acres > 0 %} ⚠️{% endif %}</a>
 <a href="{% url 'military' %}" class="text-light">Military</a>
 <a href="{% url 'spells' %}" class="text-light">Spells</a>
 <a href="{% url 'upgrades' %}" class="text-light">Upgrades</a>
