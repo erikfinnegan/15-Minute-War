@@ -220,7 +220,15 @@ class Player(models.Model):
         if "book_of_grudges" in self.perk_dict and self.protection_ticks_remaining == 0:
             for player in Player.objects.filter(~Q(id=self.id), protection_ticks_remaining=0):
                 if str(player.id) in self.perk_dict["book_of_grudges"]:
-                    self.perk_dict["book_of_grudges"][str(player.id)]["animosity"] += self.perk_dict["book_of_grudges"][str(player.id)]["pages"]
+                    self.perk_dict["book_of_grudges"][str(player.id)]["animosity"] += self.perk_dict["book_of_grudges"][str(player.id)]["pages"] * 0.003
+                    
+                    if self.perk_dict["book_of_grudges"][str(player.id)]["pages"] >= 100:
+                        rounding = 2
+                    else:
+                        rounding = 3
+
+                    self.perk_dict["book_of_grudges"][str(player.id)]["animosity"] = round(self.perk_dict["book_of_grudges"][str(player.id)]["animosity"], rounding)
+
 
     def do_tick(self):
         self.do_resource_production()

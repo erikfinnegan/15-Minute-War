@@ -48,6 +48,7 @@
                                 name="send_{{ unit.id }}" 
                                 id="send_{{ unit.id }}" 
                                 type="number" 
+                                min="0"
                                 max="{{ unit.quantity_at_home }}" 
                                 class="w-12 w-16-md ml-auto-md mr-2-md unitInput"
                                 oninput="updateOffenseToSend()"

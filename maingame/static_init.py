@@ -108,10 +108,9 @@ def initialize_factions():
         building_secondary_resource_name="wood",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"],
         description="""Dwarves keep a book of grudges, chronicling any slight against them, no matter how minor. When a player invades a dwarf, 100 pages of 
-        grudges are added. Every tick, dwarves gain animosity against each player equal to the number of pages of grudges they have about that player and each
-        point of animosity grants +0.003% offense against them. It doesn't sound like much, but it adds up quick. When a dwarf invades another player, any 
-        grudges and animosity they have against that player are satisfied and cleared. Oh, and simply viewing a dwarf's overview page is enough to warrant one
-        page of grudges."""
+        grudges are added. Every tick, dwarves gain +0.03% offense against each player equal to the number of pages of grudges they have about that player. It 
+        doesn't sound like much, but it adds up quick. When a dwarf invades another player, any grudges they have against that player are 
+        satisfied and cleared. Oh, and simply viewing a dwarf's overview page is enough to warrant one page of grudges."""
     )
 
 

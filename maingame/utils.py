@@ -146,7 +146,7 @@ def update_trade_prices():
 
 def get_grudge_bonus(my_player: Player, other_player: Player):
     try:
-        return my_player.perk_dict["book_of_grudges"][str(other_player.id)]["animosity"] * 0.00003
+        return my_player.perk_dict["book_of_grudges"][str(other_player.id)]["animosity"] / 100
     except:
         return 0
     

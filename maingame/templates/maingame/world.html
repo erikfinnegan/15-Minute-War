@@ -41,7 +41,7 @@
                     <td class="u-align-middle">
                         {% if player.strid in active_player.perk_dict.book_of_grudges %}
                         {{ active_player.perk_dict.book_of_grudges|getattr:player.strid|getattr:"pages" }} pages,
-                        {{ active_player.perk_dict.book_of_grudges|getattr:player.strid|getattr:"animosity" }} animosity
+                        +{{ active_player.perk_dict.book_of_grudges|getattr:player.strid|getattr:"animosity" }}% OP
                         {% else %}
                         None
                         {% endif %}

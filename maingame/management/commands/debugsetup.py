@@ -49,4 +49,13 @@ class Command(BaseCommand):
             resource.quantity = 1000000
             resource.save()
 
+        adminplayer = Player.objects.get(name="p-admin")
+        adminplayer.protection_ticks_remaining = 0
+        adminplayer.discovery_points = 5000
+        adminplayer.save()
+
+        for unit in Unit.objects.filter(ruler=adminplayer):
+            unit.quantity_at_home = 50000
+            unit.save()
+
         print("Done generating stuff.")
