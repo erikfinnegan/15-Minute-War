@@ -484,12 +484,14 @@ class Event(models.Model):
 
 
 class Round(models.Model):
-    has_started = models.BooleanField(default=True)
+    has_started = models.BooleanField(default=False)
     has_ended = models.BooleanField(default=False)
     winner = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
     trade_price_dict = models.JSONField(default=dict, blank=True)
     base_price_dict = models.JSONField(default=dict, blank=True)
     resource_bank_dict = models.JSONField(default=dict, blank=True)
+    start_time = models.DateTimeField(null=True, blank=True)
+    ticks_left = models.IntegerField(default=0)
 
     @property
     def allow_ticks(self):
