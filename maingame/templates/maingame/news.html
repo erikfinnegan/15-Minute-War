@@ -15,7 +15,11 @@
         <tbody>
             {% for event in displayed_events %}
             <tr class="{% if event.involves_player %}text-yellow-300{% endif %}">
-                <th class="u-align-middle">{{ event.event.timestamp|timezone:active_player.timezone }}</th>
+                {% if active_player.use_am_pm %}
+                <th class="u-align-middle">{{ event.event.timestamp|timezone:active_player.timezone|date:"F j, g:i:s a" }}</th>
+                {% else %}
+                <th class="u-align-middle">{{ event.event.timestamp|timezone:active_player.timezone|date:"F j, G:i:s" }}</th>
+                {% endif %}
                 <th class="u-align-middle">{{ event.event.icon }}</th>
                 <th class="u-align-middle">{{ event.event }}</th>
                 <th class="u-align-middle">

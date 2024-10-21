@@ -29,7 +29,6 @@ urlpatterns = [
     path("discoveries", views.discoveries, name="discoveries"),
     path("spells", views.spells, name="spells"),
     path("spells/<int:spell_id>", views.submit_spell, name="submit_spell"),
-    path("toggle_tutorials", views.toggle_tutorials, name="toggle_tutorials"),
     path("tutorial", views.tutorial, name="tutorial"),
     path("battle_report/<int:battle_id>", views.battle_report, name="battle_report"),
     path("faction_info", views.faction_info, name="faction_info"),

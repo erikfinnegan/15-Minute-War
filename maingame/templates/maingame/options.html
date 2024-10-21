@@ -16,6 +16,16 @@
             </label>
         </div>
 
+        <div class="form-ext-control pl-0 w-12">
+            <label class="form-ext-toggle__label u-flex u-flex-row u-gap-2">
+                <span>Use AM/PM in timestamps</span>
+                <div class="form-ext-toggle">
+                    <input name="use_am_pm" type="checkbox" class="form-ext-input" {% if active_player.use_am_pm %}checked{% endif %} />
+                    <div class="form-ext-toggle__toggler"><i></i></div>
+                </div>
+            </label>
+        </div>
+
         <div class="u-flex u-flex-column">
             <label for="theme">Theme</label>
             <select name="theme" class="w-48">

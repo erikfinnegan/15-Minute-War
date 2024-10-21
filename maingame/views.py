@@ -671,7 +671,7 @@ def submit_options(request):
     
     player.theme = request.POST["theme"]
     player.show_tutorials = "show_tutorials" in request.POST
-    player.dark_mode = "dark_mode" in request.POST
+    player.use_am_pm = "use_am_pm" in request.POST
     player.save()
 
     return redirect("options")
@@ -689,19 +689,6 @@ def tutorial(request):
     }
 
     return render(request, "maingame/tutorial.html", context)
-
-
-@login_required
-def toggle_tutorials(request):
-    try:
-        my_player = Player.objects.get(associated_user=request.user)
-    except:
-        return redirect("register")
-    
-    my_player.show_tutorials = not my_player.show_tutorials
-    my_player.save()
-
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 @login_required

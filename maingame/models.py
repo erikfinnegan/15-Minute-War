@@ -24,8 +24,9 @@ class Player(models.Model):
     complacency = models.IntegerField(default=0)
     has_tick_units = models.BooleanField(default=False)
     show_tutorials = models.BooleanField(default=True)
-    theme = models.CharField(max_length=50, null=True, blank=True, unique=True)
+    theme = models.CharField(max_length=50, null=True, blank=True, default="ODA")
     is_abandoned = models.BooleanField(default=False)
+    use_am_pm = models.BooleanField(default=True)
 
     acres = models.IntegerField(default=100)
     incoming_acres_dict = models.JSONField(default=dict, blank=True)
