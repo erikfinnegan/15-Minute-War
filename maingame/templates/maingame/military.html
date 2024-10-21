@@ -106,7 +106,7 @@
         <h6 class="u-center">Units returning from battle</h6>
     </div>
     <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
-        <table class="table striped">
+        <table class="table striped card_colors">
             <thead>
                 <tr>
                     <th>Unit</th>
@@ -154,7 +154,7 @@
         <h6 class="u-center">Incoming acres</h6>
     </div>
     <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
-        <table class="table striped">
+        <table class="table striped card_colors">
             <thead>
                 <tr>
                     <th>Acres</th>
@@ -200,7 +200,7 @@
         <h6 class="u-center">Units in training</h6>
     </div>
     <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
-        <table class="table striped">
+        <table class="table striped card_colors">
             <thead>
                 <tr>
                     <th>Unit</th>
@@ -243,13 +243,13 @@
     </div>
 </div>
 
-<form action="{% url 'submit_release' %}" method="post" class="max-w-md card bg-red-800 p-1 mt-8">
+<form action="{% url 'submit_release' %}" method="post" class="max-w-md card bg-red-800 text-light p-1 mt-8">
     {% csrf_token %}
     <div class="w-100p u-center u-flex u-flex-column">
         <h6>Release units</h6>
         <p>These units will be removed. There will be no refund.</p>
     </div>
-    <table class="table striped bg-red-800">
+    <table class="table striped bg-red-800 text-light">
         <thead>
             <tr>
                 <th>Name</th>
