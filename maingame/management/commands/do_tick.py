@@ -15,7 +15,7 @@ class Command(BaseCommand):
 
         if now > round.start_time and not round.has_started:
             round.has_started = True
-        elif round.ticks_left > 0:
+        elif round.ticks_left > 0 and round.has_started:
             round.ticks_left -= 1
             
             if round.ticks_left <= 0:
