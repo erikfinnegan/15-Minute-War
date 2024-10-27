@@ -1,9 +1,5 @@
 from django.core.management.base import BaseCommand
 
-from maingame.models import Player, Deity, Unit, Building
-from django.contrib.auth.models import User
-
-from maingame.utils import update_trade_prices
 
 class Command(BaseCommand):
     help = "Initiates a battle"
