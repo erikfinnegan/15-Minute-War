@@ -8,12 +8,12 @@ https://docs.djangoproject.com/en/3.2/howto/deployment/wsgi/
 """
 
 import os
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
 # from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'odalike.settings')
-load_dotenv(os.path.join('15minutewar.pythonanywhere.com', '.env'))
+# load_dotenv(os.path.join('15minutewar.pythonanywhere.com', '.env'))
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # application = get_wsgi_application()
