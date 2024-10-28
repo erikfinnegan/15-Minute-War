@@ -13,10 +13,10 @@
     {% for spell in spells %}
     <div class="card card_colors p-1 u-flex u-flex-column u-gap-1 w-64">
         <h6>{{ spell.name }}</h6>
-        <span>{{ spell.mana_cost_per_acre }} 🔮/acre</span>
+        <span>{{ spell.mana_cost_per_acre }} mana/acre</span>
         <span>{{ spell.description }}</span>
         <a href="{% url 'submit_spell' spell.id %}">
-            <button class="header_colors px-1 py-0" {% if mana_quantity < spell.mana_cost %}disabled{% endif %}>Cast: {{ spell.mana_cost|intcomma }}🔮</button>
+            <button class="header_colors px-1 py-0" {% if mana_quantity < spell.mana_cost %}disabled{% endif %}>Cast: {{ spell.mana_cost|intcomma }} mana</button>
         </a>
     </div>
     {% endfor %}

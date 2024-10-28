@@ -16,8 +16,7 @@ def create_faction_perk_dict(player: Player, faction: Faction):
 def create_resource_for_player(resource_identifier, player: Player):
     resource_name = resource_identifier
 
-    if len(resource_identifier) == 1:
-        resource_name = Resource.objects.get(icon=resource_identifier, ruler=None).name
+    resource_name = Resource.objects.get(name=resource_identifier, ruler=None).name
 
     if not Resource.objects.filter(ruler=player, name=resource_name).exists():
         base_resource = Resource.objects.get(name=resource_name, ruler=None)
@@ -247,7 +246,7 @@ def cast_spell(spell: Spell):
     match spell.name:
         case "Power Overwhelming":
             for unit in Unit.objects.filter(ruler=player):
-                if mana.icon not in unit.upkeep_dict and unit.op > unit.dp:
+                if mana.name not in unit.upkeep_dict and unit.op > unit.dp:
                     try:
                         overwhelming_unit = Unit.objects.get(ruler=player, name=f"Overwhelming {unit.name}")
                     except:
@@ -263,7 +262,7 @@ def cast_spell(spell: Spell):
                         if overwhelming_unit_upkeep == int(overwhelming_unit_upkeep):
                             overwhelming_unit_upkeep = int(overwhelming_unit_upkeep)
 
-                        overwhelming_unit.upkeep_dict[mana.icon] = overwhelming_unit_upkeep
+                        overwhelming_unit.upkeep_dict[mana.name] = overwhelming_unit_upkeep
                         
                     overwhelming_quantity = int(unit.quantity_at_home * 0.2)
                     overwhelming_unit.quantity_at_home += overwhelming_quantity

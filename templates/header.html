@@ -10,7 +10,10 @@
         {% for key, value in active_player.header_rows.items %}
         <tr>
             {% for resource_readout in value %}
-            <td><h5 class="px-4-md tooltip tooltip--bottom" data-tooltip="{{ resource_readout.tooltip|title }}">{{ resource_readout.readout }}</h5></td>
+            <td>
+                <span class="font-bold">{{ resource_readout.name|title }}:</span>
+                <span>{{ resource_readout.quantity }}</span>
+            </td>
             {% endfor %}
         </tr>
         {% endfor %}

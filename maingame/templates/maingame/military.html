@@ -57,14 +57,14 @@
                 <td class="u-align-middle" onclick="trainMax('{{ unit.id }}', '{{ unit.max_affordable }}')">
                     <div class="u-flex u-flex-column">
                         {% for resource, amount in unit.upkeep_dict.items %}
-                        <span>{{ amount|intcomma }}{{ resource }}</span>
+                        <span>{{ amount|intcomma }} {{ resource }}</span>
                         {% endfor %}
                     </div>
                 </td>
                 <td class="u-align-middle" onclick="trainMax('{{ unit.id }}', '{{ unit.max_affordable }}')">
                     <div class="u-flex u-flex-column">
                         {% for resource, amount in unit.cost_dict.items %}
-                        <span>{{ amount|intcomma }}{{ resource }}</span>
+                        <span>{{ amount|intcomma }} {{ resource }}</span>
                         {% endfor %}
                     </div>
                 </td>

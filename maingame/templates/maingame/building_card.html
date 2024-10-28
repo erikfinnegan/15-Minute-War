@@ -16,7 +16,7 @@
         {% if show_upgrades %}
         <a href="{% url 'upgrade_building' building.id %}">
             <button class="header_colors px-1 py-0" {% if building.upgrade_cost > research_points_available %}disabled{% endif %}>
-                Upgrade: {{ building.upgrade_cost|intcomma }}📜
+                Upgrade: {{ building.upgrade_cost|intcomma }} research
             </button>
         </a>
         {% elif building.is_buildable %}

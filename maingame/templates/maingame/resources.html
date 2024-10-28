@@ -26,7 +26,6 @@
             <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Icon</th>
                     <th>+</th>
                     <th>-</th>
                     <th>Net</th>
@@ -36,8 +35,6 @@
                 {% for key, value in resources_dict.items %}
                 <tr>
                     <th class="u-align-middle">{{ value.name|title }}</th>
-                    <th class="u-align-middle">{{ key }}</th>
-                    
                     <td class="u-align-middle text-green-400">{{ value.produced|intcomma }}</td>
                     <td class="u-align-middle text-red-400">{{ value.consumed|intcomma }}</td>
                     <td class="u-align-middle {% if value.net < 0 %}text-red-400{% else %}text-green-400{% endif %}">{{ value.net|intcomma }}</td>
@@ -71,10 +68,10 @@
             </div>
             <div class="u-center u-gap-1">
                 <span id="resourceRangeValue">1</span>
-                <span id="soldResource">🪙</span>
+                <span id="soldResource">gold</span>
                 <span>for</span>
                 <span id="boughtResourceAmount">1</span>
-                <span id="boughtResource">🪙</span>
+                <span id="boughtResource">gold</span>
             </div>
             <div class="u-center mt-2">
                 <button class="btn-light mt-1 w-16 h-6 p-0 u-center" type="submit">
@@ -87,7 +84,7 @@
             <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Icon</th>
+                    <th>name</th>
                     <th>Price</th>
                     <th>Value</th>
                 </tr>
@@ -96,7 +93,7 @@
                 {% for resource_name, details in trade_price_data.items %}
                 <tr>
                     <td class="u-align-middle">{{ resource_name|title }}</td>
-                    <td class="u-align-middle">{{ details.icon }}</td>
+                    <td class="u-align-middle">{{ details.name }}</td>
                     <td class="u-align-middle">{{ details.price }}</td>
                     <td class="u-align-middle
                     {% if details.difference >= 200 %}text-green-500 font-bold
@@ -120,11 +117,11 @@
         const playerResourcesDict = JSON.parse('{{ player_resources_json|escapejs }}');
         const resourceInfoDict = JSON.parse('{{ resources_dict_json|escapejs }}');
         const tradePrices = JSON.parse('{{ trade_price_json|escapejs }}');
-        const lastSoldResourceIcon = '{{ last_sold_resource_icon|escapejs }}'
-        const lastBoughtResourceIcon = '{{ last_bought_resource_icon|escapejs }}'
+        const lastSoldResourcename = '{{ last_sold_resource_name|escapejs }}'
+        const lastBoughtResourcename = '{{ last_bought_resource_name|escapejs }}'
 
-        document.getElementById("inputResource").value = lastSoldResourceIcon
-        document.getElementById("outputResource").value = lastBoughtResourceIcon
+        document.getElementById("inputResource").value = lastSoldResourcename
+        document.getElementById("outputResource").value = lastBoughtResourcename
         document.getElementById("resourceRange").max = playerResourcesDict["gold"];
         showCurrentValue();
         showRatio();

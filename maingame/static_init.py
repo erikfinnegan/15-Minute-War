@@ -6,35 +6,27 @@ def initialize_resources():
     resource_templates = [
         {
             "name": "gold",
-            "icon": "🪙",
         },
         {
             "name": "wood",
-            "icon": "🪵",
         },
         {
             "name": "ore",
-            "icon": "🪨",
         },
         {
             "name": "food",
-            "icon": "🍞",
         },
         {
             "name": "research",
-            "icon": "📜",
         },
         {
             "name": "mana",
-            "icon": "🔮",
         },
         {
             "name": "corpses",
-            "icon": "🪦",
         },
         {
             "name": "gems",
-            "icon": "💎",
         },
     ]
 
@@ -122,12 +114,12 @@ def initialize_units():
         op=2,
         dp=4,
         cost_dict={
-            "🪙": 150,
-            "🪵": 30,
+            "gold": 150,
+            "wood": 30,
         },
         upkeep_dict={
-            "🪙": 3,
-            "🍞": 1,
+            "gold": 3,
+            "food": 1,
         },
         faction=human
     )
@@ -136,12 +128,12 @@ def initialize_units():
         op=6,
         dp=5,
         cost_dict={
-            "🪙": 275,
-            "🪨": 25,
+            "gold": 275,
+            "ore": 25,
         },
         upkeep_dict={
-            "🪙": 3,
-            "🍞": 1,
+            "gold": 3,
+            "food": 1,
         },
         faction=human
     )
@@ -152,12 +144,12 @@ def initialize_units():
         op=3,
         dp=6,
         cost_dict={
-            "🪙": 1200,
-            "🪨": 450,
+            "gold": 1200,
+            "ore": 450,
         },
         upkeep_dict={
-            "🪙": 3,
-            "🍞": 1,
+            "gold": 3,
+            "food": 1,
         },
         faction=dwarf
     )
@@ -166,12 +158,12 @@ def initialize_units():
         op=5,
         dp=4,
         cost_dict={
-            "🪙": 1300,
-            "🪨": 500,
+            "gold": 1300,
+            "ore": 500,
         },
         upkeep_dict={
-            "🪙": 3,
-            "🍞": 1,
+            "gold": 3,
+            "food": 1,
         },
         faction=dwarf
     )
@@ -180,9 +172,9 @@ def initialize_units():
         op=0,
         dp=0,
         upkeep_dict={
-            "🪙": 3,
-            "🍞": 1,
-            "📜": 1,
+            "gold": 3,
+            "food": 1,
+            "research": 1,
         },
         perk_dict={"random_grudge_book_pages_per_tick": 3},
         is_trainable=False,
@@ -194,7 +186,7 @@ def initialize_units():
         dp=0,
         cost_dict={
             "🪵": 4000,
-            "🪨": 2200,
+            "ore": 2200,
         },
     )
     Unit.objects.create(
@@ -213,7 +205,7 @@ def initialize_units():
         op=0,
         dp=30,
         cost_dict={
-            "🪨": 20000,
+            "ore": 20000,
         },
     )
     Unit.objects.create(
@@ -221,11 +213,11 @@ def initialize_units():
         op=4,
         dp=3,
         cost_dict={
-            "🔮": 100,
-            "🪦": 1,
+            "mana": 100,
+            "corpses": 1,
         },
         upkeep_dict={
-            "🔮": 0.1,
+            "mana": 0.1,
         },
     )
     Unit.objects.create(
@@ -233,8 +225,8 @@ def initialize_units():
         op=0,
         dp=0,
         upkeep_dict={
-            "🪙": 3,
-            "🍞": 1,
+            "gold": 3,
+            "food": 1,
         },
         is_trainable=False,
         perk_dict={"surplus_research_consumed_to_add_one_op_and_dp": 75}
@@ -244,7 +236,7 @@ def initialize_units():
         op=9,
         dp=0,
         cost_dict={
-            "🔮": 250,
+            "mana": 250,
         },
         perk_dict={"always_dies_on_offense": True}
     )

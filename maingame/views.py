@@ -171,10 +171,10 @@ def submit_building(request):
 
     if total_built * player.building_primary_cost > primary_resource.quantity:
         building_succeeded = False
-        messages.error(request, f"This would cost {f'{total_built * player.building_primary_cost:,}'} {primary_resource.icon}. You have {f'{primary_resource.quantity:,}'}.")
+        messages.error(request, f"This would cost {f'{total_built * player.building_primary_cost:,}'} {primary_resource.name}. You have {f'{primary_resource.quantity:,}'}.")
     elif total_built * player.building_secondary_cost > secondary_resource.quantity:
         building_succeeded = False
-        messages.error(request, f"This would cost {f'{total_built * player.building_secondary_cost:,}'} {secondary_resource.icon}. You have {f'{secondary_resource.quantity:,}'}.")
+        messages.error(request, f"This would cost {f'{total_built * player.building_secondary_cost:,}'} {secondary_resource.name}. You have {f'{secondary_resource.quantity:,}'}.")
 
     if building_succeeded:
         primary_resource.quantity -= total_built * player.building_primary_cost
@@ -245,7 +245,7 @@ def submit_training(request):
     training_succeeded = True
 
     for resource, amount in total_cost_dict.items():
-        players_resource = Resource.objects.get(ruler=player, icon=resource)
+        players_resource = Resource.objects.get(ruler=player, name=resource)
 
         if players_resource.quantity < amount:
             training_succeeded = False
@@ -253,7 +253,7 @@ def submit_training(request):
 
     if training_succeeded:
         for resource, amount in total_cost_dict.items():
-            players_resource = Resource.objects.get(ruler=player, icon=resource)
+            players_resource = Resource.objects.get(ruler=player, name=resource)
             players_resource.quantity -= amount
             players_resource.save()
 
@@ -313,15 +313,15 @@ def resources(request):
     player_resource_total_dict = {}
 
     for resource in Resource.objects.filter(ruler=player):
-        player_resource_total_dict[resource.icon] = resource.quantity
+        player_resource_total_dict[resource.name] = resource.quantity
 
-        resources_dict[resource.icon] = {
+        resources_dict[resource.name] = {
             "name": resource.name,
             "produced": player.get_production(resource.name),
             "consumed": player.get_consumption(resource.name),
         }
 
-        resources_dict[resource.icon]["net"] = resources_dict[resource.icon]["produced"] - resources_dict[resource.icon]["consumed"]
+        resources_dict[resource.name]["net"] = resources_dict[resource.name]["produced"] - resources_dict[resource.name]["consumed"]
 
     update_trade_prices()
     trade_price_dict = round.trade_price_dict
@@ -330,7 +330,7 @@ def resources(request):
     for resource_name, price in trade_price_dict.items():
         if Resource.objects.filter(ruler=player, name=resource_name).exists():
             trade_price_data[resource_name] = {
-                "icon": Resource.objects.get(ruler=player, name=resource_name).icon,
+                "name": Resource.objects.get(ruler=player, name=resource_name).name,
                 "price": price,
                 "difference": int((price / round.base_price_dict[resource_name]) * 100)
             }
@@ -341,8 +341,8 @@ def resources(request):
         "resources_dict_json": json.dumps(resources_dict),
         "player_resources_json": json.dumps(player_resource_total_dict),
         "trade_price_json": json.dumps(trade_price_dict),
-        "last_sold_resource_icon": Resource.objects.get(name=player.last_sold_resource_name, ruler=player).icon,
-        "last_bought_resource_icon": Resource.objects.get(name=player.last_bought_resource_name, ruler=player).icon,
+        "last_sold_resource_name": Resource.objects.get(name=player.last_sold_resource_name, ruler=player).name,
+        "last_bought_resource_name": Resource.objects.get(name=player.last_bought_resource_name, ruler=player).name,
     }
 
     return render(request, "maingame/resources.html", context)
@@ -356,12 +356,12 @@ def trade(request):
         return redirect("register")
     
     round = Round.objects.first()
-    input_resource_icon = request.POST["inputResource"]
+    input_resource_name = request.POST["inputResource"]
     amount = int(request.POST["resourceAmount"])
-    output_resource_icon = request.POST["outputResource"]
+    output_resource_name = request.POST["outputResource"]
 
-    input_resource = Resource.objects.get(ruler=player, icon=input_resource_icon)
-    output_resource = Resource.objects.get(ruler=player, icon=output_resource_icon)
+    input_resource = Resource.objects.get(ruler=player, name=input_resource_name)
+    output_resource = Resource.objects.get(ruler=player, name=output_resource_name)
 
     credit = round.trade_price_dict[input_resource.name] * amount
     payout = int(credit / round.trade_price_dict[output_resource.name])
@@ -417,7 +417,7 @@ def upgrade_building(request, building_id):
     available_research_points = research_resource.quantity
 
     if available_research_points < building.upgrade_cost:
-        messages.error(request, f"This would cost {f'{building.upgrade_cost:,}'}📜. You have {f'{available_research_points:,}'}. You're {f'{building.upgrade_cost - available_research_points:,}'} short.")
+        messages.error(request, f"This would cost {f'{building.upgrade_cost:,}'}research. You have {f'{available_research_points:,}'}. You're {f'{building.upgrade_cost - available_research_points:,}'} short.")
         return redirect("upgrades")
 
     research_resource.quantity -= building.upgrade_cost
@@ -463,7 +463,7 @@ def submit_spell(request, spell_id):
     mana = Resource.objects.get(ruler=player, name="mana")
 
     if spell.mana_cost > mana.quantity:
-        messages.error(request, f"This would cost {f'{spell.mana_cost:,}'}🔮. You have {f'{mana.quantity:,}'}. You're {f'{spell.mana_cost - mana.quantity:,}'} short.")
+        messages.error(request, f"This would cost {f'{spell.mana_cost:,}'}mana. You have {f'{mana.quantity:,}'}. You're {f'{spell.mana_cost - mana.quantity:,}'} short.")
         return redirect("spells")
     
     cast_spell(spell)
@@ -782,7 +782,7 @@ def submit_invasion(request, player_id):
     event = Event.objects.create(
         reference_id=battle.id, 
         reference_type="battle", 
-        icon="🗡" if attacker_victory else "🛡"
+        name="🗡" if attacker_victory else "🛡"
     )
     event.notified_players.add(my_player)
     event.notified_players.add(target_player)
@@ -830,7 +830,7 @@ def submit_invasion(request, player_id):
         if "always_dies_on_offense" in unit.perk_dict:
             survivors = 0
 
-        if "🔮" not in unit.upkeep_dict and "🔮" not in unit.cost_dict:
+        if "mana" not in unit.upkeep_dict and "mana" not in unit.cost_dict:
             total_casualties += (quantity_sent - survivors)
 
         unit.returning_dict["12"] += survivors
@@ -840,18 +840,18 @@ def submit_invasion(request, player_id):
     for unit in Unit.objects.filter(ruler=target_player):
         survivors = math.ceil(unit.quantity_at_home * defensive_survival)
 
-        if "🔮" not in unit.upkeep_dict and "🔮" not in unit.cost_dict:
+        if "mana" not in unit.upkeep_dict and "mana" not in unit.cost_dict:
             total_casualties += (unit.quantity_at_home - survivors)
 
         unit.quantity_at_home = survivors
         unit.save()
 
-    if attacker_victory and Resource.objects.filter(ruler=my_player, icon="🪦").exists():
-        my_bodies = Resource.objects.get(ruler=my_player, icon="🪦")
+    if attacker_victory and Resource.objects.filter(ruler=my_player, name="corpses").exists():
+        my_bodies = Resource.objects.get(ruler=my_player, name="corpses")
         my_bodies.quantity += total_casualties
         my_bodies.save()
-    elif not attacker_victory and Resource.objects.filter(ruler=target_player, icon="🪦").exists():
-        targets_bodies = Resource.objects.get(ruler=target_player, icon="🪦")
+    elif not attacker_victory and Resource.objects.filter(ruler=target_player, name="corpses").exists():
+        targets_bodies = Resource.objects.get(ruler=target_player, name="corpses")
         targets_bodies.quantity += total_casualties
         targets_bodies.save()
 

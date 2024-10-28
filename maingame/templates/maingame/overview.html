@@ -138,7 +138,7 @@
             <tbody>
                 {% for resource in resources %}
                     <tr>
-                        <th class="u-align-middle">{{ resource.icon }}</th>
+                        <th class="u-align-middle">{{ resource.name|title }}</th>
                         <td class="u-align-middle">{{ resource.quantity|intcomma }}</td>
                         <td class="u-align-middle">{{ resource.production|intcomma }}</td>
                     </tr>

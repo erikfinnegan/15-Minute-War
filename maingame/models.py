@@ -136,12 +136,9 @@ class Player(models.Model):
                 row_number += 1
                 header_rows[str(row_number)] = []
 
-            readout = f"{resource.icon}: {int(resource.quantity):,}"
-            tooltip = resource.name
-
             header_rows[str(row_number)].append({
-                "readout": readout,
-                "tooltip": tooltip
+                "name": resource.name,
+                "quantity": f"{int(resource.quantity):,}"
             })
 
         return header_rows
@@ -184,8 +181,8 @@ class Player(models.Model):
         consumption = 0
 
         for unit in Unit.objects.filter(ruler=self):
-            for resource_icon, upkeep in unit.upkeep_dict.items():
-                resource = Resource.objects.get(ruler=self, icon=resource_icon)
+            for resource_name, upkeep in unit.upkeep_dict.items():
+                resource = Resource.objects.get(ruler=self, name=resource_name)
 
                 if resource_name == resource.name:
                     consumption += int(unit.quantity_trained_and_alive * upkeep)
@@ -202,7 +199,7 @@ class Player(models.Model):
             if resource.quantity < 0:
                 self.is_starving = True
                 for unit in Unit.objects.filter(ruler=self):
-                    if resource.icon in unit.upkeep_dict:
+                    if resource.name in unit.upkeep_dict:
                         unit.quantity_at_home = math.ceil(unit.quantity_at_home * 0.99)
                         
                         for tick, quantity in unit.returning_dict.items():
@@ -266,9 +263,9 @@ class Resource(models.Model):
     
     def __str__(self):
         if self.ruler:
-            return f"{self.ruler}'s {self.icon} {self.name}"
+            return f"{self.ruler}'s {self.name} {self.name}"
             
-        return f"{self.icon} {self.name}"
+        return f"{self.name} {self.name}"
     
     @property
     def production(self):
@@ -322,7 +319,7 @@ class Building(models.Model):
         perks = []
         if self.amount_produced > 0:
             resource_produced = Resource.objects.get(ruler=self.ruler, name=self.resource_produced_name)
-            perks.append(f"Produces {self.amount_produced} {resource_produced.icon} per tick.")
+            perks.append(f"Produces {self.amount_produced} {resource_produced.name} per tick.")
 
         return " ".join(perks)
     
@@ -373,7 +370,7 @@ class Unit(models.Model):
         max_affordable = 9999999999999
 
         for resource_name, amount in self.cost_dict.items():
-            resource = Resource.objects.get(ruler=self.ruler, icon=resource_name)
+            resource = Resource.objects.get(ruler=self.ruler, name=resource_name)
 
             if resource.quantity > 0:
                 max_affordable = min(max_affordable, math.floor(resource.quantity/amount))
