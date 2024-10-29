@@ -33,6 +33,50 @@
         <div class="card card_colors p-1 w-48">
             <h6>{{ discovery.name }}</h6>
             <p>{{ discovery.description }}</p>
+            {% if discovery.associated_unit_name %}
+        
+            <table class="table striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Pwr</th>
+                        <th>Upkeep</th>
+                        <th class="w-16">Cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <div class="modal card_colors w-32 h-24 u-center u-align-middle my-auto" id="test-modal">
+                        <div class="modal-header u-flex u-flex-column u-justify-space-between">
+                            <p>{{ discovery.associated_unit.perk_text }}</p>
+                            <a href="#anchor-to-background" aria-label="Close">
+                                <button class="btn-light w-16 h-6 p-0 u-center" type="submit">
+                                    <span class="font-bold">Close</span>
+                                </button>
+                            </a>
+                        </div>
+                    </div>
+                    <tr>
+                        {% include "maingame/unit_name_row.html" with unit=discovery.associated_unit %}
+                        <td class="u-align-middle">{{ discovery.associated_unit.op|intcomma }} / {{ discovery.associated_unit.dp|intcomma }}</td>
+                        <td class="u-align-middle">
+                            <div class="u-flex u-flex-column">
+                                {% for resource, amount in discovery.associated_unit.upkeep_dict.items %}
+                                <span>{{ amount|intcomma }} {{ resource }}</span>
+                                {% endfor %}
+                            </div>
+                        </td>
+                        <td class="u-align-middle">
+                            <div class="u-flex u-flex-column">
+                                {% for resource, amount in discovery.associated_unit.cost_dict.items %}
+                                <span>{{ amount|intcomma }} {{ resource }}</span>
+                                {% endfor %}
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            {% endif %}
         </div>
         {% endfor %}
     </div>

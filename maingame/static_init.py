@@ -274,22 +274,26 @@ def initialize_spells():
 def initialize_discoveries():
     Discovery.objects.create(
         name="Battering Ram",
-        description="Allows for the creation of a powerful offensive unit costing wood and ore."
+        description="Allows for the creation of a powerful offensive unit costing wood and ore.",
+        associated_unit_name="Battering Ram"
     )
 
     Discovery.objects.create(
         name="Palisade",
-        description="Unlocks the ability to build cheap defenses using only wood."
+        description="Unlocks the ability to build cheap defenses using only wood.",
+        associated_unit_name="Palisade",
     )
 
     Discovery.objects.create(
         name="Bastion",
-        description="A blueprint for building large fortifications out of ore."
+        description="A blueprint for building large fortifications out of ore.",
+        associated_unit_name="Bastion",
     )
 
     Discovery.objects.create(
         name="Zombies",
-        description="Gain bodies from invasion casualties when you're victorious and use them to magically raise undead soldiers."
+        description="Gain bodies from invasion casualties when you're victorious and use them to magically raise undead soldiers.",
+        associated_unit_name="Zombie",
     )
 
     # Discovery.objects.create(
@@ -301,23 +305,26 @@ def initialize_discoveries():
     Discovery.objects.create(
         name="Archmagus",
         description="""Gain the allegiance of a terrifyingly powerful sorcerer who will, each tick, consume 10% of any research points beyond your most 
-        expensive upgrade to gain 1 OP and DP per 75 consumed."""
+        expensive upgrade to gain 1 OP and DP per 75 consumed.""",
+        associated_unit_name="Archmagus",
     )
 
     Discovery.objects.create(
         name="Fireball",
-        description="Conjure massive fireballs to support your invasions."
+        description="Conjure massive fireballs to support your invasions.",
+        associated_unit_name="Fireball",
     )
 
     Discovery.objects.create(
         name="Gem Mines",
-        description="Construct a new building to mine for precious gems. When trade values are determined, gems get a +30% bonus."
+        description="Construct a new building to mine for precious gems. Produces 8 gems per tick. When trade values are determined, gems get a +30% bonus."
     )
 
     Discovery.objects.create(
         name="Grudgestoker",
         description="A holy scribe takes up residence with you and appends three pages to your book of grudges each tick.",
         requirement="dwarf",
+        associated_unit_name="Grudgestoker",
     )
 
 

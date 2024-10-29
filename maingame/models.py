@@ -500,9 +500,19 @@ class Discovery(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
     description = models.CharField(max_length=500, null=True, blank=True)
     requirement = models.CharField(max_length=50, null=True, blank=True)
+    associated_unit_name = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):
         return f"{self.name}"
+    
+    @property
+    def associated_unit(self):
+        if self.associated_unit_name:
+            print(f"Unit name for {self.name} is {self.associated_unit_name}")
+            return Unit.objects.get(name=self.associated_unit_name, ruler=None)
+        
+        print(f"No unit for {self.name}")
+        return None
 
 
 class Spell(models.Model):

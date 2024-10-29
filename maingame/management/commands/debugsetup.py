@@ -35,6 +35,7 @@ class Command(BaseCommand):
         testplayer = initialize_player(user=testuser, faction=Faction.objects.get(name="dwarf"), display_name="ERIKTEST")
         testplayer.protection_ticks_remaining = 0
         testplayer.discovery_points = 5000
+        testplayer.theme = "Elesh Norn"
         testplayer.save()
 
         for building in Building.objects.filter(ruler=testplayer):
