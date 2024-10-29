@@ -10,7 +10,7 @@
             <label class="form-ext-toggle__label u-flex u-flex-row u-gap-2">
                 <span>Tutorials</span>
                 <div class="form-ext-toggle">
-                    <input name="show_tutorials" type="checkbox" class="form-ext-input" {% if active_dominion.show_tutorials %}checked{% endif %} />
+                    <input name="show_tutorials" type="checkbox" class="form-ext-input" {% if active_user_settings.show_tutorials %}checked{% endif %} />
                     <div class="form-ext-toggle__toggler"><i></i></div>
                 </div>
             </label>
@@ -20,7 +20,7 @@
             <label class="form-ext-toggle__label u-flex u-flex-row u-gap-2">
                 <span>Use AM/PM in timestamps</span>
                 <div class="form-ext-toggle">
-                    <input name="use_am_pm" type="checkbox" class="form-ext-input" {% if active_dominion.use_am_pm %}checked{% endif %} />
+                    <input name="use_am_pm" type="checkbox" class="form-ext-input" {% if active_user_settings.use_am_pm %}checked{% endif %} />
                     <div class="form-ext-toggle__toggler"><i></i></div>
                 </div>
             </label>
@@ -30,7 +30,7 @@
             <label for="theme">Theme</label>
             <select name="theme" class="w-48">
                 {% for theme in themes %}
-                <option {% if theme == active_dominion.theme %}selected{% endif %}>{{ theme }}</option>
+                <option {% if theme == active_user_settings.theme %}selected{% endif %}>{{ theme }}</option>
                 {% endfor %}
             </select>
         </div>

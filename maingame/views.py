@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.db.models import Q
 
 from maingame.formatters import create_or_add_to_key
-from maingame.models import Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell
+from maingame.models import Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings
 from maingame.tick_processors import do_global_tick
 from maingame.utils import abandon_dominion, get_grudge_bonus, initialize_dominion, prune_buildings, unlock_discovery, update_trade_prices, cast_spell
 
@@ -557,13 +557,13 @@ def news(request):
 @login_required
 def set_timezone(request):
     try:
-        dominion = Dominion.objects.get(associated_user=request.user)
+        user_settings = UserSettings.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
     timezone = request.POST["timezone"]
-    dominion.timezone = timezone
-    dominion.save()
+    user_settings.timezone = timezone
+    user_settings.save()
 
     messages.success(request, f"Time zone updated to {timezone}")
     
@@ -662,17 +662,17 @@ def options(request):
 def submit_options(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
+        user_settings = UserSettings.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
     if "abandon" in request.POST and request.POST["confirm_abandon"] == "DELETE ME FOREVER":
-        print("ABANDON TIME")
         abandon_dominion(dominion)
     
-    dominion.theme = request.POST["theme"]
-    dominion.show_tutorials = "show_tutorials" in request.POST
-    dominion.use_am_pm = "use_am_pm" in request.POST
-    dominion.save()
+    user_settings.theme = request.POST["theme"]
+    user_settings.show_tutorials = "show_tutorials" in request.POST
+    user_settings.use_am_pm = "use_am_pm" in request.POST
+    user_settings.save()
 
     return redirect("options")
 

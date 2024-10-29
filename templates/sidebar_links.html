@@ -12,7 +12,7 @@
 <a href="{% url 'run_tick_view' 1 %}" class=" mt-12">RUN TICK</a>
 <a href="{% url 'run_tick_view' 12 %}" class="">RUN TICK x12</a>
 
-{% if active_dominion.show_tutorials %}
+{% if active_user_settings.show_tutorials %}
 <a href="{% url 'tutorial' %}" class="">Tutorial</a>
 {% endif %}
 <a href="{% url 'options' %}" class="">Options</a>

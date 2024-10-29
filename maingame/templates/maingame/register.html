@@ -24,7 +24,7 @@
         <div class="max-w-md u-flex-grow-1 my-auto">
             <select id="tom-select-it" name="timezone">
                 {% for timezone in timezones %}
-                <option {% if timezone == active_dominion.timezone %}selected{% endif %}>{{ timezone }}</option>
+                <option {% if timezone == active_user_settings.timezone %}selected{% endif %}>{{ timezone }}</option>
                 {% endfor %}
             </select>
 

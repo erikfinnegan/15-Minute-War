@@ -1,4 +1,4 @@
-from maingame.models import Faction, Deity, Dominion, Building, Unit, Discovery, Round, Battle, Event, Resource, Spell
+from maingame.models import Faction, Deity, Dominion, Building, Unit, Discovery, Round, Battle, Event, Resource, Spell, UserSettings
 from maingame.utils import update_trade_prices
 
 

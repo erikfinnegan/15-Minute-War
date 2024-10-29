@@ -26,7 +26,7 @@ def create_resource_for_dominion(resource_identifier, dominion: Dominion):
         dominions_resource.save()
 
 
-def initialize_dominion(user: User, faction: Faction, display_name, timezone="UTC"):
+def initialize_dominion(user: User, faction: Faction, display_name):
     starter_discovery_names = []
 
     for discovery in Discovery.objects.filter(requirement=None):
@@ -38,7 +38,6 @@ def initialize_dominion(user: User, faction: Faction, display_name, timezone="UT
     dominion = Dominion.objects.create(
         associated_user=user, 
         name=display_name, 
-        timezone=timezone, 
         faction_name=faction.name, 
         available_discoveries=starter_discovery_names
     )

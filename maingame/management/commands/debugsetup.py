@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 
-from maingame.models import Dominion, Deity, Unit, Faction, Resource, Building
+from maingame.models import Dominion, Deity, Unit, Faction, Resource, Building, UserSettings
 from maingame.static_init import initialize_game_pieces
 from maingame.utils import initialize_dominion
 
@@ -20,6 +20,14 @@ class Command(BaseCommand):
                 farm = Building.objects.get(ruler=dominion, name="farm")
                 farm.quantity = 10
                 farm.save()
+
+                if not UserSettings.objects.filter(associated_user=user).exists():
+                    UserSettings.objects.create(associated_user=user, theme="Elesh Norn")
+                else:
+                    user_settings = UserSettings.objects.get(associated_user=user)
+                    user_settings.theme = "Elesh Norn"
+                    user_settings.timezone = "EST"
+                    user_settings.save()
         
         invade_me_test = Dominion.objects.get(name="p-nofaction")
         invade_me_test.name = "Invade me"
@@ -35,7 +43,6 @@ class Command(BaseCommand):
         testdominion = initialize_dominion(user=testuser, faction=Faction.objects.get(name="dwarf"), display_name="ERIKTEST")
         testdominion.protection_ticks_remaining = 0
         testdominion.discovery_points = 5000
-        testdominion.theme = "Elesh Norn"
         testdominion.save()
 
         for building in Building.objects.filter(ruler=testdominion):

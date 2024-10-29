@@ -14,20 +14,26 @@ class Deity(models.Model):
         verbose_name_plural = "deities"
         
 
+class UserSettings(models.Model):
+    associated_user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, unique=True)
+    timezone = models.CharField(max_length=50, default="UTC")
+    show_tutorials = models.BooleanField(default=True)
+    theme = models.CharField(max_length=50, null=True, blank=True, default="ODA")
+    use_am_pm = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.associated_user.username}'s settings"
+
+
 class Dominion(models.Model):
     associated_user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, unique=True)
     name = models.CharField(max_length=50, null=True, blank=True, unique=True)
-    timezone = models.CharField(max_length=50, default="UTC")
     is_starving = models.BooleanField(default=False)
     has_unread_events = models.BooleanField(default=False)
     protection_ticks_remaining = models.IntegerField(default=72)
     complacency = models.IntegerField(default=0)
     has_tick_units = models.BooleanField(default=False)
-    show_tutorials = models.BooleanField(default=True)
-    theme = models.CharField(max_length=50, null=True, blank=True, default="ODA")
     is_abandoned = models.BooleanField(default=False)
-    use_am_pm = models.BooleanField(default=True)
-
     acres = models.IntegerField(default=100)
     incoming_acres_dict = models.JSONField(default=dict, blank=True)
 
