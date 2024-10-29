@@ -9,9 +9,9 @@ from django.contrib import messages
 from django.db.models import Q
 
 from maingame.formatters import create_or_add_to_key
-from maingame.models import Building, Player, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell
+from maingame.models import Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell
 from maingame.tick_processors import do_global_tick
-from maingame.utils import abandon_player, get_grudge_bonus, initialize_player, prune_buildings, unlock_discovery, update_trade_prices, cast_spell
+from maingame.utils import abandon_dominion, get_grudge_bonus, initialize_dominion, prune_buildings, unlock_discovery, update_trade_prices, cast_spell
 
 
 def index(request):
@@ -40,7 +40,7 @@ def faction_info(request):
 
 def register(request):
     try:
-        player = Player.objects.get(associated_user=request.user)
+        dominion = Dominion.objects.get(associated_user=request.user)
         return redirect("resources")
     except:
         pass
@@ -57,11 +57,11 @@ def register(request):
 
 @login_required
 def submit_register(request):
-    display_name = request.POST["playerName"]
+    display_name = request.POST["dominionName"]
     faction = Faction.objects.get(name=request.POST["factionChoice"].lower())
     timezone = request.POST["timezone"]
 
-    initialize_player(user=request.user, faction=faction, display_name=display_name, timezone=timezone)
+    initialize_dominion(user=request.user, faction=faction, display_name=display_name, timezone=timezone)
 
     return redirect("buildings")
 
@@ -69,20 +69,20 @@ def submit_register(request):
 @login_required
 def buildings(request):
     try:
-        player = Player.objects.get(associated_user=request.user)
+        dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
-    primary_resource = Resource.objects.get(ruler=player, name=player.building_primary_resource_name)
-    secondary_resource = Resource.objects.get(ruler=player, name=player.building_secondary_resource_name)
+    primary_resource = Resource.objects.get(ruler=dominion, name=dominion.building_primary_resource_name)
+    secondary_resource = Resource.objects.get(ruler=dominion, name=dominion.building_secondary_resource_name)
 
-    max_affordable = int(min(primary_resource.quantity / player.building_primary_cost, secondary_resource.quantity / player.building_secondary_cost))
+    max_affordable = int(min(primary_resource.quantity / dominion.building_primary_cost, secondary_resource.quantity / dominion.building_secondary_cost))
 
     context = {
-        "buildings": Building.objects.filter(ruler=player),
+        "buildings": Building.objects.filter(ruler=dominion),
         "primary_resource": primary_resource,
         "secondary_resource": secondary_resource,
-        "max_buildable": min(player.barren_acres, max_affordable),
+        "max_buildable": min(dominion.barren_acres, max_affordable),
     }
     
     return render(request, "maingame/buildings.html", context)
@@ -91,13 +91,13 @@ def buildings(request):
 @login_required
 def discoveries(request):
     try:
-        player = Player.objects.get(associated_user=request.user)
+        dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
 
     available_discoveries = []
 
-    for discovery_name in player.available_discoveries:
+    for discovery_name in dominion.available_discoveries:
         available_discoveries.append(Discovery.objects.get(name=discovery_name))
 
     context = {
@@ -110,21 +110,21 @@ def discoveries(request):
 @login_required
 def submit_discovery(request):
     try:
-        player = Player.objects.get(associated_user=request.user)
+        dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
     discovery_name = request.POST["discovery_name"]
     
-    if player.discovery_points < 50:
+    if dominion.discovery_points < 50:
         messages.error(request, f"Insufficient discovery points")
         return redirect("discoveries")
     elif not Discovery.objects.filter(name=discovery_name).exists():
         messages.error(request, f"That discovery doesn't exist")
         return redirect("discoveries")
     else:
-        player.discovery_points -= 50
-        unlock_discovery(player, discovery_name)
+        dominion.discovery_points -= 50
+        unlock_discovery(dominion, discovery_name)
 
     return redirect("discoveries")
 
@@ -132,12 +132,12 @@ def submit_discovery(request):
 @login_required
 def submit_building(request):
     try:
-        player = Player.objects.get(associated_user=request.user)
+        dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
-    primary_resource = Resource.objects.get(ruler=player, name=player.building_primary_resource_name)
-    secondary_resource = Resource.objects.get(ruler=player, name=player.building_secondary_resource_name)
+    primary_resource = Resource.objects.get(ruler=dominion, name=dominion.building_primary_resource_name)
+    secondary_resource = Resource.objects.get(ruler=dominion, name=dominion.building_secondary_resource_name)
     total_built = 0
 
     destroy_mode = request.POST["buildOrDestroy"] == "Destroy"
@@ -163,25 +163,25 @@ def submit_building(request):
     elif destroy_mode:
         messages.success(request, f"Destruction of {total_built} buildings successful")
         return redirect("buildings")
-    elif total_built > player.barren_acres:
-        messages.error(request, f"You tried to build {total_built} buildings but only have {player.barren_acres} acres of barren land")
+    elif total_built > dominion.barren_acres:
+        messages.error(request, f"You tried to build {total_built} buildings but only have {dominion.barren_acres} acres of barren land")
         return redirect("buildings")
 
     building_succeeded = True
 
-    if total_built * player.building_primary_cost > primary_resource.quantity:
+    if total_built * dominion.building_primary_cost > primary_resource.quantity:
         building_succeeded = False
-        messages.error(request, f"This would cost {f'{total_built * player.building_primary_cost:,}'} {primary_resource.name}. You have {f'{primary_resource.quantity:,}'}.")
-    elif total_built * player.building_secondary_cost > secondary_resource.quantity:
+        messages.error(request, f"This would cost {f'{total_built * dominion.building_primary_cost:,}'} {primary_resource.name}. You have {f'{primary_resource.quantity:,}'}.")
+    elif total_built * dominion.building_secondary_cost > secondary_resource.quantity:
         building_succeeded = False
-        messages.error(request, f"This would cost {f'{total_built * player.building_secondary_cost:,}'} {secondary_resource.name}. You have {f'{secondary_resource.quantity:,}'}.")
+        messages.error(request, f"This would cost {f'{total_built * dominion.building_secondary_cost:,}'} {secondary_resource.name}. You have {f'{secondary_resource.quantity:,}'}.")
 
     if building_succeeded:
-        primary_resource.quantity -= total_built * player.building_primary_cost
+        primary_resource.quantity -= total_built * dominion.building_primary_cost
         primary_resource.save()
-        secondary_resource.quantity -= total_built * player.building_secondary_cost
+        secondary_resource.quantity -= total_built * dominion.building_secondary_cost
         secondary_resource.save()
-        player.save()
+        dominion.save()
 
         for key, string_amount in request.POST.items():
             if "build_" in key and string_amount != "":
@@ -197,16 +197,16 @@ def submit_building(request):
 @login_required
 def military(request):
     try:
-        player = Player.objects.get(associated_user=request.user)
+        dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
     print("sorted units")
-    print(player.sorted_units)
+    print(dominion.sorted_units)
 
     context = {
-        # "units": Unit.objects.filter(ruler=player),
-        "units": player.sorted_units
+        # "units": Unit.objects.filter(ruler=dominion),
+        "units": dominion.sorted_units
     }
 
     return render(request, "maingame/military.html", context)
@@ -215,7 +215,7 @@ def military(request):
 @login_required
 def submit_training(request):
     try:
-        player = Player.objects.get(associated_user=request.user)
+        dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
@@ -245,21 +245,21 @@ def submit_training(request):
     training_succeeded = True
 
     for resource, amount in total_cost_dict.items():
-        players_resource = Resource.objects.get(ruler=player, name=resource)
+        dominions_resource = Resource.objects.get(ruler=dominion, name=resource)
 
-        if players_resource.quantity < amount:
+        if dominions_resource.quantity < amount:
             training_succeeded = False
-            messages.error(request, f"This would cost {f'{amount:,}'}{resource}. You have {f'{players_resource.quantity:,}'}. You're {f'{amount - players_resource.quantity:,}'} short.")
+            messages.error(request, f"This would cost {f'{amount:,}'}{resource}. You have {f'{dominions_resource.quantity:,}'}. You're {f'{amount - dominions_resource.quantity:,}'} short.")
 
     if training_succeeded:
         for resource, amount in total_cost_dict.items():
-            players_resource = Resource.objects.get(ruler=player, name=resource)
-            players_resource.quantity -= amount
-            players_resource.save()
+            dominions_resource = Resource.objects.get(ruler=dominion, name=resource)
+            dominions_resource.quantity -= amount
+            dominions_resource.save()
 
         for key, string_amount in request.POST.items():
             if "train_" in key and string_amount != "":
-                unit = Unit.objects.get(ruler=player, id=key[6:])
+                unit = Unit.objects.get(ruler=dominion, id=key[6:])
                 amount = int(string_amount)
                 unit.training_dict["12"] += amount
                 unit.save()
@@ -272,7 +272,7 @@ def submit_training(request):
 @login_required
 def submit_release(request):
     try:
-        player = Player.objects.get(associated_user=request.user)
+        dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
@@ -304,21 +304,21 @@ def submit_release(request):
 @login_required
 def resources(request):
     try:
-        player = Player.objects.get(associated_user=request.user)
+        dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
     round = Round.objects.first()
     resources_dict = {}
-    player_resource_total_dict = {}
+    dominion_resource_total_dict = {}
 
-    for resource in Resource.objects.filter(ruler=player):
-        player_resource_total_dict[resource.name] = resource.quantity
+    for resource in Resource.objects.filter(ruler=dominion):
+        dominion_resource_total_dict[resource.name] = resource.quantity
 
         resources_dict[resource.name] = {
             "name": resource.name,
-            "produced": player.get_production(resource.name),
-            "consumed": player.get_consumption(resource.name),
+            "produced": dominion.get_production(resource.name),
+            "consumed": dominion.get_consumption(resource.name),
         }
 
         resources_dict[resource.name]["net"] = resources_dict[resource.name]["produced"] - resources_dict[resource.name]["consumed"]
@@ -328,9 +328,9 @@ def resources(request):
     trade_price_data = {}
 
     for resource_name, price in trade_price_dict.items():
-        if Resource.objects.filter(ruler=player, name=resource_name).exists():
+        if Resource.objects.filter(ruler=dominion, name=resource_name).exists():
             trade_price_data[resource_name] = {
-                "name": Resource.objects.get(ruler=player, name=resource_name).name,
+                "name": Resource.objects.get(ruler=dominion, name=resource_name).name,
                 "price": price,
                 "difference": int((price / round.base_price_dict[resource_name]) * 100)
             }
@@ -339,10 +339,10 @@ def resources(request):
         "resources_dict": resources_dict,
         "trade_price_data": trade_price_data,
         "resources_dict_json": json.dumps(resources_dict),
-        "player_resources_json": json.dumps(player_resource_total_dict),
+        "dominion_resources_json": json.dumps(dominion_resource_total_dict),
         "trade_price_json": json.dumps(trade_price_dict),
-        "last_sold_resource_name": Resource.objects.get(name=player.last_sold_resource_name, ruler=player).name,
-        "last_bought_resource_name": Resource.objects.get(name=player.last_bought_resource_name, ruler=player).name,
+        "last_sold_resource_name": Resource.objects.get(name=dominion.last_sold_resource_name, ruler=dominion).name,
+        "last_bought_resource_name": Resource.objects.get(name=dominion.last_bought_resource_name, ruler=dominion).name,
     }
 
     return render(request, "maingame/resources.html", context)
@@ -351,7 +351,7 @@ def resources(request):
 @login_required
 def trade(request):
     try:
-        player = Player.objects.get(associated_user=request.user)
+        dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
@@ -360,8 +360,8 @@ def trade(request):
     amount = int(request.POST["resourceAmount"])
     output_resource_name = request.POST["outputResource"]
 
-    input_resource = Resource.objects.get(ruler=player, name=input_resource_name)
-    output_resource = Resource.objects.get(ruler=player, name=output_resource_name)
+    input_resource = Resource.objects.get(ruler=dominion, name=input_resource_name)
+    output_resource = Resource.objects.get(ruler=dominion, name=output_resource_name)
 
     credit = round.trade_price_dict[input_resource.name] * amount
     payout = int(credit / round.trade_price_dict[output_resource.name])
@@ -376,9 +376,9 @@ def trade(request):
     round.resource_bank_dict[output_resource.name] -= payout
     round.save()
 
-    player.last_sold_resource_name = input_resource.name
-    player.last_bought_resource_name = output_resource.name
-    player.save()
+    dominion.last_sold_resource_name = input_resource.name
+    dominion.last_bought_resource_name = output_resource.name
+    dominion.save()
 
     update_trade_prices()
 
@@ -389,12 +389,12 @@ def trade(request):
 @login_required
 def upgrades(request):
     try:
-        player = Player.objects.get(associated_user=request.user)
+        dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
-    research_resource = Resource.objects.get(ruler=player, name="research")
-    buildings = Building.objects.filter(ruler=player)
+    research_resource = Resource.objects.get(ruler=dominion, name="research")
+    buildings = Building.objects.filter(ruler=dominion)
 
     context = {
         "buildings": buildings,
@@ -407,12 +407,12 @@ def upgrades(request):
 @login_required
 def upgrade_building(request, building_id):
     try:
-        player = Player.objects.get(associated_user=request.user)
+        dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
-    building = Building.objects.get(ruler=player, id=building_id)
-    research_resource = Resource.objects.get(ruler=player, name="research")
+    building = Building.objects.get(ruler=dominion, id=building_id)
+    research_resource = Resource.objects.get(ruler=dominion, name="research")
 
     available_research_points = research_resource.quantity
 
@@ -430,7 +430,7 @@ def upgrade_building(request, building_id):
         building. defense_multiplier += 1
     
     building.save()
-    player.save()
+    dominion.save()
 
     return redirect("upgrades")
 
@@ -438,15 +438,15 @@ def upgrade_building(request, building_id):
 @login_required
 def spells(request):
     try:
-        player = Player.objects.get(associated_user=request.user)
+        dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
-    spells = Spell.objects.filter(ruler=player)
+    spells = Spell.objects.filter(ruler=dominion)
 
     context = {
         "spells": spells,
-        "mana_quantity": Resource.objects.get(ruler=player, name="mana").quantity,
+        "mana_quantity": Resource.objects.get(ruler=dominion, name="mana").quantity,
     }
 
     return render(request, "maingame/spells.html", context)
@@ -455,12 +455,12 @@ def spells(request):
 @login_required
 def submit_spell(request, spell_id):
     try:
-        player = Player.objects.get(associated_user=request.user)
+        dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
     spell = Spell.objects.get(id=spell_id)
-    mana = Resource.objects.get(ruler=player, name="mana")
+    mana = Resource.objects.get(ruler=dominion, name="mana")
 
     if spell.mana_cost > mana.quantity:
         messages.error(request, f"This would cost {f'{spell.mana_cost:,}'}mana. You have {f'{mana.quantity:,}'}. You're {f'{spell.mana_cost - mana.quantity:,}'} short.")
@@ -483,15 +483,15 @@ def run_tick_view(request, quantity):
 def protection_tick(request, quantity):
     if quantity <= 96:
         try:
-            player = Player.objects.get(associated_user=request.user)
+            dominion = Dominion.objects.get(associated_user=request.user)
         except:
             return redirect("register")
         
         for _ in range(quantity):
-            if player.protection_ticks_remaining > 0:
-                player.do_tick()
-                player.protection_ticks_remaining -= 1
-                player.save()
+            if dominion.protection_ticks_remaining > 0:
+                dominion.do_tick()
+                dominion.protection_ticks_remaining -= 1
+                dominion.save()
     else:
         messages.error(request, f"Knock it off")
     
@@ -501,7 +501,7 @@ def protection_tick(request, quantity):
 @login_required
 def battle_report(request, battle_id):
     try:
-        player = Player.objects.get(associated_user=request.user)
+        dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
@@ -531,7 +531,7 @@ def battle_report(request, battle_id):
 def news(request):
     TIMEZONES_CHOICES = [tz for tz in zoneinfo.available_timezones()]
     try:
-        player = Player.objects.get(associated_user=request.user)
+        dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
@@ -540,11 +540,11 @@ def news(request):
     for event in Event.objects.all().order_by('-id')[:20]:
         displayed_events.append({
             "event": event,
-            "involves_player": event.notified_players.filter(id=player.id).count() > 0,
+            "involves_dominion": event.notified_dominions.filter(id=dominion.id).count() > 0,
         })
 
-    player.has_unread_events = False
-    player.save()
+    dominion.has_unread_events = False
+    dominion.save()
 
     context = {
         "displayed_events": displayed_events,
@@ -557,13 +557,13 @@ def news(request):
 @login_required
 def set_timezone(request):
     try:
-        player = Player.objects.get(associated_user=request.user)
+        dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
     timezone = request.POST["timezone"]
-    player.timezone = timezone
-    player.save()
+    dominion.timezone = timezone
+    dominion.save()
 
     messages.success(request, f"Time zone updated to {timezone}")
     
@@ -571,47 +571,47 @@ def set_timezone(request):
 
 
 @login_required
-def overview(request, player_id):
+def overview(request, dominion_id):
     try:
-        my_player = Player.objects.get(associated_user=request.user)
+        my_dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
-    player = Player.objects.get(id=player_id)
+    dominion = Dominion.objects.get(id=dominion_id)
 
-    if player_id != my_player.id and player.protection_ticks_remaining > 0:
+    if dominion_id != my_dominion.id and dominion.protection_ticks_remaining > 0:
         return redirect("world")
 
-    my_units = my_player.sorted_units
+    my_units = my_dominion.sorted_units
 
-    player = Player.objects.get(id=player_id)
-    units = player.sorted_units
-    buildings = Building.objects.filter(ruler=player, quantity__gte=1)
-    resources = Resource.objects.filter(ruler=player, quantity__gte=1)
+    dominion = Dominion.objects.get(id=dominion_id)
+    units = dominion.sorted_units
+    buildings = Building.objects.filter(ruler=dominion, quantity__gte=1)
+    resources = Resource.objects.filter(ruler=dominion, quantity__gte=1)
     learned_discoveries = []
 
     for discovery in Discovery.objects.all():
-        if discovery.name in player.learned_discoveries:
+        if discovery.name in dominion.learned_discoveries:
             learned_discoveries.append(discovery)
 
-    if "book_of_grudges" in player.perk_dict and my_player.protection_ticks_remaining == 0 and my_player.id != player_id:
-        if str(my_player.id) in player.perk_dict["book_of_grudges"]:
-            player.perk_dict["book_of_grudges"][str(my_player.id)]["pages"] += 1
+    if "book_of_grudges" in dominion.perk_dict and my_dominion.protection_ticks_remaining == 0 and my_dominion.id != dominion_id:
+        if str(my_dominion.id) in dominion.perk_dict["book_of_grudges"]:
+            dominion.perk_dict["book_of_grudges"][str(my_dominion.id)]["pages"] += 1
         else:
-            player.perk_dict["book_of_grudges"][str(my_player.id)] = {}
-            player.perk_dict["book_of_grudges"][str(my_player.id)]["pages"] = 1
-            player.perk_dict["book_of_grudges"][str(my_player.id)]["animosity"] = 0
+            dominion.perk_dict["book_of_grudges"][str(my_dominion.id)] = {}
+            dominion.perk_dict["book_of_grudges"][str(my_dominion.id)]["pages"] = 1
+            dominion.perk_dict["book_of_grudges"][str(my_dominion.id)]["animosity"] = 0
         
-        player.save()
+        dominion.save()
 
     context = {
-        "player": player,
+        "dominion": dominion,
         "units": units,
         "buildings": buildings,
         "resources": resources,
         "my_units": my_units,
-        "offense_multiplier": my_player.offense_multiplier + get_grudge_bonus(my_player, player),
-        "spells": Spell.objects.filter(ruler=player),
+        "offense_multiplier": my_dominion.offense_multiplier + get_grudge_bonus(my_dominion, dominion),
+        "spells": Spell.objects.filter(ruler=dominion),
         "learned_discoveries": learned_discoveries,
     }
 
@@ -621,22 +621,22 @@ def overview(request, player_id):
 @login_required
 def world(request):
     try:
-        my_player = Player.objects.get(associated_user=request.user)
+        my_dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
-    players = Player.objects.all().order_by('-acres')
+    dominions = Dominion.objects.all().order_by('-acres')
 
     # If you don't have grudge values set for someone, set them now
-    if "book_of_grudges" in my_player.perk_dict:
-        for player in players:
-            if str(player.id) not in my_player.perk_dict["book_of_grudges"]:
-                my_player.perk_dict["book_of_grudges"][str(player.id)] = {}
-                my_player.perk_dict["book_of_grudges"][str(player.id)]["pages"] = 0
-                my_player.perk_dict["book_of_grudges"][str(player.id)]["animosity"] = 0
+    if "book_of_grudges" in my_dominion.perk_dict:
+        for dominion in dominions:
+            if str(dominion.id) not in my_dominion.perk_dict["book_of_grudges"]:
+                my_dominion.perk_dict["book_of_grudges"][str(dominion.id)] = {}
+                my_dominion.perk_dict["book_of_grudges"][str(dominion.id)]["pages"] = 0
+                my_dominion.perk_dict["book_of_grudges"][str(dominion.id)]["animosity"] = 0
 
     context = {
-        "players": players,
+        "dominions": dominions,
     }
 
     return render(request, "maingame/world.html", context)
@@ -645,7 +645,7 @@ def world(request):
 @login_required
 def options(request):
     try:
-        player = Player.objects.get(associated_user=request.user)
+        dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
@@ -661,18 +661,18 @@ def options(request):
 @login_required
 def submit_options(request):
     try:
-        player = Player.objects.get(associated_user=request.user)
+        dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
     if "abandon" in request.POST and request.POST["confirm_abandon"] == "DELETE ME FOREVER":
         print("ABANDON TIME")
-        abandon_player(player)
+        abandon_dominion(dominion)
     
-    player.theme = request.POST["theme"]
-    player.show_tutorials = "show_tutorials" in request.POST
-    player.use_am_pm = "use_am_pm" in request.POST
-    player.save()
+    dominion.theme = request.POST["theme"]
+    dominion.show_tutorials = "show_tutorials" in request.POST
+    dominion.use_am_pm = "use_am_pm" in request.POST
+    dominion.save()
 
     return redirect("options")
 
@@ -680,7 +680,7 @@ def submit_options(request):
 @login_required
 def tutorial(request):
     try:
-        my_player = Player.objects.get(associated_user=request.user)
+        my_dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
 
@@ -692,18 +692,18 @@ def tutorial(request):
 
 
 @login_required
-def submit_invasion(request, player_id):
+def submit_invasion(request, dominion_id):
     try:
-        my_player = Player.objects.get(associated_user=request.user)
+        my_dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
-    target_player = Player.objects.get(id=player_id)
+    target_dominion = Dominion.objects.get(id=dominion_id)
     round = Round.objects.first()
 
-    if target_player.protection_ticks_remaining > 0 or my_player.protection_ticks_remaining > 0 or not round.has_started or round.has_ended:
+    if target_dominion.protection_ticks_remaining > 0 or my_dominion.protection_ticks_remaining > 0 or not round.has_started or round.has_ended:
         messages.error(request, f"Illegal invasion")
-        return redirect("overview", player_id=player_id)
+        return redirect("overview", dominion_id=dominion_id)
     
     total_units_sent = 0
     units_sent_dict = {}
@@ -725,11 +725,11 @@ def submit_invasion(request, player_id):
                 unit.save()
             else:
                 messages.error(request, f"You can't send more units than you have at home.")
-                return redirect("overview", player_id=player_id)
+                return redirect("overview", dominion_id=dominion_id)
 
     if total_units_sent < 1:
         messages.error(request, f"Zero units sent")
-        return redirect("overview", player_id=player_id)
+        return redirect("overview", dominion_id=dominion_id)
     
     offense_sent = 0
     
@@ -739,21 +739,21 @@ def submit_invasion(request, player_id):
         quantity_sent = unit_details_dict["quantity_sent"]
         offense_sent += unit.op * quantity_sent
 
-    offense_sent *= (my_player.offense_multiplier + get_grudge_bonus(my_player, target_player))
+    offense_sent *= (my_dominion.offense_multiplier + get_grudge_bonus(my_dominion, target_dominion))
 
     # Determine victor
-    if offense_sent >= target_player.defense:
+    if offense_sent >= target_dominion.defense:
         attacker_victory = True
-        target_player.complacency = 0
-        target_player.save()
+        target_dominion.complacency = 0
+        target_dominion.save()
 
-        if "book_of_grudges" in target_player.perk_dict:
-            if str(my_player.id) in target_player.perk_dict["book_of_grudges"]:
-                target_player.perk_dict["book_of_grudges"][str(my_player.id)]["pages"] += 100
+        if "book_of_grudges" in target_dominion.perk_dict:
+            if str(my_dominion.id) in target_dominion.perk_dict["book_of_grudges"]:
+                target_dominion.perk_dict["book_of_grudges"][str(my_dominion.id)]["pages"] += 100
             else:
-                target_player.perk_dict["book_of_grudges"][str(my_player.id)] = {}
-                target_player.perk_dict["book_of_grudges"][str(my_player.id)]["pages"] = 100
-                target_player.perk_dict["book_of_grudges"][str(my_player.id)]["animosity"] = 0
+                target_dominion.perk_dict["book_of_grudges"][str(my_dominion.id)] = {}
+                target_dominion.perk_dict["book_of_grudges"][str(my_dominion.id)]["pages"] = 100
+                target_dominion.perk_dict["book_of_grudges"][str(my_dominion.id)]["animosity"] = 0
     else:
         attacker_victory = False
 
@@ -763,18 +763,18 @@ def submit_invasion(request, player_id):
     for unit_id, data in units_sent_dict.items():
         battle_units_sent_dict[unit_id] = data["quantity_sent"]
 
-    for unit in Unit.objects.filter(ruler=target_player):
+    for unit in Unit.objects.filter(ruler=target_dominion):
         if unit.quantity_at_home > 0:
             battle_units_defending_dict[str(unit.id)] = unit.quantity_at_home
     
     print(battle_units_defending_dict)
 
     battle = Battle.objects.create(
-        attacker=my_player,
-        defender=target_player,
-        winner=my_player if attacker_victory else target_player,
+        attacker=my_dominion,
+        defender=target_dominion,
+        winner=my_dominion if attacker_victory else target_dominion,
         op=offense_sent,
-        dp=target_player.defense,
+        dp=target_dominion.defense,
         units_sent_dict=battle_units_sent_dict,
         units_defending_dict=battle_units_defending_dict,
     )
@@ -784,37 +784,37 @@ def submit_invasion(request, player_id):
         reference_type="battle", 
         name="🗡" if attacker_victory else "🛡"
     )
-    event.notified_players.add(my_player)
-    event.notified_players.add(target_player)
-    target_player.has_unread_events = True
-    target_player.save()
+    event.notified_dominions.add(my_dominion)
+    event.notified_dominions.add(target_dominion)
+    target_dominion.has_unread_events = True
+    target_dominion.save()
 
     # Determine casualty rates and handle victory triggers
     if attacker_victory:
         offensive_survival = 0.9
         defensive_survival = 0.95
-        acres_conquered = int(0.06 * target_player.acres * (target_player.acres / my_player.acres))
+        acres_conquered = int(0.06 * target_dominion.acres * (target_dominion.acres / my_dominion.acres))
 
-        target_player.acres -= acres_conquered
-        target_player.save()
-        prune_buildings(target_player)
+        target_dominion.acres -= acres_conquered
+        target_dominion.save()
+        prune_buildings(target_dominion)
 
-        my_player.incoming_acres_dict["12"] += acres_conquered * 2
-        my_player.save()
+        my_dominion.incoming_acres_dict["12"] += acres_conquered * 2
+        my_dominion.save()
         
         battle.acres_conquered = acres_conquered
         battle.save()
 
-        # Dwarves erase their grudges for a player once they hit them
-        if "book_of_grudges" in my_player.perk_dict and str(target_player.id) in my_player.perk_dict["book_of_grudges"]:
-            my_player.perk_dict["book_of_grudges"][str(target_player.id)]["pages"] = 0
-            my_player.perk_dict["book_of_grudges"][str(target_player.id)]["animosity"] = 0
-            my_player.save()
+        # Dwarves erase their grudges for a dominion once they hit them
+        if "book_of_grudges" in my_dominion.perk_dict and str(target_dominion.id) in my_dominion.perk_dict["book_of_grudges"]:
+            my_dominion.perk_dict["book_of_grudges"][str(target_dominion.id)]["pages"] = 0
+            my_dominion.perk_dict["book_of_grudges"][str(target_dominion.id)]["animosity"] = 0
+            my_dominion.save()
     else:
         offensive_survival = 0.85
 
         # If you're not close, then no casualties
-        if offense_sent < target_player.defense / 2:
+        if offense_sent < target_dominion.defense / 2:
             defensive_survival = 1
         else:
             defensive_survival = 0.98
@@ -837,7 +837,7 @@ def submit_invasion(request, player_id):
         unit.save()
 
     # Apply defensive casualties
-    for unit in Unit.objects.filter(ruler=target_player):
+    for unit in Unit.objects.filter(ruler=target_dominion):
         survivors = math.ceil(unit.quantity_at_home * defensive_survival)
 
         if "mana" not in unit.upkeep_dict and "mana" not in unit.cost_dict:
@@ -846,12 +846,12 @@ def submit_invasion(request, player_id):
         unit.quantity_at_home = survivors
         unit.save()
 
-    if attacker_victory and Resource.objects.filter(ruler=my_player, name="corpses").exists():
-        my_bodies = Resource.objects.get(ruler=my_player, name="corpses")
+    if attacker_victory and Resource.objects.filter(ruler=my_dominion, name="corpses").exists():
+        my_bodies = Resource.objects.get(ruler=my_dominion, name="corpses")
         my_bodies.quantity += total_casualties
         my_bodies.save()
-    elif not attacker_victory and Resource.objects.filter(ruler=target_player, name="corpses").exists():
-        targets_bodies = Resource.objects.get(ruler=target_player, name="corpses")
+    elif not attacker_victory and Resource.objects.filter(ruler=target_dominion, name="corpses").exists():
+        targets_bodies = Resource.objects.get(ruler=target_dominion, name="corpses")
         targets_bodies.quantity += total_casualties
         targets_bodies.save()
 

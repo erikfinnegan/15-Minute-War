@@ -1,13 +1,13 @@
-from maingame.models import Player, Round
+from maingame.models import Dominion, Round
 
 
-def player_context_processor(request):
-    active_player = None
+def dominion_context_processor(request):
+    active_dominion = None
 
     if request.user.is_authenticated:
-        active_player = Player.objects.filter(associated_user=request.user).first()
+        active_dominion = Dominion.objects.filter(associated_user=request.user).first()
         
     return {
-        "active_player": active_player,
+        "active_dominion": active_dominion,
         "round": Round.objects.first(),
     }

@@ -7,7 +7,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         print("IT'S DEBUG TIME BABY")
         # testuser = User.objects.get(username="test")
-        # testplayer = Player.objects.get(associated_user=testuser)
+        # testdominion = Dominion.objects.get(associated_user=testuser)
 
-        # unit = Unit.objects.get(ruler=testplayer, name="archer")
+        # unit = Unit.objects.get(ruler=testdominion, name="archer")
         # unit.advance_training_and_returning()

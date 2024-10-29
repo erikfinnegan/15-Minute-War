@@ -14,7 +14,7 @@ class Deity(models.Model):
         verbose_name_plural = "deities"
         
 
-class Player(models.Model):
+class Dominion(models.Model):
     associated_user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, unique=True)
     name = models.CharField(max_length=50, null=True, blank=True, unique=True)
     timezone = models.CharField(max_length=50, default="UTC")
@@ -225,16 +225,16 @@ class Player(models.Model):
 
     def do_perks(self):
         if "book_of_grudges" in self.perk_dict and self.protection_ticks_remaining == 0:
-            for player in Player.objects.filter(~Q(id=self.id), protection_ticks_remaining=0):
-                if str(player.id) in self.perk_dict["book_of_grudges"]:
-                    self.perk_dict["book_of_grudges"][str(player.id)]["animosity"] += self.perk_dict["book_of_grudges"][str(player.id)]["pages"] * 0.003
+            for dominion in Dominion.objects.filter(~Q(id=self.id), protection_ticks_remaining=0):
+                if str(dominion.id) in self.perk_dict["book_of_grudges"]:
+                    self.perk_dict["book_of_grudges"][str(dominion.id)]["animosity"] += self.perk_dict["book_of_grudges"][str(dominion.id)]["pages"] * 0.003
                     
-                    if self.perk_dict["book_of_grudges"][str(player.id)]["pages"] >= 100:
+                    if self.perk_dict["book_of_grudges"][str(dominion.id)]["pages"] >= 100:
                         rounding = 2
                     else:
                         rounding = 3
 
-                    self.perk_dict["book_of_grudges"][str(player.id)]["animosity"] = round(self.perk_dict["book_of_grudges"][str(player.id)]["animosity"], rounding)
+                    self.perk_dict["book_of_grudges"][str(dominion.id)]["animosity"] = round(self.perk_dict["book_of_grudges"][str(dominion.id)]["animosity"], rounding)
 
     def do_tick(self):
         self.do_resource_production()
@@ -258,7 +258,7 @@ class Player(models.Model):
 class Resource(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
     icon = models.CharField(max_length=50, null=True, blank=True)
-    ruler = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
+    ruler = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, blank=True)
     quantity = models.IntegerField(default=0)
     
     def __str__(self):
@@ -288,7 +288,7 @@ class Faction(models.Model):
 
 
 class Building(models.Model):
-    ruler = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
+    ruler = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, blank=True)
     name = models.CharField(max_length=50, null=True, blank=True)
     resource_produced_name = models.CharField(max_length=50, null=True, blank=True)
     amount_produced = models.IntegerField(default=0)
@@ -337,7 +337,7 @@ class Building(models.Model):
     
 
 class Unit(models.Model):
-    ruler = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
+    ruler = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, blank=True)
     name = models.CharField(max_length=50, null=True, blank=True)
     dp = models.IntegerField(default=0)
     op = models.IntegerField(default=0)
@@ -441,9 +441,9 @@ class Unit(models.Model):
 
 
 class Battle(models.Model):
-    attacker = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, related_name="battles_attacked")
-    defender = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, related_name="battles_defended")
-    winner = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, related_name="battles_won")
+    attacker = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, related_name="battles_attacked")
+    defender = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, related_name="battles_defended")
+    winner = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, related_name="battles_won")
     units_sent_dict = models.JSONField(default=dict, null=True, blank=True)
     units_defending_dict = models.JSONField(default=dict, null=True, blank=True)
     casualties_dict = models.JSONField(default=dict, null=True, blank=True)
@@ -465,7 +465,7 @@ class Event(models.Model):
     reference_type = models.CharField(max_length=50)
     icon = models.CharField(max_length=50, default="?")
     message_override = models.CharField(max_length=150, default="")
-    notified_players = models.ManyToManyField(Player)
+    notified_dominions = models.ManyToManyField(Dominion)
 
     def __str__(self):
         return f"{self.message}"
@@ -484,7 +484,7 @@ class Event(models.Model):
 class Round(models.Model):
     has_started = models.BooleanField(default=False)
     has_ended = models.BooleanField(default=False)
-    winner = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
+    winner = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, blank=True)
     trade_price_dict = models.JSONField(default=dict, blank=True)
     base_price_dict = models.JSONField(default=dict, blank=True)
     resource_bank_dict = models.JSONField(default=dict, blank=True)
@@ -517,7 +517,7 @@ class Discovery(models.Model):
 
 class Spell(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
-    ruler = models.ForeignKey(Player, on_delete=models.PROTECT, null=True, blank=True)
+    ruler = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, blank=True)
     description = models.CharField(max_length=500, null=True, blank=True)
     requirement = models.CharField(max_length=50, null=True, blank=True)
     mana_cost_per_acre = models.IntegerField(default=99)
@@ -537,15 +537,15 @@ class Spell(models.Model):
         return self.ruler.acres * self.mana_cost_per_acre
     
 
-def do_tick_units(player: Player):
-    for unit in Unit.objects.filter(ruler=player):
+def do_tick_units(dominion: Dominion):
+    for unit in Unit.objects.filter(ruler=dominion):
         for perk, value in unit.perk_dict.items():
             match perk:
                 case "surplus_research_consumed_to_add_one_op_and_dp":
-                    research = Resource.objects.get(ruler=player, name="research")
+                    research = Resource.objects.get(ruler=dominion, name="research")
                     highest_upgrade_cost = 0
 
-                    for building in Building.objects.filter(ruler=player):
+                    for building in Building.objects.filter(ruler=dominion):
                         highest_upgrade_cost = max(highest_upgrade_cost, building.upgrade_cost)
 
                     if research.quantity > highest_upgrade_cost + 10:
@@ -559,9 +559,9 @@ def do_tick_units(player: Player):
                         research.save()
                         unit.save()
                 case "random_grudge_book_pages_per_tick":
-                    keys_list = list(player.perk_dict["book_of_grudges"].keys())
+                    keys_list = list(dominion.perk_dict["book_of_grudges"].keys())
 
                     if len(keys_list) > 0:
                         random_key = random.choice(keys_list)
-                        player.perk_dict["book_of_grudges"][random_key]["pages"] += value
-                        player.save()
+                        dominion.perk_dict["book_of_grudges"][random_key]["pages"] += value
+                        dominion.save()

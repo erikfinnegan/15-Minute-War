@@ -8,7 +8,7 @@
 
 <form action="{% url 'submit_training' %}" method="post" class="max-w-md">
     {% csrf_token %}
-    {% if active_player.show_tutorials %}
+    {% if active_dominion.show_tutorials %}
     <p>
         Train units to defend your dominion and attack others. Units cost resources to train and will arrive after 12 ticks. Once a unit is trained,
         their upkeep cost must be paid each tick. If a unit's upkeep can't be paid, you'll lose 1% of your current stock of that unit each tick until you can
@@ -173,21 +173,21 @@
                 </tr>
             </thead>
             <tbody>
-                {% if active_player.incoming_acres > 0 %}
+                {% if active_dominion.incoming_acres > 0 %}
                 <tr>
                     <td class="u-align-middle">Acres</td>
-                    <td class="u-align-middle">{{ active_player.incoming_acres_dict.1 }}</td>
-                    <td class="u-align-middle">{{ active_player.incoming_acres_dict.2 }}</td>
-                    <td class="u-align-middle">{{ active_player.incoming_acres_dict.3 }}</td>
-                    <td class="u-align-middle">{{ active_player.incoming_acres_dict.4 }}</td>
-                    <td class="u-align-middle">{{ active_player.incoming_acres_dict.5 }}</td>
-                    <td class="u-align-middle">{{ active_player.incoming_acres_dict.6 }}</td>
-                    <td class="u-align-middle">{{ active_player.incoming_acres_dict.7 }}</td>
-                    <td class="u-align-middle">{{ active_player.incoming_acres_dict.8 }}</td>
-                    <td class="u-align-middle">{{ active_player.incoming_acres_dict.9 }}</td>
-                    <td class="u-align-middle">{{ active_player.incoming_acres_dict.10 }}</td>
-                    <td class="u-align-middle">{{ active_player.incoming_acres_dict.11 }}</td>
-                    <td class="u-align-middle">{{ active_player.incoming_acres_dict.12 }}</td>
+                    <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.1 }}</td>
+                    <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.2 }}</td>
+                    <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.3 }}</td>
+                    <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.4 }}</td>
+                    <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.5 }}</td>
+                    <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.6 }}</td>
+                    <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.7 }}</td>
+                    <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.8 }}</td>
+                    <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.9 }}</td>
+                    <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.10 }}</td>
+                    <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.11 }}</td>
+                    <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.12 }}</td>
                 </tr>
                 {% endif %}
             </tbody>

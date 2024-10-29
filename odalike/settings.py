@@ -75,7 +75,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'maingame.context_processors.context_processors.player_context_processor',
+                'maingame.context_processors.context_processors.dominion_context_processor',
             ],
         },
     },

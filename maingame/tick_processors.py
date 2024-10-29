@@ -1,5 +1,5 @@
 from random import randint
-from maingame.models import Player, Round, Unit, Building, Battle, Event, Deity
+from maingame.models import Dominion, Round, Unit, Building, Battle, Event, Deity
 from django.db.models import Q
 
 
@@ -17,6 +17,6 @@ def do_global_tick():
     normalize_trade_prices()
 
     if Round.objects.first().allow_ticks:
-        for player in Player.objects.all():
-            if player.protection_ticks_remaining == 0:
-                player.do_tick()
+        for dominion in Dominion.objects.all():
+            if dominion.protection_ticks_remaining == 0:
+                dominion.do_tick()

@@ -18,13 +18,13 @@
 		<meta http-equiv="X-UA-Compatible" content="ie=edge">
 		<meta property="og:site_name" content="15 Minute War">
 		<meta property="og:title" content="15 Minute War">
-		<meta property="og:description" content="15 Minute War is a free text-based multiplayer strategy game in a medieval fantasy setting. Petty kingdoms vie for control over one another.">
+		<meta property="og:description" content="15 Minute War is a free text-based multidominion strategy game in a medieval fantasy setting. Petty kingdoms vie for control over one another.">
 		<meta property="og:type" content="website">
 	</head>
 
     <style>
         :root {
-        {% if active_player.theme == "Mustard and blue" %}
+        {% if active_dominion.theme == "Mustard and blue" %}
             --base_background: #003049;
             --base_text: white;
 
@@ -33,7 +33,7 @@
 
             --header_background: #fca311;
             --header_text: black;
-        {% elif active_player.theme == "Blood and beige" %}
+        {% elif active_dominion.theme == "Blood and beige" %}
             --base_background: #fdf0d5;
             --base_text: black;
 
@@ -42,7 +42,7 @@
 
             --header_background: #780000;
             --header_text: white;
-        {% elif active_player.theme == "It's a boy" %}
+        {% elif active_dominion.theme == "It's a boy" %}
             --base_background: #caf0f8;
             --base_text: black;
 
@@ -51,7 +51,7 @@
 
             --header_background: #0077b6;
             --header_text: white;
-        {% elif active_player.theme == "Elesh Norn" %}
+        {% elif active_dominion.theme == "Elesh Norn" %}
             --base_background: #800020;
             --base_text: white;
 
@@ -60,7 +60,7 @@
 
             --header_background: #fffff0;
             --header_text: black;
-        {% elif active_player.theme == "Swampy" %}
+        {% elif active_dominion.theme == "Swampy" %}
             --base_background: #59a96a;
             --base_text: white;
 
@@ -69,7 +69,7 @@
 
             --header_background: #474a2c;
             --header_text: white;
-        {% elif active_player.theme == "OpenDominion" %}
+        {% elif active_dominion.theme == "OpenDominion" %}
             --base_background: white;
             --base_text: black;
 
@@ -78,7 +78,7 @@
 
             --header_background: #3c8dbc;
             --header_text: white;
-        {% elif active_player.theme == "ODA" %}
+        {% elif active_dominion.theme == "ODA" %}
             --base_background: white;
             --base_text: black;
 

@@ -5,7 +5,7 @@
 
 {% block content %}
 <div>
-    {% if active_player.show_tutorials %}
+    {% if active_dominion.show_tutorials %}
     <p>
         While there are exceptions, most buildings produce resources each tick. Each has a cost to build with a primary and secondary resource. The cost
         per building increases depending on how many acres you have. Unlike units, buildings are constructed instantly. You can also destroy buildings,
@@ -13,10 +13,10 @@
     </p>
     <p>You can construct one building per acre. If you have fewer than that, the available space is referred to as "barren" acres.</p>
     {% endif %}
-    <h6>{{ active_player.barren_acres}} barren acres</h6>
+    <h6>{{ active_dominion.barren_acres}} barren acres</h6>
     <p>
-        Buildings cost {{ active_player.building_primary_cost|intcomma }} {{ primary_resource.name }} and 
-        {{ active_player.building_secondary_cost|intcomma }} {{ secondary_resource.name }}. You can build {{ max_buildable|intcomma }}.
+        Buildings cost {{ active_dominion.building_primary_cost|intcomma }} {{ primary_resource.name }} and 
+        {{ active_dominion.building_secondary_cost|intcomma }} {{ secondary_resource.name }}. You can build {{ max_buildable|intcomma }}.
     </p>
     <form action="{% url 'submit_building' %}" method="post" class="">
         {% csrf_token %}

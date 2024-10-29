@@ -6,7 +6,7 @@
 {% block content %}
 
 <div class="u-flex u-flex-column u-gap-4">
-    {% if active_player.show_tutorials %}
+    {% if active_dominion.show_tutorials %}
         <div>
             <p>
                 This shows just about everything about this dominion at a glance. If you and this dominion are both out of protection, it also has
@@ -15,15 +15,15 @@
         </div>
     {% endif %}
     <div>
-        <h6>{{ player.name }}</h6>
-        <h6>{{ player.acres }} acres</h6>
-        <h6>{{ player.defense|intcomma }} defense</h6>
+        <h6>{{ dominion.name }}</h6>
+        <h6>{{ dominion.acres }} acres</h6>
+        <h6>{{ dominion.defense|intcomma }} defense</h6>
     </div>
 
-    {% if player != active_player and player.protection_ticks_remaining == 0 and active_player.protection_ticks_remaining == 0 and round.has_started and not round.has_ended %}
+    {% if dominion != active_dominion and dominion.protection_ticks_remaining == 0 and active_dominion.protection_ticks_remaining == 0 and round.has_started and not round.has_ended %}
     <details class="accordion card card_colors max-w-md">
         <summary class="accordion__summary">Plan invasion</summary>
-        <form action="{% url 'submit_invasion' player.id %}" method="post" class="max-w-md">
+        <form action="{% url 'submit_invasion' dominion.id %}" method="post" class="max-w-md">
             {% csrf_token %}
             <div class="w-100p u-center">
                 <h6>Invade</h6>
@@ -62,7 +62,7 @@
                 <span id="opToSend">0</span>
                 <span>OP</span>
                 <span>vs.</span>
-                <span id="dpHere">{{ player.defense }}</span>
+                <span id="dpHere">{{ dominion.defense }}</span>
                 <span> DP</span>
             </div>
             <div style="display: none;">
@@ -267,21 +267,21 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% if active_player.incoming_acres > 0 %}
+                    {% if active_dominion.incoming_acres > 0 %}
                     <tr>
                         <td class="u-align-middle">Acres</td>
-                        <td class="u-align-middle">{{ player.incoming_acres_dict.1 }}</td>
-                        <td class="u-align-middle">{{ player.incoming_acres_dict.2 }}</td>
-                        <td class="u-align-middle">{{ player.incoming_acres_dict.3 }}</td>
-                        <td class="u-align-middle">{{ player.incoming_acres_dict.4 }}</td>
-                        <td class="u-align-middle">{{ player.incoming_acres_dict.5 }}</td>
-                        <td class="u-align-middle">{{ player.incoming_acres_dict.6 }}</td>
-                        <td class="u-align-middle">{{ player.incoming_acres_dict.7 }}</td>
-                        <td class="u-align-middle">{{ player.incoming_acres_dict.8 }}</td>
-                        <td class="u-align-middle">{{ player.incoming_acres_dict.9 }}</td>
-                        <td class="u-align-middle">{{ player.incoming_acres_dict.10 }}</td>
-                        <td class="u-align-middle">{{ player.incoming_acres_dict.11 }}</td>
-                        <td class="u-align-middle">{{ player.incoming_acres_dict.12 }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres_dict.1 }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres_dict.2 }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres_dict.3 }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres_dict.4 }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres_dict.5 }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres_dict.6 }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres_dict.7 }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres_dict.8 }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres_dict.9 }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres_dict.10 }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres_dict.11 }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres_dict.12 }}</td>
                     </tr>
                     {% endif %}
                 </tbody>
@@ -387,7 +387,7 @@
         </div>
     </div>
 
-    <p>Complacency: {{ player.complacency }} ticks (-{{ player.complacency_penalty_readout }}% defense)
+    <p>Complacency: {{ dominion.complacency }} ticks (-{{ dominion.complacency_penalty_readout }}% defense)
 </div>
 
 {% endblock %}

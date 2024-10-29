@@ -1,4 +1,4 @@
-from maingame.models import Faction, Deity, Player, Building, Unit, Discovery, Round, Battle, Event, Resource, Spell
+from maingame.models import Faction, Deity, Dominion, Building, Unit, Discovery, Round, Battle, Event, Resource, Spell
 from maingame.utils import update_trade_prices
 
 
@@ -100,9 +100,9 @@ def initialize_factions():
         building_primary_resource_name="gold",
         building_secondary_resource_name="wood",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"],
-        description="""Dwarves keep a book of grudges, chronicling any slight against them, no matter how minor. When a player invades a dwarf, 100 pages of 
-        grudges are added. Every tick, dwarves gain +0.03% offense against each player equal to the number of pages of grudges they have about that player. It 
-        doesn't sound like much, but it adds up quick. When a dwarf invades another player, any grudges they have against that player are 
+        description="""Dwarves keep a book of grudges, chronicling any slight against them, no matter how minor. When a dominion invades a dwarf, 100 pages of 
+        grudges are added. Every tick, dwarves gain +0.03% offense against each dominion equal to the number of pages of grudges they have about that dominion. It 
+        doesn't sound like much, but it adds up quick. When a dwarf invades another dominion, any grudges they have against that dominion are 
         satisfied and cleared. Oh, and simply viewing a dwarf's overview page is enough to warrant one page of grudges."""
     )
 
@@ -185,7 +185,7 @@ def initialize_units():
         op=15,
         dp=0,
         cost_dict={
-            "🪵": 4000,
+            "wood": 4000,
             "ore": 2200,
         },
     )
@@ -194,10 +194,10 @@ def initialize_units():
         op=0,
         dp=5,
         cost_dict={
-            "🪵": 3000,
+            "wood": 3000,
         },
         upkeep_dict={
-            "🪵": 1,
+            "wood": 1,
         },
     )
     Unit.objects.create(
@@ -346,8 +346,8 @@ def initialize_game_pieces():
     print()
     print("-- PLAYERS --")
 
-    for player in Player.objects.all():
-        print(player)
+    for dominion in Dominion.objects.all():
+        print(dominion)
 
     print()
     print("-- EVENTS --")
@@ -364,15 +364,15 @@ def initialize_game_pieces():
     Unit.objects.all().delete()
     Spell.objects.all().delete()
     Faction.objects.all().delete()
-    Player.objects.all().delete()
+    Dominion.objects.all().delete()
     Deity.objects.all().delete()
     Round.objects.create()
 
     print()
-    print("After delete players")
+    print("After delete dominions")
 
-    for player in Player.objects.all():
-        print(player)
+    for dominion in Dominion.objects.all():
+        print(dominion)
 
     print("After delete events")
 

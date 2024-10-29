@@ -5,12 +5,12 @@
 
 {% block content %}
 <div class="max-w-md">
-    {% if active_player.is_starving %}
+    {% if active_dominion.is_starving %}
     <div class="u-center">
         <h4 class="font-bold text-red-400">⚠️YOU ARE STARVING⚠️</h4>
     </div>
     {% endif %}
-    {% if active_player.show_tutorials %}
+    {% if active_dominion.show_tutorials %}
     <p>
         This shows your resource generation and consumption. Generally speaking, buildings generate resources and units consume them. Note that if you run out of
         a resource that's being consumed, you'll lose units until you can afford all of your upkeeps.
@@ -44,7 +44,7 @@
         </table>
     </div>
 
-    {% if active_player.protection_ticks_remaining == 0 and round.has_started and not round.has_ended %}
+    {% if active_dominion.protection_ticks_remaining == 0 and round.has_started and not round.has_ended %}
     <div>
         <form action="{% url 'trade' %}" method="post">
             {% csrf_token %}
@@ -56,13 +56,13 @@
             <div class="u-flex u-flex-row u-gap-2">
                 <select class="w-10 card_colors" id="inputResource" name="inputResource" oninput="showRatio()">
                     {% for key, value in resources_dict.items %}
-                    <option {% if key == active_player.last_sold_resource_name %} selected{% endif %}>{{ key }}</option>
+                    <option {% if key == active_dominion.last_sold_resource_name %} selected{% endif %}>{{ key }}</option>
                     {% endfor %}
                 </select>
                 <input type="range" min="1" max="100" value="0" id="resourceRange" name="resourceAmount" oninput="showCurrentValue()">
                 <select class="w-10 card_colors" id="outputResource" name="outputResource" oninput="showRatio()">
                     {% for key, value in resources_dict.items %}
-                    <option {% if key == active_player.last_bought_resource_name %} selected{% endif %}>{{ key }}</option>
+                    <option {% if key == active_dominion.last_bought_resource_name %} selected{% endif %}>{{ key }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -114,7 +114,7 @@
     {% endif %}
 
     <script>
-        const playerResourcesDict = JSON.parse('{{ player_resources_json|escapejs }}');
+        const dominionResourcesDict = JSON.parse('{{ dominion_resources_json|escapejs }}');
         const resourceInfoDict = JSON.parse('{{ resources_dict_json|escapejs }}');
         const tradePrices = JSON.parse('{{ trade_price_json|escapejs }}');
         const lastSoldResourcename = '{{ last_sold_resource_name|escapejs }}'
@@ -122,7 +122,7 @@
 
         document.getElementById("inputResource").value = lastSoldResourcename
         document.getElementById("outputResource").value = lastBoughtResourcename
-        document.getElementById("resourceRange").max = playerResourcesDict["gold"];
+        document.getElementById("resourceRange").max = dominionResourcesDict["gold"];
         showCurrentValue();
         showRatio();
 
@@ -143,7 +143,7 @@
             const inputResource = document.getElementById("inputResource").value;
             const outputResource = document.getElementById("outputResource").value;
             document.getElementById("resourceRange").value = 0
-            document.getElementById("resourceRange").max = playerResourcesDict[inputResource];
+            document.getElementById("resourceRange").max = dominionResourcesDict[inputResource];
             document.getElementById("soldResource").innerHTML = inputResource
             document.getElementById("boughtResource").innerHTML = outputResource
             const inputPrice = tradePrices[inputResource]

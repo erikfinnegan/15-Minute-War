@@ -6,19 +6,19 @@
 
 {% block content %}
 <div class="">
-    {% if active_player.show_tutorials %}
+    {% if active_dominion.show_tutorials %}
         <p>
-            Shows significant events in the round, primarily invasions and players signing up.
+            Shows significant events in the round, primarily invasions and dominions signing up.
         </p>
     {% endif %}
     <table class="table striped max-w-md">
         <tbody>
             {% for event in displayed_events %}
-            <tr class="{% if event.involves_player %}text-yellow-300{% endif %}">
-                {% if active_player.use_am_pm %}
-                <th class="u-align-middle">{{ event.event.timestamp|timezone:active_player.timezone|date:"F j, g:i:s a" }}</th>
+            <tr class="{% if event.involves_dominion %}text-yellow-300{% endif %}">
+                {% if active_dominion.use_am_pm %}
+                <th class="u-align-middle">{{ event.event.timestamp|timezone:active_dominion.timezone|date:"F j, g:i:s a" }}</th>
                 {% else %}
-                <th class="u-align-middle">{{ event.event.timestamp|timezone:active_player.timezone|date:"F j, G:i:s" }}</th>
+                <th class="u-align-middle">{{ event.event.timestamp|timezone:active_dominion.timezone|date:"F j, G:i:s" }}</th>
                 {% endif %}
                 <th class="u-align-middle">{{ event.event.icon }}</th>
                 <th class="u-align-middle">{{ event.event }}</th>
@@ -43,7 +43,7 @@
     <div class="max-w-md u-flex-grow-1 my-auto">
         <select id="tom-select-it" name="timezone">
             {% for timezone in timezones %}
-            <option {% if timezone == active_player.timezone %}selected{% endif %}>{{ timezone }}</option>
+            <option {% if timezone == active_dominion.timezone %}selected{% endif %}>{{ timezone }}</option>
             {% endfor %}
         </select>
     </div>

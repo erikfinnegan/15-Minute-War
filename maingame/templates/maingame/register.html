@@ -6,8 +6,8 @@
 <form action="{% url 'submit_register' %}" method="post" class="w-64 u-flex u-flex-column u-gap-4">
     {% csrf_token %}
     <div>
-        <label for="playerName">Display name</label>
-        <input type="text" name="playerName" id="playerName" maxlength="50" />
+        <label for="dominionName">Display name</label>
+        <input type="text" name="dominionName" id="dominionName" maxlength="50" />
     </div>
     
     <div>
@@ -24,7 +24,7 @@
         <div class="max-w-md u-flex-grow-1 my-auto">
             <select id="tom-select-it" name="timezone">
                 {% for timezone in timezones %}
-                <option {% if timezone == active_player.timezone %}selected{% endif %}>{{ timezone }}</option>
+                <option {% if timezone == active_dominion.timezone %}selected{% endif %}>{{ timezone }}</option>
                 {% endfor %}
             </select>
 

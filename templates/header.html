@@ -6,8 +6,8 @@
         <h4 class="u-center">{{ round.winner }} has been crowned the ruler</h4>
     </div>
     {% else %}
-    <table class="w-100p mt-1 max-w-xs header_colors{% if active_player.is_starving %} text-red-400{% endif %}">
-        {% for key, value in active_player.header_rows.items %}
+    <table class="w-100p mt-1 max-w-xs header_colors{% if active_dominion.is_starving %} text-red-400{% endif %}">
+        {% for key, value in active_dominion.header_rows.items %}
         <tr>
             {% for resource_readout in value %}
             <td>
@@ -32,19 +32,19 @@
     </div>
 </div>
 
-{% if active_player.protection_ticks_remaining > 0 %}
+{% if active_dominion.protection_ticks_remaining > 0 %}
 <div class="u-flex u-flex-row u-gap-4 header_colors p-1">
-    <span>{{ active_player.protection_ticks_remaining }} protection ticks remaining</span>
+    <span>{{ active_dominion.protection_ticks_remaining }} protection ticks remaining</span>
     <a href="{% url 'protection_tick' 1 %}">
         <button class="h-4 py-0">+1 tick</button>
     </a>
-    {% if active_player.protection_ticks_remaining >= 12 %}
+    {% if active_dominion.protection_ticks_remaining >= 12 %}
     <a href="{% url 'protection_tick' 12 %}">
         <button class="h-4 py-0">+12 ticks</button>
     </a>
     {% endif %}
-    <a href="{% url 'protection_tick' active_player.protection_ticks_remaining %}">
-        <button class="h-4 py-0">+{{ active_player.protection_ticks_remaining }} ticks</button>
+    <a href="{% url 'protection_tick' active_dominion.protection_ticks_remaining %}">
+        <button class="h-4 py-0">+{{ active_dominion.protection_ticks_remaining }} ticks</button>
     </a>
 </div>
 {% endif %}
