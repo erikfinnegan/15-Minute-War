@@ -450,15 +450,20 @@ class Unit(models.Model):
 
 
 class Battle(models.Model):
+    timestamp = models.DateTimeField(auto_now_add=True)
     attacker = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, related_name="battles_attacked")
     defender = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, related_name="battles_defended")
     winner = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, related_name="battles_won")
     units_sent_dict = models.JSONField(default=dict, null=True, blank=True)
     units_defending_dict = models.JSONField(default=dict, null=True, blank=True)
-    casualties_dict = models.JSONField(default=dict, null=True, blank=True)
+    # casualties_dict = models.JSONField(default=dict, null=True, blank=True)
+    battle_report_notes = models.JSONField(default=list, null=True, blank=True)
     op = models.IntegerField(default=0)
     dp = models.IntegerField(default=0)
     acres_conquered = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.attacker} invades {self.defender}"
 
     @property
     def event_text(self):

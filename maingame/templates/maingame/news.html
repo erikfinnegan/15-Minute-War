@@ -37,29 +37,4 @@
     </table>
 </div>
 
-<form action="{% url 'set_timezone' %}" method="post" class="u-flex u-flex-row h-8 mb-8 u-gap-4 max-w-md w-64 w-auto-md">
-    {% csrf_token %}
-    <h6 class="my-auto">Set timezone</h6>
-    <div class="max-w-md u-flex-grow-1 my-auto">
-        <select id="tom-select-it" name="timezone">
-            {% for timezone in timezones %}
-            <option {% if timezone == active_user_settings.timezone %}selected{% endif %}>{{ timezone }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    <button class="btn-light my-auto w-16 h-5 p-0" type="submit">
-        <span class="font-bold">Submit</span>
-    </button>
-</form>
-
-<script>
-    var config = {
-        sortField: {
-        field: "text",
-        direction: "asc"
-    }
-    };
-    new TomSelect('#tom-select-it', config);
-</script>
-
 {% endblock %}

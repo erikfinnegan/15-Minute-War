@@ -466,6 +466,10 @@ def submit_spell(request, spell_id):
 
 @login_required
 def run_tick_view(request, quantity):
+    round = Round.objects.first()
+    round.has_started = True
+    round.save()
+
     for _ in range(quantity):
         do_global_tick()
 
@@ -545,22 +549,6 @@ def news(request):
     }
 
     return render(request, "maingame/news.html", context)
-
-
-@login_required
-def set_timezone(request):
-    try:
-        user_settings = UserSettings.objects.get(associated_user=request.user)
-    except:
-        return redirect("register")
-    
-    timezone = request.POST["timezone"]
-    user_settings.timezone = timezone
-    user_settings.save()
-
-    messages.success(request, f"Time zone updated to {timezone}")
-    
-    return redirect("news")
 
 
 @login_required
@@ -855,9 +843,13 @@ def submit_invasion(request, dominion_id):
         my_bodies = Resource.objects.get(ruler=my_dominion, name="corpses")
         my_bodies.quantity += total_casualties
         my_bodies.save()
+        battle.battle_report_notes.append(f"{my_dominion} gained {total_casualties} corpses.")
+        battle.save()
     elif not attacker_victory and Resource.objects.filter(ruler=target_dominion, name="corpses").exists():
         targets_bodies = Resource.objects.get(ruler=target_dominion, name="corpses")
         targets_bodies.quantity += total_casualties
         targets_bodies.save()
+        battle.battle_report_notes.append(f"{target_dominion} gained {total_casualties} corpses.")
+        battle.save()
 
     return redirect("battle_report", battle_id=battle.id)

@@ -10,7 +10,6 @@ urlpatterns = [
     path("register/submit", views.submit_register, name="submit_register"),
     path("register", views.register, name="register"),
     path("news", views.news, name="news"),
-    path("set_timezone", views.set_timezone, name="set_timezone"),
     path("upgrades", views.upgrades, name="upgrades"),
     path("upgrade_building/<int:building_id>", views.upgrade_building, name="upgrade_building"),
     path("military/submit", views.submit_training, name="submit_training"),
