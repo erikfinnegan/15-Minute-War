@@ -34,4 +34,5 @@ urlpatterns = [
     path("faction_info", views.faction_info, name="faction_info"),
     path("options", views.options, name="options"),
     path("submit_options", views.submit_options, name="submit_options"),
+    path("abandon", views.abandon, name="abandon"),
 ]

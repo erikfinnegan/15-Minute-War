@@ -21,13 +21,17 @@ class Command(BaseCommand):
                 farm.quantity = 10
                 farm.save()
 
-                if not UserSettings.objects.filter(associated_user=user).exists():
-                    UserSettings.objects.create(associated_user=user, theme="Elesh Norn")
-                else:
-                    user_settings = UserSettings.objects.get(associated_user=user)
-                    user_settings.theme = "Elesh Norn"
-                    user_settings.timezone = "EST"
-                    user_settings.save()
+            if not UserSettings.objects.filter(associated_user=user).exists():
+                UserSettings.objects.create(associated_user=user, theme="Elesh Norn", display_name=user.username)
+            else:
+                user_settings = UserSettings.objects.get(associated_user=user)
+                user_settings.theme = "Elesh Norn"
+                user_settings.timezone = "EST"
+
+                if user_settings.display_name == "":
+                    user_settings.display_name = user.username
+
+                user_settings.save()
         
         invade_me_test = Dominion.objects.get(name="p-nofaction")
         invade_me_test.name = "Invade me"

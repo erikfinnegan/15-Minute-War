@@ -35,7 +35,7 @@ ALLOWED_HOSTS = ["127.0.0.1", "localhost", "137.184.134.18", ".15minutewar.com",
 
 CSRF_TRUSTED_ORIGINS = ["https://15minutewar.pythonanywhere.com"]
 
-LOGIN_REDIRECT_URL = "/buildings"
+LOGIN_REDIRECT_URL = "/resources"
 LOGOUT_REDIRECT_URL = "/"
 
 # Application definition

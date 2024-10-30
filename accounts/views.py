@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 
-from maingame.models import Dominion, Event
+from maingame.models import Dominion, Event, UserSettings
 
 
 class SignUpView(CreateView):
@@ -14,6 +14,7 @@ class SignUpView(CreateView):
     def form_valid(self, form):
         response = super().form_valid(form)
         new_user = User.objects.get(username=form.cleaned_data["username"])
+        UserSettings.objects.create(associated_user=new_user, display_name=new_user.username)
         # Dominion.objects.create(associated_user=new_user, name="Erik forgot a round signup process")
         
         return response

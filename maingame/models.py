@@ -16,13 +16,14 @@ class Deity(models.Model):
 
 class UserSettings(models.Model):
     associated_user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, unique=True)
+    display_name = models.CharField(max_length=50, null=True, blank=True, default="")
     timezone = models.CharField(max_length=50, default="UTC")
     show_tutorials = models.BooleanField(default=True)
     theme = models.CharField(max_length=50, null=True, blank=True, default="ODA")
     use_am_pm = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"{self.associated_user.username}'s settings"
+        return f"{self.display_name}'s settings"
 
 
 class Dominion(models.Model):
@@ -60,6 +61,10 @@ class Dominion(models.Model):
 
     def __str__(self):
         return f"{self.name}"
+    
+    @property
+    def rulers_display_name(self):
+        return UserSettings.objects.get(associated_user=self.associated_user).display_name
 
     @property
     def complacency_penalty_readout(self):
@@ -263,7 +268,6 @@ class Dominion(models.Model):
 
 class Resource(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
-    icon = models.CharField(max_length=50, null=True, blank=True)
     ruler = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, blank=True)
     quantity = models.IntegerField(default=0)
     
@@ -469,7 +473,7 @@ class Event(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     reference_id = models.IntegerField(default=0)
     reference_type = models.CharField(max_length=50)
-    icon = models.CharField(max_length=50, default="?")
+    category = models.CharField(max_length=50, default="?")
     message_override = models.CharField(max_length=150, default="")
     notified_dominions = models.ManyToManyField(Dominion)
 

@@ -45,11 +45,8 @@ def register(request):
     except:
         pass
 
-    TIMEZONES_CHOICES = [tz for tz in zoneinfo.available_timezones()]
-
     context = {
         "factions": Faction.objects.all(),
-        "timezones": TIMEZONES_CHOICES,
     }
 
     return render(request, "maingame/register.html", context)
@@ -59,9 +56,8 @@ def register(request):
 def submit_register(request):
     display_name = request.POST["dominionName"]
     faction = Faction.objects.get(name=request.POST["factionChoice"].lower())
-    timezone = request.POST["timezone"]
 
-    initialize_dominion(user=request.user, faction=faction, display_name=display_name, timezone=timezone)
+    initialize_dominion(user=request.user, faction=faction, display_name=display_name)
 
     return redirect("buildings")
 
@@ -306,7 +302,7 @@ def resources(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
     except:
-        return redirect("register")
+        return redirect("options")
     
     round = Round.objects.first()
     resources_dict = {}
@@ -645,14 +641,15 @@ def world(request):
 @login_required
 def options(request):
     try:
-        dominion = Dominion.objects.get(associated_user=request.user)
+        user_settings = UserSettings.objects.get(associated_user=request.user)
     except:
-        return redirect("register")
+        return redirect("index")
     
     themes = ["Mustard and blue", "Blood and beige", "It's a boy", "Elesh Norn", "Swampy", "OpenDominion", "ODA"]
 
     context = {
         "themes": themes,
+        "current_display_name": user_settings.display_name,
     }
     
     return render(request, "maingame/options.html", context)
@@ -661,20 +658,30 @@ def options(request):
 @login_required
 def submit_options(request):
     try:
-        dominion = Dominion.objects.get(associated_user=request.user)
         user_settings = UserSettings.objects.get(associated_user=request.user)
     except:
-        return redirect("register")
+        return redirect("index")
     
-    if "abandon" in request.POST and request.POST["confirm_abandon"] == "DELETE ME FOREVER":
-        abandon_dominion(dominion)
-    
+    user_settings.display_name = request.POST["display_name"]
     user_settings.theme = request.POST["theme"]
     user_settings.show_tutorials = "show_tutorials" in request.POST
     user_settings.use_am_pm = "use_am_pm" in request.POST
     user_settings.save()
 
     return redirect("options")
+
+
+@login_required
+def abandon(request):
+    try:
+        dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    if "abandon" in request.POST and request.POST["confirm_abandon"] == "REALLY DO IT":
+        abandon_dominion(dominion)
+
+    return redirect("register")
 
 
 @login_required
@@ -782,7 +789,7 @@ def submit_invasion(request, dominion_id):
     event = Event.objects.create(
         reference_id=battle.id, 
         reference_type="battle", 
-        name="🗡" if attacker_victory else "🛡"
+        category="Invasion",
     )
     event.notified_dominions.add(my_dominion)
     event.notified_dominions.add(target_dominion)

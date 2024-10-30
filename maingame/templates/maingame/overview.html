@@ -18,6 +18,7 @@
         <h6>{{ dominion.name }}</h6>
         <h6>{{ dominion.acres }} acres</h6>
         <h6>{{ dominion.defense|intcomma }} defense</h6>
+        <h6>Ruled by {{ dominion.rulers_display_name }}</h6>
     </div>
 
     {% if dominion != active_dominion and dominion.protection_ticks_remaining == 0 and active_dominion.protection_ticks_remaining == 0 and round.has_started and not round.has_ended %}
@@ -387,7 +388,36 @@
         </div>
     </div>
 
-    <p>Complacency: {{ dominion.complacency }} ticks (-{{ dominion.complacency_penalty_readout }}% defense)
+    <p>Complacency: {{ dominion.complacency }} ticks (-{{ dominion.complacency_penalty_readout }}% defense)</p>
+
+    <div>
+        <form action="{% url 'abandon' %}" method="post" class="u-flex u-flex-column u-gap-4">
+            {% csrf_token %}
+            <div class="form-ext-control pl-0 w-48 mt-8">
+                <div class="u-flex u-flex-column">
+                    <h6>Abandon</h6>
+                    <span>You will lose ownership of your dominion and you can re-register with a new one.</span>
+                </div>
+                <label class="form-ext-toggle__label u-flex u-flex-row w-24 mt-2">
+                    <span>Do it</span>
+                    <div class="form-ext-toggle">
+                        <input name="abandon" type="checkbox" class="form-ext-input" />
+                        <div class="form-ext-toggle__toggler"><i></i></div>
+                    </div>
+                </label>
+                <label class="form-ext-toggle__label u-flex u-flex-row w-48 mt-2">
+                    <span class="w-24">Really do it</span>
+                    <select name="confirm_abandon">
+                        <option></option>
+                        <option>REALLY DO IT</option>
+                    </select>
+                </label>
+                <button class="btn-light mt-4 w-16 h-6 p-0 u-center" type="submit">
+                    <span class="font-bold">Submit</span>
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 {% endblock %}

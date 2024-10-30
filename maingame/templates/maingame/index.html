@@ -5,7 +5,11 @@
 {% block content %}
 <p>Welcome to 15 Minute War!</p>
 {% if active_dominion %}
-<p>Go play the game, silly</p>
+<p>
+    15 Minute War is a game about rival dominions battling over land. It's played in 15 minute increments called "ticks", where resources get generated
+    each tick and training armies and capturing land generally take 12 ticks (3 hours). You can get an edge by thinking through strategies and
+    mathematical optimization, but it's a surprisingly casual-friendly game overall.
+</p>
 {% else %}
 <a href="{% url 'login' %}">
     <button>Log In</button>

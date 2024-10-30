@@ -33,7 +33,7 @@
         <tbody>
             {% for dominion in dominions %}
                 <tr class="{% if dominion.id == active_dominion.id %}card_colors {% endif %}{% if dominion.protection_ticks_remaining > 0 %}text-teal-400{% else %}{% endif %}">
-                    <th class="u-align-middle">{{ dominion.name }}</th>
+                    <th class="u-align-middle tooltip tooltip--left" data-tooltip="{{ dominion.rulers_display_name }}">{{ dominion.name }}</th>
                     <th class="u-align-middle">{{ dominion.faction_name|title }}</th>
                     <td class="u-align-middle">{{ dominion.acres }}</td>
                     <td class="u-align-middle">{% if dominion.protection_ticks_remaining == 0 and round.has_started %}{{ dominion.defense|intcomma }}{% else %}Magical protection{% endif %}</th>

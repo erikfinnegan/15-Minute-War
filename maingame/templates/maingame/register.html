@@ -6,8 +6,9 @@
 <form action="{% url 'submit_register' %}" method="post" class="w-64 u-flex u-flex-column u-gap-4">
     {% csrf_token %}
     <div>
-        <label for="dominionName">Display name</label>
+        <label for="dominionName">Dominion name</label>
         <input type="text" name="dominionName" id="dominionName" maxlength="50" />
+        <span>Unlike your display name, this cannot be changed.</span>
     </div>
     
     <div>
@@ -17,29 +18,6 @@
             <option>{{ faction.name|title }}</option>
             {% endfor %}
         </select>
-    </div>
-
-    <div>
-        <label for="timezoneChoice">Select your time zone</label>
-        <div class="max-w-md u-flex-grow-1 my-auto">
-            <select id="tom-select-it" name="timezone">
-                {% for timezone in timezones %}
-                <option {% if timezone == active_user_settings.timezone %}selected{% endif %}>{{ timezone }}</option>
-                {% endfor %}
-            </select>
-
-            <script>
-                var config = {
-                    sortField: {
-                    field: "text",
-                    direction: "asc"
-                }
-                };
-                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone; // e.g. "America/New_York"
-                tzSelect = new TomSelect('#tom-select-it', config);
-                tzSelect.setValue(timezone)
-            </script>
-        </div>
     </div>
 
     <button class="btn-light mt-1 w-16 h-6 p-0 u-center" type="submit">

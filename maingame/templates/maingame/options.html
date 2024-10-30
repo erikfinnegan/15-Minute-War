@@ -6,6 +6,11 @@
 <div>
     <form action="{% url 'submit_options' %}" method="post" class="u-flex u-flex-column u-gap-4">
         {% csrf_token %}
+        <div>
+            <label for="display_name">Display name</label>
+            <input name="display_name" value="{{ current_display_name }}" />
+        </div>
+
         <div class="form-ext-control pl-0 w-12">
             <label class="form-ext-toggle__label u-flex u-flex-row u-gap-2">
                 <span>Tutorials</span>
@@ -33,27 +38,6 @@
                 <option {% if theme == active_user_settings.theme %}selected{% endif %}>{{ theme }}</option>
                 {% endfor %}
             </select>
-        </div>
-
-        <div class="form-ext-control pl-0 w-48 mt-8">
-            <div class="u-flex u-flex-column">
-                <h6>Abandon</h6>
-                <span>You will lose ownership of your dominion and you can re-register with a new one.</span>
-            </div>
-            <label class="form-ext-toggle__label u-flex u-flex-row w-24 mt-2">
-                <span>Do it</span>
-                <div class="form-ext-toggle">
-                    <input name="abandon" type="checkbox" class="form-ext-input" />
-                    <div class="form-ext-toggle__toggler"><i></i></div>
-                </div>
-            </label>
-            <label class="form-ext-toggle__label u-flex u-flex-row w-48 mt-2">
-                <span class="w-24">Really do it</span>
-                <select name="confirm_abandon">
-                    <option></option>
-                    <option>REALLY DO IT</option>
-                </select>
-            </label>
         </div>
 
         <button class="btn-light mt-4 w-16 h-6 p-0 u-center" type="submit">

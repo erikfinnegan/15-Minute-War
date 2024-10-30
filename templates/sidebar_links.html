@@ -15,9 +15,11 @@
 {% if active_user_settings.show_tutorials %}
 <a href="{% url 'tutorial' %}" class="">Tutorial</a>
 {% endif %}
-<a href="{% url 'options' %}" class="">Options</a>
+{% else %}
+<a href="{% url 'register' %}" class="">Register</a>
 {% endif %}
 
+<a href="{% url 'options' %}" class="">Options</a>
 <a href="{% url 'faction_info' %}" class="">Faction Info</a>
 
 <form action="{% url 'logout' %}" method="post" class="mt-8">

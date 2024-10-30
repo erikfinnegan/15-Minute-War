@@ -1,7 +1,7 @@
 from random import randint, choice
 
 from maingame.formatters import create_or_add_to_key
-from maingame.models import Unit, Dominion, Discovery, Building, Deity, Event, Round, Faction, Resource, Spell
+from maingame.models import Unit, Dominion, Discovery, Building, Deity, Event, Round, Faction, Resource, Spell, UserSettings
 from django.contrib.auth.models import User
 from django.db.models import Q
 
@@ -92,11 +92,13 @@ def initialize_dominion(user: User, faction: Faction, display_name):
     secondary_building_resource.quantity = dominion.acres * dominion.building_secondary_cost
     secondary_building_resource.save()
 
+    user_settings = UserSettings.objects.get(associated_user=user)
+
     event = Event.objects.create(
         reference_id=dominion.id, 
         reference_type="signup", 
-        icon="👋",
-        message_override=f"{dominion} has joined under the {faction} faction!"
+        category="Signup",
+        message_override=f"{user_settings.display_name} has created a {faction} dominion named {dominion}"
     )
 
     dominion.save()

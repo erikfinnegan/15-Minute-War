@@ -20,7 +20,7 @@
                 {% else %}
                 <th class="u-align-middle">{{ event.event.timestamp|timezone:active_user_settings.timezone|date:"F j, G:i:s" }}</th>
                 {% endif %}
-                <th class="u-align-middle">{{ event.event.icon }}</th>
+                <th class="u-align-middle">{{ event.event.category }}</th>
                 <th class="u-align-middle">{{ event.event }}</th>
                 <th class="u-align-middle">
                     {% if event.event.reference_type == "battle" %}
