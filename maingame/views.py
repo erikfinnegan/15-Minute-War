@@ -197,9 +197,6 @@ def military(request):
     except:
         return redirect("register")
     
-    print("sorted units")
-    print(dominion.sorted_units)
-
     context = {
         # "units": Unit.objects.filter(ruler=dominion),
         "units": dominion.sorted_units
@@ -645,11 +642,13 @@ def options(request):
     except:
         return redirect("index")
     
+    TIMEZONES_CHOICES = [tz for tz in zoneinfo.available_timezones()]
     themes = ["Mustard and blue", "Blood and beige", "It's a boy", "Elesh Norn", "Swampy", "OpenDominion", "ODA"]
 
     context = {
         "themes": themes,
         "current_display_name": user_settings.display_name,
+        "timezones": TIMEZONES_CHOICES,
     }
     
     return render(request, "maingame/options.html", context)
@@ -666,6 +665,7 @@ def submit_options(request):
     user_settings.theme = request.POST["theme"]
     user_settings.show_tutorials = "show_tutorials" in request.POST
     user_settings.use_am_pm = "use_am_pm" in request.POST
+    user_settings.timezone = request.POST["timezone"]
     user_settings.save()
 
     return redirect("options")
@@ -774,8 +774,6 @@ def submit_invasion(request, dominion_id):
         if unit.quantity_at_home > 0:
             battle_units_defending_dict[str(unit.id)] = unit.quantity_at_home
     
-    print(battle_units_defending_dict)
-
     battle = Battle.objects.create(
         attacker=my_dominion,
         defender=target_dominion,

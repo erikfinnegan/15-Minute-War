@@ -1,21 +1,42 @@
 {% extends "base.html" %}
+{% load tz %}
 
 {% block title %}index test page{% endblock %}
 
 {% block content %}
-<p>Welcome to 15 Minute War!</p>
-{% if active_dominion %}
-<p>
-    15 Minute War is a game about rival dominions battling over land. It's played in 15 minute increments called "ticks", where resources get generated
-    each tick and training armies and capturing land generally take 12 ticks (3 hours). You can get an edge by thinking through strategies and
-    mathematical optimization, but it's a surprisingly casual-friendly game overall.
-</p>
-{% else %}
-<a href="{% url 'login' %}">
-    <button>Log In</button>
-</a>
-<a href="{% url 'signup' %}">
-    <button>Sign Up</button>
-</a>
-{% endif %}
+<div>
+    <p>Welcome to 15 Minute War!</p>
+    <div>
+        <p>
+            15 Minute War is a game about rival dominions battling over land. It's played in 15 minute increments called "ticks", where resources get generated
+            each tick and training armies and capturing land generally take 12 ticks (3 hours). You can get an edge by thinking through strategies and
+            mathematical optimization, but it's a surprisingly casual-friendly game overall.
+        </p>
+    </div>
+
+    <div>
+        {% if round.has_started %}
+        <h6>The current round is active</h6>
+        {% elif active_user_settings %}
+            {% if active_user_settings.use_am_pm %}
+            <h6>The next round starts at {{ round.start_time|timezone:active_user_settings.timezone|date:"F j, g:i:s a" }} {{ active_user_settings.timezone }}</h6>
+            {% else %}
+            <h6>The next round starts at {{ round.start_time|timezone:active_user_settings.timezone|date:"F j, G:i:s" }} {{ active_user_settings.timezone }}</h6>
+            {% endif %}
+        {% else %}
+        <h6>The next round starts at {{ round.start_time }} US eastern time</h6>
+        {% endif %}
+    </div>
+
+    <div>
+        {% if not user.is_authenticated %}
+        <a href="{% url 'login' %}">
+            <button>Log In</button>
+        </a>
+        <a href="{% url 'signup' %}">
+            <button>Sign Up</button>
+        </a>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

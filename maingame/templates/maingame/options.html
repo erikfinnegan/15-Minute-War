@@ -40,6 +40,27 @@
             </select>
         </div>
 
+        <div>
+            <h6 class="my-auto">Set timezone</h6>
+            <div class="max-w-md u-flex-grow-1 my-auto">
+                <select id="tom-select-it" name="timezone">
+                    {% for timezone in timezones %}
+                    <option {% if timezone == active_user_settings.timezone %}selected{% endif %}>{{ timezone }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <script>
+            var config = {
+                sortField: {
+                field: "text",
+                direction: "asc"
+            }
+            };
+            new TomSelect('#tom-select-it', config);
+        </script>
+
         <button class="btn-light mt-4 w-16 h-6 p-0 u-center" type="submit">
             <span class="font-bold">Submit</span>
         </button>

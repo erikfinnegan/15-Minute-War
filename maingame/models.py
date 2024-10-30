@@ -173,7 +173,6 @@ class Dominion(models.Model):
                 return unit.op / unit.dp
         
         sorted_list.sort(key=op_dp_ratio)
-        print(sorted_list)
 
         return sorted_list
 
@@ -518,10 +517,8 @@ class Discovery(models.Model):
     @property
     def associated_unit(self):
         if self.associated_unit_name:
-            print(f"Unit name for {self.name} is {self.associated_unit_name}")
             return Unit.objects.get(name=self.associated_unit_name, ruler=None)
         
-        print(f"No unit for {self.name}")
         return None
 
 

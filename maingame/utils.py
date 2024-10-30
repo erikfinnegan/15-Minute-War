@@ -109,7 +109,6 @@ def initialize_dominion(user: User, faction: Faction, display_name):
 
 
 def abandon_dominion(dominion: Dominion):
-    print("Abandoning", dominion)
     dominion.is_abandoned = True
     dominion.associated_user = None
     dominion.save()

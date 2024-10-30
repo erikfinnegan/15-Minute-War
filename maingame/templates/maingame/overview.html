@@ -92,7 +92,6 @@
                 unitId = value.id.substr(5)
                 let op = document.getElementById("power_" + unitId).innerHTML.split("/")[0]
                 op = parseInt(op.replace(/,/g, ''))
-                console.log("op", op)
                 totalOp = totalOp + value.value * op
             }
 
