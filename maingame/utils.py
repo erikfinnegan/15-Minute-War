@@ -92,7 +92,7 @@ def initialize_dominion(user: User, faction: Faction, display_name):
     secondary_building_resource.quantity = dominion.acres * dominion.building_secondary_cost
     secondary_building_resource.save()
 
-    user_settings = UserSettings.objects.get_or_create(associated_user=user)
+    user_settings, _ = UserSettings.objects.get_or_create(associated_user=user)
 
     event = Event.objects.create(
         reference_id=dominion.id, 
