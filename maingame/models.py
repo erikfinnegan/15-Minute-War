@@ -191,10 +191,8 @@ class Dominion(models.Model):
         consumption = 0
 
         for unit in Unit.objects.filter(ruler=self):
-            for resource_name, upkeep in unit.upkeep_dict.items():
-                resource = Resource.objects.get(ruler=self, name=resource_name)
-
-                if resource_name == resource.name:
+            for upkeep_resource_name, upkeep in unit.upkeep_dict.items():
+                if resource_name == upkeep_resource_name:
                     consumption += int(unit.quantity_trained_and_alive * upkeep)
 
         return consumption
@@ -366,6 +364,10 @@ class Unit(models.Model):
             return f"{self.ruler.name}'s {base_name}"
         
         return f"🟩Base --- {base_name}"
+    
+    @property
+    def power_display(self):
+        return f"{self.op} / {self.dp}"
     
     @property
     def quantity_trained_and_alive(self):

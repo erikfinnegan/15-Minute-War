@@ -33,7 +33,7 @@
                 <thead>
                     <tr>
                         <th>Name</th>
-                        <th>Power</th>
+                        <th>Pwr</th>
                         <th>At home</th>
                         <th class="w-16">Send</th>
                     </tr>
@@ -152,7 +152,7 @@
             <thead>
                 <tr>
                     <th>Unit</th>
-                    <th>Power</th>
+                    <th>Pwr</th>
                     <th>Quantity (Training)</th>
                     <th>At home</th>
                 </tr>
@@ -347,7 +347,7 @@
                     <tr>
                         <th>Name</th>
                         <th>Description</th>
-                        <th>Mana cost</th>
+                        <th>Mana cost (per acre)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -355,7 +355,7 @@
                     <tr>
                         <td class="u-align-middle">{{ spell.name }}</td>
                         <td class="u-align-middle">{{ spell.description }}</td>
-                        <td class="u-align-middle">{{ spell.mana_cost }} ({{ spell.mana_cost_per_acre}}/acre)</td>
+                        <td class="u-align-middle">{{ spell.mana_cost }} ({{ spell.mana_cost_per_acre}})</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -389,7 +389,6 @@
 
     <p>Complacency: {{ dominion.complacency }} ticks (-{{ dominion.complacency_penalty_readout }}% defense)</p>
 
-    {% if dominion == active_dominion %}
     <div>
         <form action="{% url 'abandon' %}" method="post" class="u-flex u-flex-column u-gap-4">
             {% csrf_token %}
@@ -418,7 +417,6 @@
             </div>
         </form>
     </div>
-    {% endif %}
 </div>
 
 {% endblock %}

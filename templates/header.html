@@ -1,24 +1,56 @@
 {% load humanize %}
 
-<div class="pl-4 pl-0-md u-flex u-flex-wrap u-gap-1 u-items-center header_colors u-none w-100p">
-    {% if round.winner %}
-    <div class="u-center u-flex">
-        <h4 class="u-center">{{ round.winner }} has been crowned the ruler</h4>
+<div class="u-flex u-flex-row u-gap-1 u-items-center header_colors" style="height: 99px !important">
+    <div class="header_colors px-1" onclick="toggleMenu()">
+            <i class="fa fa-bars text-xl"></i>
     </div>
-    {% else %}
-    <table class="w-100p mt-1 max-w-xs header_colors{% if active_dominion.is_starving %} text-red-400{% endif %}">
+
+    <div class="u-none" id="links" style="z-index: 10;">
+        <span id="mobile-menu-time" class="u-center font-bold">Time goes here</span>
+        {% include "sidebar_links.html" %}
+    </div>
+    
+    <script>
+        function toggleMenu() {
+            var links = document.getElementById("links");
+            const baseTopNavClasses = "header_colors text-xl u-center "
+
+            if (links.className.includes("u-none")) {
+                links.className = baseTopNavClasses + "u-flex u-flex-column u-absolute u-top-8 mt-4 w-100p";
+            } else {
+                links.className = baseTopNavClasses + "u-none";
+            }
+        }
+
+        function getTime() {
+            let d = new Date()
+            let h = `${d.getHours()}`.padStart(2, '0')
+            let m = `${d.getMinutes()}`.padStart(2, '0')
+            let s = `${d.getSeconds()}`.padStart(2, '0')
+            return h + ":" + m + ":" + s
+        }
+
+        document.getElementById('mobile-menu-time').innerHTML = getTime();
+
+        setInterval(() => {
+            document.getElementById('mobile-menu-time').innerHTML = getTime();
+        }, 1000);
+    </script>
+
+    <table class="header_colors w-100p{% if active_dominion.is_starving %} text-red-400{% endif %}">
         {% for key, value in active_dominion.header_rows.items %}
         <tr>
             {% for resource_readout in value %}
             <td>
-                <span class="font-bold">{{ resource_readout.name|title }}:</span>
-                <span>{{ resource_readout.quantity }}</span>
+                <div class="u-flex u-flex-column">
+                    <span class="font-bold">{{ resource_readout.name|title }}:</span>
+                    <span>{{ resource_readout.quantity }}</span>
+                </div>
             </td>
             {% endfor %}
         </tr>
         {% endfor %}
     </table>
-    {% endif %}
 
     <div class="ml-auto mr-4">
         {% if not user.is_authenticated %}

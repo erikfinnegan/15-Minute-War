@@ -48,25 +48,26 @@
     <div>
         <form action="{% url 'trade' %}" method="post">
             {% csrf_token %}
-            <div class="u-center">
-                <span id="ratioNumerator">1</span>
-                <span>:</span>
-                <span id="ratioDenominator">1</span>
-            </div>
-            <div class="u-flex u-flex-row u-gap-2">
-                <select class="w-10 card_colors" id="inputResource" name="inputResource" oninput="showRatio()">
+            <div class="u-flex u-flex-column u-gap-2">
+                <select class="card_colors" id="inputResource" name="inputResource" oninput="showRatio()">
                     {% for key, value in resources_dict.items %}
                     <option {% if key == active_dominion.last_sold_resource_name %} selected{% endif %}>{{ key }}</option>
                     {% endfor %}
                 </select>
                 <input type="range" min="1" max="100" value="0" id="resourceRange" name="resourceAmount" oninput="showCurrentValue()">
-                <select class="w-10 card_colors" id="outputResource" name="outputResource" oninput="showRatio()">
+                <div class="u-center">
+                    <span id="ratioNumerator">1</span>
+                    <span>:</span>
+                    <span id="ratioDenominator">1</span>
+                </div>
+                <select class="card_colors" id="outputResource" name="outputResource" oninput="showRatio()">
                     {% for key, value in resources_dict.items %}
                     <option {% if key == active_dominion.last_bought_resource_name %} selected{% endif %}>{{ key }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="u-center u-gap-1">
+            <div class="u-center u-gap-1 pt-1">
+                <span>Trade</span>
                 <span id="resourceRangeValue">1</span>
                 <span id="soldResource">gold</span>
                 <span>for</span>
@@ -74,7 +75,7 @@
                 <span id="boughtResource">gold</span>
             </div>
             <div class="u-center mt-2">
-                <button class="btn-light mt-1 w-16 h-6 p-0 u-center" type="submit">
+                <button class="btn-light w-16 h-6 p-0 u-center" type="submit">
                     <span class="font-bold">Trade</span>
                 </button>
             </div>
@@ -160,8 +161,8 @@
                 ).sort((a, b) => a[3] - b[3])[0].slice(0, 2)
             let decfrac = decToFrac(inputPrice/outputPrice)
 
-            document.getElementById("ratioNumerator").innerHTML = decfrac[0]
-            document.getElementById("ratioDenominator").innerHTML = decfrac[1]
+            document.getElementById("ratioNumerator").innerHTML = decfrac[1]
+            document.getElementById("ratioDenominator").innerHTML = decfrac[0]
             showCurrentValue()
         }
     </script>

@@ -1,0 +1,63 @@
+{% load humanize %}
+
+<div class="pl-4 pl-0-md u-flex u-flex-wrap u-gap-1 u-items-center header_colors u-none w-100p">
+    {% if round.winner %}
+    <div class="u-center u-flex">
+        <h4 class="u-center">{{ round.winner }} has been crowned the ruler</h4>
+    </div>
+    {% else %}
+    <table class="w-100p mt-1 max-w-xs header_colors{% if active_dominion.is_starving %} text-red-400{% endif %}">
+        {% for key, value in active_dominion.header_rows.items %}
+        <tr>
+            {% for resource_readout in value %}
+            <td>
+                <span class="font-bold">{{ resource_readout.name|title }}:</span>
+                <span>{{ resource_readout.quantity }}</span>
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
+    <div class="ml-auto mr-4">
+        {% if not user.is_authenticated %}
+        <a href="{% url 'login' %}">
+            <button>Log In</button>
+        </a>
+        <a href="{% url 'signup' %}">
+            <button>Sign Up</button>
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+{% if active_dominion.protection_ticks_remaining > 0 %}
+<div class="u-flex u-flex-row u-gap-4 header_colors p-1">
+    <span>{{ active_dominion.protection_ticks_remaining }} protection ticks remaining</span>
+    <a href="{% url 'protection_tick' 1 %}">
+        <button class="h-4 py-0">+1 tick</button>
+    </a>
+    {% if active_dominion.protection_ticks_remaining >= 12 %}
+    <a href="{% url 'protection_tick' 12 %}">
+        <button class="h-4 py-0">+12 ticks</button>
+    </a>
+    {% endif %}
+    <a href="{% url 'protection_tick' active_dominion.protection_ticks_remaining %}">
+        <button class="h-4 py-0">+{{ active_dominion.protection_ticks_remaining }} ticks</button>
+    </a>
+</div>
+{% endif %}
+
+{% if messages %}
+<div class="p-4">
+    <style>
+        .error {
+            color: rgb(249, 178, 178);
+        }
+    </style>
+    {% for message in messages %}
+    <h6 class="font-bold {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</h6>
+    {% endfor %}
+</div>
+{% endif %}

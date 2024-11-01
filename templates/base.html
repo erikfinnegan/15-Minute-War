@@ -126,8 +126,8 @@
 
 	<body class="base_colors h-full">
         <div class="u-flex u-flex-row">
-            {% include "sidebar.html" %}
-            <div class="u-flex-grow-1">
+            {% comment %} {% include "sidebar.html" %} {% endcomment %}
+            <div class="w-100p">
                 {% include "header.html" %}
                 <section class="container pt-2 pb-8 px-2 mx-4-md">
                     {% block content %}

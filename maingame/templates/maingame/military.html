@@ -49,7 +49,7 @@
             </div>
             <tr>
                 {% include "maingame/unit_name_row.html" %}
-                <td class="u-align-middle">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
+                <td class="u-align-middle" style="white-space:nowrap">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
                 <td class="u-align-middle">
                     {{ unit.quantity_trained_and_alive|intcomma }}
                     {% if unit.quantity_in_training > 0 %} ({{ unit.quantity_in_training|intcomma }}){% endif %}
@@ -254,7 +254,7 @@
             <tr>
                 <th>Name</th>
                 <th>Pwr</th>
-                <th>Quantity at home</th>
+                <th>At home</th>
                 <th class="w-16">Release</th>
             </tr>
         </thead>
@@ -262,7 +262,7 @@
             {% for unit in units %}
             <tr>
                 {% include "maingame/unit_name_row.html" %}
-                <td class="u-align-middle">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
+                <td class="u-align-middle" style="white-space:nowrap">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
                 <td class="u-align-middle">
                     {{ unit.quantity_at_home|intcomma }}
                 </td>
