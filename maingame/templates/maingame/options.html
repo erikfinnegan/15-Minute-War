@@ -33,7 +33,7 @@
 
         <div class="u-flex u-flex-column">
             <label for="theme">Theme</label>
-            <select name="theme" class="w-48">
+            <select name="theme" class="">
                 {% for theme in themes %}
                 <option {% if theme == active_user_settings.theme %}selected{% endif %}>{{ theme }}</option>
                 {% endfor %}
