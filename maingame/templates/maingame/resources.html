@@ -26,15 +26,15 @@
             <thead>
                 <tr>
                     <th>Name</th>
-                    <th>+</th>
-                    <th>-</th>
+                    <th>Produced</th>
+                    <th>Spent</th>
                     <th>Net</th>
                 </tr>
             </thead>
             <tbody>
                 {% for key, value in resources_dict.items %}
                 <tr>
-                    <th class="u-align-middle">{{ value.name|title }}</th>
+                    <td class="u-align-middle">{{ value.name|title }}</th>
                     <td class="u-align-middle text-green-400">{{ value.produced|intcomma }}</td>
                     <td class="u-align-middle text-red-400">{{ value.consumed|intcomma }}</td>
                     <td class="u-align-middle {% if value.net < 0 %}text-red-400{% else %}text-green-400{% endif %}">{{ value.net|intcomma }}</td>
@@ -85,7 +85,6 @@
             <thead>
                 <tr>
                     <th>Name</th>
-                    <th>name</th>
                     <th>Price</th>
                     <th>Value</th>
                 </tr>
@@ -94,7 +93,6 @@
                 {% for resource_name, details in trade_price_data.items %}
                 <tr>
                     <td class="u-align-middle">{{ resource_name|title }}</td>
-                    <td class="u-align-middle">{{ details.name }}</td>
                     <td class="u-align-middle">{{ details.price }}</td>
                     <td class="u-align-middle
                     {% if details.difference >= 200 %}text-green-500 font-bold

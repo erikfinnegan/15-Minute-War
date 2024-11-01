@@ -176,19 +176,17 @@
                 <tr>
                     <th>Building</th>
                     <th>Quantity</th>
-                    <th>Percent</th>
+                    <th>Pct</th>
                     <th>Upgrades</th>
-                    <th>Description</th>
                 </tr>
             </thead>
             <tbody>
                 {% for building in buildings %}
                     <tr>
-                        <th class="u-align-middle">{{ building.name|title }}</th>
+                        {% include "maingame/tooltip_td.html" with have_tooltip=True main_text=building.name tooltip_text=building.description  %}
                         <td class="u-align-middle">{{ building.quantity|intcomma }}</td>
                         <td class="u-align-middle">{{ building.percent }}%</th>
                         <td class="u-align-middle">{{ building.upgrades }}</th>
-                        <td class="u-align-middle">{{ building.description }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -243,7 +241,7 @@
         </div>
     </div>
 
-    <div class="mt-4 u-flex u-flex-column max-w-md card card_colors p-1">
+    <div class="u-flex u-flex-column max-w-md card card_colors p-1">
         <div>
             <h6 class="u-center ">Incoming acres</h6>
         </div>
@@ -337,54 +335,31 @@
         </div>
     </div>
 
-    <div class="mt-4 u-flex u-flex-column max-w-md card card_colors p-1">
-        <div>
-            <h6 class="u-center">Spells</h6>
-        </div>
-        <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
-            <table class="table striped small">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Mana cost</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for spell in spells %}
-                    <tr>
-                        <td class="u-align-middle">{{ spell.name }}</td>
-                        <td class="u-align-middle">{{ spell.description }}</td>
-                        <td class="u-align-middle">{{ spell.mana_cost }} ({{ spell.mana_cost_per_acre}}/acre)</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="mt-4 u-flex u-flex-column max-w-md card card_colors p-1">
-        <div>
-            <h6 class="u-center">Discoveries</h6>
-        </div>
-        <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
-            <table class="table striped small">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for discovery in learned_discoveries %}
-                    <tr>
-                        <td class="u-align-middle">{{ discovery.name }}</td>
-                        <td class="u-align-middle">{{ discovery.description }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+    <div>
+        <details class="accordion">
+            <summary class="accordion__summary header_colors u-round-xs"><span class="u-center">Spells</span></summary>
+            <div>
+                {% for spell in spells %}
+                <div class="card card_colors p-1 u-flex u-flex-column u-gap-1">
+                    <h6>{{ spell.name }}</h6>
+                    <span>Mana cost: {{ spell.mana_cost }} ({{ spell.mana_cost_per_acre }}/acre)</span>
+                    <span>{{ spell.description }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </details>
+        <div />
+        <details class="accordion">
+            <summary class="accordion__summary header_colors u-round-xs"><span class="u-center">Discoveries</span></summary>
+            <div>
+                {% for discovery in learned_discoveries %}
+                <div class="card card_colors p-1 u-flex u-flex-column u-gap-1">
+                    <h6>{{ discovery.name }}</h6>
+                    <span>{{ discovery.description }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </details>
     </div>
 
     <p>Complacency: {{ dominion.complacency }} ticks (-{{ dominion.complacency_penalty_readout }}% defense)</p>
@@ -393,7 +368,7 @@
     <div>
         <form action="{% url 'abandon' %}" method="post" class="u-flex u-flex-column u-gap-4">
             {% csrf_token %}
-            <div class="form-ext-control pl-0 w-48 mt-8">
+            <div class="form-ext-control pl-0 w-32 mt-8">
                 <div class="u-flex u-flex-column">
                     <h6>Abandon</h6>
                     <span>You will lose ownership of your dominion and you can re-register with a new one.</span>
@@ -405,7 +380,7 @@
                         <div class="form-ext-toggle__toggler"><i></i></div>
                     </div>
                 </label>
-                <label class="form-ext-toggle__label u-flex u-flex-row w-48 mt-2">
+                <label class="form-ext-toggle__label u-flex u-flex-row w-32 mt-2">
                     <span class="w-24">Really do it</span>
                     <select name="confirm_abandon">
                         <option></option>

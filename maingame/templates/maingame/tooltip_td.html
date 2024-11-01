@@ -9,6 +9,6 @@
     }
 </style>
 
-<td class="u-align-middle {% if unit.has_perks %}text-yellow-200{% endif %}" {% if unit.has_perks %}data-tooltip="{{ unit.perk_text }}"{% endif %}>
-    <span>{{ unit.name|title }}</span>
+<td class="u-align-middle {% if be_yellow %}text-yellow-200{% endif %}" {% if have_tooltip %}data-tooltip="{{ tooltip_text }}"{% endif %}>
+    {{ main_text|title }}
 </td>

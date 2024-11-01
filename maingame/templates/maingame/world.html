@@ -15,7 +15,59 @@
         successfully invades another.
     </p>
     {% endif %}
-    <table class="table striped max-w-md">
+
+    <div>
+        {% for dominion in dominions %}
+        <div class="card card_colors p-1">
+            <div class="">
+                <span class="u-center">{{ dominion.name }}</span>
+            </div>
+
+            <div class="row u-center">
+                <div class="col">
+                    <span class="u-center">{{ dominion.faction_name|title }}</span>
+                </div>
+                <div class="col">
+                    {% if dominion.protection_ticks_remaining == 0 %}
+                    <a href="{% url 'overview' dominion.id %}" class="u-center">
+                        <button class="py-0">Info</button>
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="col">
+                    <span class="u-center">{{ dominion.acres }} acres</span>
+                </div>
+            </div>
+
+            <div class="row u-center">
+                <div class="col">
+                    <span class="u-center {% if dominion.protection_ticks_remaining > 0 %}text-teal-400{% endif %}">
+                        {% if dominion.protection_ticks_remaining == 0 and round.has_started %}{{ dominion.defense_short }} DP{% else %}Magical protection{% endif %}
+                    </span>
+                </div>
+                <div class="col">
+                    {% if dominion.has_units_returning %}
+                    <div class="u-center tag tag--danger py-0">Units returning</div>
+                    {% endif %}
+                </div>
+                <div class="col">
+                    {% if "book_of_grudges" in active_dominion.perk_dict %}
+                    {% if dominion.strid in active_dominion.perk_dict.book_of_grudges %}
+                    <div class="u-flex u-flex-column u-center">
+                        <span>{{ active_dominion.perk_dict.book_of_grudges|getattr:dominion.strid|getattr:"pages" }} pages</span>
+                        <span>+{{ active_dominion.perk_dict.book_of_grudges|getattr:dominion.strid|getattr:"animosity"|floatformat:"1" }}% OP</span>
+                    </div>
+                    {% else %}
+                    <span class="u-center">None</span>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% comment %} <table class="table striped max-w-md">
         <thead>
             <tr>
                 <th>Name</th>
@@ -59,6 +111,6 @@
                 </tr>
             {% endfor %}
         </tbody>
-    </table>
+    </table> {% endcomment %}
 </div>
 {% endblock %}

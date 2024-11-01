@@ -86,6 +86,17 @@ class Dominion(models.Model):
         multiplier = 1 - (self.complacency / 200)
 
         return max(0, int(defense * multiplier))
+    
+    @property
+    def defense_short(self):
+        defense = self.defense
+
+        if defense < 100000: # 100k
+            return f"{defense:2,}"
+        elif defense < 1000000: # 1m
+            return f"{int(defense/1000)}k"
+        else:
+            return f"{round(defense/1000000, 2)}m"
 
     @property
     def strid(self):
@@ -367,7 +378,7 @@ class Unit(models.Model):
     
     @property
     def power_display(self):
-        return f"{self.op} / {self.dp}"
+        return f"{self.op:2,} / {self.dp:2,}"
     
     @property
     def quantity_trained_and_alive(self):
