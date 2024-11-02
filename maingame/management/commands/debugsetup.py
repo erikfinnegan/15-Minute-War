@@ -22,10 +22,10 @@ class Command(BaseCommand):
                 farm.save()
 
             if not UserSettings.objects.filter(associated_user=user).exists():
-                UserSettings.objects.create(associated_user=user, theme="Elesh Norn", display_name=user.username)
+                UserSettings.objects.create(associated_user=user, theme="OpenDominion", display_name=user.username)
             else:
                 user_settings = UserSettings.objects.get(associated_user=user)
-                user_settings.theme = "Elesh Norn"
+                user_settings.theme = "OpenDominion"
                 user_settings.timezone = "EST"
 
                 if user_settings.display_name == "":

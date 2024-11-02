@@ -14,7 +14,7 @@ class SignUpView(CreateView):
     def form_valid(self, form):
         response = super().form_valid(form)
         new_user = User.objects.get(username=form.cleaned_data["username"])
-        UserSettings.objects.create(associated_user=new_user, display_name=new_user.username)
+        UserSettings.objects.create(associated_user=new_user, display_name=new_user.username, theme="OpenDominion")
         # Dominion.objects.create(associated_user=new_user, name="Erik forgot a round signup process")
         
         return response

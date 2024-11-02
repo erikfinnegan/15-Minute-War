@@ -12,7 +12,7 @@ def dominion_context_processor(request):
         active_user_settings = UserSettings.objects.filter(associated_user=None).first()
     else:
         active_dominion = False
-        active_user_settings = UserSettings.objects.create()
+        active_user_settings = UserSettings.objects.create(theme="OpenDominion")
         
     return {
         "active_dominion": active_dominion,
