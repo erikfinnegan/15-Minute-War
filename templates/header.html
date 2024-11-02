@@ -84,8 +84,19 @@
         <button class="h-4 py-0">+12 ticks</button>
     </a>
     {% endif %}
+
+    {% if active_dominion.ticks_til_training_time >= 12 %}
+    <a href="{% url 'protection_tick' active_dominion.ticks_til_training_time %}">
+        <button class="h-4 py-0">+{{ active_dominion.ticks_til_training_time }} ticks</button>
+    </a>
+    {% endif %}
+
     <a href="{% url 'protection_tick' active_dominion.protection_ticks_remaining %}">
         <button class="h-4 py-0">+{{ active_dominion.protection_ticks_remaining }} ticks</button>
+    </a>
+
+    <a href="{% url 'protection_restart' %}">
+        <button class="h-4 py-0">Restart</button>
     </a>
 </div>
 {% endif %}

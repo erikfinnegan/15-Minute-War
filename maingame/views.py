@@ -11,7 +11,7 @@ from django.db.models import Q
 from maingame.formatters import create_or_add_to_key
 from maingame.models import Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings
 from maingame.tick_processors import do_global_tick
-from maingame.utils import abandon_dominion, get_grudge_bonus, initialize_dominion, prune_buildings, unlock_discovery, update_trade_prices, cast_spell
+from maingame.utils import abandon_dominion, delete_dominion, get_grudge_bonus, initialize_dominion, prune_buildings, unlock_discovery, update_trade_prices, cast_spell
 
 
 def index(request):
@@ -242,7 +242,7 @@ def submit_training(request):
 
         if dominions_resource.quantity < amount:
             training_succeeded = False
-            messages.error(request, f"This would cost {f'{amount:,}'}{resource}. You have {f'{dominions_resource.quantity:,}'}. You're {f'{amount - dominions_resource.quantity:,}'} short.")
+            messages.error(request, f"This would cost {f'{amount:,}'} {resource}. You have {f'{dominions_resource.quantity:,}'}. You're {f'{amount - dominions_resource.quantity:,}'} short.")
 
     if training_succeeded:
         for resource, amount in total_cost_dict.items():
@@ -410,7 +410,7 @@ def upgrade_building(request, building_id):
     available_research_points = research_resource.quantity
 
     if available_research_points < building.upgrade_cost:
-        messages.error(request, f"This would cost {f'{building.upgrade_cost:,}'}research. You have {f'{available_research_points:,}'}. You're {f'{building.upgrade_cost - available_research_points:,}'} short.")
+        messages.error(request, f"This would cost {f'{building.upgrade_cost:,}'} research. You have {f'{available_research_points:,}'}. You're {f'{building.upgrade_cost - available_research_points:,}'} short.")
         return redirect("upgrades")
 
     research_resource.quantity -= building.upgrade_cost
@@ -456,7 +456,7 @@ def submit_spell(request, spell_id):
     mana = Resource.objects.get(ruler=dominion, name="mana")
 
     if spell.mana_cost > mana.quantity:
-        messages.error(request, f"This would cost {f'{spell.mana_cost:,}'}mana. You have {f'{mana.quantity:,}'}. You're {f'{spell.mana_cost - mana.quantity:,}'} short.")
+        messages.error(request, f"This would cost {f'{spell.mana_cost:,}'} mana. You have {f'{mana.quantity:,}'}. You're {f'{spell.mana_cost - mana.quantity:,}'} short.")
         return redirect("spells")
     
     cast_spell(spell)
@@ -493,6 +493,18 @@ def protection_tick(request, quantity):
         messages.error(request, f"Knock it off")
     
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+@login_required
+def protection_restart(request):
+    try:
+        dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    delete_dominion(dominion)
+
+    return redirect("register")
 
 
 @login_required
@@ -667,7 +679,10 @@ def abandon(request):
         return redirect("register")
     
     if "abandon" in request.POST and request.POST["confirm_abandon"] == "REALLY DO IT":
-        abandon_dominion(dominion)
+        if Round.objects.first().has_started:
+            abandon_dominion(dominion)
+        else:
+            delete_dominion(dominion)
 
     return redirect("register")
 

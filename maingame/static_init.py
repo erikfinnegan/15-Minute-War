@@ -54,7 +54,7 @@ def initialize_buildings():
         {
             "name": "school",
             "resource_produced_name": "research",
-            "amount_produced": 5,
+            "amount_produced": 150,
         },
         {
             "name": "stronghold",
@@ -229,7 +229,7 @@ def initialize_units():
             "food": 1,
         },
         is_trainable=False,
-        perk_dict={"surplus_research_consumed_to_add_one_op_and_dp": 75}
+        perk_dict={"surplus_research_consumed_to_add_one_op_and_dp": 2500}
     )
     Unit.objects.create(
         name="Fireball",
@@ -305,7 +305,7 @@ def initialize_discoveries():
     Discovery.objects.create(
         name="Archmagus",
         description="""Gain the allegiance of a terrifyingly powerful sorcerer who will, each tick, consume 10% of any research points beyond your most 
-        expensive upgrade to gain 1 OP and DP per 75 consumed.""",
+        expensive upgrade to gain 1 OP and DP per 2500 consumed.""",
         associated_unit_name="Archmagus",
     )
 

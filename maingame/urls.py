@@ -21,6 +21,7 @@ urlpatterns = [
     path("trade/submit", views.trade, name="trade"),
     path("run_tick_view/<int:quantity>", views.run_tick_view, name="run_tick_view"),
     path("protection_tick/<int:quantity>", views.protection_tick, name="protection_tick"),
+    path("protection_restart", views.protection_restart, name="protection_restart"),
     path("world", views.world, name="world"),
     path("overview/<int:dominion_id>/invade", views.submit_invasion, name="submit_invasion"),
     path("overview/<int:dominion_id>", views.overview, name="overview"),

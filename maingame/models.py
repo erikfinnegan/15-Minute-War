@@ -19,7 +19,7 @@ class UserSettings(models.Model):
     display_name = models.CharField(max_length=50, null=True, blank=True, default="")
     timezone = models.CharField(max_length=50, default="UTC")
     show_tutorials = models.BooleanField(default=True)
-    theme = models.CharField(max_length=50, null=True, blank=True, default="ODA")
+    theme = models.CharField(max_length=50, null=True, blank=True, default="OpenDominion")
     use_am_pm = models.BooleanField(default=True)
 
     def __str__(self):
@@ -44,9 +44,9 @@ class Dominion(models.Model):
     building_primary_resource_name = models.CharField(max_length=50, null=True, blank=True)
     building_secondary_resource_name = models.CharField(max_length=50, null=True, blank=True)
     building_primary_cost_per_acre = models.IntegerField(default=100)
-    building_secondary_cost_per_acre = models.IntegerField(default=10)
+    building_secondary_cost_per_acre = models.IntegerField(default=50)
 
-    upgrade_cost = models.IntegerField(default=300)
+    upgrade_cost = models.IntegerField(default=10000)
     upgrade_exponent = models.FloatField(default=1.03, null=True, blank=True)
     
     perk_dict = models.JSONField(default=dict, blank=True)
@@ -65,6 +65,10 @@ class Dominion(models.Model):
     @property
     def rulers_display_name(self):
         return UserSettings.objects.get(associated_user=self.associated_user).display_name
+    
+    @property
+    def ticks_til_training_time(self):
+        return self.protection_ticks_remaining - 12
     
     @property
     def resources(self):

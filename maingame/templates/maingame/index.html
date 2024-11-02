@@ -31,10 +31,10 @@
     <div>
         {% if not user.is_authenticated %}
         <a href="{% url 'login' %}">
-            <button>Log In</button>
+            <button class="header_colors">Log In</button>
         </a>
         <a href="{% url 'signup' %}">
-            <button>Sign Up</button>
+            <button class="header_colors">Sign Up</button>
         </a>
         {% endif %}
     </div>
