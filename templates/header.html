@@ -1,7 +1,7 @@
 {% load humanize %}
 
 <div class="u-flex u-flex-row u-gap-1 u-items-center header_colors" style="height: 99px !important">
-    <div class="header_colors px-1" onclick="toggleMenu()">
+    <div class="header_colors px-1 u-none-md" onclick="toggleMenu()">
             <i class="fa fa-bars text-xl"></i>
     </div>
 
@@ -37,7 +37,16 @@
         }, 1000);
     </script>
 
-    <table class="header_colors w-100p{% if active_dominion.is_starving %} text-red-400{% endif %}">
+    <div class="u-none u-flex-md u-flex-wrap u-gap-6">
+        {% for resource in active_dominion.resources %}
+        <div class="u-flex u-flex-column">
+            <span class="font-bold">{{ resource.name|title }}:</span>
+            <span>{{ resource.quantity|intcomma }}</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <table class="header_colors w-100p u-none-md{% if active_dominion.is_starving %} text-red-400{% endif %}">
         {% for key, value in active_dominion.header_rows.items %}
         <tr>
             {% for resource_readout in value %}

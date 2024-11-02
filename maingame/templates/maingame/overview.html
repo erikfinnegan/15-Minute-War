@@ -12,6 +12,10 @@
                 This shows just about everything about this dominion at a glance. If you and this dominion are both out of protection, it also has
                 the interface for invading them.
             </p>
+            <p>
+                Some units have special perks. These are marked by differently-colored text and the description can be seen by mousing over the name (desktop)
+                or tapping on the name (mobile).
+            </p>
         </div>
     {% endif %}
     <div>
@@ -127,7 +131,7 @@
     {% endif %}
 
     <div>
-        <table class="table striped small max-w-md">
+        <table class="table striped small max-w-xs">
             <thead>
                 <tr>
                     <th>Resource</th>
@@ -148,7 +152,7 @@
     </div>
     
     <div>
-        <table class="table striped small max-w-md">
+        <table class="table striped small max-w-sm">
             <thead>
                 <tr>
                     <th>Unit</th>
@@ -171,7 +175,7 @@
     </div>
 
     <div>
-        <table class="table striped small max-w-md">
+        <table class="table striped small max-w-xs">
             <thead>
                 <tr>
                     <th>Building</th>
@@ -335,7 +339,7 @@
         </div>
     </div>
 
-    <div>
+    <div class="max-w-xs">
         <details class="accordion">
             <summary class="accordion__summary header_colors u-round-xs"><span class="u-center">Spells</span></summary>
             <div>
@@ -387,7 +391,7 @@
                         <option>REALLY DO IT</option>
                     </select>
                 </label>
-                <button class="btn-light mt-4 w-16 h-6 p-0 u-center" type="submit">
+                <button class="header_colors mt-4 w-16 h-6 p-0 u-center" type="submit">
                     <span class="font-bold">Submit</span>
                 </button>
             </div>

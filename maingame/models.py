@@ -65,6 +65,10 @@ class Dominion(models.Model):
     @property
     def rulers_display_name(self):
         return UserSettings.objects.get(associated_user=self.associated_user).display_name
+    
+    @property
+    def resources(self):
+        return Resource.objects.filter(ruler=self)
 
     @property
     def complacency_penalty_readout(self):
@@ -164,7 +168,7 @@ class Dominion(models.Model):
             })
 
         return header_rows
-
+    
     @property
     def ticks_to_next_discovery(self):
         return max(0, 50 - self.discovery_points % 50)

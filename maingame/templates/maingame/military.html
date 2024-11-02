@@ -5,9 +5,7 @@
 {% block title %}Army training{% endblock %}
 
 {% block content %}
-
-<form action="{% url 'submit_training' %}" method="post" class="">
-    {% csrf_token %}
+<div>
     {% if active_user_settings.show_tutorials %}
     <p>
         Train units to defend your dominion and attack others. Units cost resources to train and will arrive after 12 ticks. Once a unit is trained,
@@ -16,269 +14,275 @@
         of the unit.
     </p>
     <p>Clicking the max button or the unit or upkeep cost will fill in the maximum you can afford into the input field. Some units can't be trained.</p>
-    <p>
-        Some units have special perks. These are marked by yellow text and the description can be seen by mousing over the name (desktop)
-        or tapping on the name (mobile).
-    </p>
+    
     {% endif %}
-    <div class="w-100p u-center">
-        <h6>Train units</h6>
-    </div>
 
-    {% for unit in units %}
-    <div class="card card_colors px-1 pt-1">
-        <div class="row">
-            <div class="col">
-                {% if active_user_settings.show_tutorials %}<span class="u-center font-bold">Name</span>{% endif %}
-                <span class="u-center">{{ unit.name}}</span>
-            </div>
-
-            <div class="col">
-                {% if active_user_settings.show_tutorials %}<span class="u-center font-bold">Quantity</span>{% endif %}
-                <span class="u-center">
-                    {{ unit.quantity_trained_and_alive}}{% if unit.quantity_in_training > 0 %} ({{ unit.quantity_in_training }}){% endif %}
-                </span>
-            </div>
-
-            <div class="col">
-                {% if active_user_settings.show_tutorials %}<span class="u-center font-bold">Power</span>{% endif %}
-                <span class="u-center" style="white-space:nowrap">{{ unit.power_display}}</span>
-            </div>
+    <form action="{% url 'submit_training' %}" method="post" class="max-w-xs">
+        {% csrf_token %}
+        
+        <div class="max-w-xs mb-2">
+            <h6 class="u-center">Train units</h6>
         </div>
 
-        <div class="row">
-            <div class="col u-flex u-flex-column card header_colors px-1">
-                <span class="u-center font-bold">Upkeep</span>
-                {% for resource, amount in unit.upkeep_dict.items %}
-                <span class="u-center">{{ amount|intcomma }} {{ resource }}</span>
-                {% endfor %}
-            </div>
-
-            <div class="col u-flex u-flex-column">
-                {% if unit.is_trainable %}
-                <input 
-                    name="train_{{ unit.id }}" 
-                    id="train_{{ unit.id }}" 
-                    placeholder="{{ unit.max_affordable }}" 
-                    type="number" 
-                    max="{{ unit.max_affordable }}" 
-                    class=""
-                >
-                <button type="button" class="btn-light mt-1 py-0" onclick="trainMax('{{ unit.id }}', '{{ unit.max_affordable }}')">
-                    Max
-                </button>
-
-                <script>
-                    function trainMax(unit_id, max_affordable) {
-                        let thisInput = document.getElementById("train_" + unit_id);
-                        thisInput.value = max_affordable;
-                    }
-                </script>
-                {% endif %}
-            </div>
-            
-            <div class="col u-flex u-flex-column {% if unit.is_trainable %}card header_colors {% endif %}px-1">
-                {% if unit.is_trainable %}
-                <span class="u-center font-bold">Cost</span>
-                {% for resource, amount in unit.cost_dict.items %}
-                <span class="u-center">{{ amount|intcomma }} {{ resource }}</span>
-                {% endfor %}
-                {% endif %}
-            </div>
-            
-        </div>
-
-        <div>
-            <span>{{ unit.perk_text }}</span>
-        </div>
-    </div>
-    {% endfor %}
-
-    <button class="btn-light mt-1 w-16 h-6 p-0 u-center" type="submit">
-        <span class="font-bold">Train</span>
-    </button>
-</form>
-
-<div class="mt-8 u-flex u-flex-column max-w-md card card_colors p-1">
-    <div class="">
-        <h6 class="u-center">Units returning from battle</h6>
-    </div>
-    <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
-        <table class="table striped card_colors">
-            <thead>
-                <tr>
-                    <th>Unit</th>
-                    <th>1</th>
-                    <th>2</th>
-                    <th>3</th>
-                    <th>4</th>
-                    <th>5</th>
-                    <th>6</th>
-                    <th>7</th>
-                    <th>8</th>
-                    <th>9</th>
-                    <th>10</th>
-                    <th>11</th>
-                    <th>12</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for unit in units %}
-                {% if unit.quantity_returning > 0 %}
-                <tr>
-                    <th class="u-align-middle">{{ unit.name|title }}</th>
-                    <td class="u-align-middle">{{ unit.returning_dict.1 }}</td>
-                    <td class="u-align-middle">{{ unit.returning_dict.2 }}</td>
-                    <td class="u-align-middle">{{ unit.returning_dict.3 }}</td>
-                    <td class="u-align-middle">{{ unit.returning_dict.4 }}</td>
-                    <td class="u-align-middle">{{ unit.returning_dict.5 }}</td>
-                    <td class="u-align-middle">{{ unit.returning_dict.6 }}</td>
-                    <td class="u-align-middle">{{ unit.returning_dict.7 }}</td>
-                    <td class="u-align-middle">{{ unit.returning_dict.8 }}</td>
-                    <td class="u-align-middle">{{ unit.returning_dict.9 }}</td>
-                    <td class="u-align-middle">{{ unit.returning_dict.10 }}</td>
-                    <td class="u-align-middle">{{ unit.returning_dict.11 }}</td>
-                    <td class="u-align-middle">{{ unit.returning_dict.12 }}</td>
-                </tr>
-                {% endif %}
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<div class="mt-4 u-flex u-flex-column max-w-md card card_colors p-1">
-    <div>
-        <h6 class="u-center">Incoming acres</h6>
-    </div>
-    <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
-        <table class="table striped card_colors">
-            <thead>
-                <tr>
-                    <th>Acres</th>
-                    <th>1</th>
-                    <th>2</th>
-                    <th>3</th>
-                    <th>4</th>
-                    <th>5</th>
-                    <th>6</th>
-                    <th>7</th>
-                    <th>8</th>
-                    <th>9</th>
-                    <th>10</th>
-                    <th>11</th>
-                    <th>12</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if active_dominion.incoming_acres > 0 %}
-                <tr>
-                    <td class="u-align-middle">Acres</td>
-                    <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.1 }}</td>
-                    <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.2 }}</td>
-                    <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.3 }}</td>
-                    <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.4 }}</td>
-                    <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.5 }}</td>
-                    <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.6 }}</td>
-                    <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.7 }}</td>
-                    <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.8 }}</td>
-                    <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.9 }}</td>
-                    <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.10 }}</td>
-                    <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.11 }}</td>
-                    <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.12 }}</td>
-                </tr>
-                {% endif %}
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<div class="mt-4 u-flex u-flex-column max-w-md card card_colors p-1">
-    <div>
-        <h6 class="u-center">Units in training</h6>
-    </div>
-    <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
-        <table class="table striped card_colors">
-            <thead>
-                <tr>
-                    <th>Unit</th>
-                    <th>1</th>
-                    <th>2</th>
-                    <th>3</th>
-                    <th>4</th>
-                    <th>5</th>
-                    <th>6</th>
-                    <th>7</th>
-                    <th>8</th>
-                    <th>9</th>
-                    <th>10</th>
-                    <th>11</th>
-                    <th>12</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for unit in units %}
-                {% if unit.quantity_in_training > 0 %}
-                <tr>
-                    <th class="u-align-middle">{{ unit.name|title }}</th>
-                    <td class="u-align-middle">{{ unit.training_dict.1 }}</td>
-                    <td class="u-align-middle">{{ unit.training_dict.2 }}</td>
-                    <td class="u-align-middle">{{ unit.training_dict.3 }}</td>
-                    <td class="u-align-middle">{{ unit.training_dict.4 }}</td>
-                    <td class="u-align-middle">{{ unit.training_dict.5 }}</td>
-                    <td class="u-align-middle">{{ unit.training_dict.6 }}</td>
-                    <td class="u-align-middle">{{ unit.training_dict.7 }}</td>
-                    <td class="u-align-middle">{{ unit.training_dict.8 }}</td>
-                    <td class="u-align-middle">{{ unit.training_dict.9 }}</td>
-                    <td class="u-align-middle">{{ unit.training_dict.10 }}</td>
-                    <td class="u-align-middle">{{ unit.training_dict.11 }}</td>
-                    <td class="u-align-middle">{{ unit.training_dict.12 }}</td>
-                </tr>
-                {% endif %}
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<form action="{% url 'submit_release' %}" method="post" class="max-w-md card bg-red-800 text-light p-1 mt-8">
-    {% csrf_token %}
-    <div class="w-100p u-center u-flex u-flex-column">
-        <h6>Release units</h6>
-        <p>These units will be removed. There will be no refund.</p>
-    </div>
-    <table class="table striped bg-red-800 text-light">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>At home</th>
-                <th class="w-16">Release</th>
-            </tr>
-        </thead>
-        <tbody>
+        <div class="u-flex u-flex-column u-gap-1">
             {% for unit in units %}
-            <tr>
-                {% include "maingame/unit_name_row.html" %}
-                <td class="u-align-middle">
-                    {{ unit.quantity_at_home|intcomma }}
-                </td>
-                <td class="u-align-middle u-flex-md u-flex-row-md">
-                    <input 
-                        name="release_{{ unit.id }}" 
-                        id="release_{{ unit.id }}" 
-                        placeholder="{{ unit.quantity_at_home }}" 
-                        type="number" 
-                        max="{{ unit.quantity_at_home }}" 
-                        class="w-12 w-16-md ml-auto-md mr-2-md"
-                    >
-                </td>
-            </tr>
+            <div class="card header_colors px-1 pt-1 max-w-xs">
+                <div class="card row base_colors">
+                    <div class="col">
+                        {% if active_user_settings.show_tutorials %}<span class="u-center font-bold">Name</span>{% endif %}
+                        <span class="u-center">{{ unit.name}}</span>
+                    </div>
+
+                    <div class="col">
+                        {% if active_user_settings.show_tutorials %}<span class="u-center font-bold">Quantity</span>{% endif %}
+                        <span class="u-center">
+                            {{ unit.quantity_trained_and_alive}}{% if unit.quantity_in_training > 0 %} ({{ unit.quantity_in_training }}){% endif %}
+                        </span>
+                    </div>
+
+                    <div class="col">
+                        {% if active_user_settings.show_tutorials %}<span class="u-center font-bold">Power</span>{% endif %}
+                        <span class="u-center" style="white-space:nowrap">{{ unit.power_display}}</span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col u-flex u-flex-column card_colors px-1">
+                        <span class="u-center font-bold">Upkeep</span>
+                        {% for resource, amount in unit.upkeep_dict.items %}
+                        <span class="u-center">{{ amount|intcomma }} {{ resource }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col u-flex u-flex-column">
+                        {% if unit.is_trainable %}
+                        <input 
+                            name="train_{{ unit.id }}" 
+                            id="train_{{ unit.id }}" 
+                            placeholder="{{ unit.max_affordable }}" 
+                            type="number" 
+                            max="{{ unit.max_affordable }}" 
+                            class=""
+                        >
+                        <button type="button" class="card_colors mt-1 py-0" onclick="trainMax('{{ unit.id }}', '{{ unit.max_affordable }}')">
+                            Max
+                        </button>
+
+                        <script>
+                            function trainMax(unit_id, max_affordable) {
+                                let thisInput = document.getElementById("train_" + unit_id);
+                                thisInput.value = max_affordable;
+                            }
+                        </script>
+                        {% else %}
+                        <span class="u-center">Can't be trained</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col u-flex u-flex-column {% if unit.is_trainable %}card_colors {% endif %}px-1">
+                        {% if unit.is_trainable %}
+                        <span class="u-center font-bold">Cost</span>
+                        {% for resource, amount in unit.cost_dict.items %}
+                        <span class="u-center">{{ amount|intcomma }} {{ resource }}</span>
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                    
+                </div>
+
+                <div>
+                    <span>{{ unit.perk_text }}</span>
+                </div>
+            </div>
             {% endfor %}
-        </tbody>
-    </table>
-    <button class="btn-light mt-1 w-16 h-6 p-0 u-center" type="submit">
-        <span class="font-bold">Release</span>
-    </button>
-</form>
+        </div>
+
+        <button class="header_colors mt-1 w-16 h-6 p-0 u-center" type="submit">
+            <span class="font-bold">Train</span>
+        </button>
+    </form>
+
+    <div class="mt-8 u-flex u-flex-column max-w-md card card_colors p-1">
+        <div class="">
+            <h6 class="u-center">Units returning from battle</h6>
+        </div>
+        <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
+            <table class="table striped card_colors">
+                <thead>
+                    <tr>
+                        <th>Unit</th>
+                        <th>1</th>
+                        <th>2</th>
+                        <th>3</th>
+                        <th>4</th>
+                        <th>5</th>
+                        <th>6</th>
+                        <th>7</th>
+                        <th>8</th>
+                        <th>9</th>
+                        <th>10</th>
+                        <th>11</th>
+                        <th>12</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for unit in units %}
+                    {% if unit.quantity_returning > 0 %}
+                    <tr>
+                        <th class="u-align-middle">{{ unit.name|title }}</th>
+                        <td class="u-align-middle">{{ unit.returning_dict.1 }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.2 }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.3 }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.4 }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.5 }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.6 }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.7 }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.8 }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.9 }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.10 }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.11 }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.12 }}</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-4 u-flex u-flex-column max-w-md card card_colors p-1">
+        <div>
+            <h6 class="u-center">Incoming acres</h6>
+        </div>
+        <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
+            <table class="table striped card_colors">
+                <thead>
+                    <tr>
+                        <th>Acres</th>
+                        <th>1</th>
+                        <th>2</th>
+                        <th>3</th>
+                        <th>4</th>
+                        <th>5</th>
+                        <th>6</th>
+                        <th>7</th>
+                        <th>8</th>
+                        <th>9</th>
+                        <th>10</th>
+                        <th>11</th>
+                        <th>12</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if active_dominion.incoming_acres > 0 %}
+                    <tr>
+                        <td class="u-align-middle">Acres</td>
+                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.1 }}</td>
+                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.2 }}</td>
+                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.3 }}</td>
+                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.4 }}</td>
+                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.5 }}</td>
+                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.6 }}</td>
+                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.7 }}</td>
+                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.8 }}</td>
+                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.9 }}</td>
+                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.10 }}</td>
+                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.11 }}</td>
+                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.12 }}</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-4 u-flex u-flex-column max-w-md card card_colors p-1">
+        <div>
+            <h6 class="u-center">Units in training</h6>
+        </div>
+        <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
+            <table class="table striped card_colors">
+                <thead>
+                    <tr>
+                        <th>Unit</th>
+                        <th>1</th>
+                        <th>2</th>
+                        <th>3</th>
+                        <th>4</th>
+                        <th>5</th>
+                        <th>6</th>
+                        <th>7</th>
+                        <th>8</th>
+                        <th>9</th>
+                        <th>10</th>
+                        <th>11</th>
+                        <th>12</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for unit in units %}
+                    {% if unit.quantity_in_training > 0 %}
+                    <tr>
+                        <th class="u-align-middle">{{ unit.name|title }}</th>
+                        <td class="u-align-middle">{{ unit.training_dict.1 }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.2 }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.3 }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.4 }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.5 }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.6 }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.7 }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.8 }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.9 }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.10 }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.11 }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.12 }}</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <form action="{% url 'submit_release' %}" method="post" class="max-w-md card bg-red-800 text-light p-1 mt-8">
+        {% csrf_token %}
+        <div class="w-100p u-center u-flex u-flex-column">
+            <h6>Release units</h6>
+            <p>These units will be removed. There will be no refund.</p>
+        </div>
+        <table class="table striped bg-red-800 text-light">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>At home</th>
+                    <th class="w-16">Release</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for unit in units %}
+                <tr>
+                    {% include "maingame/unit_name_row.html" %}
+                    <td class="u-align-middle">
+                        {{ unit.quantity_at_home|intcomma }}
+                    </td>
+                    <td class="u-align-middle u-flex-md u-flex-row-md">
+                        <input 
+                            name="release_{{ unit.id }}" 
+                            id="release_{{ unit.id }}" 
+                            placeholder="{{ unit.quantity_at_home }}" 
+                            type="number" 
+                            max="{{ unit.quantity_at_home }}" 
+                            class="w-12 w-16-md ml-auto-md mr-2-md"
+                        >
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button class="btn-light mt-1 w-16 h-6 p-0 u-center" type="submit">
+            <span class="font-bold">Release</span>
+        </button>
+    </form>
+</div>
 
 {% endblock %}

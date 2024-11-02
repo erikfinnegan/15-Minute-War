@@ -126,10 +126,10 @@
 
 	<body class="base_colors h-full">
         <div class="u-flex u-flex-row">
-            {% comment %} {% include "sidebar.html" %} {% endcomment %}
+            {% include "sidebar.html" %}
             <div class="w-100p">
                 {% include "header.html" %}
-                <section class="container pt-2 pb-8 px-2">
+                <section class="container pt-2 pb-8 px-2 max-w-sm">
                     {% block content %}
                     {% endblock %}
                 </section>

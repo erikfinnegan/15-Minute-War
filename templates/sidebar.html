@@ -1,33 +1,7 @@
-<div class="u-absolute u-relative-md" id="linkParent" style="z-index: 10;">
-    <a class="name header_colors h-12 u-flex u-center u-none-md" onclick="toggleMenu()">
-        <i class="fa fa-bars text-xl pl-1 header_colors"></i>
-    </a>
-
-    <div class="u-none" id="links">
-        <span id="time-a" class="u-center font-bold">Time goes here</span>
+<div class="header_colors w-24 h-screen u-none u-block-md pt-12">
+    <span id="bigscreen-time" class="u-center font-bold">Time goes here</span>
+    <div class="u-flex-md u-flex-column u-center">
         {% include "sidebar_links.html" %}
-    </div>
-    
-    <script>
-        function toggleMenu() {
-            var links = document.getElementById("links");
-            const baseTopNavClasses = "bg-dark w-100p h-100p text-xl u-center "
-
-            if (links.className.includes("u-none")) {
-                links.className = baseTopNavClasses + "u-flex u-flex-column u-absolute";
-                linkParent.className = ""
-            } else {
-                links.className = baseTopNavClasses + "u-none";
-                linkParent.className = "u-absolute u-relative-md"
-            }
-        }
-    </script>
-
-    <div class="u-none u-block-md min-h-screen h-100p pt-12 px-4 w-24 header_colors">
-        <span id="time-b" class="u-center font-bold">Time goes here</span>
-        <div class="u-flex-md u-flex-column u-center">
-            {% include "sidebar_links.html" %}
-        </div>
     </div>
 
     <script>
@@ -39,12 +13,10 @@
             return h + ":" + m + ":" + s
         }
 
-        document.getElementById('time-a').innerHTML = getTime();
-        document.getElementById('time-b').innerHTML = getTime();
+        document.getElementById('bigscreen-time').innerHTML = getTime();
 
         setInterval(() => {
-            document.getElementById('time-a').innerHTML = getTime();
-            document.getElementById('time-b').innerHTML = getTime();
+            document.getElementById('bigscreen-time').innerHTML = getTime();
         }, 1000);
     </script>
 </div>

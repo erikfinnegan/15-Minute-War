@@ -1,6 +1,6 @@
 {% load humanize %}
 
-<div class="card card_colors px-2 pb-2 pt-1 u-flex u-flex-column {% if building.quantity > 0 %} u-border-1 u-border-gray-700{% endif %}">
+<div class="card card_colors px-2 pb-2 pt-1 u-flex u-flex-column w-64-md {% if building.quantity > 0 %} u-border-1 u-border-gray-700{% endif %}">
     <div class="u-flex u-justify-space-between">
         <span class="text-xl">{{ building.name|title }}</span>
         {% if building.quantity == 0 %}
@@ -11,7 +11,7 @@
         <span>{{ building.percent }}%</span>
     </div>
     
-    <div class="">
+    <div class="u-flex u-flex-row u-justify-space-between">
         <span class="u-align-middle mr-2">{{ building.description }}</span>
         {% if show_upgrades %}
         <a href="{% url 'upgrade_building' building.id %}">

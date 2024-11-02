@@ -9,6 +9,10 @@
     <p>
         You'll gain the ability to make a new Discovery every 50 ticks. These grant access to new units, buildings, spells, etc.
     </p>
+    <p>
+        Some units have special perks. These are marked by differently-colored text and the description can be seen by mousing over the name (desktop)
+        or tapping on the name (mobile).
+    </p>
     {% endif %}
     <p>Ticks to next discovery: {{ active_dominion.ticks_to_next_discovery }}</p>
     <p>Discoveries available: {{ active_dominion.discoveries_to_make }}</p>
@@ -22,7 +26,7 @@
                 <option value="{{ discovery.name }}">{{ discovery.name }}</option>
                 {% endfor %}
             </select>
-            <button class="btn-light w-16 h-6 p-0 u-center" type="submit" {% if active_dominion.discoveries_to_make < 1 %}disabled{% endif %}>
+            <button class="header_colors w-16 h-6 p-0 u-center" type="submit" {% if active_dominion.discoveries_to_make < 1 %}disabled{% endif %}>
                 <span class="font-bold">Submit</span>
             </button>
         </div>
@@ -30,7 +34,7 @@
 
     <div class="u-flex u-flex-wrap u-gap-2">
         {% for discovery in available_discoveries %}
-        <div class="card card_colors p-1 w-48">
+        <div class="card card_colors p-1 w-100p">
             <h6>{{ discovery.name }}</h6>
             <p>{{ discovery.description }}</p>
             {% if discovery.associated_unit_name %}

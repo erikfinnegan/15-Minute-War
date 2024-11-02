@@ -30,7 +30,7 @@
                 <div class="col">
                     {% if dominion.protection_ticks_remaining == 0 %}
                     <a href="{% url 'overview' dominion.id %}" class="u-center">
-                        <button class="py-0">Info</button>
+                        <button class="py-0 header_colors">Info</button>
                     </a>
                     {% endif %}
                 </div>
@@ -45,9 +45,9 @@
                         {% if dominion.protection_ticks_remaining == 0 and round.has_started %}{{ dominion.defense_short }} DP{% else %}Magical protection{% endif %}
                     </span>
                 </div>
-                <div class="col">
+                <div class="col u-flex">
                     {% if dominion.has_units_returning %}
-                    <div class="u-center tag tag--danger py-0">Units returning</div>
+                    <span class="tag tag--danger py-0 mx-auto">Units returning</span>
                     {% endif %}
                 </div>
                 <div class="col">
