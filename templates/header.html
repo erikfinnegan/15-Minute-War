@@ -74,30 +74,35 @@
 </div>
 
 {% if active_dominion.protection_ticks_remaining > 0 %}
-<div class="u-flex u-flex-row u-gap-4 header_colors p-1">
-    <span>{{ active_dominion.protection_ticks_remaining }} protection ticks remaining</span>
-    <a href="{% url 'protection_tick' 1 %}">
-        <button class="h-4 py-0">+1 tick</button>
-    </a>
-    {% if active_dominion.protection_ticks_remaining >= 12 %}
-    <a href="{% url 'protection_tick' 12 %}">
-        <button class="h-4 py-0">+12 ticks</button>
-    </a>
-    {% endif %}
+<div class="u-flex u-flex-column u-flex-row-md u-gap-4 header_colors p-1">
+    <span>{{ active_dominion.protection_ticks_remaining }} protection ticks left</span>
+    <div class="u-flex u-flex-wrap u-gap-2">
+        <a href="{% url 'protection_tick' 1 %}">
+            <button class="h-4 py-0">+1 tick</button>
+        </a>
+        {% if active_dominion.protection_ticks_remaining >= 12 %}
+        <a href="{% url 'protection_tick' 12 %}">
+            <button class="h-4 py-0">+12 ticks</button>
+        </a>
+        {% endif %}
 
-    {% if active_dominion.ticks_til_training_time >= 12 %}
-    <a href="{% url 'protection_tick' active_dominion.ticks_til_training_time %}">
-        <button class="h-4 py-0">+{{ active_dominion.ticks_til_training_time }} ticks</button>
-    </a>
-    {% endif %}
+        {% if active_dominion.ticks_til_training_time >= 12 %}
+        <a href="{% url 'protection_tick' active_dominion.ticks_til_training_time %}">
+            <button class="h-4 py-0">+{{ active_dominion.ticks_til_training_time }} ticks</button>
+        </a>
+        {% endif %}
 
-    <a href="{% url 'protection_tick' active_dominion.protection_ticks_remaining %}">
-        <button class="h-4 py-0">+{{ active_dominion.protection_ticks_remaining }} ticks</button>
-    </a>
+        <a href="{% url 'protection_tick' active_dominion.protection_ticks_remaining %}">
+            <button class="h-4 py-0">+{{ active_dominion.protection_ticks_remaining }} ticks</button>
+        </a>
 
-    <a href="{% url 'protection_restart' %}">
-        <button class="h-4 py-0">Restart</button>
-    </a>
+        <details class="accordion m-0 p-0">
+            <summary class="accordion__summary base_colors u-round-xs px-1">Restart</summary>
+            <a href="{% url 'protection_restart' %}">
+                <button class="h-4 py-0">Really restart</button>
+            </a>
+        </details>
+    </div>
 </div>
 {% endif %}
 

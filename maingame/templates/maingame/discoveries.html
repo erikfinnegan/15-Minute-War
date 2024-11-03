@@ -34,12 +34,12 @@
 
     <div class="u-flex u-flex-wrap u-gap-2">
         {% for discovery in available_discoveries %}
-        <div class="card card_colors p-1 w-100p">
+        <div class="card card_colors p-1 w-100p max-w-xs">
             <h6>{{ discovery.name }}</h6>
             <p>{{ discovery.description }}</p>
             {% if discovery.associated_unit_name %}
         
-            <table class="table striped">
+            <table class="table striped card_colors">
                 <thead>
                     <tr>
                         <th>Name</th>
