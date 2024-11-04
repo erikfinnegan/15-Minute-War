@@ -606,6 +606,7 @@ def overview(request, dominion_id):
         "offense_multiplier": my_dominion.offense_multiplier + get_grudge_bonus(my_dominion, dominion),
         "spells": Spell.objects.filter(ruler=dominion),
         "learned_discoveries": learned_discoveries,
+        "acres_conquered": int(0.06 * dominion.acres * (dominion.acres / my_dominion.acres))
     }
 
     return render(request, "maingame/overview.html", context)
