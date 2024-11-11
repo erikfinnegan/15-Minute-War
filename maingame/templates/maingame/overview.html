@@ -26,7 +26,7 @@
     </div>
 
     {% if dominion != active_dominion and dominion.protection_ticks_remaining == 0 and active_dominion.protection_ticks_remaining == 0 and round.has_started and not round.has_ended %}
-    <details class="accordion card card_colors max-w-md">
+    <details class="accordion card card_colors max-w-md u-overflow-x-scroll">
         <summary class="accordion__summary">Plan invasion for {{ acres_conquered}} acres</summary>
         <form action="{% url 'submit_invasion' dominion.id %}" method="post" class="max-w-md">
             {% csrf_token %}
