@@ -546,6 +546,7 @@ class Discovery(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
     description = models.CharField(max_length=500, null=True, blank=True)
     requirement = models.CharField(max_length=50, null=True, blank=True)
+    not_for_factions = models.JSONField(default=list, blank=True)
     associated_unit_name = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):

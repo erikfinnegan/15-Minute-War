@@ -30,7 +30,8 @@ def initialize_dominion(user: User, faction: Faction, display_name):
     starter_discovery_names = []
 
     for discovery in Discovery.objects.filter(requirement=None):
-        starter_discovery_names.append(discovery.name)
+        if faction.name not in discovery.not_for_factions:
+            starter_discovery_names.append(discovery.name)
 
     for discovery in Discovery.objects.filter(requirement=faction.name):
         starter_discovery_names.append(discovery.name)

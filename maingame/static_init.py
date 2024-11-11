@@ -366,6 +366,7 @@ def initialize_discoveries():
         name="Zombies",
         description="Gain bodies from invasion casualties when you're victorious and use them to magically raise undead soldiers.",
         associated_unit_name="Zombie",
+        not_for_factions=["blessed order"]
     )
 
     # Discovery.objects.create(

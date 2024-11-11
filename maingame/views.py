@@ -118,9 +118,13 @@ def submit_discovery(request):
     elif not Discovery.objects.filter(name=discovery_name).exists():
         messages.error(request, f"That discovery doesn't exist")
         return redirect("discoveries")
+    elif dominion.faction_name in Discovery.objects.get(name=discovery_name).not_for_factions:
+        messages.error(request, f"Your faction doesn't have access to that discovery")
+        return redirect("discoveries")
     else:
         dominion.discovery_points -= 50
         unlock_discovery(dominion, discovery_name)
+        messages.success(request, f"Discovered {discovery_name}")
 
     return redirect("discoveries")
 
