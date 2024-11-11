@@ -28,6 +28,9 @@ def initialize_resources():
         {
             "name": "gems",
         },
+        {
+            "name": "faith",
+        },
     ]
 
     for resource_template in resource_templates:
@@ -106,6 +109,18 @@ def initialize_factions():
         satisfied and cleared. Oh, and simply viewing a dwarf's overview page is enough to warrant one page of grudges."""
     )
 
+    Faction.objects.create(
+        name="blessed order",
+        primary_resource_name="gold",
+        primary_resource_per_acre="50",
+        building_primary_resource_name="gold",
+        building_secondary_resource_name="wood",
+        starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"],
+        description="""The priests of the Blessed Order generate faith, which is used to return the vengeful spirits of warriors who fall in defense
+        of the order. When they're invaded, any accumulated faith is spent to turn defensive casualties into blessed martyrs at the cost of 100 faith
+        per martyr. Some chapters of the Blessed Order also use their faith to call upon the incredible living saints for defense."""
+    )
+
 
 def initialize_units():
     human = Faction.objects.get(name="human")
@@ -178,6 +193,63 @@ def initialize_units():
         },
         perk_dict={"random_grudge_book_pages_per_tick": 3},
         is_trainable=False,
+    )
+
+    blessed_order = Faction.objects.get(name="blessed order")
+    Unit.objects.create(
+        name="Priest",
+        op=0,
+        dp=2,
+        cost_dict={
+            "gold": 400,
+            "research": 450,
+        },
+        upkeep_dict={
+            "gold": 3,
+            "food": 1,
+        },
+        perk_dict={"faith_per_tick": 1},
+        faction=blessed_order,
+    )
+    Unit.objects.create(
+        name="Novitiate",
+        op=5,
+        dp=5,
+        cost_dict={
+            "gold": 1400,
+            "ore": 250,
+            "wood": 500,
+        },
+        upkeep_dict={
+            "gold": 3,
+            "food": 1,
+        },
+        faction=blessed_order,
+    )
+    Unit.objects.create(
+        name="Blessed Martyr",
+        op=10,
+        dp=5,
+        upkeep_dict={
+            "faith": 1,
+        },
+        perk_dict={"immortal": True},
+        is_trainable=False,
+        faction=blessed_order,
+    )
+    Unit.objects.create(
+        name="Living Saint",
+        op=0,
+        dp=100,
+        cost_dict={
+            "gold": 12000,
+            "faith": 6000,
+            "mana": 2000,
+        },
+        upkeep_dict={
+            "faith": 10,
+            "food": 1,
+        },
     )
 
     Unit.objects.create(
@@ -325,6 +397,13 @@ def initialize_discoveries():
         description="A holy scribe takes up residence with you and appends three pages to your book of grudges each tick.",
         requirement="dwarf",
         associated_unit_name="Grudgestoker",
+    )
+
+    Discovery.objects.create(
+        name="Living Saint",
+        description="Pray for assistance from the incredible living saints.",
+        requirement="blessed order",
+        associated_unit_name="Living Saint",
     )
 
 

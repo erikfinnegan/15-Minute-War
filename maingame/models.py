@@ -204,6 +204,10 @@ class Dominion(models.Model):
         if resource_name == self.primary_resource_name:
             production += self.primary_resource_per_acre * self.acres
 
+        for unit in Unit.objects.filter(ruler=self):
+            if f"{resource_name}_per_tick" in unit.perk_dict:
+                production += unit.perk_dict[f"{resource_name}_per_tick"] * unit.quantity_at_home
+
         return production
     
     def get_consumption(self, resource_name):
@@ -423,7 +427,14 @@ class Unit(models.Model):
 
         if "always_dies_on_offense" in self.perk_dict:
             perk_text += "Always dies when sent on an invasion. "
-        
+
+        if "immortal" in self.perk_dict:
+            perk_text += "Does not die in combat. "
+
+        if "faith_per_tick" in self.perk_dict:
+            faith_produced = self.perk_dict["faith_per_tick"]
+            perk_text += f"Produces {faith_produced} faith per tick. "
+
         return perk_text
     
     @property

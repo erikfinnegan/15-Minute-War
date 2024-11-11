@@ -304,17 +304,19 @@ def resources(request):
     round = Round.objects.first()
     resources_dict = {}
     dominion_resource_total_dict = {}
+    
 
     for resource in Resource.objects.filter(ruler=dominion):
-        dominion_resource_total_dict[resource.name] = resource.quantity
+        if not resource.name == "corpses":
+            dominion_resource_total_dict[resource.name] = resource.quantity
 
-        resources_dict[resource.name] = {
-            "name": resource.name,
-            "produced": dominion.get_production(resource.name),
-            "consumed": dominion.get_consumption(resource.name),
-        }
+            resources_dict[resource.name] = {
+                "name": resource.name,
+                "produced": dominion.get_production(resource.name),
+                "consumed": dominion.get_consumption(resource.name),
+            }
 
-        resources_dict[resource.name]["net"] = resources_dict[resource.name]["produced"] - resources_dict[resource.name]["consumed"]
+            resources_dict[resource.name]["net"] = resources_dict[resource.name]["produced"] - resources_dict[resource.name]["consumed"]
 
     update_trade_prices()
     trade_price_dict = round.trade_price_dict
@@ -353,6 +355,12 @@ def trade(request):
     amount = int(request.POST["resourceAmount"])
     output_resource_name = request.POST["outputResource"]
 
+    untradable_resources = ["corpses", "faith"]
+
+    if input_resource_name in untradable_resources or output_resource_name in untradable_resources:
+        messages.error(request, f"You can't trade that resource and you know it.")
+        return redirect("resources")
+
     input_resource = Resource.objects.get(ruler=dominion, name=input_resource_name)
     output_resource = Resource.objects.get(ruler=dominion, name=output_resource_name)
 
@@ -375,7 +383,7 @@ def trade(request):
 
     update_trade_prices()
 
-    messages.success(request, f"Traded {amount:2,} {input_resource} for {payout:2,} {output_resource}")
+    messages.success(request, f"Traded {amount:2,} {input_resource.name} for {payout:2,} {output_resource.name}")
     return redirect("resources")
 
 
@@ -829,12 +837,17 @@ def submit_invasion(request, dominion_id):
             defensive_survival = 0.98
 
     total_casualties = 0
+    defensive_casualties = 0
 
     # Apply offensive casualties and return the survivors home
     for unit_details_dict in units_sent_dict.values():
         unit = unit_details_dict["unit"]
         quantity_sent = unit_details_dict["quantity_sent"]
-        survivors = math.ceil(quantity_sent * offensive_survival)
+
+        if "immortal" in unit.perk_dict:
+            survivors = quantity_sent
+        else:
+            survivors = math.ceil(quantity_sent * offensive_survival)
 
         if "always_dies_on_offense" in unit.perk_dict:
             survivors = 0
@@ -847,13 +860,29 @@ def submit_invasion(request, dominion_id):
 
     # Apply defensive casualties
     for unit in Unit.objects.filter(ruler=target_dominion):
-        survivors = math.ceil(unit.quantity_at_home * defensive_survival)
+        if "immortal" in unit.perk_dict:
+            survivors = unit.quantity_at_home
+        else:
+            survivors = math.ceil(unit.quantity_at_home * defensive_survival)
+
+        casualties = unit.quantity_at_home - survivors
 
         if "mana" not in unit.upkeep_dict and "mana" not in unit.cost_dict:
-            total_casualties += (unit.quantity_at_home - survivors)
+            total_casualties += casualties
+            defensive_casualties += casualties
 
         unit.quantity_at_home = survivors
         unit.save()
+
+    if attacker_victory and target_dominion.faction_name == "blessed order":
+        faith = Resource.objects.get(ruler=target_dominion, name="faith")
+        martyrs_affordable = int(faith.quantity / 100)
+        martyrs_gained = min(martyrs_affordable, defensive_casualties)
+        faith.quantity -= 100 * martyrs_gained
+        faith.save()
+        martyrs = Unit.objects.get(ruler=target_dominion, name="Blessed Martyr")
+        martyrs.quantity_at_home += martyrs_gained
+        martyrs.save()
 
     if attacker_victory and Resource.objects.filter(ruler=my_dominion, name="corpses").exists():
         my_bodies = Resource.objects.get(ruler=my_dominion, name="corpses")

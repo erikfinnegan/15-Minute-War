@@ -55,6 +55,11 @@ def initialize_dominion(user: User, faction: Faction, display_name):
         if dominions_building.resource_produced_name:
             create_resource_for_dominion(dominions_building.resource_produced_name, dominion)
 
+    for unit in Unit.objects.filter(ruler=dominion):
+        for perk_name in unit.perk_dict:
+            if perk_name[-9:] == "_per_tick":
+                create_resource_for_dominion(perk_name[:-9], dominion)
+
     for spell in Spell.objects.filter(ruler=None, is_starter=True):
         dominions_spell = spell
         dominions_spell.pk = None
@@ -215,6 +220,8 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             dominion.has_tick_units = True
         case "Gem Mines":
             give_dominion_building(dominion, Building.objects.get(ruler=None, name="mine"))
+        case "Living Saint":
+            living_saint = give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Living Saint"))
 
     dominion.save()
 

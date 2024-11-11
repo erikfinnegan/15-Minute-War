@@ -24,7 +24,7 @@
                     <tr>
                         <th>Name</th>
                         <th>Power</th>
-                        <th>#</th>
+                        <th>Quantity (Training)</th>
                         <th>Train</th>
                         <th>Cost</th>
                         <th>Upkeep</th>
@@ -35,7 +35,7 @@
                     <tr>
                         {% include "maingame/unit_name_row.html" %}
                         <td class="u-align-middle" id="power_{{ unit.id }}" style="white-space:nowrap">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
-                        <td class="u-align-middle">{{ unit.quantity_at_home|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.quantity_trained_and_alive}}{% if unit.quantity_in_training > 0 %} ({{ unit.quantity_in_training }}){% endif %}</td>
                         <td class="u-align-middle u-center">
                             <div class="u-flex u-flex-row u-gap-2 w-32">
                                 {% if unit.is_trainable %}
@@ -82,6 +82,9 @@
                     {% endfor %}
                 </tbody>
             </table>
+            <button class="header_colors mt-1 w-16 h-6 p-0 u-center" type="submit">
+                <span class="font-bold">Submit</span>
+            </button>
         </form>
     </div>
 

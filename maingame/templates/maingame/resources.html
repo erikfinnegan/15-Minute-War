@@ -50,7 +50,7 @@
             {% csrf_token %}
             <div class="u-flex u-flex-column u-gap-2">
                 <select class="card_colors" id="inputResource" name="inputResource" oninput="showRatio()">
-                    {% for key, value in resources_dict.items %}
+                    {% for key in trade_price_data %}
                     <option {% if key == active_dominion.last_sold_resource_name %} selected{% endif %}>{{ key }}</option>
                     {% endfor %}
                 </select>

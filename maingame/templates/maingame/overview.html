@@ -85,6 +85,7 @@
         function updateOffenseToSend() {
             let opReadout = document.getElementById("opToSend");
             let dpHere = document.getElementById("dpHere").innerHTML;
+            dpHere = parseInt(dpHere.replace(',', ''));
             let readoutSection = document.getElementById("readoutSection");
             let invadeButtonText = document.getElementById("invadeButtonText");
             let unitInputs = document.getElementsByClassName("unitInput")
