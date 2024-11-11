@@ -116,9 +116,12 @@ def initialize_factions():
         building_primary_resource_name="gold",
         building_secondary_resource_name="wood",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"],
-        description="""The priests of the Blessed Order generate faith, which is used to return the vengeful spirits of warriors who fall in defense
-        of the order. When they're invaded, any accumulated faith is spent to turn defensive casualties into blessed martyrs at the cost of 100 faith
-        per martyr. Some chapters of the Blessed Order also use their faith to call upon the incredible living saints for defense."""
+        description="""The priests of the Blessed Order generate faith, which is used to restore the vengeful spirits of warriors who fall defending
+        their people. When they're invaded, any accumulated faith is spent to turn defensive casualties into blessed martyrs at the cost of 1,000 faith
+        per martyr. However, one sinner appears per tick for each 100 acres and each drains 1 faith per tick until the order places their offense
+        on hold for 24 ticks to begin an inquisition to root them out. The Blessed Order may declare a crusade, which raises blessed martyrs from
+        offensive casualties as well, but doubles the cost of blessed martyrs and costs 1 faith per acre per tick. This crusade will last until
+        24 ticks pass without invading."""
     )
 
 
@@ -228,8 +231,8 @@ def initialize_units():
     )
     Unit.objects.create(
         name="Blessed Martyr",
-        op=10,
-        dp=5,
+        op=15,
+        dp=8,
         upkeep_dict={
             "faith": 1,
         },

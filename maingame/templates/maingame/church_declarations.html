@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load extra_tags %}
+{% load tz %}
+
+{% block title %}News{% endblock %}
+
+{% block content %}
+<div class="u-flex u-flex-column u-gap-2">
+    {% if active_user_settings.show_tutorials %}
+        <p>
+            TODO
+        </p>
+    {% endif %}
+
+    <div class="u-flex u-flex-row mb-2">
+        <div class="w-12 u-flex">
+            <h6 class="u-center">Sinners:</h6>
+        </div>
+        <div class="u-flex u-flex-row u-gap-1">
+            <h6 class="u-center">{{ sinners }}</h6>
+            <span class="u-center">({% if sinners_per_tick > 0%}+{% endif %}{{ sinners_per_tick }} per tick)</span>
+        </div>
+    </div>
+
+    {% if inquisition_ticks_left > 0 %}<h6>The inquisition will continue for {{ inquisition_ticks_left }} ticks.</h6>{% endif %}
+    {% if crusade_ticks_left > 0 %}<h6>The crusade will continue for {{ inquisition_ticks_left }} ticks if you don't invade anyone.</h6>{% endif %}
+
+    <div class="card header_colors px-1 py-2 max-w-xs">
+        <h5 class="u-center">Inquisition</h5>
+        <p>
+            Inquisitions last 24 ticks. While active, you won't be able to invade, but sinners will stop appearing and will be eliminated entirely
+            over the course of that time.
+        </p>
+        <a href="{% url 'submit_inquisition' %}" class="u-center">
+            <button class="base_colors" {% if inquisition_ticks_left > 0 %}disabled{% endif %}>Start inquisition</button>
+        </a>
+    </div>
+
+    <div class="card header_colors px-1 py-2 max-w-xs">
+        <h5 class="u-center">Crusade</h5>
+        <p>
+            Crusades last 24 ticks and reset whenever you invade someone. While active, they cost 1 faith per acre per tick and the cost of raising
+            blessed martyrs doubles, but you'll raise them from your offensive casualties as well.
+        </p>
+        <a href="{% url 'submit_crusade' %}" class="u-center">
+            <button class="base_colors" {% if crusade_ticks_left > 0 %}disabled{% endif %}>Start crusade</button>
+        </a>
+    </div>
+</div>
+
+{% endblock %}

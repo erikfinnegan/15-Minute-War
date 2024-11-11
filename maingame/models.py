@@ -75,6 +75,15 @@ class Dominion(models.Model):
         return Resource.objects.filter(ruler=self)
 
     @property
+    def can_attack(self):
+        if self.protection_ticks_remaining > 0:
+            return False
+        elif self.perk_dict.get("inquisition_rate") and self.perk_dict.get("inquisition_rate") > 0:
+            return False
+        
+        return True
+
+    @property
     def complacency_penalty_readout(self):
         penalty = self.complacency / 2
 
@@ -218,6 +227,12 @@ class Dominion(models.Model):
                 if resource_name == upkeep_resource_name:
                     consumption += int(unit.quantity_trained_and_alive * upkeep)
 
+        if resource_name == "faith" and "sinners" in self.perk_dict:
+            consumption += self.perk_dict["sinners"]
+
+        if resource_name == "faith" and "crusade_ticks_left" in self.perk_dict and self.perk_dict["crusade_ticks_left"] > 0:
+            consumption += self.acres
+
         return consumption
     
     def do_resource_production(self):
@@ -266,6 +281,25 @@ class Dominion(models.Model):
                         rounding = 3
 
                     self.perk_dict["book_of_grudges"][str(dominion.id)]["animosity"] = round(self.perk_dict["book_of_grudges"][str(dominion.id)]["animosity"], rounding)
+
+        if "sinners_per_hundred_acres_per_tick" in self.perk_dict and "sinners" in self.perk_dict and self.protection_ticks_remaining == 0:
+            if "inquisition_ticks_left" in self.perk_dict and self.perk_dict["inquisition_ticks_left"] > 0:
+                self.perk_dict["sinners"] -= self.perk_dict["inquisition_rate"]
+                self.perk_dict["sinners"] = max(0, self.perk_dict["sinners"])
+                self.perk_dict["inquisition_ticks_left"] -= 1
+
+                if self.perk_dict["inquisition_ticks_left"] == 0:
+                    self.perk_dict["inquisition_rate"] = 0
+                    self.perk_dict["sinners"] = 0
+            else:
+                self.perk_dict["sinners"] += self.perk_dict["sinners_per_hundred_acres_per_tick"]
+
+        if "crusade_ticks_left" in self.perk_dict and self.perk_dict["crusade_ticks_left"] > 0:
+            self.perk_dict["crusade_ticks_left"] -= 1
+
+            if self.perk_dict["crusade_ticks_left"] == 0:
+                self.perk_dict["martyr_cost"] = 1000
+
 
     def do_tick(self):
         self.do_resource_production()

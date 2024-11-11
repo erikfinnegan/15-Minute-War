@@ -11,3 +11,9 @@ class Command(BaseCommand):
         user = User.objects.get(username="erik")
         user_settings = UserSettings.objects.get(associated_user=user)
 
+        perk_dict = {"inquisition_ratexx": 5}
+
+        if perk_dict.get("inquisition_rate") and perk_dict.get("inquisition_rate") > 0:
+            print("INQUISITION ACTIVE")
+        else:
+            print("No inquisition here")

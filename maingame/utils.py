@@ -9,6 +9,13 @@ from django.db.models import Q
 def create_faction_perk_dict(dominion: Dominion, faction: Faction):
     if faction.name == "dwarf":
         dominion.perk_dict["book_of_grudges"] = {}
+    elif faction.name == "blessed order":
+        dominion.perk_dict["sinners"] = 1
+        dominion.perk_dict["sinners_per_hundred_acres_per_tick"] = 1
+        dominion.perk_dict["inquisition_rate"] = 0
+        dominion.perk_dict["inquisition_ticks_left"] = 0
+        dominion.perk_dict["crusade_ticks_left"] = 0
+        dominion.perk_dict["martyr_cost"] = 1000
 
     dominion.save()
 

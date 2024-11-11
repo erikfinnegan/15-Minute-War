@@ -35,4 +35,7 @@ urlpatterns = [
     path("options", views.options, name="options"),
     path("submit_options", views.submit_options, name="submit_options"),
     path("abandon", views.abandon, name="abandon"),
+    path("church_declarations", views.church_declarations, name="church_declarations"),
+    path("submit_inquisition", views.submit_inquisition, name="submit_inquisition"),
+    path("submit_crusade", views.submit_crusade, name="submit_crusade"),
 ]

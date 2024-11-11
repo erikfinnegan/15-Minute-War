@@ -25,10 +25,10 @@
         <h6>Ruled by {{ dominion.rulers_display_name }}</h6>
     </div>
 
-    {% if dominion != active_dominion and dominion.protection_ticks_remaining == 0 and active_dominion.protection_ticks_remaining == 0 and round.has_started and not round.has_ended %}
-    <details class="accordion card card_colors max-w-md u-overflow-x-scroll">
+    {% if dominion != active_dominion and dominion.protection_ticks_remaining == 0 and active_dominion.can_attack and round.has_started and not round.has_ended %}
+    <details class="accordion card card_colors max-w-md">
         <summary class="accordion__summary">Plan invasion for {{ acres_conquered}} acres</summary>
-        <form action="{% url 'submit_invasion' dominion.id %}" method="post" class="max-w-md">
+        <form action="{% url 'submit_invasion' dominion.id %}" method="post" class="max-w-md u-overflow-x-scroll">
             {% csrf_token %}
             <div class="w-100p u-center">
                 <h6>Invade</h6>
@@ -129,6 +129,8 @@
             dpReadout.innerHTML = regionDefenstInt - totalLostDp
         }
     </script>
+    {% else %}
+    <h6>Can't invade this dominion</h6>
     {% endif %}
 
     <div>
