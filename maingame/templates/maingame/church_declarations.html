@@ -8,7 +8,9 @@
 <div class="u-flex u-flex-column u-gap-2">
     {% if active_user_settings.show_tutorials %}
         <p>
-            TODO
+            Here is where you can launch inquisitions and crusades. Inquisitions are how you get rid of sinners at the expense of being unable to
+            attack for 24 ticks (though you could send an attack and then launch an inquisition right after). Crusades allow for the creation of
+            significantly more blessed martyrs (offensive casualties are twice that of defensive casualties), but at a higher cost.
         </p>
     {% endif %}
 
@@ -40,7 +42,7 @@
         <h5 class="u-center">Crusade</h5>
         <p>
             Crusades last 24 ticks and reset whenever you invade someone. While active, they cost 1 faith per acre per tick and the cost of raising
-            blessed martyrs doubles, but you'll raise them from your offensive casualties as well.
+            blessed martyrs doubles, but you'll now also raise them from your offensive casualties on successful invasions.
         </p>
         <a href="{% url 'submit_crusade' %}" class="u-center">
             <button class="base_colors" {% if crusade_ticks_left > 0 %}disabled{% endif %}>Start crusade</button>
