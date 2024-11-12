@@ -150,7 +150,7 @@ def get_trade_value(resource_name):
         price_modifier = 1 + ((this_round.resource_bank_dict[resource_name] / (total_production * 12)) * -0.2)
 
     if resource_name == "gold":
-        trade_value = 5 * price_modifier
+        trade_value = 10 * price_modifier
     else:
         building = Building.objects.get(resource_produced_name=resource_name, ruler=None)
         trade_value = (500 / building.amount_produced) * price_modifier
