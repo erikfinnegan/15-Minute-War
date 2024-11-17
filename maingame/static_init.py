@@ -302,7 +302,7 @@ def initialize_units():
             "food": 1,
         },
         is_trainable=False,
-        perk_dict={"surplus_research_consumed_to_add_one_op_and_dp": 2500}
+        perk_dict={"surplus_research_consumed_to_add_one_op_and_dp": 1300}
     )
     Unit.objects.create(
         name="Fireball",
@@ -398,7 +398,7 @@ def initialize_discoveries():
     Discovery.objects.create(
         name="Archmagus",
         description="""Gain the allegiance of a terrifyingly powerful sorcerer who will, each tick, consume 10% of any research points beyond your most 
-        expensive upgrade to gain 1 OP and DP per 2500 consumed.""",
+        expensive upgrade to gain 1 OP and DP per 1300 consumed.""",
         associated_unit_name="Archmagus",
     )
 
