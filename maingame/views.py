@@ -1160,7 +1160,7 @@ def submit_invasion(request, dominion_id):
         target_dominion.complacency = 0
         target_dominion.failed_defenses += 1
         target_dominion.save()
-        my_dominion.sucessful_invasions += 1
+        my_dominion.successful_invasions += 1
         my_dominion.save()
 
         if "book_of_grudges" in target_dominion.perk_dict:
