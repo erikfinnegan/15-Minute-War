@@ -194,7 +194,7 @@
             <tbody>
                 {% for building in buildings %}
                     <tr>
-                        {% include "maingame/tooltip_td.html" with have_tooltip=True main_text=building.name tooltip_text=building.description  %}
+                        {% include "maingame/tooltip_td.html" with have_tooltip=True main_text=building.name tooltip_text=building.description %}
                         <td class="u-align-middle">{{ building.quantity|intcomma }}</td>
                         <td class="u-align-middle">{{ building.percent }}%</th>
                         <td class="u-align-middle">{{ building.upgrades }}</th>

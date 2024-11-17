@@ -5,10 +5,12 @@
         content: attr(data-tooltip);
         border: 1px solid black;
         background: #111;
-        padding: .25em;
+        color: yellow;
+        padding: 0.5em;
+        left: 300px;
     }
 </style>
 
-<td class="u-align-middle {% if be_yellow %}text-yellow-200{% endif %}" {% if have_tooltip %}data-tooltip="{{ tooltip_text }}"{% endif %}>
+<td class="u-align-middle" {% if have_tooltip %}data-tooltip="{{ tooltip_text }}"{% endif %}>
     {{ main_text|title }}
 </td>
