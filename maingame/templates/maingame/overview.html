@@ -306,6 +306,7 @@
         </div>
     </div>
 
+    {% if round.has_started and dominion.protection_ticks_remaining == 0 %}
     <div class="u-flex u-flex-column max-w-md card card_colors p-1">
         <div>
             <h6 class="u-center">Units in training</h6>
@@ -353,6 +354,9 @@
             </table>
         </div>
     </div>
+    {% else %}
+    <h6>Units in training will be displayed here once this dominion is out of protection and the round has started.</h6>
+    {% endif %}
 
     <div class="max-w-xs">
         <details class="accordion">
