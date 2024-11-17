@@ -26,6 +26,8 @@
         <h6>{{ dominion.acres }} acres</h6>
         {% if round.has_started and dominion.protection_ticks_remaining == 0 %}
         <h6>{{ dominion.defense|intcomma }} defense</h6>
+        {% else %}
+        <h6>Defense hidden while under magical protection</h6>
         {% endif %}
         <h6>{{ dominion.successful_invasions }} successful invasions, {{ dominion.failed_defenses }} failed defenses
         <h6>Ruled by {{ dominion.rulers_display_name }}</h6>
