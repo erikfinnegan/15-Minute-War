@@ -18,10 +18,14 @@
         {% if round.has_started %}
         <h6>The current round is active</h6>
         {% elif active_user_settings %}
+            {% if round.start_time %}
             {% if active_user_settings.use_am_pm %}
             <h6>The next round starts at {{ round.start_time|timezone:active_user_settings.timezone|date:"F j, g:i:s a" }} {{ active_user_settings.timezone }}</h6>
             {% else %}
             <h6>The next round starts at {{ round.start_time|timezone:active_user_settings.timezone|date:"F j, G:i:s" }} {{ active_user_settings.timezone }}</h6>
+            {% endif %}
+            {% else %}
+            <h6>The next round does not yet have a scheduled start time.</h6>
             {% endif %}
         {% else %}
         <h6>The next round starts at {{ round.start_time }} US eastern time</h6>

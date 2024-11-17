@@ -95,16 +95,6 @@ def initialize_deities():
 
 def initialize_factions():
     Faction.objects.create(
-        name="human",
-        primary_resource_name="gold",
-        primary_resource_per_acre="50",
-        building_primary_resource_name="gold",
-        building_secondary_resource_name="wood",
-        starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"],
-        description="""This is a placeholder created during prototyping. None of the costs are balanced and they don't have any unique mechanics."""
-    )
-
-    Faction.objects.create(
         name="dwarf",
         primary_resource_name="gold",
         primary_resource_per_acre="50",
@@ -147,36 +137,6 @@ def initialize_factions():
 
 
 def initialize_units():
-    human = Faction.objects.get(name="human")
-    Unit.objects.create(
-        name="archer",
-        op=2,
-        dp=4,
-        cost_dict={
-            "gold": 150,
-            "wood": 30,
-        },
-        upkeep_dict={
-            "gold": 3,
-            "food": 1,
-        },
-        faction=human
-    )
-    Unit.objects.create(
-        name="knight",
-        op=6,
-        dp=5,
-        cost_dict={
-            "gold": 275,
-            "ore": 25,
-        },
-        upkeep_dict={
-            "gold": 3,
-            "food": 1,
-        },
-        faction=human
-    )
-
     dwarf = Faction.objects.get(name="dwarf")
     Unit.objects.create(
         name="Stoneshield",
@@ -391,6 +351,7 @@ def give_unit_timer_template(unit: Unit):
     unit.training_dict = timer_template
     unit.returning_dict = timer_template
     unit.save()
+
 
 def initialize_spells():
     Spell.objects.create(
