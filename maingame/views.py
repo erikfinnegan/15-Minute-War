@@ -1041,7 +1041,7 @@ def generate_experiment(request):
     
     current_names = []
 
-    for unit in Unit.objects.filter(ruler=self):
+    for unit in Unit.objects.filter(ruler=dominion):
         current_names.append(unit.name)
 
     name = random.choice(["sludger", "oozeling", "gooper", "marshling", "sogger", "squishling", "slimezoid", "pudling", "swamper", "snotling",])
@@ -1142,10 +1142,10 @@ def terminate_experiment(request):
 
     if unit.quantity_returning > 0:
         messages.error(request, f"Can't terminate experiments while units are returning")
-        return redirect("resources")
+        return redirect("experimentation")
     elif unit.quantity_in_training > 0:
         messages.error(request, f"Can't terminate experiments while units are in training")
-        return redirect("resources")
+        return redirect("experimentation")
 
     gold_refund = int(unit.quantity_at_home * unit.cost_dict["gold"] * 0.8)
     sludge_refund = int(unit.quantity_at_home * unit.cost_dict["sludge"] * 0.8)
@@ -1160,7 +1160,8 @@ def terminate_experiment(request):
 
     messages.success(request, f"Terminated the {unit.name} experiment, regained {gold_refund:2,} gold and {sludge_refund:2,} sludge from recycling {unit.quantity_at_home:2,} units")
 
-    unit.delete()
+    unit.ruler = None
+    unit.save()
 
     dominion.perk_dict["custom_units"] -= 1
     dominion.save()
@@ -1182,7 +1183,7 @@ def submit_invasion(request, dominion_id):
     target_dominion = Dominion.objects.get(id=dominion_id)
     round = Round.objects.first()
 
-    if target_dominion.protection_ticks_remaining > 0 or my_dominion.protection_ticks_remaining > 0 or not round.has_started or round.has_ended:
+    if target_dominion.protection_ticks_remaining > 0 or my_dominion.protection_ticks_remaining > 0 or not round.has_started or round.has_ended or target_dominion.is_abandoned:
         messages.error(request, f"Illegal invasion")
         return redirect("overview", dominion_id=dominion_id)
     

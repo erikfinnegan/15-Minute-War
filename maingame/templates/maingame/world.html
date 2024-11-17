@@ -7,13 +7,8 @@
 {% block content %}
 <div>
     {% if active_user_settings.show_tutorials %}
-    <p>These are all the dominions at the moment. Yours is the one with the green background. Anyone still in a state of magical protection has teal text.</p>
-    <p>You can click the info button next to anyone's name to see an overview of their dominion.</p>
+    <p>These are all the dominions at the moment. You can click the info button next to anyone's name to see an overview of their dominion.</p>
     <p>When someone makes an invasion, the units they send take 12 ticks to return home, leaving them more vulnerable to attack in the meantime.</p>
-    <p>
-        Every tick, a dominion gains 1 complacency, giving -0.5% defense each. Complacency resets when that dominion gets invaded and halves when that dominion
-        successfully invades another.
-    </p>
     {% endif %}
 
     <div>
@@ -41,7 +36,7 @@
 
             <div class="row u-center">
                 <div class="col">
-                    <span class="u-center {% if dominion.protection_ticks_remaining > 0 %}text-teal-400{% endif %}">
+                    <span class="u-center {% if dominion.protection_ticks_remaining > 0 or not round.has_started %}text-teal-400{% endif %}">
                         {% if dominion.protection_ticks_remaining == 0 and round.has_started %}{{ dominion.defense_short }} DP{% else %}Magical protection{% endif %}
                     </span>
                 </div>

@@ -16,6 +16,9 @@
                 Some units have special perks. These are marked by differently-colored text and the description can be seen by mousing over the name (desktop)
                 or tapping on the name (mobile).
             </p>
+            <p>
+                Every tick, a dominion gains 1 complacency, giving -0.5% defense each. Complacency resets when that dominion gets invaded.
+            </p>
         </div>
     {% endif %}
     <div>
@@ -26,7 +29,7 @@
         <h6>Ruled by {{ dominion.rulers_display_name }}</h6>
     </div>
 
-    {% if dominion != active_dominion and dominion.protection_ticks_remaining == 0 and active_dominion.can_attack and round.has_started and not round.has_ended %}
+    {% if dominion != active_dominion and dominion.protection_ticks_remaining == 0 and active_dominion.can_attack and round.has_started and not round.has_ended and not dominion.is_abandoned %}
     <details class="accordion card card_colors max-w-md">
         <summary class="accordion__summary">Plan invasion for {{ acres_conquered}} acres</summary>
         <form action="{% url 'submit_invasion' dominion.id %}" method="post" class="max-w-md u-overflow-x-scroll">
