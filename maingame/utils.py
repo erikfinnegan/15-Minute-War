@@ -285,6 +285,7 @@ def give_dominion_building(dominion: Dominion, building: Building):
 def round_x_to_nearest_y(x, round_to_nearest):
     return round_to_nearest * round(x/round_to_nearest)
 
+
 def cast_spell(spell: Spell):
     dominion = spell.ruler
     mana = Resource.objects.get(ruler=dominion, name="mana")

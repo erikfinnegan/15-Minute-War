@@ -27,6 +27,8 @@
 <a href="{% url 'options' %}" class="">Options</a>
 <a href="{% url 'faction_info' %}" class="">Faction Info</a>
 
+<span class="mx-1 pt-4">There are {{ round.ticks_left }} ticks left in the round.</span>
+
 <form action="{% url 'logout' %}" method="post" class="mt-8">
     {% csrf_token %}
     <button type="submit" class="px-1 py-0 w-12 h-4">

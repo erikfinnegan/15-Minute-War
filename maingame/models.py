@@ -579,6 +579,10 @@ class Round(models.Model):
     @property
     def allow_ticks(self):
         return self.has_started and not self.has_ended
+    
+    @property
+    def ticks_left(self):
+        return self.ticks_to_end - self.ticks_passed
         
 
 class Discovery(models.Model):

@@ -59,6 +59,10 @@ def submit_register(request):
     display_name = request.POST["dominionName"]
     faction = Faction.objects.get(name=request.POST["factionChoice"].lower())
 
+    if Dominion.objects.filter(name=display_name).exists():
+        messages.error(request, "A dominion with that name already exists")
+        return redirect("register")
+
     initialize_dominion(user=request.user, faction=faction, display_name=display_name)
 
     return redirect("buildings")
@@ -112,6 +116,10 @@ def submit_discovery(request):
     except:
         return redirect("register")
     
+    if Round.objects.first().has_ended:
+        messages.error(request, f"The round has already ended")
+        return redirect("discoveries")
+    
     discovery_name = request.POST["discovery_name"]
     
     if dominion.discovery_points < 50:
@@ -137,6 +145,10 @@ def submit_building(request):
         dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
+    
+    if Round.objects.first().has_ended:
+        messages.error(request, f"The round has already ended")
+        return redirect("buildings")
     
     primary_resource = Resource.objects.get(ruler=dominion, name=dominion.building_primary_resource_name)
     secondary_resource = Resource.objects.get(ruler=dominion, name=dominion.building_secondary_resource_name)
@@ -204,7 +216,6 @@ def military(request):
         return redirect("register")
     
     context = {
-        # "units": Unit.objects.filter(ruler=dominion),
         "units": dominion.sorted_units
     }
 
@@ -217,6 +228,10 @@ def submit_training(request):
         dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
+    
+    if Round.objects.first().has_ended:
+        messages.error(request, f"The round has already ended")
+        return redirect("military")
     
     total_trained = 0
     total_cost_dict = {}
@@ -274,6 +289,10 @@ def submit_release(request):
         dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
+    
+    if Round.objects.first().has_ended:
+        messages.error(request, f"The round has already ended")
+        return redirect("military")
     
     total_released = 0
 
@@ -356,6 +375,10 @@ def trade(request):
     except:
         return redirect("register")
     
+    if Round.objects.first().has_ended:
+        messages.error(request, f"The round has already ended")
+        return redirect("resources")
+    
     round = Round.objects.first()
     input_resource_name = request.POST["inputResource"]
     amount = int(request.POST["resourceAmount"])
@@ -418,6 +441,10 @@ def upgrade_building(request, building_id):
     except:
         return redirect("register")
     
+    if Round.objects.first().has_ended:
+        messages.error(request, f"The round has already ended")
+        return redirect("upgrades")
+    
     building = Building.objects.get(ruler=dominion, id=building_id)
     research_resource = Resource.objects.get(ruler=dominion, name="research")
 
@@ -465,6 +492,10 @@ def submit_spell(request, spell_id):
         dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
+    
+    if Round.objects.first().has_ended:
+        messages.error(request, f"The round has already ended")
+        return redirect("spells")
     
     spell = Spell.objects.get(id=spell_id)
     mana = Resource.objects.get(ruler=dominion, name="mana")
@@ -693,6 +724,10 @@ def abandon(request):
     except:
         return redirect("register")
     
+    if Round.objects.first().has_ended:
+        messages.error(request, f"The round has already ended")
+        return redirect("resources")
+    
     if "abandon" in request.POST and request.POST["confirm_abandon"] == "REALLY DO IT":
         if Round.objects.first().has_started:
             abandon_dominion(dominion)
@@ -751,6 +786,10 @@ def submit_inquisition(request):
     except:
         return redirect("register")
     
+    if Round.objects.first().has_ended:
+        messages.error(request, f"The round has already ended")
+        return redirect("church_declarations")
+    
     dominion.perk_dict["inquisition_rate"] = math.ceil(dominion.perk_dict["sinners"] / 24)
     dominion.perk_dict["inquisition_ticks_left"] = 24
     dominion.save()
@@ -765,6 +804,10 @@ def submit_crusade(request):
         dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
+    
+    if Round.objects.first().has_ended:
+        messages.error(request, f"The round has already ended")
+        return redirect("church_declarations")
     
     dominion.perk_dict["crusade_ticks_left"] = 24
     dominion.perk_dict["martyr_cost"] = 2000
@@ -817,6 +860,10 @@ def generate_experiment(request):
         dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
+    
+    if Round.objects.first().has_ended:
+        messages.error(request, f"The round has already ended")
+        return redirect("experimentation")
 
     if dominion.faction_name != "sludgeling":
         messages.error(request, f"Go swim in a cesspool")
@@ -1016,6 +1063,10 @@ def approve_experiment(request):
         dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
+    
+    if Round.objects.first().has_ended:
+        messages.error(request, f"The round has already ended")
+        return redirect("experimentation")
 
     if dominion.faction_name != "sludgeling":
         messages.error(request, f"Go swim in a cesspool")
@@ -1066,6 +1117,10 @@ def terminate_experiment(request):
         dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
+    
+    if Round.objects.first().has_ended:
+        messages.error(request, f"The round has already ended")
+        return redirect("experimentation")
 
     if dominion.faction_name != "sludgeling":
         messages.error(request, f"Go swim in a cesspool")
@@ -1107,6 +1162,10 @@ def submit_invasion(request, dominion_id):
         my_dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
+    
+    if Round.objects.first().has_ended:
+        messages.error(request, f"The round has already ended")
+        return redirect("resources")
     
     target_dominion = Dominion.objects.get(id=dominion_id)
     round = Round.objects.first()

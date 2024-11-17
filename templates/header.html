@@ -106,6 +106,12 @@
 </div>
 {% endif %}
 
+{% if round.has_ended %}
+<div class="p-4 card_colors">
+    <h6 class="font-bold">The round has ended. No more actions can be taken.</h6>
+</div>
+{% endif %}
+
 {% if messages %}
 <div class="p-4">
     <style>
