@@ -1,5 +1,5 @@
 {% if active_dominion %}
-<a href="{% url 'overview' active_dominion.id %}" class="">Overview</a>
+<a href="{% url 'overview' active_dominion.id %}" class="mt-1">Overview</a>
 <a href="{% url 'resources' %}" class="">Resources</a>
 <a href="{% url 'buildings' %}" class="">Buildings{% if active_dominion.barren_acres > 0 %} ⚠️{% endif %}</a>
 <a href="{% url 'military' %}" class="">Military</a>
@@ -12,10 +12,7 @@
 <a href="{% url 'experimentation' %}" class="">Experimentation</a>
 {% endif %}
 <a href="{% url 'world' %}" class="">The World</a>
-<a href="{% url 'news' %}" class="">News{% if active_dominion.has_unread_events > 0 %} ⚠️{% endif %}</a>
-
-<a href="{% url 'run_tick_view' 1 %}" class=" mt-12">RUN TICK</a>
-<a href="{% url 'run_tick_view' 12 %}" class="">RUN TICK x12</a>
+<a href="{% url 'news' %}" class="mb-4">News{% if active_dominion.has_unread_events > 0 %} ⚠️{% endif %}</a>
 
 {% if active_user_settings.show_tutorials %}
 <a href="{% url 'tutorial' %}" class="">Tutorial</a>
