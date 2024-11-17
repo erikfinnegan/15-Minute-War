@@ -1038,8 +1038,16 @@ def generate_experiment(request):
                 "gold": 3,
                 "food": 1,
             }
-        
+    
+    current_names = []
+
+    for unit in Unit.objects.filter(ruler=self):
+        current_names.append(unit.name)
+
     name = random.choice(["sludger", "oozeling", "gooper", "marshling", "sogger", "squishling", "slimezoid", "pudling", "swamper", "snotling",])
+
+    while name in current_names:
+        name = random.choice(["sludger", "oozeling", "gooper", "marshling", "sogger", "squishling", "slimezoid", "pudling", "swamper", "snotling",])
 
     dominion.perk_dict["latest_experiment"] = {
         "should_display": True,
