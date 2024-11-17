@@ -15,7 +15,7 @@
         {% for dominion in dominions %}
         <div class="card card_colors p-1 max-w-xs">
             <div class="">
-                <h6 class="u-center">{{ dominion.name }}</h6>
+                <h6 class="u-center tooltip tooltip--bottom" data-tooltip="Ruler: {{ dominion.associated_user }}">{{ dominion.name }}</h6>
             </div>
 
             <div class="row u-center">
