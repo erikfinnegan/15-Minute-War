@@ -1332,8 +1332,7 @@ def submit_invasion(request, dominion_id):
 
         casualties = quantity_sent - survivors
 
-        if "mana" not in unit.upkeep_dict and "mana" not in unit.cost_dict:
-            total_casualties += casualties
+        if "mana" not in unit.upkeep_dict and "mana" not in unit.cost_dict and "always_dies_on_offense" not in unit.perk_dict:
             offensive_casualties += casualties
 
         unit.returning_dict["12"] += survivors
@@ -1348,12 +1347,13 @@ def submit_invasion(request, dominion_id):
 
         casualties = unit.quantity_at_home - survivors
 
-        if "mana" not in unit.upkeep_dict and "mana" not in unit.cost_dict:
-            total_casualties += casualties
+        if "mana" not in unit.upkeep_dict and "mana" not in unit.cost_dict and "always_dies_on_offense" not in unit.perk_dict:
             defensive_casualties += casualties
 
         unit.quantity_at_home = survivors
         unit.save()
+
+    total_casualties = offensive_casualties + defensive_casualties
 
     if attacker_victory and target_dominion.faction_name == "blessed order":
         faith = Resource.objects.get(ruler=target_dominion, name="faith")
