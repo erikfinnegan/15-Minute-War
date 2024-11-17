@@ -13,7 +13,7 @@ from django.db.models import Q
 from maingame.formatters import create_or_add_to_key
 from maingame.models import Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings
 from maingame.tick_processors import do_global_tick
-from maingame.utils import abandon_dominion, delete_dominion, get_grudge_bonus, initialize_dominion, prune_buildings, round_x_to_nearest_y, unlock_discovery, update_trade_prices, cast_spell
+from maingame.utils import abandon_dominion, delete_dominion, get_acres_conquered, get_grudge_bonus, initialize_dominion, prune_buildings, round_x_to_nearest_y, unlock_discovery, update_trade_prices, cast_spell
 
 
 def index(request):
@@ -515,6 +515,10 @@ def submit_spell(request, spell_id):
 
 @login_required
 def run_tick_view(request, quantity):
+    if request.user.username != "test":
+        messages.error(request, f"Ticky tick tick")
+        return redirect("resources")
+
     round = Round.objects.first()
     round.has_started = True
     round.save()
@@ -655,7 +659,7 @@ def overview(request, dominion_id):
         "offense_multiplier": my_dominion.offense_multiplier + get_grudge_bonus(my_dominion, dominion),
         "spells": Spell.objects.filter(ruler=dominion),
         "learned_discoveries": learned_discoveries,
-        "acres_conquered": int(0.06 * dominion.acres * (dominion.acres / my_dominion.acres))
+        "acres_conquered": get_acres_conquered(my_dominion, dominion)
     }
 
     return render(request, "maingame/overview.html", context)
@@ -1281,7 +1285,7 @@ def submit_invasion(request, dominion_id):
     if attacker_victory:
         offensive_survival = 0.9
         defensive_survival = 0.95
-        acres_conquered = int(0.06 * target_dominion.acres * (target_dominion.acres / my_dominion.acres))
+        acres_conquered = get_acres_conquered(my_dominion, target_dominion)
 
         target_dominion.acres -= acres_conquered
         target_dominion.save()
