@@ -384,6 +384,10 @@ def trade(request):
     amount = int(request.POST["resourceAmount"])
     output_resource_name = request.POST["outputResource"]
 
+    if input_resource_name == output_resource_name:
+        messages.error(request, f"You can't trade a resource for itself")
+        return redirect("resources")
+
     untradable_resources = ["corpses", "faith"]
 
     if input_resource_name in untradable_resources or output_resource_name in untradable_resources:
