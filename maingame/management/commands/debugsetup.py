@@ -16,7 +16,7 @@ class Command(BaseCommand):
 
         for user in User.objects.all():
             if user.username != "test" and user.username != "dontdominionme":
-                dominion = initialize_dominion(user=user, faction=Faction.objects.get(name="human"), display_name=f"p-{user.username}")
+                dominion = initialize_dominion(user=user, faction=Faction.objects.get(name="dwarf"), display_name=f"p-{user.username}")
                 farm = Building.objects.get(ruler=dominion, name="farm")
                 farm.quantity = 10
                 farm.save()
