@@ -730,7 +730,7 @@ def abandon(request):
     
     if Round.objects.first().has_ended:
         messages.error(request, f"The round has already ended")
-        return redirect("resources")
+        return redirect("overview", dominion.id)
     
     if "abandon" in request.POST and request.POST["confirm_abandon"] == "REALLY DO IT":
         if Round.objects.first().has_started:
@@ -738,7 +738,9 @@ def abandon(request):
         else:
             delete_dominion(dominion)
 
-    return redirect("register")
+        return redirect("register")
+
+    return redirect("overview", dominion.id)
 
 
 @login_required
