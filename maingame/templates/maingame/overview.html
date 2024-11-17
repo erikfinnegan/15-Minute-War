@@ -162,6 +162,7 @@
         </table>
     </div>
     
+    {% if round.has_started and dominion.protection_ticks_remaining == 0 %}
     <div>
         <table class="table striped small max-w-sm">
             <thead>
@@ -184,6 +185,9 @@
             </tbody>
         </table>
     </div>
+    {% else %}
+    <h6>Units will be displayed here once this dominion is out of protection and the round has started.</h6>
+    {% endif %}
 
     <div>
         <table class="table striped small max-w-xs">
