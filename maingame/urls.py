@@ -38,4 +38,8 @@ urlpatterns = [
     path("church_declarations", views.church_declarations, name="church_declarations"),
     path("submit_inquisition", views.submit_inquisition, name="submit_inquisition"),
     path("submit_crusade", views.submit_crusade, name="submit_crusade"),
+    path("experimentation", views.experimentation, name="experimentation"),
+    path("generate_experiment", views.generate_experiment, name="generate_experiment"),
+    path("approve_experiment", views.approve_experiment, name="approve_experiment"),
+    path("terminate_experiment", views.terminate_experiment, name="terminate_experiment"),
 ]

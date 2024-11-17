@@ -31,6 +31,9 @@ def initialize_resources():
         {
             "name": "faith",
         },
+        {
+            "name": "sludge",
+        },
     ]
 
     for resource_template in resource_templates:
@@ -72,6 +75,11 @@ def initialize_buildings():
             "name": "mine",
             "resource_produced_name": "gems",
             "amount_produced": 8,
+        },
+        {
+            "name": "cesspool",
+            "resource_produced_name": "sludge",
+            "amount_produced": 60,
         },
     ]
 
@@ -122,6 +130,19 @@ def initialize_factions():
         on hold for 24 ticks to begin an inquisition to root them out. The Blessed Order may declare a crusade, which raises blessed martyrs from
         offensive casualties as well, but doubles the cost of blessed martyrs and costs 1 faith per acre per tick. This crusade will last until
         24 ticks pass without invading."""
+    )
+
+    Faction.objects.create(
+        name="sludgeling",
+        primary_resource_name="gold",
+        primary_resource_per_acre="50",
+        building_primary_resource_name="gold",
+        building_secondary_resource_name="wood",
+        starting_buildings=["farm", "lumberyard", "school", "tower", "quarry", "cesspool"],
+        description="""Most alchemists pursue the creation of potions or the transmutation of cheap materials into gold, but some opt instead to work
+        with sludge. The "masterminds" behind the sludgelings experiment with vile substances to see what sort of awful creatures they might create. Sludgelings
+        can spend research and sludge to create random unit types in pursuit of the perfect army. If a unit outgrows its usefulness, it can be melted down
+        to recoup most of its cost and make room for a new unit type."""
     )
 
 
@@ -255,6 +276,22 @@ def initialize_units():
         },
     )
 
+    sludgeling = Faction.objects.get(name="sludgeling")
+    Unit.objects.create(
+        name="Dreg",
+        op=0,
+        dp=4,
+        cost_dict={
+            "gold": 800,
+            "food": 600,
+        },
+        upkeep_dict={
+            "gold": 3,
+            "food": 1,
+        },
+        faction=sludgeling,
+    )
+
     Unit.objects.create(
         name="Battering Ram",
         op=15,
@@ -332,10 +369,28 @@ def initialize_units():
     }
 
     for unit in Unit.objects.all():
-        unit.training_dict = timer_template
-        unit.returning_dict = timer_template
-        unit.save()
+        give_unit_timer_template(unit)
 
+
+def give_unit_timer_template(unit: Unit):
+    timer_template = {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0,
+        "10": 0,
+        "11": 0,
+        "12": 0,
+    }
+
+    unit.training_dict = timer_template
+    unit.returning_dict = timer_template
+    unit.save()
 
 def initialize_spells():
     Spell.objects.create(

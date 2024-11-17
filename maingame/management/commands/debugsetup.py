@@ -44,13 +44,14 @@ class Command(BaseCommand):
         invade_me_test.save()
 
         testuser = User.objects.get(username="test")
-        testdominion = initialize_dominion(user=testuser, faction=Faction.objects.get(name="blessed order"), display_name="ERIKTEST")
+        testdominion = initialize_dominion(user=testuser, faction=Faction.objects.get(name="sludgeling"), display_name="ERIKTEST")
         testdominion.protection_ticks_remaining = 0
         testdominion.discovery_points = 5000
         testdominion.save()
 
+        buildings_each = int(100 / Building.objects.filter(ruler=testdominion).count())
         for building in Building.objects.filter(ruler=testdominion):
-            building.quantity = 20
+            building.quantity = buildings_each
             building.save()
 
         for unit in Unit.objects.filter(ruler=testdominion):

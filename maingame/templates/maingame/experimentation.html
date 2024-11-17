@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load extra_tags %}
+{% load tz %}
+{% load humanize %}
+
+{% block title %}News{% endblock %}
+
+{% block content %}
+<div class="u-flex u-flex-column u-gap-2">
+    {% if active_user_settings.show_tutorials %}
+        <p>
+            Conduct experiments to unlock the perfect sludgelings for your army. The cost of each experiment is based on your acreage and it temporarily goes up
+            each time you do it. It decreases back to its base value over time, resetting fully after 12 ticks. You can only have three experimental units at a time,
+            but you can terminate any existing experiments to make room for new ones as long as none are returning or in training. Doing so will refund you 80% of 
+            the cost of any units you had trained of that type.
+        </p>
+    {% endif %}
+    <div class="u-flex u-flex-column u-gap-2">
+        {% if allow_new_experiments %}
+        <span>
+            New experiment: {{ research_cost|intcomma }} research, {{ sludge_cost|intcomma }} sludge
+        </span>
+        <a href="{% url 'generate_experiment' %}">
+            <button class="header_colors">Generate</button>
+        </a>
+        {% endif %}
+    </div>
+
+    {% if latest_experiment.should_display %}
+    <div class="card card_colors p-1 w-100p max-w-xs">
+        <table class="table striped card_colors">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Pwr</th>
+                    <th>Upkeep</th>
+                    <th class="w-16">Cost</th>
+                </tr>
+            </thead>
+            <tbody>
+                <div class="modal card_colors w-32 h-24 u-center u-align-middle my-auto" id="test-modal">
+                    <div class="modal-header u-flex u-flex-column u-justify-space-between">
+                        <p>{{ latest_experiment.perk_text }}</p>
+                        <a href="#anchor-to-background" aria-label="Close">
+                            <button class="btn-light w-16 h-6 p-0 u-center" type="submit">
+                                <span class="font-bold">Close</span>
+                            </button>
+                        </a>
+                    </div>
+                </div>
+                <tr>
+                    {% include "maingame/unit_name_row.html" with unit=latest_experiment %}
+                    <td class="u-align-middle">{{ latest_experiment.op|intcomma }} / {{ latest_experiment.dp|intcomma }}</td>
+                    <td class="u-align-middle">
+                        <div class="u-flex u-flex-column">
+                            {% for resource, amount in latest_experiment.upkeep_dict.items %}
+                            <span>{{ amount|intcomma }} {{ resource }}</span>
+                            {% endfor %}
+                        </div>
+                    </td>
+                    <td class="u-align-middle">
+                        <div class="u-flex u-flex-column">
+                            {% for resource, amount in latest_experiment.cost_dict.items %}
+                            <span>{{ amount|intcomma }} {{ resource }}</span>
+                            {% endfor %}
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="w-100p u-center mb-2">
+            <a href="{% url 'approve_experiment' %}">
+                <button class="header_colors">Approve</button>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if has_experimental_units %}
+    <div>
+        <form action="{% url 'terminate_experiment' %}" method="post" class="u-flex u-flex-column u-gap-4 w-90p max-w-xs">
+            {% csrf_token %}
+            <label class="form-ext-toggle__label u-flex u-flex-column mt-2">
+                <span class="w-24">Terminate experiment</span>
+                <select name="experiment_to_terminate" class="w-100p">
+                    <option></option>
+                    {% for unit in experimental_units %}
+                    <option value="{{ unit.id }}">{{ unit.name }} {{ unit.op|intcomma}}/{{ unit.dp|intcomma }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <button class="header_colors w-16 h-6 p-0 u-center" type="submit">
+                <span class="font-bold">Submit</span>
+            </button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

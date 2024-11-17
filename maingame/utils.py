@@ -16,6 +16,30 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
         dominion.perk_dict["inquisition_ticks_left"] = 0
         dominion.perk_dict["crusade_ticks_left"] = 0
         dominion.perk_dict["martyr_cost"] = 1000
+    elif faction.name == "sludgeling":
+        dominion.perk_dict["latest_experiment"] = {
+            "should_display": False,
+            "name": "",
+            "op": 0,
+            "dp": 0,
+            "cost_dict": {
+                "gold": 0,
+                "sludge": 0,
+            },
+            "upkeep_dict": {
+                "gold": 0,
+                "sludge": 0,
+            },
+            "perk_dict": {},
+        }
+        dominion.perk_dict["experiment_cost_dict"] = {
+            "research_per_acre": 100,
+            "sludge_per_acre": 18,
+        }
+        dominion.perk_dict["experiment_cost_coefficient"] = 0
+        dominion.perk_dict["custom_units"] = 0
+        dominion.perk_dict["max_custom_units"] = 3
+        dominion.perk_dict["experiments_done"] = 0
 
     dominion.save()
 
@@ -257,6 +281,9 @@ def give_dominion_building(dominion: Dominion, building: Building):
 
     return dominions_building
 
+
+def round_x_to_nearest_y(x, round_to_nearest):
+    return round_to_nearest * round(x/round_to_nearest)
 
 def cast_spell(spell: Spell):
     dominion = spell.ruler

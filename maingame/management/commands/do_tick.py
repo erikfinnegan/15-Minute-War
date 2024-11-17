@@ -16,10 +16,10 @@ class Command(BaseCommand):
 
         if now > round.start_time and not round.has_started:
             round.has_started = True
-        elif round.ticks_left > 0 and round.has_started:
-            round.ticks_left -= 1
-            
-            if round.ticks_left <= 0:
+        elif round.has_started:
+            round.ticks_passed += 1
+
+            if round.ticks_passed >= round.ticks_to_end:
                 round.has_ended = True
 
         round.save()

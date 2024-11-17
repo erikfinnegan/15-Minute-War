@@ -37,6 +37,8 @@ class Dominion(models.Model):
     is_abandoned = models.BooleanField(default=False)
     acres = models.IntegerField(default=100)
     incoming_acres_dict = models.JSONField(default=dict, blank=True)
+    successful_invasions = models.IntegerField(default=0)
+    failed_defenses = models.IntegerField(default=0)
 
     primary_resource_name = models.CharField(max_length=50, null=True, blank=True)
     primary_resource_per_acre = models.IntegerField(default=0)
@@ -300,6 +302,8 @@ class Dominion(models.Model):
             if self.perk_dict["crusade_ticks_left"] == 0:
                 self.perk_dict["martyr_cost"] = 1000
 
+        if "experiment_cost_coefficient" in self.perk_dict and self.perk_dict["experiment_cost_coefficient"] > 0:
+            self.perk_dict["experiment_cost_coefficient"] -= 1
 
     def do_tick(self):
         self.do_resource_production()
@@ -569,7 +573,8 @@ class Round(models.Model):
     base_price_dict = models.JSONField(default=dict, blank=True)
     resource_bank_dict = models.JSONField(default=dict, blank=True)
     start_time = models.DateTimeField(null=True, blank=True)
-    ticks_left = models.IntegerField(default=0)
+    ticks_passed = models.IntegerField(default=0)
+    ticks_to_end = models.IntegerField(default=0)
 
     @property
     def allow_ticks(self):
