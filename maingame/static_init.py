@@ -132,7 +132,8 @@ def initialize_factions():
         description="""Most alchemists pursue the creation of potions or the transmutation of cheap materials into gold, but some opt instead to work
         with sludge. The "masterminds" behind the sludgelings experiment with vile substances to see what sort of awful creatures they might create. Sludgelings
         can spend research and sludge to create random unit types in pursuit of the perfect army. If a unit outgrows its usefulness, it can be melted down
-        to recoup most of its cost and make room for a new unit type."""
+        to recoup most of its cost and make room for a new unit type. Every time you generate an experimental unit, it's random and different, but the more experiments
+        you run, the greater your chance of getting lucky with a very powerful unit."""
     )
 
 

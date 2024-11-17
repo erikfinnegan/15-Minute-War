@@ -342,7 +342,7 @@ class Resource(models.Model):
 
 class Faction(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
-    description = models.CharField(max_length=500, null=True, blank=True, default="Placeholder description")
+    description = models.CharField(max_length=1000, null=True, blank=True, default="Placeholder description")
     primary_resource_name = models.CharField(max_length=50, null=True, blank=True)
     primary_resource_per_acre = models.IntegerField(default=0)
     building_primary_resource_name = models.CharField(max_length=50, null=True, blank=True)

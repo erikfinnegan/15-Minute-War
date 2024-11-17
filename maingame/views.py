@@ -1054,7 +1054,8 @@ def generate_experiment(request):
     name = random.choice(["sludger", "oozeling", "gooper", "marshling", "sogger", "squishling", "slimezoid", "pudling", "swamper", "snotling",])
 
     while name in current_names:
-        name = random.choice(["sludger", "oozeling", "gooper", "marshling", "sogger", "squishling", "slimezoid", "pudling", "swamper", "snotling",])
+        name = random.choice(["sludger", "oozeling", "gooper", "marshling", "sogger", "squishling", "slimezoid", "pudling", "swamper", "snotling",
+                              "slurpling", "slopling", "dampling", "grossling", "slurpazoid"])
 
     dominion.perk_dict["latest_experiment"] = {
         "should_display": True,
