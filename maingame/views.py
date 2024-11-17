@@ -722,6 +722,7 @@ def submit_options(request):
     user_settings.timezone = request.POST["timezone"]
     user_settings.save()
 
+    messages.success(request, "Options saved")
     return redirect("options")
 
 
