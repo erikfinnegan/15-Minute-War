@@ -27,6 +27,10 @@
     {% if inquisition_ticks_left > 0 %}<h6>The inquisition will continue for {{ inquisition_ticks_left }} ticks.</h6>{% endif %}
     {% if crusade_ticks_left > 0 %}<h6>The crusade will continue for {{ inquisition_ticks_left }} ticks if you don't invade anyone.</h6>{% endif %}
 
+    {% if active_dominion.protection_ticks_remaining > 0 %}
+    <span>Note: Sinners are not gained during protection, but can be removed by inquisition</span>
+    {% endif %}
+
     <div class="card header_colors px-1 py-2 max-w-xs">
         <h5 class="u-center">Inquisition</h5>
         <p>
