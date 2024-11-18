@@ -24,7 +24,7 @@
     <div>
         <h6>{{ dominion.name }}</h6>
         <h6>{{ dominion.acres }} acres</h6>
-        {% if round.has_started and dominion.protection_ticks_remaining == 0 %}
+        {% if dominion == active_dominion or round.has_started and dominion.protection_ticks_remaining == 0 %}
         <h6>{{ dominion.defense|intcomma }} defense</h6>
         {% else %}
         <h6>Defense hidden while under magical protection</h6>
@@ -162,7 +162,7 @@
         </table>
     </div>
     
-    {% if round.has_started and dominion.protection_ticks_remaining == 0 %}
+    {% if dominion == active_dominion or round.has_started and dominion.protection_ticks_remaining == 0 %}
     <div>
         <table class="table striped small max-w-sm">
             <thead>
@@ -306,7 +306,7 @@
         </div>
     </div>
 
-    {% if round.has_started and dominion.protection_ticks_remaining == 0 %}
+    {% if dominion == active_dominion or round.has_started and dominion.protection_ticks_remaining == 0 %}
     <div class="u-flex u-flex-column max-w-md card card_colors p-1">
         <div>
             <h6 class="u-center">Units in training</h6>

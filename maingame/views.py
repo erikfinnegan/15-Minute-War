@@ -672,7 +672,7 @@ def world(request):
     except:
         return redirect("register")
     
-    dominions = Dominion.objects.all().order_by('-acres')
+    dominions = Dominion.objects.filter(is_abandoned=False).order_by('-acres')
 
     # If you don't have grudge values set for someone, set them now
     if "book_of_grudges" in my_dominion.perk_dict:

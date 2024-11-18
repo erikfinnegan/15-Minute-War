@@ -278,7 +278,7 @@ def initialize_units():
         op=0,
         dp=30,
         cost_dict={
-            "ore": 20000,
+            "ore": 12000,
         },
     )
     Unit.objects.create(
