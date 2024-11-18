@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from maingame.formatters import format_minutes, strfdelta
+from maingame.formatters import format_minutes
 
 
 class Deity(models.Model):
@@ -599,7 +599,6 @@ class Round(models.Model):
         minutes_from_seconds = int(delta.seconds / 60)
 
         return format_minutes(minutes_from_days + minutes_from_seconds)
-        # return strfdelta(delta, '{D:2} days, {H:2} hours, {M:02} minutes')
     
     @property
     def time_til_round_end(self):
