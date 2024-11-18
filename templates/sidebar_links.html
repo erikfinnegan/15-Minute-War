@@ -24,7 +24,13 @@
 <a href="{% url 'options' %}" class="">Options</a>
 <a href="{% url 'faction_info' %}" class="">Faction Info</a>
 
-<span class="mx-1 pt-4">There are {{ round.ticks_left }} ticks left in the round.</span>
+{% if round.has_started %}
+<span class="mx-1 pt-4">Round ends in:</span>
+<span>{{ round.time_til_round_end }}</span>
+{% else %}
+<span class="mx-1 pt-4">Round starts in:</span>
+<span>{{ round.time_til_round_start }}</span>
+{% endif %}
 
 <form action="{% url 'logout' %}" method="post" class="mt-8">
     {% csrf_token %}

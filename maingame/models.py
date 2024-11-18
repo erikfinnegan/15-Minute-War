@@ -2,6 +2,10 @@ import math, random
 from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import User
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+from maingame.formatters import format_minutes, strfdelta
 
 
 class Deity(models.Model):
@@ -583,6 +587,26 @@ class Round(models.Model):
     @property
     def ticks_left(self):
         return self.ticks_to_end - self.ticks_passed
+    
+    @property
+    def time_til_round_start(self):
+        if self.has_started:
+            return False
+        
+        now = datetime.now(ZoneInfo('UTC'))
+        delta = self.start_time - now
+        minutes_from_days = delta.days * 24 * 60
+        minutes_from_seconds = int(delta.seconds / 60)
+
+        return format_minutes(minutes_from_days + minutes_from_seconds)
+        # return strfdelta(delta, '{D:2} days, {H:2} hours, {M:02} minutes')
+    
+    @property
+    def time_til_round_end(self):
+        now = datetime.now(ZoneInfo('America/New_York'))
+        minutes_left_in_current_tick = 15 - (now.minute % 15)
+        minutes_left_in_remaining_full_ticks = (self.ticks_left - 1) * 15
+        return format_minutes(minutes_left_in_remaining_full_ticks + minutes_left_in_current_tick)
         
 
 class Discovery(models.Model):
