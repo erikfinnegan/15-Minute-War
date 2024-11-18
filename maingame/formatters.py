@@ -22,8 +22,8 @@ def format_minutes(minutes):
     hours, minutes = divmod(minutes, 60)
 
     if days > 0:
-        return f'{days} day{"s" if days == 1 else ""}, {hours} hour{"s" if hours == 1 else ""}'
+        return f'{days} day{"s" if days != 1 else ""}, {hours} hour{"s" if hours != 1 else ""}'
     elif hours > 0:
-        return f'{hours} hour{"s" if hours == 1 else ""}, {minutes} minute{"s" if minutes == 1 else ""}'
+        return f'{hours} hour{"s" if hours != 1 else ""}, {minutes} minute{"s" if minutes != 1 else ""}'
     else:
-        return f'{minutes} minute{"s" if minutes == 1 else ""}'
+        return f'{minutes} minute{"s" if minutes != 1 else ""}'
