@@ -510,6 +510,7 @@ def submit_spell(request, spell_id):
     
     cast_spell(spell)
 
+    messages.success(request, f"Cast {spell.name}")
     return redirect("spells")
 
 
