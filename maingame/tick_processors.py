@@ -14,11 +14,10 @@ def normalize_trade_prices():
 
 
 def do_global_tick():
-    round = Round.objects.first()
     print("Start global tick", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
+    round = Round.objects.first()
 
     if not round.has_ended:
-        print("wtf")
         now = datetime.now(ZoneInfo('America/New_York'))
 
         if not round.start_time:
