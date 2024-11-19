@@ -303,7 +303,7 @@ def cast_spell(spell: Spell):
     match spell.name:
         case "Power Overwhelming":
             for unit in Unit.objects.filter(ruler=dominion):
-                if mana.name not in unit.upkeep_dict and unit.op > unit.dp:
+                if mana.name not in unit.upkeep_dict and unit.op > unit.dp and "always_dies_on_offense" not in unit.perk_dict:
                     try:
                         overwhelming_unit = Unit.objects.get(ruler=dominion, name=f"Overwhelming {unit.name}")
                     except:

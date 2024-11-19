@@ -357,7 +357,8 @@ def give_unit_timer_template(unit: Unit):
 def initialize_spells():
     Spell.objects.create(
         name="Power Overwhelming",
-        description="Double the offensive power of 20% of your units that have higher OP than DP and no mana upkeep... but they'll gain a hefty mana upkeep equal to 20% of their new OP.",
+        description="""Double the offensive power of 20% of your units that have higher OP than DP and no mana upkeep... but they'll gain a hefty mana upkeep equal 
+        to 20% of their new OP. Does not apply to units that always die on offense.""",
         mana_cost_per_acre=20,
         is_starter=True,
     )
