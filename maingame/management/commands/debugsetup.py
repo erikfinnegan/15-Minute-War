@@ -1,9 +1,11 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 
-from maingame.models import Dominion, Deity, Unit, Faction, Resource, Building, UserSettings
+from maingame.models import Dominion, Unit, Faction, Resource, Building, UserSettings, Round
 from maingame.static_init import initialize_game_pieces
 from maingame.utils import initialize_dominion
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 
 class Command(BaseCommand):
@@ -13,6 +15,10 @@ class Command(BaseCommand):
         print("Generating stuff...")
 
         initialize_game_pieces()
+
+        round = Round.objects.first()
+        round.start_time = datetime.now(ZoneInfo('America/New_York'))
+        round.save()
 
         for user in User.objects.all():
             if user.username != "test" and user.username != "dontdominionme":

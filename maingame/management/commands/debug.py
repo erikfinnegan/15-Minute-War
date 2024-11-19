@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from maingame.models import UserSettings, Resource
+from maingame.models import UserSettings, Resource, Round
 from django.contrib.auth.models import User
 import os
 
@@ -19,5 +19,6 @@ class Command(BaseCommand):
         # else:
         #     print("No inquisition here")
 
-        eriktest = os.environ.get('DJANGO_DEBUG', 'hmm')
-        print(eriktest)
+        round = Round.objects.first()
+
+        print(round.start_time)

@@ -16,10 +16,13 @@
         a resource that's being consumed, you'll lose units until you can afford all of your upkeeps.
     </p>
     <p>
-        Additionally, once the round starts and you're out of protection, you can trade resources. All things equal, you can trade resources at the same ratio 
-        they're produced, but when a trade is made, it shifts the value of resources accordingly. The more a resource is sold, the cheaper it becomes, and the 
-        more it's bought, the more expensive it becomes. Keep an eye on the trends of the economy - you might be able to get more of a certain resource by producing 
-        something in high demand and trading for it.
+        Additionally, once the round starts and you're out of protection, you can trade resources. All things equal, you can trade resources at 90% of the ratio 
+        they're produced (one building output of X will get you 0.9 building outputs of Y), but when a trade is made, it shifts the value of resources accordingly. 
+        The more a resource is sold, the cheaper it becomes, and the more it's bought, the more expensive it becomes. Keep an eye on the trends of the 
+        economy - you might be able to get more of a certain resource by producing something else in high demand and trading for it.
+    </p>
+    <p>
+        You can also trade for gold. There aren't many other ways to get more than the base 50 gold per acre!
     </p>
     {% endif %}
     <div class="">
@@ -62,7 +65,7 @@
                     <span id="ratioDenominator">1</span>
                 </div>
                 <select class="card_colors" id="outputResource" name="outputResource" oninput="showRatio()">
-                    {% for key, value in resources_dict.items %}
+                    {% for key in trade_price_data %}
                     <option {% if key == active_dominion.last_bought_resource_name %} selected{% endif %}>{{ key }}</option>
                     {% endfor %}
                 </select>
