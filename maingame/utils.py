@@ -146,6 +146,13 @@ def initialize_dominion(user: User, faction: Faction, display_name):
 
 
 def abandon_dominion(dominion: Dominion):
+    event = Event.objects.create(
+        reference_id=dominion.id, 
+        reference_type="signup", 
+        category="Signup",
+        message_override=f"{dominion} has been abandoned by {dominion.rulers_display_name}"
+    )
+
     dominion.is_abandoned = True
     dominion.associated_user = None
     dominion.save()
