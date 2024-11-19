@@ -185,7 +185,7 @@
             <table class="table striped card_colors">
                 <thead>
                     <tr>
-                        <th>Unit</th>
+                        <th class="w-24">Unit</th>
                         <th>1</th>
                         <th>2</th>
                         <th>3</th>
@@ -233,7 +233,7 @@
             <table class="table striped card_colors">
                 <thead>
                     <tr>
-                        <th>Acres</th>
+                        <th class="w-24">Acres</th>
                         <th>1</th>
                         <th>2</th>
                         <th>3</th>
@@ -279,7 +279,7 @@
             <table class="table striped card_colors">
                 <thead>
                     <tr>
-                        <th>Unit</th>
+                        <th class="w-24">Unit</th>
                         <th>1</th>
                         <th>2</th>
                         <th>3</th>
@@ -298,7 +298,7 @@
                     {% for unit in units %}
                     {% if unit.quantity_in_training > 0 %}
                     <tr>
-                        <th class="u-align-middle w-24">{{ unit.name|title }}</th>
+                        <th class="u-align-middle">{{ unit.name|title }}</th>
                         <td class="u-align-middle">{{ unit.training_dict.1|no_zeroes }}</td>
                         <td class="u-align-middle">{{ unit.training_dict.2|no_zeroes }}</td>
                         <td class="u-align-middle">{{ unit.training_dict.3|no_zeroes }}</td>
