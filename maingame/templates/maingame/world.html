@@ -30,7 +30,7 @@
             <tbody>
                 {% for dominion in dominions %}
                 <tr>
-                    <td class="u-align-middle">{{ dominion.name }}</td>
+                    <th class="u-align-middle">{{ dominion.name }}</td>
                     <td class="u-align-middle">{{ dominion.rulers_display_name }}</td>
                     <td class="u-align-middle">
                         {{ dominion.acres }}{% if dominion.incoming_acres > 0 %} ({{ dominion.incoming_acres }}){% endif %}
