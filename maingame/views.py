@@ -547,6 +547,12 @@ def protection_tick(request, quantity):
 
             if forgot_units:
                 messages.error(request, f"You may not leave protection without units and they take 12 ticks to train. You'll want at least a few hundred total defense.")
+            else:
+                for _ in range(quantity):
+                    if dominion.protection_ticks_remaining > 0:
+                        dominion.do_tick()
+                        dominion.protection_ticks_remaining -= 1
+                        dominion.save()
         else:
             for _ in range(quantity):
                 if dominion.protection_ticks_remaining > 0:
@@ -1372,11 +1378,11 @@ def submit_invasion(request, dominion_id):
 
     if attacker_victory and target_dominion.faction_name == "blessed order":
         faith = Resource.objects.get(ruler=target_dominion, name="faith")
-        martyrs_affordable = int(faith.quantity / my_dominion.perk_dict["martyr_cost"])
+        martyrs_affordable = int(faith.quantity / target_dominion.perk_dict["martyr_cost"])
         martyrs_gained = min(martyrs_affordable, defensive_casualties)
-        faith.quantity -= my_dominion.perk_dict["martyr_cost"] * martyrs_gained
+        faith.quantity -= target_dominion.perk_dict["martyr_cost"] * martyrs_gained
         faith.save()
-        martyrs = Unit.objects.get(ruler=my_dominion, name="Blessed Martyr")
+        martyrs = Unit.objects.get(ruler=target_dominion, name="Blessed Martyr")
         martyrs.quantity_at_home += martyrs_gained
         martyrs.save()
 
