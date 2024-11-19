@@ -1,3 +1,5 @@
+{% load extra_tags %}
+
 {% if active_dominion %}
 <a href="{% url 'overview' active_dominion.id %}" class="mt-1">Overview</a>
 <a href="{% url 'resources' %}" class="">Resources</a>
@@ -7,7 +9,7 @@
 <a href="{% url 'upgrades' %}" class="">Upgrades</a>
 <a href="{% url 'discoveries' %}" class="">Discoveries{% if active_dominion.discovery_points >= 50 %} 💡{% endif %}</a>
 {% if active_dominion.faction_name == "blessed order" %}
-<a href="{% url 'church_declarations' %}" class="">Church Declarations</a>
+<a href="{% url 'church_declarations' %}" class="">Church Affairs ({{ active_dominion.perk_dict|getattr:"sinners" }})</a>
 {% elif active_dominion.faction_name == "sludgeling" %}
 <a href="{% url 'experimentation' %}" class="">Experimentation</a>
 {% endif %}

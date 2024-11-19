@@ -316,9 +316,6 @@ def cast_spell(spell: Spell):
                         overwhelming_unit.cost_dict = {}
                         overwhelming_unit_upkeep = overwhelming_unit.op / 5
 
-                        if overwhelming_unit_upkeep == int(overwhelming_unit_upkeep):
-                            overwhelming_unit_upkeep = int(overwhelming_unit_upkeep)
-
                         overwhelming_unit.upkeep_dict[mana.name] = overwhelming_unit_upkeep
                         
                     overwhelming_quantity = int(unit.quantity_at_home * 0.2)
