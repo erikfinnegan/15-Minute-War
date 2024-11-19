@@ -326,8 +326,9 @@ def cast_spell(spell: Spell):
                         overwhelming_unit.upkeep_dict[mana.name] = overwhelming_unit_upkeep
                         
                     overwhelming_quantity = int(unit.quantity_at_home * 0.2)
-                    overwhelming_unit.quantity_at_home += overwhelming_quantity
-                    unit.quantity_at_home -= overwhelming_quantity
 
-                    unit.save()
-                    overwhelming_unit.save()
+                    if overwhelming_quantity > 0:
+                        overwhelming_unit.quantity_at_home += overwhelming_quantity
+                        unit.quantity_at_home -= overwhelming_quantity
+                        unit.save()
+                        overwhelming_unit.save()
