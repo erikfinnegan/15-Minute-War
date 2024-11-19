@@ -1211,6 +1211,7 @@ def submit_invasion(request, dominion_id):
     
     target_dominion = Dominion.objects.get(id=dominion_id)
     round = Round.objects.first()
+    defense_snapshot = target_dominion.defense
 
     if target_dominion.protection_ticks_remaining > 0 or my_dominion.protection_ticks_remaining > 0 or not round.has_started or round.has_ended or target_dominion.is_abandoned:
         messages.error(request, f"Illegal invasion")
@@ -1289,7 +1290,7 @@ def submit_invasion(request, dominion_id):
         defender=target_dominion,
         winner=my_dominion if attacker_victory else target_dominion,
         op=offense_sent,
-        dp=target_dominion.defense,
+        dp=defense_snapshot,
         units_sent_dict=battle_units_sent_dict,
         units_defending_dict=battle_units_defending_dict,
     )
