@@ -538,11 +538,21 @@ def protection_tick(request, quantity):
         except:
             return redirect("register")
         
-        for _ in range(quantity):
-            if dominion.protection_ticks_remaining > 0:
-                dominion.do_tick()
-                dominion.protection_ticks_remaining -= 1
-                dominion.save()
+        if dominion.protection_ticks_remaining - quantity < 12:
+            forgot_units = True
+
+            for unit in Unit.objects.filter(ruler=dominion):
+                if unit.quantity_at_home + unit.quantity_in_training > 0:
+                    forgot_units = False
+
+            if forgot_units:
+                messages.error(request, f"You may not leave protection without units and they take 12 ticks to train. You'll want at least a few hundred total defense.")
+        else:
+            for _ in range(quantity):
+                if dominion.protection_ticks_remaining > 0:
+                    dominion.do_tick()
+                    dominion.protection_ticks_remaining -= 1
+                    dominion.save()
     else:
         messages.error(request, f"Knock it off")
     
