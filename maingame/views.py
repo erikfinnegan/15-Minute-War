@@ -391,14 +391,14 @@ def trade(request):
     untradable_resources = ["corpses", "faith"]
 
     if input_resource_name in untradable_resources or output_resource_name in untradable_resources:
-        messages.error(request, f"You can't trade that resource and you know it.")
+        messages.error(request, f"You can't trade that resource.")
         return redirect("resources")
 
     input_resource = Resource.objects.get(ruler=dominion, name=input_resource_name)
     output_resource = Resource.objects.get(ruler=dominion, name=output_resource_name)
 
     credit = round.trade_price_dict[input_resource.name] * amount
-    payout = int(credit / round.trade_price_dict[output_resource.name])
+    payout = int((credit / round.trade_price_dict[output_resource.name]) * 0.9)
 
     input_resource.quantity -= amount
     input_resource.save()

@@ -184,8 +184,6 @@ def get_trade_value(resource_name):
     if resource_name == "gems":
         trade_value *= 1.3
 
-    trade_value *= 0.9
-    
     return max(1, trade_value)
 
 

@@ -59,7 +59,7 @@
                     {% endfor %}
                 </select>
                 <input type="range" min="1" max="100" value="0" id="resourceRange" name="resourceAmount" oninput="showCurrentValue()">
-                <div class="u-center">
+                <div class="u-center u-flex-row u-gap-1">
                     <span id="ratioNumerator">1</span>
                     <span>:</span>
                     <span id="ratioDenominator">1</span>
@@ -137,7 +137,7 @@
             inputResourceName = resourceInfoDict[inputResource].name
             outputResourceName = resourceInfoDict[outputResource].name
             const credit = tradePrices[inputResourceName] * amount
-            const outputAmount = Math.floor(credit / tradePrices[outputResourceName])
+            const outputAmount = Math.floor((credit / tradePrices[outputResourceName]) * 0.9)
             document.getElementById("boughtResourceAmount").innerHTML = outputAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
 
@@ -150,7 +150,7 @@
             document.getElementById("soldResource").innerHTML = inputResource
             document.getElementById("boughtResource").innerHTML = outputResource
             const inputPrice = tradePrices[inputResource]
-            const outputPrice = tradePrices[outputResource]
+            const outputPrice = tradePrices[outputResource] / 0.9
 
             decToFrac = dec =>
                 [...Array(100).keys()].flatMap(
@@ -163,8 +163,8 @@
                 ).sort((a, b) => a[3] - b[3])[0].slice(0, 2)
             let decfrac = decToFrac(inputPrice/outputPrice)
 
-            document.getElementById("ratioNumerator").innerHTML = decfrac[1]
-            document.getElementById("ratioDenominator").innerHTML = decfrac[0]
+            document.getElementById("ratioNumerator").innerHTML = decfrac[1] / decfrac[1]
+            document.getElementById("ratioDenominator").innerHTML = decfrac[0] / decfrac[1]
             showCurrentValue()
         }
     </script>
