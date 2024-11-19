@@ -331,4 +331,22 @@ def cast_spell(spell: Spell):
                         overwhelming_unit.quantity_at_home += overwhelming_quantity
                         unit.quantity_at_home -= overwhelming_quantity
                         unit.save()
+
+                        timer_template = {
+                            "1": 0,
+                            "2": 0,
+                            "3": 0,
+                            "4": 0,
+                            "5": 0,
+                            "6": 0,
+                            "7": 0,
+                            "8": 0,
+                            "9": 0,
+                            "10": 0,
+                            "11": 0,
+                            "12": 0,
+                        }
+
+                        overwhelming_unit.training_dict = timer_template
+                        overwhelming_unit.returning_dict = timer_template
                         overwhelming_unit.save()
