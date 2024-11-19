@@ -24,6 +24,14 @@ def times(number):
     return range(number)
 
 
+@register.filter(name='no_zeroes') 
+def dash_if_zero(number):
+    if number == 0:
+        return ""
+    else:
+        return number
+
+
 @register.filter(name='multiply') 
 def multiply(value, arg):
     return value * arg

@@ -205,18 +205,18 @@
                     {% if unit.quantity_returning > 0 %}
                     <tr>
                         <th class="u-align-middle">{{ unit.name|title }}</th>
-                        <td class="u-align-middle">{{ unit.returning_dict.1 }}</td>
-                        <td class="u-align-middle">{{ unit.returning_dict.2 }}</td>
-                        <td class="u-align-middle">{{ unit.returning_dict.3 }}</td>
-                        <td class="u-align-middle">{{ unit.returning_dict.4 }}</td>
-                        <td class="u-align-middle">{{ unit.returning_dict.5 }}</td>
-                        <td class="u-align-middle">{{ unit.returning_dict.6 }}</td>
-                        <td class="u-align-middle">{{ unit.returning_dict.7 }}</td>
-                        <td class="u-align-middle">{{ unit.returning_dict.8 }}</td>
-                        <td class="u-align-middle">{{ unit.returning_dict.9 }}</td>
-                        <td class="u-align-middle">{{ unit.returning_dict.10 }}</td>
-                        <td class="u-align-middle">{{ unit.returning_dict.11 }}</td>
-                        <td class="u-align-middle">{{ unit.returning_dict.12 }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.1|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.2|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.3|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.4|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.5|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.6|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.7|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.8|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.9|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.10|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.11|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.12|no_zeroes }}</td>
                     </tr>
                     {% endif %}
                     {% endfor %}
@@ -252,18 +252,18 @@
                     {% if active_dominion.incoming_acres > 0 %}
                     <tr>
                         <td class="u-align-middle">Acres</td>
-                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.1 }}</td>
-                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.2 }}</td>
-                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.3 }}</td>
-                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.4 }}</td>
-                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.5 }}</td>
-                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.6 }}</td>
-                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.7 }}</td>
-                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.8 }}</td>
-                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.9 }}</td>
-                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.10 }}</td>
-                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.11 }}</td>
-                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.12 }}</td>
+                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.1|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.2|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.3|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.4|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.5|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.6|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.7|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.8|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.9|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.10|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.11|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ active_dominion.incoming_acres_dict.12|no_zeroes }}</td>
                     </tr>
                     {% endif %}
                 </tbody>
@@ -299,18 +299,18 @@
                     {% if unit.quantity_in_training > 0 %}
                     <tr>
                         <th class="u-align-middle">{{ unit.name|title }}</th>
-                        <td class="u-align-middle">{{ unit.training_dict.1 }}</td>
-                        <td class="u-align-middle">{{ unit.training_dict.2 }}</td>
-                        <td class="u-align-middle">{{ unit.training_dict.3 }}</td>
-                        <td class="u-align-middle">{{ unit.training_dict.4 }}</td>
-                        <td class="u-align-middle">{{ unit.training_dict.5 }}</td>
-                        <td class="u-align-middle">{{ unit.training_dict.6 }}</td>
-                        <td class="u-align-middle">{{ unit.training_dict.7 }}</td>
-                        <td class="u-align-middle">{{ unit.training_dict.8 }}</td>
-                        <td class="u-align-middle">{{ unit.training_dict.9 }}</td>
-                        <td class="u-align-middle">{{ unit.training_dict.10 }}</td>
-                        <td class="u-align-middle">{{ unit.training_dict.11 }}</td>
-                        <td class="u-align-middle">{{ unit.training_dict.12 }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.1|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.2|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.3|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.4|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.5|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.6|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.7|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.8|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.9|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.10|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.11|no_zeroes }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.12|no_zeroes }}</td>
                     </tr>
                     {% endif %}
                     {% endfor %}
