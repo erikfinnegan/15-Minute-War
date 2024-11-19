@@ -18,6 +18,7 @@ class Command(BaseCommand):
 
         round = Round.objects.first()
         round.start_time = datetime.now(ZoneInfo('America/New_York'))
+        round.has_started = True
         round.save()
 
         for user in User.objects.all():
@@ -50,7 +51,7 @@ class Command(BaseCommand):
         invade_me_test.save()
 
         testuser = User.objects.get(username="test")
-        testdominion = initialize_dominion(user=testuser, faction=Faction.objects.get(name="sludgeling"), display_name="ERIKTEST")
+        testdominion = initialize_dominion(user=testuser, faction=Faction.objects.get(name="dwarf"), display_name="ERIKTEST")
         testdominion.protection_ticks_remaining = 0
         testdominion.discovery_points = 5000
         testdominion.save()
@@ -74,7 +75,7 @@ class Command(BaseCommand):
         admindominion.save()
 
         for unit in Unit.objects.filter(ruler=admindominion):
-            unit.quantity_at_home = 50000
+            unit.quantity_at_home = 10
             unit.save()
 
         print("Done generating stuff.")

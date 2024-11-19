@@ -19,6 +19,18 @@ class Command(BaseCommand):
         # else:
         #     print("No inquisition here")
 
-        round = Round.objects.first()
+        # round = Round.objects.first()
 
-        print(round.start_time)
+        # print(round.start_time)
+
+        # 0.3% Op per animosity
+
+        totals = {}
+
+        for user in UserSettings.objects.all():
+            if user.theme in totals:
+                totals[user.theme] += 1
+            else:
+                totals[user.theme] = 1
+
+        print(totals)
