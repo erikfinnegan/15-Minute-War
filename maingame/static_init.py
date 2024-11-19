@@ -384,7 +384,8 @@ def initialize_discoveries():
 
     Discovery.objects.create(
         name="Zombies",
-        description="Gain bodies from invasion casualties when you're victorious and use them to magically raise undead soldiers.",
+        description="""Gain bodies from invasion casualties when you're victorious and use them to magically raise undead soldiers. Note that you don't get corpses from
+        units with a mana cost or mana upkeep or units that always die on invasions.""",
         associated_unit_name="Zombie",
         not_for_factions=["blessed order"]
     )

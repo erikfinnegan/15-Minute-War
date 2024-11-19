@@ -555,9 +555,13 @@ def protection_restart(request):
     except:
         return redirect("register")
     
-    delete_dominion(dominion)
+    display_name = dominion.name
+    faction = Faction.objects.get(name=dominion.faction_name)
 
-    return redirect("register")
+    delete_dominion(dominion)
+    initialize_dominion(user=request.user, faction=faction, display_name=display_name)
+
+    return redirect("buildings")
 
 
 @login_required
