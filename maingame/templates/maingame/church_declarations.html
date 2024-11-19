@@ -46,7 +46,7 @@
         <h5 class="u-center">Crusade</h5>
         <p>
             Crusades last 24 ticks and reset whenever you invade someone. While active, they cost 1 faith per acre per tick and the cost of raising
-            blessed martyrs doubles, but you'll now also raise them from your offensive casualties on successful invasions.
+            blessed martyrs doubles, but you'll now also raise them from your offensive casualties on successful invasions (except from units that always die on offense).
         </p>
         <a href="{% url 'submit_crusade' %}" class="u-center">
             <button class="base_colors" {% if crusade_ticks_left > 0 %}disabled{% endif %}>Start crusade</button>
