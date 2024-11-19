@@ -19,6 +19,7 @@ class Command(BaseCommand):
         round = Round.objects.first()
         round.start_time = datetime.now(ZoneInfo('America/New_York'))
         round.has_started = True
+        round.ticks_to_end = 999
         round.save()
 
         for user in User.objects.all():

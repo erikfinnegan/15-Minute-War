@@ -15,8 +15,10 @@ def normalize_trade_prices():
 
 def do_global_tick():
     round = Round.objects.first()
+    print("Start global tick", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
 
     if not round.has_ended:
+        print("wtf")
         now = datetime.now(ZoneInfo('America/New_York'))
 
         if not round.start_time:
@@ -31,9 +33,16 @@ def do_global_tick():
 
         round.save()
 
+        print("Round management done, starting trade prices", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
+
         normalize_trade_prices()
+
+        print("Trade prices done, starting dominion ticks", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
 
         if Round.objects.first().allow_ticks:
             for dominion in Dominion.objects.all():
+                print(f"Starting {dominion.name}", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
                 if dominion.protection_ticks_remaining == 0:
                     dominion.do_tick()
+            
+            print("Dominions done", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
