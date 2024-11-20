@@ -25,6 +25,9 @@
         <span>
             New experiment: {{ research_cost|intcomma }} research, {{ sludge_cost|intcomma }} sludge
         </span>
+        <span>
+            Ticks until cheapest experiment cost: {{ active_dominion.perk_dict.experiment_cost_coefficient }}
+        </span>
         <form class="max-w-xs">
             <button class="u-center header_colors" formaction="{% url 'generate_experiment' %}">Generate</button>
         </form>
