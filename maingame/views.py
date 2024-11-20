@@ -1029,7 +1029,7 @@ def generate_experiment(request):
 
     if high_sludge_cost:
         sludge_cost = int(sludge_cost * high_mult)
-    elif low_gold_cost:
+    elif low_sludge_cost:
         sludge_cost = int(sludge_cost * low_mult)
 
     if gold_cost > 1000:
