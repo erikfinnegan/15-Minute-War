@@ -29,7 +29,7 @@
             </thead>
             <tbody>
                 {% for dominion in dominions %}
-                <tr>
+                <tr class="{% if dominion == active_dominion %}font-bold{% endif %}">
                     <th class="u-align-middle">{{ dominion.name }}</td>
                     <td class="u-align-middle">{{ dominion.rulers_display_name }}</td>
                     <td class="u-align-middle">
