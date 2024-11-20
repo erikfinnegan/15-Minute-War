@@ -169,6 +169,10 @@ class Dominion(models.Model):
         return total
 
     @property
+    def acres_with_incoming(self):
+        return self.acres + self.incoming_acres
+
+    @property
     def header_rows(self):
         iterator = -1
         row_number = 0
@@ -437,6 +441,14 @@ class Unit(models.Model):
     @property
     def quantity_trained_and_alive(self):
         return self.quantity_at_home + self.quantity_returning
+    
+    @property
+    def quantity_trained_and_training(self):
+        return self.quantity_at_home + self.quantity_in_training
+    
+    @property
+    def quantity_total_and_paid(self):
+        return self.quantity_at_home + self.quantity_in_training + self.quantity_returning
 
     @property
     def max_affordable(self):

@@ -35,7 +35,7 @@
                     <tr>
                         {% include "maingame/unit_name_row.html" %}
                         <td class="u-align-middle" id="power_{{ unit.id }}" style="white-space:nowrap">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
-                        <td class="u-align-middle">{{ unit.quantity_trained_and_alive}}{% if unit.quantity_in_training > 0 %} ({{ unit.quantity_in_training }}){% endif %}</td>
+                        <td class="u-align-middle tooltip" data-tooltip="{{ unit.quantity_total_and_paid }}">{{ unit.quantity_trained_and_alive}}{% if unit.quantity_in_training > 0 %} ({{ unit.quantity_in_training }}){% endif %}</td>
                         <td class="u-align-middle">
                             <div class="u-flex u-flex-row u-gap-2 w-32">
                                 {% if unit.is_trainable %}

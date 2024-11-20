@@ -38,7 +38,7 @@
     </script>
 
     <div class="u-none u-flex-md u-flex-wrap u-gap-6">
-        <span class="font-bold u-center">{{ active_dominion.acres }}{% if active_dominion.incoming_acres > 0 %} ({{ active_dominion.incoming_acres }}){% endif %} acres</span>
+        <span class="font-bold u-center tooltip tooltip--right" data-tooltip="{{ active_dominion.acres_with_incoming }}">{{ active_dominion.acres }}{% if active_dominion.incoming_acres > 0 %} ({{ active_dominion.incoming_acres }}){% endif %} acres</span>
         <span class="font-bold u-center">{{ active_dominion.defense_short }} DP</span>
         {% for resource in active_dominion.resources %}
         <div class="u-flex u-flex-column">
