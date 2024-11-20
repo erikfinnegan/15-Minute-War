@@ -15,7 +15,7 @@
     <div>
     {% for event in displayed_events %}
         <div class="card card_colors p-1 max-w-md">
-            <div class="w-100p u-flex u-justify-space-between">
+            <div class="w-100p u-flex u-justify-space-between h-4">
                 <div>
                     <span class="font-bold">
                     {% if active_user_settings.use_am_pm %}
@@ -26,11 +26,10 @@
                     </span>
                 </div>
                 {% if event.event.reference_type == "battle" %}
-                <a href="{% url 'battle_report' event.event.reference_id %}">
-                    <button class="header_colors py-0">Details</button>
-                </a>
+                <form>
+                    <button class="u-center header_colors py-0" formaction="{% url 'battle_report' event.event.reference_id %}">Details</button>
+                </form>
                 {% endif %}
-                {% comment %} <span class="font-bold">{{ event.event.category }}</span> {% endcomment %}
             </div>
             <div>
                 <span>{{ event.event }}</span>

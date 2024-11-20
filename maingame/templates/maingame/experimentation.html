@@ -25,9 +25,9 @@
         <span>
             New experiment: {{ research_cost|intcomma }} research, {{ sludge_cost|intcomma }} sludge
         </span>
-        <a href="{% url 'generate_experiment' %}">
-            <button class="header_colors">Generate</button>
-        </a>
+        <form class="max-w-xs">
+            <button class="u-center header_colors" formaction="{% url 'generate_experiment' %}">Generate</button>
+        </form>
         {% endif %}
     </div>
 
@@ -46,11 +46,6 @@
                 <div class="modal card_colors w-32 h-24 u-center u-align-middle my-auto" id="test-modal">
                     <div class="modal-header u-flex u-flex-column u-justify-space-between">
                         <p>{{ latest_experiment.perk_text }}</p>
-                        <a href="#anchor-to-background" aria-label="Close">
-                            <button class="btn-light w-16 h-6 p-0 u-center" type="submit">
-                                <span class="font-bold">Close</span>
-                            </button>
-                        </a>
                     </div>
                 </div>
                 <tr>
@@ -74,9 +69,9 @@
             </tbody>
         </table>
         <div class="w-100p u-center mb-2">
-            <a href="{% url 'approve_experiment' %}">
-                <button class="header_colors">Approve</button>
-            </a>
+            <form class="max-w-xs">
+                <button class="u-center header_colors" formaction="{% url 'approve_experiment' %}">Approve</button>
+            </form>
         </div>
     </div>
     {% endif %}

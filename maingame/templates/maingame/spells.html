@@ -11,13 +11,15 @@
 {% endif %}
 <div class="u-flex u-flex-wrap">
     {% for spell in spells %}
-    <div class="card card_colors p-1 u-flex u-flex-column u-gap-1 w-64">
+    <div class="card card_colors px-1 pt-1 u-flex u-flex-column u-gap-1 w-64">
         <h6>{{ spell.name }}</h6>
         <span>{{ spell.mana_cost_per_acre }} mana/acre</span>
         <span>{{ spell.description }}</span>
-        <a href="{% url 'submit_spell' spell.id %}">
-            <button class="header_colors px-1 py-0" {% if mana_quantity < spell.mana_cost %}disabled{% endif %}>Cast: {{ spell.mana_cost|intcomma }} mana</button>
-        </a>
+        <form>
+            <button class="u-center header_colors py-0" formaction="{% url 'submit_spell' spell.id %}" {% if mana_quantity < spell.mana_cost %}disabled{% endif %}>
+                Cast: {{ spell.mana_cost|intcomma }} mana
+            </button>
+        </form>
     </div>
     {% endfor %}
 </div>

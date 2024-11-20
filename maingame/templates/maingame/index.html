@@ -34,12 +34,12 @@
 
     <div>
         {% if not user.is_authenticated %}
-        <a href="{% url 'login' %}">
-            <button class="header_colors">Log In</button>
-        </a>
-        <a href="{% url 'signup' %}">
-            <button class="header_colors">Sign Up</button>
-        </a>
+        <form>
+            <button class="u-center header_colors" formaction="{% url 'login' %}">Log In</button>
+        </form>
+        <form>
+            <button class="u-center header_colors" formaction="{% url 'signup' %}">Sign Up</button>
+        </form>
         {% endif %}
     </div>
 
