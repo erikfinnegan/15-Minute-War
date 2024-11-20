@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from maingame.models import UserSettings, Resource, Round
+from maingame.models import UserSettings, Resource, Round, Event, Dominion
 from django.contrib.auth.models import User
 import os
 
@@ -12,25 +12,19 @@ class Command(BaseCommand):
         # user = User.objects.get(username="erik")
         # user_settings = UserSettings.objects.get(associated_user=user)
 
-        # perk_dict = {"inquisition_ratexx": 5}
+        # totals = {}
 
-        # if perk_dict.get("inquisition_rate") and perk_dict.get("inquisition_rate") > 0:
-        #     print("INQUISITION ACTIVE")
-        # else:
-        #     print("No inquisition here")
+        # for user in UserSettings.objects.all():
+        #     if user.theme in totals:
+        #         totals[user.theme] += 1
+        #     else:
+        #         totals[user.theme] = 1
 
-        # round = Round.objects.first()
+        # print(totals)
 
-        # print(round.start_time)
-
-        # 0.3% Op per animosity
-
-        totals = {}
-
-        for user in UserSettings.objects.all():
-            if user.theme in totals:
-                totals[user.theme] += 1
-            else:
-                totals[user.theme] = 1
-
-        print(totals)
+        event = Event.objects.filter(category="Signup").last()
+        user = User.objects.get(username="test")
+        testdom = Dominion.objects.get(associated_user=user)
+        print(testdom)
+        print(testdom in event.notified_dominions.all())
+        print(event.reference_id, testdom.id)

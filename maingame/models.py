@@ -567,7 +567,11 @@ class Event(models.Model):
             return self.message_override
         
         return "Unknown event type"
-
+    
+    @property
+    def notified_dominions_list(self):
+        return [*self.notified_dominions.all()]
+    
 
 class Round(models.Model):
     has_started = models.BooleanField(default=False)

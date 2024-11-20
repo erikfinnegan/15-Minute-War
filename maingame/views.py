@@ -605,6 +605,8 @@ def battle_report(request, battle_id):
         "battle": battle,
         "units_sent_dict": units_sent_dict,
         "units_defending_dict": units_defending_dict,
+        "attacker": battle.attacker,
+        "defender": battle.defender,
     }
 
     return render(request, "maingame/battle_report.html", context)

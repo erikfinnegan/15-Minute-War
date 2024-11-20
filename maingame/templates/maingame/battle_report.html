@@ -5,24 +5,27 @@
 
 {% block content %}
 <div>
-    <h4>{{ battle.event_text }}</h4>
+    <h6>{{ battle.event_text }}</h6>
 
     <div class="u-flex u-flex-row u-gap-4">
-        <div class="">
+        <div class="u-flex u-flex-column">
             <p class="u-center">{{ battle.op|intcomma }} OP</p>
             <table class="table striped u-border-1">
                 {% for name, quantity in units_sent_dict.items %}
                 <tr>
-                    <td>{{ name|title }}</td>
+                    <td>{{ name|title }}</td>   
                     <td>{{ quantity|intcomma }}</td>
                 </tr>
                 {% endfor %}
             </table>
+            <form class="mt-auto">
+                <button class="u-center header_colors" formaction="{% url 'overview' attacker.id %}">overview</button>
+            </form>
         </div>
 
         <span>VS.</span>
 
-        <div class="">
+        <div class="u-flex u-flex-column">
             <p class="u-center">{{ battle.dp|intcomma }} DP</p>
             <table class="table striped u-border-1">
                 {% for name, quantity in units_defending_dict.items %}
@@ -32,6 +35,9 @@
                     </tr>
                 {% endfor %}
             </table>
+            <form class="mt-auto">
+                <button class="u-center header_colors" formaction="{% url 'overview' defender.id %}">overview</button>
+            </form>
         </div>
     </div>
 
