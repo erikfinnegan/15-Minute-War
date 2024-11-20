@@ -1042,6 +1042,9 @@ def generate_experiment(request):
     else:
         sludge_cost = round_x_to_nearest_y(sludge_cost, 25)
 
+    gold_cost = int(gold_cost)
+    sludge_cost = int(sludge_cost)
+
     if high_upkeep:
         if randint(1,2) == 1:
             upkeep_dict = {
@@ -1081,17 +1084,26 @@ def generate_experiment(request):
         name = random.choice(["sludger", "oozeling", "gooper", "marshling", "sogger", "squishling", "slimezoid", "pudling", "swamper", "snotling",
                               "slurpling", "slopling", "dampling", "grossling", "slurpazoid"])
 
+    gold_per_op = int(gold_cost / op)
+    gold_per_dp = int(gold_cost / dp)
+    op_per_normalized_upkeep = (op * 3) / upkeep_dict["gold"]
+    dp_per_normalized_upkeep = (dp * 3) / upkeep_dict["gold"]
+
     dominion.perk_dict["latest_experiment"] = {
         "should_display": True,
         "name": name,
         "op": op,
         "dp": dp,
         "cost_dict": {
-            "gold": int(gold_cost),
-            "sludge": int(sludge_cost),
+            "gold": gold_cost,
+            "sludge": sludge_cost,
         },
         "upkeep_dict": upkeep_dict,
         "perk_dict": {},
+        "gold_per_op": gold_per_op,
+        "gold_per_dp": gold_per_dp,
+        "op_per_normalized_upkeep": op_per_normalized_upkeep,
+        "dp_per_normalized_upkeep": dp_per_normalized_upkeep,
     }
 
     dominion.perk_dict["experiments_done"] += 1
