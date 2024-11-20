@@ -351,7 +351,7 @@ def resources(request):
         if Resource.objects.filter(ruler=dominion, name=resource_name).exists():
             trade_price_data[resource_name] = {
                 "name": Resource.objects.get(ruler=dominion, name=resource_name).name,
-                "price": price,
+                "price": f"{price:g}",
                 "difference": int((price / round.base_price_dict[resource_name]) * 100)
             }
 

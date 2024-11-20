@@ -37,9 +37,9 @@
             Inquisitions last 24 ticks. While active, you won't be able to invade, but sinners will stop appearing and will be eliminated entirely
             over the course of that time.
         </p>
-        <a href="{% url 'submit_inquisition' %}" class="u-center">
-            <button class="base_colors" {% if inquisition_ticks_left > 0 %}disabled{% endif %}>Start inquisition</button>
-        </a>
+        <form>
+            <button class="u-center" formaction="{% url 'submit_inquisition' %}">Whatever</button>
+        </form>
     </div>
 
     <div class="card header_colors px-1 py-2 max-w-xs">
@@ -48,9 +48,9 @@
             Crusades last 24 ticks and reset whenever you invade someone. While active, they cost 1 faith per acre per tick and the cost of raising
             blessed martyrs doubles, but you'll now also raise them from your offensive casualties on successful invasions (except from units that always die on offense).
         </p>
-        <a href="{% url 'submit_crusade' %}" class="u-center">
-            <button class="base_colors" {% if crusade_ticks_left > 0 %}disabled{% endif %}>Start crusade</button>
-        </a>
+        <form>
+            <button class="u-center" formaction="{% url 'submit_crusade' %}" {% if crusade_ticks_left > 0 %}disabled{% endif %}>Start Crusade</button>
+        </form>
     </div>
 </div>
 
