@@ -1,6 +1,5 @@
 from random import randint, choice
 
-from maingame.formatters import create_or_add_to_key
 from maingame.models import Unit, Dominion, Discovery, Building, Deity, Event, Round, Faction, Resource, Spell, UserSettings
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -40,6 +39,7 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
         dominion.perk_dict["custom_units"] = 0
         dominion.perk_dict["max_custom_units"] = 3
         dominion.perk_dict["experiments_done"] = 0
+        dominion.perk_dict["recycling_refund"] = 0.8
 
     dominion.save()
 
@@ -57,22 +57,39 @@ def create_resource_for_dominion(resource_identifier, dominion: Dominion):
         dominions_resource.save()
 
 
+def meets_discovery_requirements(dominion: Dominion, discovery: Discovery):
+    if discovery.required_faction_name and dominion.faction_name != discovery.required_faction_name:
+        return False
+    
+    if dominion.faction_name in discovery.not_for_factions:
+        return False
+
+    for requirement in discovery.required_discoveries:
+        if requirement not in dominion.learned_discoveries:
+            return False
+
+    return True
+
+
+def update_available_discoveries(dominion: Dominion):
+    available_discoveries = []
+
+    for discovery in Discovery.objects.all():
+        if discovery.name not in dominion.learned_discoveries and meets_discovery_requirements(dominion, discovery):
+            available_discoveries.append(discovery.name)
+
+    dominion.available_discoveries = available_discoveries
+    dominion.save()
+
+
 def initialize_dominion(user: User, faction: Faction, display_name):
-    starter_discovery_names = []
-
-    for discovery in Discovery.objects.filter(requirement=None):
-        if faction.name not in discovery.not_for_factions:
-            starter_discovery_names.append(discovery.name)
-
-    for discovery in Discovery.objects.filter(requirement=faction.name):
-        starter_discovery_names.append(discovery.name)
-
     dominion = Dominion.objects.create(
         associated_user=user, 
         name=display_name, 
         faction_name=faction.name, 
-        available_discoveries=starter_discovery_names
     )
+
+    update_available_discoveries(dominion)
 
     for unit in Unit.objects.filter(ruler=None, faction=faction):
         give_dominion_unit(dominion, unit)
@@ -228,11 +245,7 @@ def unlock_discovery(dominion: Dominion, discovery_name):
     if not discovery_name in dominion.available_discoveries:
         return
     
-    dominion.available_discoveries.remove(discovery_name)
     dominion.learned_discoveries.append(discovery_name)
-
-    for unlocked_discovery in Discovery.objects.filter(requirement=discovery_name):
-        dominion.available_discoveries.append(unlocked_discovery.name)
 
     match discovery_name:
         case "Battering Ram":
@@ -260,8 +273,15 @@ def unlock_discovery(dominion: Dominion, discovery_name):
         case "Gem Mines":
             give_dominion_building(dominion, Building.objects.get(ruler=None, name="mine"))
         case "Living Saint":
-            living_saint = give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Living Saint"))
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Living Saint"))
+        case "More Experiment Slots":
+            dominion.perk_dict["max_custom_units"] = 4
+        case "Even More Experiment Slots":
+            dominion.perk_dict["max_custom_units"] = 6
+        case "Recycling Center":
+            dominion.perk_dict["recycling_refund"] = 0.9
 
+    update_available_discoveries(dominion)
     dominion.save()
 
 

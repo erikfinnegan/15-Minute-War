@@ -628,6 +628,8 @@ class Discovery(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
     description = models.CharField(max_length=500, null=True, blank=True)
     requirement = models.CharField(max_length=50, null=True, blank=True)
+    required_discoveries = models.JSONField(default=list, blank=True)
+    required_faction_name = models.CharField(max_length=50, null=True, blank=True)
     not_for_factions = models.JSONField(default=list, blank=True)
     associated_unit_name = models.CharField(max_length=50, null=True, blank=True)
 

@@ -1,6 +1,4 @@
-from random import randint
-from maingame.models import Dominion, Round, Unit, Building, Battle, Event, Deity
-from django.db.models import Q
+from maingame.models import Dominion, Round
 from datetime import datetime
 from zoneinfo import ZoneInfo
 

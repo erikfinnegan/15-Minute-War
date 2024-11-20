@@ -403,15 +403,35 @@ def initialize_discoveries():
     Discovery.objects.create(
         name="Grudgestoker",
         description="A holy scribe takes up residence with you and appends three pages to your book of grudges each tick.",
-        requirement="dwarf",
+        required_faction_name="dwarf",
         associated_unit_name="Grudgestoker",
     )
 
     Discovery.objects.create(
         name="Living Saint",
         description="Pray for assistance from the incredible living saints.",
-        requirement="blessed order",
+        required_faction_name="blessed order",
         associated_unit_name="Living Saint",
+    )
+
+    Discovery.objects.create(
+        name="More Experiment Slots",
+        description="Provides an extra slot for experimental units, taking you from three to four.",
+        required_faction_name="sludgeling",
+    )
+
+    Discovery.objects.create(
+        name="Even More Experiment Slots",
+        description="Provides two more extra slots for experimental units, taking you from four to six.",
+        required_discoveries=["More Experiment Slots"],
+        required_faction_name="sludgeling",
+    )
+
+    Discovery.objects.create(
+        name="Recycling Center",
+        description="Increases refund for terminated experiments from 80% to 90%",
+        required_discoveries=["More Experiment Slots", "Even More Experiment Slots"],
+        required_faction_name="sludgeling",
     )
 
 

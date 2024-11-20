@@ -1191,8 +1191,8 @@ def terminate_experiment(request):
         messages.error(request, f"Can't terminate experiments while units are in training")
         return redirect("experimentation")
 
-    gold_refund = int(unit.quantity_at_home * unit.cost_dict["gold"] * 0.8)
-    sludge_refund = int(unit.quantity_at_home * unit.cost_dict["sludge"] * 0.8)
+    gold_refund = int(unit.quantity_at_home * unit.cost_dict["gold"] * dominion.perk_dict["recycling_refund"])
+    sludge_refund = int(unit.quantity_at_home * unit.cost_dict["sludge"] * dominion.perk_dict["recycling_refund"])
     
     gold = Resource.objects.get(ruler=dominion, name="gold")
     gold.quantity += gold_refund
