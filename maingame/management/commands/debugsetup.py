@@ -12,6 +12,8 @@ class Command(BaseCommand):
     help = "Initiates a battle"
 
     def handle(self, *args, **options):
+        my_faction_name = "sludgeling"
+
         print("Generating stuff...")
 
         initialize_game_pieces()
@@ -52,7 +54,7 @@ class Command(BaseCommand):
         invade_me_test.save()
 
         testuser = User.objects.get(username="test")
-        testdominion = initialize_dominion(user=testuser, faction=Faction.objects.get(name="dwarf"), display_name="ERIKTEST")
+        testdominion = initialize_dominion(user=testuser, faction=Faction.objects.get(name=my_faction_name), display_name="ERIKTEST")
         testdominion.protection_ticks_remaining = 0
         testdominion.discovery_points = 5000
         testdominion.save()

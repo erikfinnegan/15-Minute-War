@@ -1004,16 +1004,17 @@ def generate_experiment(request):
     elif low_dp:
         dp = int(dp/2)
 
-    gold_cost = max(op, dp) * 150
-    sludge_cost = max(op, dp) * 67
+    gold_cost = max(op * 1.3, dp) * 150
+    sludge_cost = max(op * 1.3, dp) * 67
+
+    bad_turtle_multiplier = (op / 200) / dp
+
+    if op > (dp * 2):
+        gold_cost *= 1 - (bad_turtle_multiplier)
 
     for _ in range(max(op,dp)):
         gold_cost *= 1.05
         sludge_cost *= 1.05
-
-    if op > 0.8 * dp:
-        gold_cost *= 1.3
-        sludge_cost *= 1.3
 
     multiplier = randint(1,15)
     high_mult = 1 + (multiplier/100)
