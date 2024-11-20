@@ -348,12 +348,11 @@ def resources(request):
     trade_price_data = {}
 
     for resource_name, price in trade_price_dict.items():
-        if Resource.objects.filter(ruler=dominion, name=resource_name).exists():
-            trade_price_data[resource_name] = {
-                "name": Resource.objects.get(ruler=dominion, name=resource_name).name,
-                "price": int(price * 10),
-                "difference": int((price / round.base_price_dict[resource_name]) * 100)
-            }
+        trade_price_data[resource_name] = {
+            "name": resource_name,
+            "price": int(price * 10),
+            "difference": int((price / round.base_price_dict[resource_name]) * 100)
+        }
 
     context = {
         "resources_dict": resources_dict,

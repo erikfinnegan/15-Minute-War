@@ -12,9 +12,9 @@ class Command(BaseCommand):
     help = "Initiates a battle"
 
     def handle(self, *args, **options):
-        my_faction_name = "sludgeling"
+        # my_faction_name = "sludgeling"
         # my_faction_name = "blessed order"
-        # my_faction_name = "dwarf"
+        my_faction_name = "dwarf"
 
         print("Generating stuff...")
 

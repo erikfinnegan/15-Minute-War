@@ -437,12 +437,12 @@ def initialize_discoveries():
 
 def initialize_trade_prices():
     round = Round.objects.first()
+    round.resource_bank_dict["gold"] = 0
 
     for building in Building.objects.all():
         if building.amount_produced > 0:
             round.resource_bank_dict[building.resource_produced_name] = 0
 
-    round.resource_bank_dict["gold"] = 0
     round.save()
     update_trade_prices()
     round.base_price_dict = round.trade_price_dict.copy()
