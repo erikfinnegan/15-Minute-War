@@ -38,7 +38,21 @@
                     <td class="u-align-middle tooltip tooltip--right" data-tooltip="{{ dominion.acres_with_incoming }}">
                         {{ dominion.acres }}{% if dominion.incoming_acres > 0 %} ({{ dominion.incoming_acres }}){% endif %}
                     </td>
+
+                    {% if dominion.faction_name == "dwarf" %}
+                    <td class="u-align-middle tooltip" 
+                        {% if active_dominion.strid in dominion.perk_dict.book_of_grudges %}
+                            data-tooltip="{{ dominion.perk_dict.book_of_grudges|getattr:active_dominion.strid|getattr:'pages' }} pages, 
+                            +{{ dominion.perk_dict.book_of_grudges|getattr:active_dominion.strid|getattr:"animosity"|floatformat:"1" }}% OP"
+                        {% else %}
+                            data-tooltip="No grudge against you"
+                        {% endif %}
+                    >
+                        {{ dominion.faction_name|title }}
+                    </td>
+                    {% else %}
                     <td class="u-align-middle">{{ dominion.faction_name|title }}</td>
+                    {% endif %}
 
                     <td class="u-align-middle">
                         <span class="u-center {% if dominion.protection_ticks_remaining > 0 or not round.has_started %}text-teal-400{% endif %}">
