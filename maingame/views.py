@@ -329,7 +329,6 @@ def resources(request):
     round = Round.objects.first()
     resources_dict = {}
     dominion_resource_total_dict = {}
-    
 
     for resource in Resource.objects.filter(ruler=dominion):
         if not resource.name == "corpses":
@@ -662,6 +661,19 @@ def overview(request, dominion_id):
         if discovery.name in dominion.learned_discoveries:
             learned_discoveries.append(discovery)
 
+    resources_dict = {}
+
+    for resource in Resource.objects.filter(ruler=dominion):
+        if not resource.name == "corpses":
+            resources_dict[resource.name] = {
+                "name": resource.name,
+                "quantity": resource.quantity,
+                "produced": dominion.get_production(resource.name),
+                "consumed": dominion.get_consumption(resource.name),
+            }
+
+            resources_dict[resource.name]["net"] = resources_dict[resource.name]["produced"] - resources_dict[resource.name]["consumed"]
+
     if "book_of_grudges" in dominion.perk_dict and my_dominion.protection_ticks_remaining == 0 and my_dominion.id != dominion_id:
         if str(my_dominion.id) in dominion.perk_dict["book_of_grudges"]:
             dominion.perk_dict["book_of_grudges"][str(my_dominion.id)]["pages"] += 1
@@ -677,6 +689,7 @@ def overview(request, dominion_id):
         "units": units,
         "buildings": buildings,
         "resources": resources,
+        "resources_dict": resources_dict,
         "my_units": my_units,
         "offense_multiplier": my_dominion.offense_multiplier + get_grudge_bonus(my_dominion, dominion),
         "spells": Spell.objects.filter(ruler=dominion),

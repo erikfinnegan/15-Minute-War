@@ -147,22 +147,26 @@
     <h6>Can't invade this dominion</h6>
     {% endif %}
 
-    <div>
-        <table class="table striped small max-w-xs">
+    <div class="">
+        <table class="table striped max-w-md">
             <thead>
                 <tr>
-                    <th>Resource</th>
+                    <th>Name</th>
                     <th>Quantity</th>
-                    <th>Net production</th>
+                    <th>Produced</th>
+                    <th>Spent</th>
+                    <th>Net</th>
                 </tr>
             </thead>
             <tbody>
-                {% for resource in resources %}
-                    <tr>
-                        <th class="u-align-middle">{{ resource.name|title }}</th>
-                        <td class="u-align-middle">{{ resource.quantity|intcomma }}</td>
-                        <td class="u-align-middle">{{ resource.production|intcomma }}</td>
-                    </tr>
+                {% for key, value in resources_dict.items %}
+                <tr>
+                    <th class="u-align-middle">{{ value.name|title }}</th>
+                    <td class="u-align-middle">{{ value.quantity|intcomma }}</td>
+                    <td class="u-align-middle text-green-400">{{ value.produced|intcomma }}</td>
+                    <td class="u-align-middle text-red-400">{{ value.consumed|intcomma }}</td>
+                    <td class="u-align-middle {% if value.net < 0 %}text-red-400{% else %}text-green-400{% endif %}">{{ value.net|intcomma }}</td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>

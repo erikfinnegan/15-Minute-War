@@ -102,7 +102,7 @@ def initialize_factions():
         building_secondary_resource_name="wood",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"],
         description="""Dwarves keep a book of grudges, chronicling any slight against them, no matter how minor. When a dominion invades a dwarf, 100 pages of 
-        grudges are added. Every tick, dwarves gain +0.03% offense against each dominion equal to the number of pages of grudges they have about that dominion. It 
+        grudges are added. Every tick, dwarves gain +0.003% offense against each dominion per page of grudges they have against that dominion. It 
         doesn't sound like much, but it adds up quick. When a dwarf invades another dominion, any grudges they have against that dominion are 
         satisfied and cleared. Oh, and simply viewing a dwarf's overview page is enough to warrant one page of grudges."""
     )
@@ -145,7 +145,7 @@ def initialize_units():
         dp=6,
         cost_dict={
             "gold": 1200,
-            "ore": 450,
+            "ore": 425,
         },
         upkeep_dict={
             "gold": 3,
@@ -158,7 +158,7 @@ def initialize_units():
         op=5,
         dp=4,
         cost_dict={
-            "gold": 1300,
+            "gold": 1250,
             "ore": 500,
         },
         upkeep_dict={
@@ -187,7 +187,7 @@ def initialize_units():
         dp=2,
         cost_dict={
             "gold": 400,
-            "research": 450,
+            "research": 400,
         },
         upkeep_dict={
             "gold": 3,
@@ -198,12 +198,11 @@ def initialize_units():
     )
     Unit.objects.create(
         name="Novitiate",
-        op=5,
+        op=4,
         dp=5,
         cost_dict={
-            "gold": 1400,
-            "ore": 250,
-            "wood": 500,
+            "gold": 950,
+            "ore": 325,
         },
         upkeep_dict={
             "gold": 3,
@@ -214,7 +213,7 @@ def initialize_units():
     Unit.objects.create(
         name="Blessed Martyr",
         op=15,
-        dp=8,
+        dp=5,
         upkeep_dict={
             "faith": 1,
         },
@@ -227,9 +226,9 @@ def initialize_units():
         op=0,
         dp=100,
         cost_dict={
-            "gold": 12000,
-            "faith": 6000,
-            "mana": 2000,
+            "gold": 10000,
+            "faith": 5500,
+            "mana": 1500,
         },
         upkeep_dict={
             "faith": 10,
@@ -243,8 +242,8 @@ def initialize_units():
         op=0,
         dp=4,
         cost_dict={
-            "gold": 800,
-            "food": 600,
+            "gold": 700,
+            "food": 450,
         },
         upkeep_dict={
             "gold": 3,
@@ -258,8 +257,8 @@ def initialize_units():
         op=15,
         dp=0,
         cost_dict={
-            "wood": 4000,
-            "ore": 2200,
+            "wood": 8000,
+            "ore": 4000,
         },
     )
     Unit.objects.create(
@@ -267,7 +266,7 @@ def initialize_units():
         op=0,
         dp=5,
         cost_dict={
-            "wood": 3000,
+            "wood": 6000,
         },
         upkeep_dict={
             "wood": 1,
