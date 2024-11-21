@@ -133,8 +133,11 @@ def submit_discovery(request):
         return redirect("discoveries")
     else:
         dominion.discovery_points -= 50
-        unlock_discovery(dominion, discovery_name)
+        new_discoveries_message = unlock_discovery(dominion, discovery_name)
         messages.success(request, f"Discovered {discovery_name}")
+        
+        if new_discoveries_message:
+            messages.success(request, f"New discoveries unlocked: {new_discoveries_message}")
 
     return redirect("discoveries")
 
@@ -754,7 +757,7 @@ def submit_options(request):
     
     user_settings.display_name = request.POST["display_name"]
     user_settings.theme = request.POST["theme"]
-    user_settings.show_tutorials = "show_tutorials" in request.POST
+    # user_settings.show_tutorials = "show_tutorials" in request.POST
     user_settings.use_am_pm = "use_am_pm" in request.POST
     user_settings.timezone = request.POST["timezone"]
     user_settings.save()
@@ -1363,6 +1366,10 @@ def submit_invasion(request, dominion_id):
 
         if "always_dies_on_offense" in unit.perk_dict:
             survivors = 0
+        elif "faith_per_power_died" in my_dominion.perk_dict:
+            faith = Resource.objects.get(ruler=my_dominion, name="faith")
+            faith.quantity += deaths * unit.op * my_dominion.perk_dict["faith_per_power_died"]
+            faith.save()
 
         casualties = quantity_sent - survivors
 
@@ -1374,12 +1381,17 @@ def submit_invasion(request, dominion_id):
 
     # Apply defensive casualties
     for unit in Unit.objects.filter(ruler=target_dominion):
-        if "immortal" in unit.perk_dict:
+        if "immortal" in unit.perk_dict or unit.dp == 0:
             survivors = unit.quantity_at_home
         else:
             survivors = math.ceil(unit.quantity_at_home * defensive_survival)
 
         casualties = unit.quantity_at_home - survivors
+
+        if "faith_per_power_died" in target_dominion.perk_dict:
+            faith = Resource.objects.get(ruler=target_dominion, name="faith")
+            faith.quantity += deaths * unit.op * target_dominion.perk_dict["faith_per_power_died"]
+            faith.save()
 
         if "mana" not in unit.upkeep_dict and "mana" not in unit.cost_dict and "always_dies_on_offense" not in unit.perk_dict:
             defensive_casualties += casualties

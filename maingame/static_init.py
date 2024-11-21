@@ -257,6 +257,43 @@ def initialize_units():
         },
         perk_dict={"casualty_multiplier": 2},
     )
+    Unit.objects.create(
+        name="Wight",
+        op=12,
+        dp=10,
+        cost_dict={
+            "faith": 2000,
+            "mana": 300,
+            "corpses": 1,
+        },
+        upkeep_dict={
+            "mana": 0.1,
+        },
+    )
+    Unit.objects.create(
+        name="Cathedral Titan",
+        op=0,
+        dp=300,
+        cost_dict={
+            "gold": 22500,
+            "faith": 10000,
+            "ore": 65000,
+        },
+        upkeep_dict={
+            "faith": 10,
+        },
+        perk_dict={"casualty_multiplier": 0.5},
+    )
+    Unit.objects.create(
+        name="Cremain Knight",
+        op=14,
+        dp=0,
+        cost_dict={
+            "faith": 250,
+            "mana": 250,
+        },
+        perk_dict={"always_dies_on_offense": True}
+    )
 
     sludgeling = Faction.objects.get(name="sludgeling")
     Unit.objects.create(
@@ -310,7 +347,7 @@ def initialize_units():
         op=4,
         dp=3,
         cost_dict={
-            "mana": 100,
+            "mana": 300,
             "corpses": 1,
         },
         upkeep_dict={
@@ -375,19 +412,19 @@ def initialize_spells():
 
 def initialize_discoveries():
     Discovery.objects.create(
-        name="Battering Ram",
+        name="Battering Rams",
         description="Allows for the creation of a powerful offensive unit costing wood and ore.",
         associated_unit_name="Battering Ram"
     )
 
     Discovery.objects.create(
-        name="Palisade",
+        name="Palisades",
         description="Unlocks the ability to build cheap defenses using only wood.",
         associated_unit_name="Palisade",
     )
 
     Discovery.objects.create(
-        name="Bastion",
+        name="Bastions",
         description="A blueprint for building large fortifications out of ore.",
         associated_unit_name="Bastion",
     )
@@ -397,7 +434,6 @@ def initialize_discoveries():
         description="""Gain bodies from invasion casualties when you're victorious and use them to magically raise undead soldiers. Note that you don't get corpses from
         units with a mana cost or mana upkeep or units that always die on invasions.""",
         associated_unit_name="Zombie",
-        not_for_factions=["blessed order"]
     )
 
     # Discovery.objects.create(
@@ -414,7 +450,7 @@ def initialize_discoveries():
     )
 
     Discovery.objects.create(
-        name="Fireball",
+        name="Fireballs",
         description="Conjure massive fireballs to support your invasions.",
         associated_unit_name="Fireball",
     )
@@ -432,10 +468,59 @@ def initialize_discoveries():
     )
 
     Discovery.objects.create(
-        name="Living Saint",
+        name="Living Saints",
         description="Pray for assistance from the incredible living saints.",
         required_faction_name="blessed order",
         associated_unit_name="Living Saint",
+    )
+
+    Discovery.objects.create(
+        name="Heresy",
+        description="Triples the number of sinners generated.",
+        required_faction_name="blessed order",
+    )
+
+    Discovery.objects.create(
+        name="Grim Sacrament",
+        description="Sinners killed by inquisition generate corpses.",
+        required_faction_name="blessed order",
+    )
+
+    Discovery.objects.create(
+        name="Wights",
+        description="Imbuing a dead body with a spirit other than its own creates a being of terrible power.",
+        required_faction_name="blessed order",
+        associated_unit_name="Wight",
+        required_discoveries=["Heresy", "Grim Sacrament", "Zombies"],
+    )
+
+    Discovery.objects.create(
+        name="Penitent Engines",
+        description="Deadly machines of war piloted by sinners given a chance for redemption through glorious death.",
+        required_faction_name="blessed order",
+        associated_unit_name="Penitent Engine",
+    )
+
+    Discovery.objects.create(
+        name="Cathedral Titans",
+        description="Towering masterworks driven by fervor given form.",
+        required_faction_name="blessed order",
+        associated_unit_name="Cathedral Titan",
+        required_discoveries=["Living Saints", "Penitent Engines", "Bastions"],
+    )
+
+    Discovery.objects.create(
+        name="Funerals",
+        description="Your casualties will be mourned, generating 10 faith per OP (on offense) or per DP (on defense).",
+        required_faction_name="blessed order",
+    )
+
+    Discovery.objects.create(
+        name="Cremain Knights",
+        description="Deceased spirits seeking absolution in fire before passing to the afterlife.",
+        required_faction_name="blessed order",
+        associated_unit_name="Cremain Knight",
+        required_discoveries=["Funerals", "Fireballs"],
     )
 
     Discovery.objects.create(

@@ -6,15 +6,16 @@
 
 {% block content %}
 <div>
-    {% if active_user_settings.show_tutorials %}
-    <p>
-        Train units to defend your dominion and attack others. Units cost resources to train and will arrive after 12 ticks. Once a unit is trained,
-        their upkeep cost must be paid each tick. If a unit's upkeep can't be paid, you'll lose 1% of your current stock of that unit each tick until you can
-        afford it. You can also manually release units. This is instant and free, but has no benefit other than reducing your upkeep or other negative impact 
-        of the unit.
-    </p>
-    <p>Clicking the max button or the unit or upkeep cost will fill in the maximum you can afford into the input field. Some units can't be trained.</p>
-    {% endif %}
+    <details class="accordion card card_colors max-w-md">
+        <summary class="accordion__summary">Tutorial notes</summary>
+        <p>
+            Train units to defend your dominion and attack others. Units cost resources to train and will arrive after 12 ticks. Once a unit is trained,
+            their upkeep cost must be paid each tick. If a unit's upkeep can't be paid, you'll lose 1% of your current stock of that unit each tick until you can
+            afford it. You can also manually release units. This is instant and free, but has no benefit other than reducing your upkeep or other negative impact 
+            of the unit.
+        </p>
+        <p>Clicking the max button or the unit or upkeep cost will fill in the maximum you can afford into the input field. Some units can't be trained.</p>
+    </details>
 
     <div class="u-none u-block-md">
         <form action="{% url 'submit_training' %}" method="post" class="max-w-md">

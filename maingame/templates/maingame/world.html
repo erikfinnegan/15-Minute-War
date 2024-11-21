@@ -6,10 +6,11 @@
 
 {% block content %}
 <div>
-    {% if active_user_settings.show_tutorials %}
-    <p>These are all the dominions at the moment. You can click the info button next to anyone's name to see an overview of their dominion.</p>
-    <p>When someone makes an invasion, the units they send take 12 ticks to return home, leaving them more vulnerable to attack in the meantime.</p>
-    {% endif %}
+    <details class="accordion card card_colors max-w-md">
+        <summary class="accordion__summary">Tutorial notes</summary>
+        <p>These are all the dominions at the moment. You can click the info button next to anyone's name to see an overview of their dominion.</p>
+        <p>When someone makes an invasion, the units they send take 12 ticks to return home, leaving them more vulnerable to attack in the meantime.</p>
+    </details>
 
     <div class="u-none u-block-md">
         <table class="table striped card_colors">

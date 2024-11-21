@@ -10,21 +10,23 @@
         <h4 class="font-bold text-red-400">⚠️YOU ARE STARVING⚠️</h4>
     </div>
     {% endif %}
-    {% if active_user_settings.show_tutorials %}
-    <p>
-        This shows your resource generation and consumption. Generally speaking, buildings generate resources and units consume them. Note that if you run out of
-        a resource that's being consumed, you'll lose units until you can afford all of your upkeeps.
-    </p>
-    <p>
-        Additionally, once the round starts and you're out of protection, you can trade resources. All things equal, you can trade resources at 90% of the ratio 
-        they're produced (one building output of X will get you 0.9 building outputs of Y), but when a trade is made, it shifts the value of resources accordingly. 
-        The more a resource is sold, the cheaper it becomes, and the more it's bought, the more expensive it becomes. Keep an eye on the trends of the 
-        economy - you might be able to get more of a certain resource by producing something else in high demand and trading for it.
-    </p>
-    <p>
-        You can also trade for gold. There aren't many other ways to get more than the base 50 gold per acre!
-    </p>
-    {% endif %}
+    
+    <details class="accordion card card_colors max-w-md">
+        <summary class="accordion__summary">Tutorial notes</summary>
+        <p>
+            This shows your resource generation and consumption. Generally speaking, buildings generate resources and units consume them. Note that if you run out of
+            a resource that's being consumed, you'll lose units until you can afford all of your upkeeps.
+        </p>
+        <p>
+            Additionally, once the round starts and you're out of protection, you can trade resources. All things equal, you can trade resources at 90% of the ratio 
+            they're produced (one building output of X will get you 0.9 building outputs of Y), but when a trade is made, it shifts the value of resources accordingly. 
+            The more a resource is sold, the cheaper it becomes, and the more it's bought, the more expensive it becomes. Keep an eye on the trends of the 
+            economy - you might be able to get more of a certain resource by producing something else in high demand and trading for it.
+        </p>
+        <p>
+            You can also trade for gold. There aren't many other ways to get more than the base 50 gold per acre!
+        </p>
+    </details>
     <div class="">
         <table class="table striped max-w-md">
             <thead>

@@ -70,14 +70,16 @@ def meets_discovery_requirements(dominion: Dominion, discovery: Discovery):
 
 
 def update_available_discoveries(dominion: Dominion):
-    available_discoveries = []
+    new_discoveries = []
 
     for discovery in Discovery.objects.all():
-        if discovery.name not in dominion.learned_discoveries and meets_discovery_requirements(dominion, discovery):
-            available_discoveries.append(discovery.name)
+        if discovery.name not in dominion.learned_discoveries and discovery.name not in dominion.available_discoveries and meets_discovery_requirements(dominion, discovery):
+            dominion.available_discoveries.append(discovery.name)
+            new_discoveries.append(discovery.name)
 
-    dominion.available_discoveries = available_discoveries
     dominion.save()
+
+    return ", ".join(new_discoveries)
 
 
 def initialize_dominion(user: User, faction: Faction, display_name):
@@ -244,16 +246,16 @@ def prune_buildings(dominion: Dominion):
 
 def unlock_discovery(dominion: Dominion, discovery_name):
     if not discovery_name in dominion.available_discoveries:
-        return
+        return False
     
     dominion.learned_discoveries.append(discovery_name)
 
     match discovery_name:
-        case "Battering Ram":
+        case "Battering Rams":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Battering Ram"))
-        case "Palisade":
+        case "Palisades":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Palisade"))
-        case "Bastion":
+        case "Bastions":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Bastion"))
         case "Zombies":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Zombie"))
@@ -264,7 +266,7 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             archmage.quantity_at_home = 1
             archmage.save()
             dominion.has_tick_units = True
-        case "Fireball":
+        case "Fireballs":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Fireball"))
         case "Grudgestoker":
             grudgestoker = give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Grudgestoker"))
@@ -273,8 +275,23 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             dominion.has_tick_units = True
         # case "Gem Mines":
         #     give_dominion_building(dominion, Building.objects.get(ruler=None, name="mine"))
-        case "Living Saint":
+        case "Living Saints":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Living Saint"))
+        case "Penitent Engines":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Penitent Engine"))
+        case "Heresy":
+            dominion.perk_dict["sinners_per_hundred_acres_per_tick"] *= 3
+        case "Grim Sacrament":
+            dominion.perk_dict["inquisition_makes_corpses"] = True
+            create_resource_for_dominion("corpses", dominion)
+        case "Wights":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Wight"))
+        case "Cathedral Titans":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Cathedral Titan"))
+        case "Funerals":
+            dominion.perk_dict["faith_per_power_died"] = 10
+        case "Cremain Knights":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Cremain Knight"))
         case "More Experiment Slots":
             dominion.perk_dict["max_custom_units"] = 4
         case "Even More Experiment Slots":
@@ -282,8 +299,10 @@ def unlock_discovery(dominion: Dominion, discovery_name):
         case "Recycling Center":
             dominion.perk_dict["recycling_refund"] = 0.9
 
-    update_available_discoveries(dominion)
+    message = update_available_discoveries(dominion)
     dominion.save()
+
+    return message
 
 
 def give_dominion_unit(dominion: Dominion, unit: Unit):

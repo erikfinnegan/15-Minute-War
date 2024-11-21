@@ -5,15 +5,16 @@
 
 {% block content %}
 <div>
-    {% if active_user_settings.show_tutorials %}
-    <p>
-        You'll gain the ability to make a new Discovery every 50 ticks. These grant access to new units, buildings, spells, etc.
-    </p>
-    <p>
-        Some units have special perks. These are marked by differently-colored text and the description can be seen by mousing over the name (desktop)
-        or tapping on the name (mobile).
-    </p>
-    {% endif %}
+    <details class="accordion card card_colors max-w-md">
+        <summary class="accordion__summary">Tutorial notes</summary>
+        <p>
+            You'll gain the ability to make a new Discovery every 50 ticks. These grant access to new units, buildings, spells, etc.
+        </p>
+        <p>
+            Some units have special perks. These are marked by differently-colored text and the description can be seen by mousing over the name (desktop)
+            or tapping on the name (mobile).
+        </p>
+    </details>
     <p>Ticks to next discovery: {{ active_dominion.ticks_to_next_discovery }}</p>
     <p>Discoveries available: {{ active_dominion.discoveries_to_make }}</p>
 

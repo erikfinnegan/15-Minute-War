@@ -326,13 +326,13 @@ class Dominion(models.Model):
         if "inquisition_ticks_left" in self.perk_dict and self.perk_dict["inquisition_ticks_left"] > 0:
             sinners = Resource.objects.get(ruler=self, name="sinners")
             self.perk_dict["inquisition_ticks_left"] -= 1
+            sinners_killed = sinners.quantity if self.perk_dict["inquisition_ticks_left"] == 0 else min(self.perk_dict["inquisition_rate"], sinners.quantity)
+            sinners.quantity -= sinners_killed
 
-            if self.perk_dict["inquisition_ticks_left"] == 0:
-                self.perk_dict["inquisition_rate"] = 0
-                sinners.quantity = 0
-            else:
-                sinners.quantity -= self.perk_dict["inquisition_rate"]
-                sinners.quantity = max(0, sinners.quantity)
+            if "inquisition_makes_corpses" in self.perk_dict:
+                corpses = Resource.objects.get(ruler=self, name="corpses")
+                corpses.quantity += sinners_killed
+                corpses.save()
 
             sinners.save()
                 
@@ -373,6 +373,10 @@ class Resource(models.Model):
     @property
     def production(self):
         return self.ruler.get_production(self.name)
+    
+    @property
+    def net_production(self):
+        return self.ruler.get_production(self.name) - self.ruler.get_consumption(self.name)
 
 
 class Faction(models.Model):
@@ -515,6 +519,15 @@ class Unit(models.Model):
         if "faith_per_tick" in self.perk_dict:
             faith_produced = self.perk_dict["faith_per_tick"]
             perk_text += f"Produces {faith_produced} faith per tick. "
+
+        if "casualty_multiplier" in self.perk_dict:
+            multiplier = self.perk_dict["casualty_multiplier"]
+            if multiplier == 2:
+                perk_text += f"Takes twice as many casualties. "
+            elif multiplier == 0.5:
+                perk_text += f"Takes half as many casualties. "
+            else:
+                perk_text += f"Takes {multiplier}x as many casualties. "
 
         return perk_text
     
