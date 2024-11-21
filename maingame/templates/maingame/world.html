@@ -20,6 +20,8 @@
                     <th class="u-align-middle">Land</th>
                     <th class="u-align-middle">Faction</th>
                     <th class="u-align-middle">Defense</th>
+                    <th class="u-align-middle">Complacency</th>
+                    <th class="u-align-middle">Determination</th>
                     <th class="u-align-middle">Units Returning</th>
                     {% if "book_of_grudges" in active_dominion.perk_dict %}
                     <th class="u-align-middle">Book of Grudges</th>
@@ -42,6 +44,9 @@
                             {% if dominion.protection_ticks_remaining == 0 and round.has_started %}{{ dominion.defense_short }}{% else %}Magical protection{% endif %}
                         </span>
                     </td>
+
+                    <td>-{{ dominion.complacency_penalty_percent }}% DP</td>
+                    <td>+{{ dominion.determination_bonus_percent }}% OP</td>
 
                     <td class="u-align-middle">
                         {% if dominion.has_units_returning %}

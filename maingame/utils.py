@@ -9,11 +9,9 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
     if faction.name == "dwarf":
         dominion.perk_dict["book_of_grudges"] = {}
     elif faction.name == "blessed order":
-        dominion.perk_dict["sinners"] = 1
         dominion.perk_dict["sinners_per_hundred_acres_per_tick"] = 1
         dominion.perk_dict["inquisition_rate"] = 0
         dominion.perk_dict["inquisition_ticks_left"] = 0
-        dominion.perk_dict["crusade_ticks_left"] = 0
         dominion.perk_dict["martyr_cost"] = 1000
     elif faction.name == "sludgeling":
         dominion.perk_dict["latest_experiment"] = {
@@ -108,6 +106,9 @@ def initialize_dominion(user: User, faction: Faction, display_name):
         for perk_name in unit.perk_dict:
             if perk_name[-9:] == "_per_tick":
                 create_resource_for_dominion(perk_name[:-9], dominion)
+
+    if dominion.faction_name == "blessed order":
+        create_resource_for_dominion("sinners", dominion)
 
     for spell in Spell.objects.filter(ruler=None, is_starter=True):
         dominions_spell = spell
@@ -205,8 +206,8 @@ def get_trade_value(resource_name):
 
     trade_value = round(trade_value, 2)
 
-    if resource_name == "gems":
-        trade_value *= 1.3
+    # if resource_name == "gems":
+    #     trade_value *= 1.3
 
     return max(1, trade_value)
 
@@ -258,10 +259,10 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Zombie"))
         case "Butcher":
             print("Implement spells, silly")
-        case "Archmagus":
-            archmagus = give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Archmagus"))
-            archmagus.quantity_at_home = 1
-            archmagus.save()
+        case "Archmage":
+            archmage = give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Archmage"))
+            archmage.quantity_at_home = 1
+            archmage.save()
             dominion.has_tick_units = True
         case "Fireball":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Fireball"))
@@ -270,8 +271,8 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             grudgestoker.quantity_at_home = 1
             grudgestoker.save()
             dominion.has_tick_units = True
-        case "Gem Mines":
-            give_dominion_building(dominion, Building.objects.get(ruler=None, name="mine"))
+        # case "Gem Mines":
+        #     give_dominion_building(dominion, Building.objects.get(ruler=None, name="mine"))
         case "Living Saint":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Living Saint"))
         case "More Experiment Slots":

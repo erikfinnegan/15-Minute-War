@@ -71,7 +71,7 @@ class Command(BaseCommand):
             unit.save()
 
         for resource in Resource.objects.filter(ruler=testdominion):
-            resource.quantity = 1000000
+            resource.quantity = 1215070
             resource.save()
 
         admindominion = Dominion.objects.get(name="p-admin")

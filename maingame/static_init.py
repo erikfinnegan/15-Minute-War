@@ -25,14 +25,17 @@ def initialize_resources():
         {
             "name": "corpses",
         },
-        {
-            "name": "gems",
-        },
+        # {
+        #     "name": "gems",
+        # },
         {
             "name": "faith",
         },
         {
             "name": "sludge",
+        },
+        {
+            "name": "sinners",
         },
     ]
 
@@ -71,11 +74,11 @@ def initialize_buildings():
             "resource_produced_name": "mana",
             "amount_produced": 10,
         },
-        {
-            "name": "mine",
-            "resource_produced_name": "gems",
-            "amount_produced": 8,
-        },
+        # {
+        #     "name": "mine",
+        #     "resource_produced_name": "gems",
+        #     "amount_produced": 8,
+        # },
         {
             "name": "cesspool",
             "resource_produced_name": "sludge",
@@ -114,12 +117,13 @@ def initialize_factions():
         building_primary_resource_name="gold",
         building_secondary_resource_name="wood",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"],
-        description="""The priests of the Blessed Order generate faith, which is used to restore the vengeful spirits of warriors who fall defending
-        their people. When they're invaded, any accumulated faith is spent to turn defensive casualties into blessed martyrs at the cost of 1,000 faith
-        per martyr. However, one sinner appears per tick for each 100 acres and each drains 1 faith per tick until the order places their offense
-        on hold for 24 ticks to begin an inquisition to root them out. The Blessed Order may declare a crusade, which raises blessed martyrs from
-        offensive casualties as well, but doubles the cost of blessed martyrs and costs 1 faith per acre per tick. This crusade will last until
-        24 ticks pass without invading."""
+        # old_description="""The priests of the Blessed Order generate faith, which is used to restore the vengeful spirits of warriors who fall defending
+        # their people. When they're invaded, any accumulated faith is spent to turn defensive casualties into blessed martyrs at the cost of 1,000 faith
+        # per martyr. However, one sinner appears per tick for each 100 acres and each drains 1 faith per tick until the order places their offense
+        # on hold for 24 ticks to begin an inquisition to root them out. The Blessed Order may declare a crusade, which raises blessed martyrs from
+        # offensive casualties as well, but doubles the cost of blessed martyrs and costs 1 faith per acre per tick. This crusade will last until
+        # 24 ticks pass without invading."""
+        description="""Sinners consume faith."""
     )
 
     Faction.objects.create(
@@ -145,7 +149,7 @@ def initialize_units():
         dp=6,
         cost_dict={
             "gold": 1200,
-            "ore": 425,
+            "ore": 525,
         },
         upkeep_dict={
             "gold": 3,
@@ -159,7 +163,7 @@ def initialize_units():
         dp=4,
         cost_dict={
             "gold": 1250,
-            "ore": 500,
+            "ore": 600,
         },
         upkeep_dict={
             "gold": 3,
@@ -182,12 +186,12 @@ def initialize_units():
 
     blessed_order = Faction.objects.get(name="blessed order")
     Unit.objects.create(
-        name="Priest",
+        name="Blessed Brother",
         op=0,
         dp=2,
         cost_dict={
-            "gold": 400,
-            "research": 400,
+            "gold": 350,
+            "research": 350,
         },
         upkeep_dict={
             "gold": 3,
@@ -198,11 +202,11 @@ def initialize_units():
     )
     Unit.objects.create(
         name="Novitiate",
-        op=4,
+        op=5,
         dp=5,
         cost_dict={
-            "gold": 950,
-            "ore": 325,
+            "gold": 1150,
+            "ore": 550,
         },
         upkeep_dict={
             "gold": 3,
@@ -217,7 +221,9 @@ def initialize_units():
         upkeep_dict={
             "faith": 1,
         },
-        perk_dict={"immortal": True},
+        perk_dict={
+            "immortal": True,
+        },
         is_trainable=False,
         faction=blessed_order,
     )
@@ -226,14 +232,30 @@ def initialize_units():
         op=0,
         dp=100,
         cost_dict={
-            "gold": 10000,
-            "faith": 5500,
-            "mana": 1500,
+            "gold": 9000,
+            "faith": 8000,
+            "mana": 2500,
         },
         upkeep_dict={
             "faith": 10,
             "food": 1,
         },
+    )
+    Unit.objects.create(
+        name="Penitent Engine",
+        op=19,
+        dp=7,
+        cost_dict={
+            "gold": 2250,
+            "ore": 3600,
+            "sinners": 1,
+        },
+        upkeep_dict={
+            "gold": 3,
+            "faith": 1,
+            "food": 1,
+        },
+        perk_dict={"casualty_multiplier": 2},
     )
 
     sludgeling = Faction.objects.get(name="sludgeling")
@@ -242,7 +264,7 @@ def initialize_units():
         op=0,
         dp=4,
         cost_dict={
-            "gold": 700,
+            "gold": 550,
             "food": 450,
         },
         upkeep_dict={
@@ -257,8 +279,11 @@ def initialize_units():
         op=15,
         dp=0,
         cost_dict={
-            "wood": 8000,
-            "ore": 4000,
+            "wood": 5000,
+            "ore": 3000,
+        },
+        upkeep_dict={
+            "wood": 3,
         },
     )
     Unit.objects.create(
@@ -266,10 +291,10 @@ def initialize_units():
         op=0,
         dp=5,
         cost_dict={
-            "wood": 6000,
+            "wood": 2150,
         },
         upkeep_dict={
-            "wood": 1,
+            "wood": 5,
         },
     )
     Unit.objects.create(
@@ -277,7 +302,7 @@ def initialize_units():
         op=0,
         dp=30,
         cost_dict={
-            "ore": 12000,
+            "ore": 10000,
         },
     )
     Unit.objects.create(
@@ -293,7 +318,7 @@ def initialize_units():
         },
     )
     Unit.objects.create(
-        name="Archmagus",
+        name="Archmage",
         op=0,
         dp=0,
         upkeep_dict={
@@ -301,7 +326,7 @@ def initialize_units():
             "food": 1,
         },
         is_trainable=False,
-        perk_dict={"surplus_research_consumed_to_add_one_op_and_dp": 1300}
+        perk_dict={"surplus_research_consumed_to_add_one_op_and_dp": 1200}
     )
     Unit.objects.create(
         name="Fireball",
@@ -382,10 +407,10 @@ def initialize_discoveries():
     # )
 
     Discovery.objects.create(
-        name="Archmagus",
-        description="""Gain the allegiance of a terrifyingly powerful sorcerer who will, each tick, consume 10% of any research points beyond your most 
-        expensive upgrade to gain 1 OP and DP per 1300 consumed.""",
-        associated_unit_name="Archmagus",
+        name="Archmage",
+        description="""Gain the allegiance of a terrifyingly powerful sorcerer who consumes half of your stockpiled research each tick, but leaves 
+        enough to afford your upgrades. Gains 1 OP and 1 DP per 1200 research consumed.""",
+        associated_unit_name="Archmage",
     )
 
     Discovery.objects.create(
@@ -394,10 +419,10 @@ def initialize_discoveries():
         associated_unit_name="Fireball",
     )
 
-    Discovery.objects.create(
-        name="Gem Mines",
-        description="Construct a new building to mine for precious gems. Produces 8 gems per tick. When trade values are determined, gems get a +30% bonus."
-    )
+    # Discovery.objects.create(
+    #     name="Gem Mines",
+    #     description="Construct a new building to mine for precious gems. Produces 8 gems per tick. When trade values are determined, gems get a +30% bonus."
+    # )
 
     Discovery.objects.create(
         name="Grudgestoker",

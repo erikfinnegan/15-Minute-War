@@ -692,6 +692,8 @@ def overview(request, dominion_id):
         "resources_dict": resources_dict,
         "my_units": my_units,
         "offense_multiplier": my_dominion.offense_multiplier + get_grudge_bonus(my_dominion, dominion),
+        "raw_defense": my_dominion.raw_defense,
+        "defense_multiplier": my_dominion.defense_multiplier,
         "spells": Spell.objects.filter(ruler=dominion),
         "learned_discoveries": learned_discoveries,
         "acres_conquered": get_acres_conquered(my_dominion, dominion)
@@ -798,7 +800,7 @@ def tutorial(request):
 
 
 @login_required
-def church_declarations(request):
+def church_affairs(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
     except:
@@ -811,18 +813,17 @@ def church_declarations(request):
     if dominion.perk_dict["inquisition_rate"] > 0:
         sinners_per_tick = -1 * dominion.perk_dict["inquisition_rate"]
     else:
-        sinners_per_tick = dominion.perk_dict.get("sinners_per_hundred_acres_per_tick")
+        sinners_per_tick = dominion.get_production("sinners")
 
-    sinners = dominion.perk_dict.get("sinners")
+    sinners = Resource.objects.get(ruler=dominion, name="sinners").quantity
 
     context = {
         "inquisition_ticks_left": dominion.perk_dict["inquisition_ticks_left"],
-        "crusade_ticks_left": dominion.perk_dict["crusade_ticks_left"],
         "sinners_per_tick": sinners_per_tick,
         "sinners": sinners,
     }
     
-    return render(request, "maingame/church_declarations.html", context)
+    return render(request, "maingame/church_affairs.html", context)
 
 
 @login_required
@@ -834,33 +835,14 @@ def submit_inquisition(request):
     
     if Round.objects.first().has_ended:
         messages.error(request, f"The round has already ended")
-        return redirect("church_declarations")
+        return redirect("church_affairs")
     
-    dominion.perk_dict["inquisition_rate"] = math.ceil(dominion.perk_dict["sinners"] / 24)
+    dominion.perk_dict["inquisition_rate"] = math.ceil(Resource.objects.get(ruler=dominion, name="sinners").quantity / 24)
     dominion.perk_dict["inquisition_ticks_left"] = 24
     dominion.save()
 
     messages.success(request, "The inquisition has begun.")
-    return redirect("church_declarations")
-
-
-@login_required
-def submit_crusade(request):
-    try:
-        dominion = Dominion.objects.get(associated_user=request.user)
-    except:
-        return redirect("register")
-    
-    if Round.objects.first().has_ended:
-        messages.error(request, f"The round has already ended")
-        return redirect("church_declarations")
-    
-    dominion.perk_dict["crusade_ticks_left"] = 24
-    dominion.perk_dict["martyr_cost"] = 2000
-    dominion.save()
-
-    messages.success(request, "The crusade has begun.")
-    return redirect("church_declarations")
+    return redirect("church_affairs")
 
 
 @login_required
@@ -1243,9 +1225,6 @@ def submit_invasion(request, dominion_id):
     if target_dominion.protection_ticks_remaining > 0 or my_dominion.protection_ticks_remaining > 0 or not round.has_started or round.has_ended or target_dominion.is_abandoned:
         messages.error(request, f"Illegal invasion")
         return redirect("overview", dominion_id=dominion_id)
-    
-    if "crusade_ticks_left" in my_dominion.perk_dict and my_dominion.perk_dict["crusade_ticks_left"] > 0:
-        my_dominion.perk_dict["crusade_ticks_left"] = 24
 
     total_units_sent = 0
     units_sent_dict = {}
@@ -1290,6 +1269,7 @@ def submit_invasion(request, dominion_id):
         target_dominion.failed_defenses += 1
         target_dominion.save()
         my_dominion.successful_invasions += 1
+        my_dominion.determination = 0
         my_dominion.save()
 
         if "book_of_grudges" in target_dominion.perk_dict:
@@ -1375,6 +1355,11 @@ def submit_invasion(request, dominion_id):
             survivors = quantity_sent
         else:
             survivors = math.ceil(quantity_sent * offensive_survival)
+            deaths = quantity_sent - survivors
+
+            if "casualty_multiplier" in unit.perk_dict:
+                bonus_death_multiplier = unit.perk_dict["casualty_multiplier"] - 1
+                survivors -= (deaths * bonus_death_multiplier)
 
         if "always_dies_on_offense" in unit.perk_dict:
             survivors = 0
@@ -1412,16 +1397,6 @@ def submit_invasion(request, dominion_id):
         faith.save()
         martyrs = Unit.objects.get(ruler=target_dominion, name="Blessed Martyr")
         martyrs.quantity_at_home += martyrs_gained
-        martyrs.save()
-
-    if attacker_victory and my_dominion.faction_name == "blessed order" and my_dominion.perk_dict["crusade_ticks_left"] > 0:
-        faith = Resource.objects.get(ruler=my_dominion, name="faith")
-        martyrs_affordable = int(faith.quantity / my_dominion.perk_dict["martyr_cost"])
-        martyrs_gained = min(martyrs_affordable, offensive_casualties)
-        faith.quantity -= my_dominion.perk_dict["martyr_cost"] * martyrs_gained
-        faith.save()
-        martyrs = Unit.objects.get(ruler=my_dominion, name="Blessed Martyr")
-        martyrs.returning_dict["12"] += martyrs_gained
         martyrs.save()
 
     if attacker_victory and Resource.objects.filter(ruler=my_dominion, name="corpses").exists():
