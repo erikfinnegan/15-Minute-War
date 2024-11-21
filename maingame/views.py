@@ -689,6 +689,7 @@ def overview(request, dominion_id):
 
     context = {
         "dominion": dominion,
+        "other_dominions": Dominion.objects.filter(is_abandoned=False, protection_ticks_remaining=0).order_by('protection_ticks_remaining', '-acres'),
         "units": units,
         "buildings": buildings,
         "resources": resources,
