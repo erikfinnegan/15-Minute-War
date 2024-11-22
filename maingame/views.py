@@ -719,6 +719,7 @@ def overview(request, dominion_id):
         "offense_multiplier": my_dominion.offense_multiplier + get_grudge_bonus(my_dominion, dominion),
         "raw_defense": my_dominion.raw_defense,
         "defense_multiplier": my_dominion.defense_multiplier,
+        "minimum_defense_left": my_dominion.acres * 5,
         "spells": Spell.objects.filter(ruler=dominion),
         "learned_discoveries": learned_discoveries,
         "acres_conquered": get_acres_conquered(my_dominion, dominion),
@@ -1250,6 +1251,9 @@ def submit_invasion(request, dominion_id):
 
     if target_dominion.protection_ticks_remaining > 0 or my_dominion.protection_ticks_remaining > 0 or not round.has_started or round.has_ended or target_dominion.is_abandoned:
         messages.error(request, f"Illegal invasion")
+        return redirect("overview", dominion_id=dominion_id)
+    elif int(request.POST["dpLeftHidden"]) < my_dominion.acres * 5:
+        messages.error(request, f"You must leave at least {my_dominion.acres * 5} defense at home")
         return redirect("overview", dominion_id=dominion_id)
 
     total_units_sent = 0

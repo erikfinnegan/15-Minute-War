@@ -88,11 +88,12 @@
                 <span id="dpHere">{{ dominion.defense|intcomma }}</span>
                 <span> DP</span>
             </div>
-            <div class="u-center u-flex u-gap-1">
+            <div class="u-center u-flex u-gap-1" id="dpLeftText">
                 <span>You'll have</span>
                 <span id="dpLeft">{{ active_dominion.defense }}</span>
                 <span>defense after attacking</span>
             </div>
+            <input type="number" id="dpLeftHidden" name="dpLeftHidden" hidden value="{{ active_dominion.defense }}" />
         </div>
         <div style="display: none;">
             <input type="submit" name="prevent-enter-submit" onclick="return false;">
@@ -106,10 +107,13 @@
         const offenseMultiplier = JSON.parse('{{ offense_multiplier|escapejs }}');
         const rawDefense = JSON.parse('{{ raw_defense|escapejs }}');
         const defenseMultiplier = JSON.parse('{{ defense_multiplier|escapejs }}');
+        const minimumDefenseLeft = JSON.parse('{{ minimum_defense_left|escapejs }}');
 
         function updateOffenseToSend() {
             let opReadout = document.getElementById("opToSend");
             let dpLeftReadout = document.getElementById("dpLeft");
+            let dpLeftReadoutHidden = document.getElementById("dpLeftHidden");
+            let dpLeftText = document.getElementById("dpLeftText");
             let dpHere = document.getElementById("dpHere").innerHTML;
             dpHere = parseInt(dpHere.replace(',', ''));
             let readoutSection = document.getElementById("readoutSection");
@@ -131,7 +135,10 @@
 
             totalOp = Math.floor(totalOp * offenseMultiplier)
             opReadout.innerHTML = totalOp
-            dpLeftReadout.innerHTML = Math.floor((rawDefense - dpSent) * defenseMultiplier)
+            
+            const dpLeft = Math.floor((rawDefense - dpSent) * defenseMultiplier)
+            dpLeftReadout.innerHTML = dpLeft
+            dpLeftReadoutHidden.value = dpLeft
 
             if (totalOp >= dpHere) {
                 readoutSection.classList.remove("text-red-400")
@@ -141,6 +148,12 @@
                 readoutSection.classList.remove("text-green-400")
                 readoutSection.classList.add("text-red-400")
                 invadeButtonText.classList.add("text-red-400")
+            }
+
+            if (dpLeft < minimumDefenseLeft) {
+                dpLeftText.classList.add("text-red-400")
+            } else {
+                dpLeftText.classList.remove("text-red-400")
             }
         }
 
@@ -310,7 +323,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% if active_dominion.incoming_acres > 0 %}
+                    {% if dominion.incoming_acres > 0 %}
                     <tr>
                         <td class="u-align-middle">Acres</td>
                         <td class="u-align-middle">{{ dominion.incoming_acres_dict.1|no_zeroes|intcomma }}</td>
