@@ -2,6 +2,8 @@ from maingame.models import Dominion, Round
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from maingame.utils import update_trade_prices
+
 def normalize_trade_prices():
     round = Round.objects.first()
 
@@ -32,6 +34,7 @@ def do_global_tick():
 
         print("Round management done, starting trade prices", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
 
+        update_trade_prices()
         normalize_trade_prices()
 
         print("Trade prices done, starting dominion ticks", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))

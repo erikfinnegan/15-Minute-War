@@ -16,6 +16,8 @@ class Command(BaseCommand):
         # my_faction_name = "blessed order"
         my_faction_name = "dwarf"
 
+        my_starting_resource_quantity = 30000
+
         print("Generating stuff...")
 
         initialize_game_pieces()
@@ -71,7 +73,7 @@ class Command(BaseCommand):
             unit.save()
 
         for resource in Resource.objects.filter(ruler=testdominion):
-            resource.quantity = 1215070
+            resource.quantity = my_starting_resource_quantity
             resource.save()
 
         admindominion = Dominion.objects.get(name="p-admin")

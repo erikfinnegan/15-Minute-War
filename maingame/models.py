@@ -40,7 +40,7 @@ class Dominion(models.Model):
     determination = models.IntegerField(default=0)
     has_tick_units = models.BooleanField(default=False)
     is_abandoned = models.BooleanField(default=False)
-    acres = models.IntegerField(default=100)
+    acres = models.IntegerField(default=500)
     incoming_acres_dict = models.JSONField(default=dict, blank=True)
     successful_invasions = models.IntegerField(default=0)
     failed_defenses = models.IntegerField(default=0)

@@ -56,7 +56,7 @@
             {% csrf_token %}
             <div class="u-flex u-flex-column u-gap-2">
                 <select class="card_colors" id="inputResource" name="inputResource" oninput="showRatio()">
-                    {% for key in trade_price_data %}
+                    {% for key in my_tradeable_price_data %}
                     <option {% if key == active_dominion.last_sold_resource_name %} selected{% endif %}>{{ key }}</option>
                     {% endfor %}
                 </select>
@@ -67,7 +67,7 @@
                     <span id="ratioDenominator">1</span>
                 </div>
                 <select class="card_colors" id="outputResource" name="outputResource" oninput="showRatio()">
-                    {% for key in trade_price_data %}
+                    {% for key in my_tradeable_price_data %}
                     <option {% if key == active_dominion.last_bought_resource_name %} selected{% endif %}>{{ key }}</option>
                     {% endfor %}
                 </select>
@@ -101,14 +101,14 @@
                     <td class="u-align-middle">{{ resource_name|title }}</td>
                     <td class="u-align-middle">{{ details.price }}</td>
                     <td class="u-align-middle
-                    {% if details.difference >= 200 %}text-green-500 font-bold
-                    {% elif details.difference >= 175 %}text-green-400
-                    {% elif details.difference >= 150 %}text-green-300
-                    {% elif details.difference >= 125 %}text-green-200
-                    {% elif details.difference <= 20 %}text-red-500 font-bold
-                    {% elif details.difference <= 40 %}text-red-400
-                    {% elif details.difference <= 60 %}text-red-300
-                    {% elif details.difference <= 80 %}text-red-200
+                    {% if details.difference >= 200 %}text-green-700 font-bold
+                    {% elif details.difference >= 175 %}text-green-600
+                    {% elif details.difference >= 150 %}text-green-500
+                    {% elif details.difference >= 125 %}text-green-400
+                    {% elif details.difference <= 20 %}text-red-700 font-bold
+                    {% elif details.difference <= 40 %}text-red-600
+                    {% elif details.difference <= 60 %}text-red-500
+                    {% elif details.difference <= 80 %}text-red-400
                     {% endif %}
                     ">{{ details.difference }}%</td>
                 </tr>

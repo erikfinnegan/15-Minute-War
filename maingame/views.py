@@ -13,7 +13,7 @@ from django.db.models import Q
 from maingame.formatters import create_or_add_to_key
 from maingame.models import Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings
 from maingame.tick_processors import do_global_tick
-from maingame.utils import abandon_dominion, delete_dominion, get_acres_conquered, get_grudge_bonus, initialize_dominion, prune_buildings, round_x_to_nearest_y, unlock_discovery, update_trade_prices, cast_spell
+from maingame.utils import abandon_dominion, delete_dominion, get_acres_conquered, get_grudge_bonus, initialize_dominion, prune_buildings, round_x_to_nearest_y, unlock_discovery, cast_spell
 
 
 def index(request):
@@ -345,9 +345,9 @@ def resources(request):
 
             resources_dict[resource.name]["net"] = resources_dict[resource.name]["produced"] - resources_dict[resource.name]["consumed"]
 
-    update_trade_prices()
     trade_price_dict = round.trade_price_dict
     trade_price_data = {}
+    my_tradeable_price_data = {}
 
     for resource_name, price in trade_price_dict.items():
         trade_price_data[resource_name] = {
@@ -356,9 +356,17 @@ def resources(request):
             "difference": int((price / round.base_price_dict[resource_name]) * 100)
         }
 
+        if Resource.objects.filter(ruler=dominion, name=resource_name).exists():
+            my_tradeable_price_data[resource_name] = {
+            "name": resource_name,
+            "price": int(price * 10),
+            "difference": int((price / round.base_price_dict[resource_name]) * 100)
+        }
+
     context = {
         "resources_dict": resources_dict,
         "trade_price_data": trade_price_data,
+        "my_tradeable_price_data": my_tradeable_price_data,
         "resources_dict_json": json.dumps(resources_dict),
         "dominion_resources_json": json.dumps(dominion_resource_total_dict),
         "trade_price_json": json.dumps(trade_price_dict),
@@ -385,6 +393,10 @@ def trade(request):
     amount = int(request.POST["resourceAmount"])
     output_resource_name = request.POST["outputResource"]
 
+    if not Resource.objects.filter(ruler=dominion, name=input_resource_name).exists() or not Resource.objects.filter(ruler=dominion, name=output_resource_name).exists():
+        messages.error(request, f"You don't have access to that resource")
+        return redirect("resources")
+
     if input_resource_name == output_resource_name:
         messages.error(request, f"You can't trade a resource for itself")
         return redirect("resources")
@@ -407,15 +419,22 @@ def trade(request):
     output_resource.quantity += payout
     output_resource.save()
 
-    round.resource_bank_dict[input_resource.name] += amount
-    round.resource_bank_dict[output_resource.name] -= payout
+    input_total_production = 0
+    output_total_production = 0
+    dominion_count = 0
+
+    for dominion in Dominion.objects.all():
+        input_total_production += dominion.get_production(input_resource_name)
+        output_total_production += dominion.get_production(output_resource_name)
+        dominion_count += 1
+
+    round.resource_bank_dict[input_resource.name] += min(amount, 24 * int(input_total_production / dominion_count))
+    round.resource_bank_dict[output_resource.name] -= min(amount, 24 * int(output_total_production / dominion_count))
     round.save()
 
     dominion.last_sold_resource_name = input_resource.name
     dominion.last_bought_resource_name = output_resource.name
     dominion.save()
-
-    update_trade_prices()
 
     messages.success(request, f"Traded {amount:2,} {input_resource.name} for {payout:2,} {output_resource.name}")
     return redirect("resources")

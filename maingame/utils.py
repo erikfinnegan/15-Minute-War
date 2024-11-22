@@ -218,7 +218,16 @@ def update_trade_prices():
     round = Round.objects.first()
 
     for resource_name in round.resource_bank_dict:
-        round.trade_price_dict[resource_name] = get_trade_value(resource_name)
+        if resource_name in round.trade_price_dict:
+            current_value = round.trade_price_dict[resource_name]
+            goal_value = get_trade_value(resource_name)
+            
+            if goal_value > current_value:
+                round.trade_price_dict[resource_name] = min(goal_value, current_value * 1.01)
+            elif goal_value < current_value:
+                round.trade_price_dict[resource_name] = max(goal_value, current_value / 1.01)
+        else:
+            round.trade_price_dict[resource_name] = get_trade_value(resource_name)
 
         if resource_name not in round.base_price_dict:
             round.base_price_dict[resource_name] = get_trade_value(resource_name)
