@@ -621,6 +621,10 @@ class Event(models.Model):
             return battle.event_text
         elif self.reference_type == "signup":
             return self.message_override
+        elif self.reference_type == "abandon":
+            return self.message_override
+        elif self.message_override:
+            return self.message_override
         
         return "Unknown event type"
     
