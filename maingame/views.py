@@ -687,6 +687,8 @@ def overview(request, dominion_id):
         
         dominion.save()
 
+    battles_with_this_dominion = Battle.objects.filter(attacker=dominion) | Battle.objects.filter(defender=dominion)
+
     context = {
         "dominion": dominion,
         "other_dominions": Dominion.objects.filter(is_abandoned=False, protection_ticks_remaining=0).order_by('protection_ticks_remaining', '-acres'),
@@ -700,7 +702,8 @@ def overview(request, dominion_id):
         "defense_multiplier": my_dominion.defense_multiplier,
         "spells": Spell.objects.filter(ruler=dominion),
         "learned_discoveries": learned_discoveries,
-        "acres_conquered": get_acres_conquered(my_dominion, dominion)
+        "acres_conquered": get_acres_conquered(my_dominion, dominion),
+        "battles_with_this_dominion": battles_with_this_dominion,
     }
 
     return render(request, "maingame/overview.html", context)

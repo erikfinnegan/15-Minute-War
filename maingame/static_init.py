@@ -105,9 +105,9 @@ def initialize_factions():
         building_secondary_resource_name="wood",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"],
         description="""Dwarves keep a book of grudges, chronicling any slight against them, no matter how minor. When a dominion invades a dwarf, 100 pages of 
-        grudges are added. Every tick, dwarves gain +0.003% offense against each dominion per page of grudges they have against that dominion. It 
-        doesn't sound like much, but it adds up quick. When a dwarf invades another dominion, any grudges they have against that dominion are 
-        satisfied and cleared. Oh, and simply viewing a dwarf's overview page is enough to warrant one page of grudges."""
+        grudges are added about that dominion. Every tick, those grudges simmer and the dwarf's offense bonus against that dominion increases by 0.003% per page,
+        accumulating until the dwarf invades that player successfully. 0.003% may not sound like much, but it adds up quickly. Oh, and simply viewing a dwarf's 
+        overview page is enough to warrant one page of grudges."""
     )
 
     Faction.objects.create(
@@ -117,13 +117,10 @@ def initialize_factions():
         building_primary_resource_name="gold",
         building_secondary_resource_name="wood",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"],
-        # old_description="""The priests of the Blessed Order generate faith, which is used to restore the vengeful spirits of warriors who fall defending
-        # their people. When they're invaded, any accumulated faith is spent to turn defensive casualties into blessed martyrs at the cost of 1,000 faith
-        # per martyr. However, one sinner appears per tick for each 100 acres and each drains 1 faith per tick until the order places their offense
-        # on hold for 24 ticks to begin an inquisition to root them out. The Blessed Order may declare a crusade, which raises blessed martyrs from
-        # offensive casualties as well, but doubles the cost of blessed martyrs and costs 1 faith per acre per tick. This crusade will last until
-        # 24 ticks pass without invading."""
-        description="""Sinners consume faith."""
+        description="""The brothers of the Blessed Order generate faith, which is used to restore the vengeful spirits of warriors who fall defending
+        their people. When they're invaded, any accumulated faith is spent to turn defensive casualties into blessed martyrs at the cost of 1,000 faith
+        per martyr. However, one sinner appears per tick for each 100 acres and each drains 1 faith per tick until the order places their offense
+        # on hold for 24 ticks to begin an inquisition to root them out."""
     )
 
     Faction.objects.create(
@@ -182,6 +179,20 @@ def initialize_units():
         },
         perk_dict={"random_grudge_book_pages_per_tick": 3},
         is_trainable=False,
+    )
+    Unit.objects.create(
+        name="Miner",
+        op=0,
+        dp=3,
+        cost_dict={
+            "gold": 700,
+            "ore": 250,
+        },
+        upkeep_dict={
+            "gold": 3,
+            "food": 1,
+        },
+        perk_dict={"ore_per_tick": 3},
     )
 
     blessed_order = Faction.objects.get(name="blessed order")
@@ -465,6 +476,13 @@ def initialize_discoveries():
         description="A holy scribe takes up residence with you and appends three pages to your book of grudges each tick.",
         required_faction_name="dwarf",
         associated_unit_name="Grudgestoker",
+    )
+
+    Discovery.objects.create(
+        name="Miners",
+        description="Industrious dwarves who dig ever deeper in search of valuable ore. Who knows what they might find if they dig deep enough...",
+        required_faction_name="dwarf",
+        associated_unit_name="Miner",
     )
 
     Discovery.objects.create(

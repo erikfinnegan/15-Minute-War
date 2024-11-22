@@ -323,6 +323,10 @@ class Dominion(models.Model):
 
                     self.perk_dict["book_of_grudges"][str(dominion.id)]["animosity"] = round(self.perk_dict["book_of_grudges"][str(dominion.id)]["animosity"], rounding)
 
+        if "mining_depth" in self.perk_dict:
+            miners = Unit.objects.get(ruler=self, name="Miner")
+            self.perk_dict["mining_depth"] += miners.quantity_at_home
+
         if "inquisition_ticks_left" in self.perk_dict and self.perk_dict["inquisition_ticks_left"] > 0:
             sinners = Resource.objects.get(ruler=self, name="sinners")
             self.perk_dict["inquisition_ticks_left"] -= 1
@@ -667,9 +671,9 @@ class Round(models.Model):
 class Discovery(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
     description = models.CharField(max_length=500, null=True, blank=True)
-    requirement = models.CharField(max_length=50, null=True, blank=True)
     required_discoveries = models.JSONField(default=list, blank=True)
     required_faction_name = models.CharField(max_length=50, null=True, blank=True)
+    other_requirements_dict = models.JSONField(default=dict, blank=True)
     not_for_factions = models.JSONField(default=list, blank=True)
     associated_unit_name = models.CharField(max_length=50, null=True, blank=True)
 

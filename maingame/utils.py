@@ -228,6 +228,9 @@ def update_trade_prices():
 
 def get_grudge_bonus(my_dominion: Dominion, other_dominion: Dominion):
     try:
+        # Offense gets calculated as 1 + this
+        # 0.003 gets added to animosity per page, which makes sense as it's +0.003% per page
+        # X animosity is +X% OP, so we need to turn 0.003 into 0.00003 because that's how percents work
         return my_dominion.perk_dict["book_of_grudges"][str(other_dominion.id)]["animosity"] / 100
     except:
         return 0
@@ -259,8 +262,8 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Bastion"))
         case "Zombies":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Zombie"))
-        case "Butcher":
-            print("Implement spells, silly")
+        # case "Butcher":
+        #     print("Implement spells, silly")
         case "Archmage":
             archmage = give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Archmage"))
             archmage.quantity_at_home = 1
@@ -273,6 +276,9 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             grudgestoker.quantity_at_home = 1
             grudgestoker.save()
             dominion.has_tick_units = True
+        case "Miners":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Miner"))
+            dominion.perk_dict["mining_depth"] = 0
         # case "Gem Mines":
         #     give_dominion_building(dominion, Building.objects.get(ruler=None, name="mine"))
         case "Living Saints":
