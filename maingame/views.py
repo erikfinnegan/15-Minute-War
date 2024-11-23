@@ -396,8 +396,7 @@ def trade(request):
     if not Resource.objects.filter(ruler=dominion, name=input_resource_name).exists() or not Resource.objects.filter(ruler=dominion, name=output_resource_name).exists():
         messages.error(request, f"You don't have access to that resource")
         return redirect("resources")
-
-    if input_resource_name == output_resource_name:
+    elif input_resource_name == output_resource_name:
         messages.error(request, f"You can't trade a resource for itself")
         return redirect("resources")
 
@@ -409,6 +408,10 @@ def trade(request):
 
     input_resource = Resource.objects.get(ruler=dominion, name=input_resource_name)
     output_resource = Resource.objects.get(ruler=dominion, name=output_resource_name)
+
+    if amount > input_resource.quantity:
+        messages.error(request, f"You can't trade more {input_resource_name} than you have")
+        return redirect("resources")
 
     credit = round.trade_price_dict[input_resource.name] * amount
     payout = int((credit / round.trade_price_dict[output_resource.name]) * 0.9)

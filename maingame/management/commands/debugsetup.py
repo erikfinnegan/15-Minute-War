@@ -16,7 +16,7 @@ class Command(BaseCommand):
         # my_faction_name = "blessed order"
         my_faction_name = "dwarf"
 
-        my_starting_resource_quantity = 1620000
+        my_starting_resource_quantity = 1000
 
         print("Generating stuff...")
 
