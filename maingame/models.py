@@ -338,6 +338,8 @@ class Dominion(models.Model):
                 corpses.quantity += sinners_killed
                 corpses.save()
 
+            sinners.save()
+
         if "The Deep Angels" in self.learned_discoveries:
             deep_angels = Unit.objects.get(ruler=self, name="Deep Angel")
             stoneshields = Unit.objects.get(ruler=self, name="Stoneshield")
@@ -349,8 +351,6 @@ class Dominion(models.Model):
 
             stoneshields.save()
             deep_apostles.save()
-
-            sinners.save()
                 
     def do_tick(self):
         self.do_resource_production()
