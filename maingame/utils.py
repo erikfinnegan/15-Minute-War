@@ -81,7 +81,7 @@ def update_available_discoveries(dominion: Dominion):
 
     for discovery in Discovery.objects.all():
         if discovery.name not in dominion.learned_discoveries and discovery.name not in dominion.available_discoveries and meets_discovery_requirements(dominion, discovery):
-            dominion.available_discoveries.append(discovery.name)
+            dominion.available_discoveries.insert(0, discovery.name)
             new_discoveries.append(discovery.name)
 
     dominion.save()
@@ -303,6 +303,9 @@ def unlock_discovery(dominion: Dominion, discovery_name):
         case "Mithril":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Steelbreaker"))
             give_dominion_building(dominion, Building.objects.get(ruler=None, name="mithril mine"))
+        case "The Deep Angels":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Deep Angel"))
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Deep Apostle"))
         # case "Gem Mines":
         #     give_dominion_building(dominion, Building.objects.get(ruler=None, name="mine"))
         case "Living Saints":

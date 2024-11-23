@@ -325,7 +325,7 @@ class Dominion(models.Model):
 
         if "mining_depth" in self.perk_dict:
             miners = Unit.objects.get(ruler=self, name="Miner")
-            self.perk_dict["mining_depth"] += miners.quantity_at_home
+            self.perk_dict["mining_depth"] += miners.quantity_at_home * miners.perk_dict["cm_dug_per_tick"]
 
         if "inquisition_ticks_left" in self.perk_dict and self.perk_dict["inquisition_ticks_left"] > 0:
             sinners = Resource.objects.get(ruler=self, name="sinners")
@@ -337,6 +337,18 @@ class Dominion(models.Model):
                 corpses = Resource.objects.get(ruler=self, name="corpses")
                 corpses.quantity += sinners_killed
                 corpses.save()
+
+        if "The Deep Angels" in self.learned_discoveries:
+            deep_angels = Unit.objects.get(ruler=self, name="Deep Angel")
+            stoneshields = Unit.objects.get(ruler=self, name="Stoneshield")
+            deep_apostles = Unit.objects.get(ruler=self, name="Deep Apostle")
+
+            max_converts = min(stoneshields.quantity_at_home, deep_angels.quantity_at_home)
+            stoneshields.quantity_at_home -= max_converts
+            deep_apostles.quantity_at_home += max_converts
+
+            stoneshields.save()
+            deep_apostles.save()
 
             sinners.save()
                 
@@ -530,6 +542,12 @@ class Unit(models.Model):
                 perk_text += f"Takes half as many casualties. "
             else:
                 perk_text += f"Takes {multiplier}x as many casualties. "
+
+        if "converts_apostles" in self.perk_dict:
+            perk_text += "Converts one Stoneshield to a Deep Apostle every tick. "
+
+        if "cm_dug_per_tick" in self.perk_dict:
+            perk_text += "Digs 1cm per tick. "
 
         return perk_text
     

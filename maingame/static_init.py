@@ -200,7 +200,7 @@ def initialize_units():
             "gold": 3,
             "food": 1,
         },
-        perk_dict={"ore_per_tick": 3},
+        perk_dict={"ore_per_tick": 3, "cm_dug_per_tick": 1},
     )
     Unit.objects.create(
         name="Steelbreaker",
@@ -214,6 +214,30 @@ def initialize_units():
             "gold": 3,
             "food": 1,
         },
+        perk_dict={"casualty_multiplier": 0.5},
+    )
+    Unit.objects.create(
+        name="Deep Angel",
+        op=151,
+        dp=151,
+        cost_dict={
+            "mana": 33469,
+            "mithril": 23197,
+        },
+        upkeep_dict={
+            "mithril": 773,
+        },
+        perk_dict={"immortal": True, "converts_apostles": True},
+    )
+    Unit.objects.create(
+        name="Deep Apostle",
+        op=7,
+        dp=11,
+        upkeep_dict={
+            "gold": 3,
+            "food": 1,
+        },
+        is_trainable=False,
         perk_dict={"casualty_multiplier": 0.5},
     )
 
@@ -518,6 +542,12 @@ def initialize_discoveries():
         required_faction_name="dwarf",
         associated_unit_name="Steelbreaker",
         required_perk_dict={"mining_depth": 250000},
+    )
+
+    Discovery.objects.create(
+        name="The Deep Angels",
+        description="Praise the depths and honor the deep angels beneath. They shall bless their apostles with mithril and their enemies with a merciful death.",
+        required_perk_dict={"mining_depth": 500000},
     )
 
     Discovery.objects.create(

@@ -17,6 +17,15 @@
     </details>
     <p>Ticks to next discovery: {{ active_dominion.ticks_to_next_discovery }}</p>
     <p>Discoveries available: {{ active_dominion.discoveries_to_make }}</p>
+    {% if active_dominion.faction_name == "dwarf" and "mining_depth" in active_dominion.perk_dict %}
+        <p>Your miners have dug {{ depth }} deep.</p>
+        {% if active_dominion.perk_dict.mining_depth >= 200000 %}
+        <p>It's getting very dark down here.</p>
+        {% endif %}
+        {% if active_dominion.perk_dict.mining_depth >= 400000 %}
+        <p><em>And something else is down here with you.</em></p>
+        {% endif %}
+    {% endif %}
 
     <form action="{% url 'submit_discovery' %}" method="post" class="">
         {% csrf_token %}

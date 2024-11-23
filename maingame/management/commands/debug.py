@@ -1,3 +1,4 @@
+from random import randint
 from django.core.management.base import BaseCommand
 
 from maingame.models import UserSettings, Resource, Round, Event, Dominion

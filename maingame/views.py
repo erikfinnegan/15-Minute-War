@@ -102,8 +102,23 @@ def discoveries(request):
     for discovery_name in dominion.available_discoveries:
         available_discoveries.append(Discovery.objects.get(name=discovery_name))
 
+    depth = ""
+
+    if "mining_depth" in dominion.perk_dict:
+        cm = dominion.perk_dict["mining_depth"]
+        m = cm / 100
+        km = m / 1000
+
+        if km >= 1:
+            depth = f"{round(km, 1):2,} kilometers"
+        elif m >= 1:
+            depth = f"{round(m, 1):2,} meters"
+        else:
+            depth = f"{cm} centimeters"
+
     context = {
         "available_discoveries": available_discoveries,
+        "depth": depth,
     }
     
     return render(request, "maingame/discoveries.html", context)
