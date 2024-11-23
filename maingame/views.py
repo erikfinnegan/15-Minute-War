@@ -401,7 +401,7 @@ def trade(request):
         messages.error(request, f"You can't trade a resource for itself")
         return redirect("resources")
 
-    untradable_resources = ["corpses", "faith"]
+    untradable_resources = ["corpses", "faith", "mithril"]
 
     if input_resource_name in untradable_resources or output_resource_name in untradable_resources:
         messages.error(request, f"You can't trade that resource.")
@@ -883,13 +883,8 @@ def experimentation(request):
         messages.error(request, f"Go swim in a cesspool")
         return redirect("resources")
     
-    cost_multiplier = 1
-    
-    for _ in range(dominion.perk_dict["experiment_cost_coefficient"]):
-        cost_multiplier *= 1.01
-
-    research_cost = int(dominion.perk_dict["experiment_cost_dict"]["research_per_acre"] * dominion.acres * cost_multiplier)
-    sludge_cost = int(dominion.perk_dict["experiment_cost_dict"]["sludge_per_acre"] * dominion.acres * cost_multiplier)
+    research_cost = int(dominion.perk_dict["experiment_cost_dict"]["research_per_acre"] * dominion.acres)
+    sludge_cost = int(dominion.perk_dict["experiment_cost_dict"]["sludge_per_acre"] * dominion.acres)
 
     experimental_units = []
 
@@ -924,13 +919,8 @@ def generate_experiment(request):
         messages.error(request, f"Go swim in a cesspool")
         return redirect("resources")
     
-    cost_multiplier = 1
-    
-    for _ in range(dominion.perk_dict["experiment_cost_coefficient"]):
-        cost_multiplier *= 1.01
-
-    experiment_research_cost = int(dominion.perk_dict["experiment_cost_dict"]["research_per_acre"] * dominion.acres * cost_multiplier)
-    experiment_sludge_cost = int(dominion.perk_dict["experiment_cost_dict"]["sludge_per_acre"] * dominion.acres * cost_multiplier)
+    experiment_research_cost = int(dominion.perk_dict["experiment_cost_dict"]["research_per_acre"] * dominion.acres)
+    experiment_sludge_cost = int(dominion.perk_dict["experiment_cost_dict"]["sludge_per_acre"] * dominion.acres)
 
     players_research = Resource.objects.get(ruler=dominion, name="research")
     players_sludge = Resource.objects.get(ruler=dominion, name="sludge")
@@ -1128,7 +1118,6 @@ def generate_experiment(request):
     }
 
     dominion.perk_dict["experiments_done"] += 1
-    dominion.perk_dict["experiment_cost_coefficient"] += 12
     dominion.save()
 
     return redirect("experimentation")

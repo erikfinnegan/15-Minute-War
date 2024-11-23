@@ -37,6 +37,9 @@ def initialize_resources():
         {
             "name": "sinners",
         },
+        {
+            "name": "mithril",
+        },
     ]
 
     for resource_template in resource_templates:
@@ -53,12 +56,12 @@ def initialize_buildings():
         {
             "name": "quarry",
             "resource_produced_name": "ore",
-            "amount_produced": 50,
+            "amount_produced": 70,
         },
         {
             "name": "lumberyard",
             "resource_produced_name": "wood",
-            "amount_produced": 100,
+            "amount_produced": 85,
         },
         {
             "name": "school",
@@ -72,7 +75,7 @@ def initialize_buildings():
         {
             "name": "tower",
             "resource_produced_name": "mana",
-            "amount_produced": 10,
+            "amount_produced": 50,
         },
         # {
         #     "name": "mine",
@@ -83,6 +86,11 @@ def initialize_buildings():
             "name": "cesspool",
             "resource_produced_name": "sludge",
             "amount_produced": 60,
+        },
+        {
+            "name": "mithril mine",
+            "resource_produced_name": "mithril",
+            "amount_produced": 30,
         },
     ]
 
@@ -146,7 +154,7 @@ def initialize_units():
         dp=6,
         cost_dict={
             "gold": 1200,
-            "ore": 525,
+            "ore": 700,
         },
         upkeep_dict={
             "gold": 3,
@@ -160,7 +168,7 @@ def initialize_units():
         dp=4,
         cost_dict={
             "gold": 1250,
-            "ore": 600,
+            "ore": 800,
         },
         upkeep_dict={
             "gold": 3,
@@ -186,13 +194,27 @@ def initialize_units():
         dp=3,
         cost_dict={
             "gold": 700,
-            "ore": 250,
+            "ore": 400,
         },
         upkeep_dict={
             "gold": 3,
             "food": 1,
         },
         perk_dict={"ore_per_tick": 3},
+    )
+    Unit.objects.create(
+        name="Steelbreaker",
+        op=12,
+        dp=8,
+        cost_dict={
+            "gold": 2000,
+            "mithril": 2000,
+        },
+        upkeep_dict={
+            "gold": 3,
+            "food": 1,
+        },
+        perk_dict={"casualty_multiplier": 0.5},
     )
 
     blessed_order = Faction.objects.get(name="blessed order")
@@ -217,7 +239,7 @@ def initialize_units():
         dp=5,
         cost_dict={
             "gold": 1150,
-            "ore": 550,
+            "ore": 750,
         },
         upkeep_dict={
             "gold": 3,
@@ -245,7 +267,7 @@ def initialize_units():
         cost_dict={
             "gold": 9000,
             "faith": 8000,
-            "mana": 2500,
+            "mana": 7000,
         },
         upkeep_dict={
             "faith": 10,
@@ -258,7 +280,7 @@ def initialize_units():
         dp=7,
         cost_dict={
             "gold": 2250,
-            "ore": 3600,
+            "ore": 4600,
             "sinners": 1,
         },
         upkeep_dict={
@@ -274,11 +296,11 @@ def initialize_units():
         dp=10,
         cost_dict={
             "faith": 2000,
-            "mana": 300,
+            "mana": 1000,
             "corpses": 1,
         },
         upkeep_dict={
-            "mana": 0.1,
+            "mana": 0.3,
         },
     )
     Unit.objects.create(
@@ -286,9 +308,9 @@ def initialize_units():
         op=0,
         dp=300,
         cost_dict={
-            "gold": 22500,
+            "gold": 21500,
             "faith": 10000,
-            "ore": 65000,
+            "ore": 85000,
         },
         upkeep_dict={
             "faith": 10,
@@ -301,7 +323,7 @@ def initialize_units():
         dp=0,
         cost_dict={
             "faith": 250,
-            "mana": 250,
+            "mana": 750,
         },
         perk_dict={"always_dies_on_offense": True}
     )
@@ -328,10 +350,10 @@ def initialize_units():
         dp=0,
         cost_dict={
             "wood": 5000,
-            "ore": 3000,
+            "ore": 4000,
         },
         upkeep_dict={
-            "wood": 3,
+            "wood": 4,
         },
     )
     Unit.objects.create(
@@ -339,7 +361,7 @@ def initialize_units():
         op=0,
         dp=5,
         cost_dict={
-            "wood": 2150,
+            "wood": 1900,
         },
         upkeep_dict={
             "wood": 5,
@@ -350,7 +372,7 @@ def initialize_units():
         op=0,
         dp=30,
         cost_dict={
-            "ore": 10000,
+            "ore": 14000,
         },
     )
     Unit.objects.create(
@@ -358,11 +380,11 @@ def initialize_units():
         op=4,
         dp=3,
         cost_dict={
-            "mana": 300,
+            "mana": 1000,
             "corpses": 1,
         },
         upkeep_dict={
-            "mana": 0.1,
+            "mana": 0.3,
         },
     )
     Unit.objects.create(
@@ -381,7 +403,7 @@ def initialize_units():
         op=9,
         dp=0,
         cost_dict={
-            "mana": 250,
+            "mana": 750,
         },
         perk_dict={"always_dies_on_offense": True}
     )
@@ -422,6 +444,11 @@ def initialize_spells():
 
 
 def initialize_discoveries():
+    Discovery.objects.create(
+        name="Prosperity",
+        description="Increases gold per acre by 1. Can be taken multiple times.",
+    )
+
     Discovery.objects.create(
         name="Battering Rams",
         description="Allows for the creation of a powerful offensive unit costing wood and ore.",
@@ -483,6 +510,14 @@ def initialize_discoveries():
         description="Industrious dwarves who dig ever deeper in search of valuable ore. Who knows what they might find if they dig deep enough...",
         required_faction_name="dwarf",
         associated_unit_name="Miner",
+    )
+
+    Discovery.objects.create(
+        name="Mithril",
+        description="Having dug very deep, your miners discover mithril deposits. Construct mithril mines to gather it and equip mighty Steelbreakers to crush your enemies.",
+        required_faction_name="dwarf",
+        associated_unit_name="Steelbreaker",
+        required_perk_dict={"mining_depth": 250000},
     )
 
     Discovery.objects.create(
@@ -567,7 +602,7 @@ def initialize_trade_prices():
     round.resource_bank_dict["gold"] = 0
 
     for building in Building.objects.all():
-        if building.amount_produced > 0:
+        if building.amount_produced > 0 and building.resource_produced_name not in ["corpses", "mithril", "faith"]:
             round.resource_bank_dict[building.resource_produced_name] = 0
 
     round.save()

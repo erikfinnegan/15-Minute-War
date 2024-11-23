@@ -53,8 +53,8 @@ class Dominion(models.Model):
     building_primary_cost_per_acre = models.IntegerField(default=100)
     building_secondary_cost_per_acre = models.IntegerField(default=50)
 
-    upgrade_cost = models.IntegerField(default=10000)
-    upgrade_exponent = models.FloatField(default=1.03, null=True, blank=True)
+    upgrade_cost = models.IntegerField(default=50000)
+    upgrade_exponent = models.FloatField(default=1.01, null=True, blank=True)
     
     perk_dict = models.JSONField(default=dict, blank=True)
     faction_name = models.CharField(max_length=50, null=True, blank=True)
@@ -340,9 +340,6 @@ class Dominion(models.Model):
 
             sinners.save()
                 
-        if "experiment_cost_coefficient" in self.perk_dict and self.perk_dict["experiment_cost_coefficient"] > 0:
-            self.perk_dict["experiment_cost_coefficient"] -= 1
-
     def do_tick(self):
         self.do_resource_production()
         self.advance_land_returning()
@@ -520,9 +517,10 @@ class Unit(models.Model):
         if "immortal" in self.perk_dict:
             perk_text += "Does not die in combat. "
 
-        if "faith_per_tick" in self.perk_dict:
-            faith_produced = self.perk_dict["faith_per_tick"]
-            perk_text += f"Produces {faith_produced} faith per tick. "
+        for resource in Resource.objects.filter(ruler=None):
+            if f"{resource.name}_per_tick" in self.perk_dict:
+                amount_produced = self.perk_dict[f"{resource.name}_per_tick"]
+                perk_text += f"Produces {amount_produced} {resource.name} per tick. "
 
         if "casualty_multiplier" in self.perk_dict:
             multiplier = self.perk_dict["casualty_multiplier"]
@@ -677,6 +675,7 @@ class Discovery(models.Model):
     description = models.CharField(max_length=500, null=True, blank=True)
     required_discoveries = models.JSONField(default=list, blank=True)
     required_faction_name = models.CharField(max_length=50, null=True, blank=True)
+    required_perk_dict = models.JSONField(default=dict, blank=True)
     other_requirements_dict = models.JSONField(default=dict, blank=True)
     not_for_factions = models.JSONField(default=list, blank=True)
     associated_unit_name = models.CharField(max_length=50, null=True, blank=True)

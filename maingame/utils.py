@@ -1,6 +1,6 @@
 from random import randint, choice
 
-from maingame.models import Unit, Dominion, Discovery, Building, Deity, Event, Round, Faction, Resource, Spell, UserSettings
+from maingame.models import Unit, Dominion, Discovery, Building, Event, Round, Faction, Resource, Spell, UserSettings
 from django.contrib.auth.models import User
 from django.db.models import Q
 
@@ -33,7 +33,6 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
             "research_per_acre": 100,
             "sludge_per_acre": 18,
         }
-        dominion.perk_dict["experiment_cost_coefficient"] = 0
         dominion.perk_dict["custom_units"] = 0
         dominion.perk_dict["max_custom_units"] = 3
         dominion.perk_dict["experiments_done"] = 0
@@ -64,6 +63,14 @@ def meets_discovery_requirements(dominion: Dominion, discovery: Discovery):
 
     for requirement in discovery.required_discoveries:
         if requirement not in dominion.learned_discoveries:
+            return False
+    
+    for perk, required_value in discovery.required_perk_dict.items():
+        if perk not in dominion.perk_dict:
+            return False
+        elif required_value == True and dominion.perk_dict[perk] == False:
+            return False
+        elif required_value > dominion.perk_dict[perk]:
             return False
 
     return True
@@ -262,7 +269,12 @@ def unlock_discovery(dominion: Dominion, discovery_name):
     
     dominion.learned_discoveries.append(discovery_name)
 
+    can_take_multiple_times = False
+
     match discovery_name:
+        case "Prosperity":
+            dominion.primary_resource_per_acre += 1
+            can_take_multiple_times = True
         case "Battering Rams":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Battering Ram"))
         case "Palisades":
@@ -288,6 +300,9 @@ def unlock_discovery(dominion: Dominion, discovery_name):
         case "Miners":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Miner"))
             dominion.perk_dict["mining_depth"] = 0
+        case "Mithril":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Steelbreaker"))
+            give_dominion_building(dominion, Building.objects.get(ruler=None, name="mithril mine"))
         # case "Gem Mines":
         #     give_dominion_building(dominion, Building.objects.get(ruler=None, name="mine"))
         case "Living Saints":
@@ -313,6 +328,9 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             dominion.perk_dict["max_custom_units"] = 6
         case "Recycling Center":
             dominion.perk_dict["recycling_refund"] = 0.9
+
+    if not can_take_multiple_times:
+        dominion.available_discoveries.remove(discovery_name)
 
     message = update_available_discoveries(dominion)
     dominion.save()

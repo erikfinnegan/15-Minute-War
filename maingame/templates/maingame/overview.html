@@ -98,6 +98,20 @@
         <div style="display: none;">
             <input type="submit" name="prevent-enter-submit" onclick="return false;">
         </div>
+
+        {% comment %} <marquee
+            direction="down"
+            width="1000"
+            height="150"
+            behavior="alternate"
+            style="border:solid">
+            <marquee behavior="alternate"><span id="bigscreen-time" class="u-center font-bold">
+                <button class="btn-danger mt-1 w-24 h-6 p-0 u-center" type="submit">
+                    <span id="invadeButtonText" class="font-bold">Invade</span>
+                </button></span>
+            </marquee>
+        </marquee> {% endcomment %}
+
         <button class="btn-danger mt-1 w-24 h-6 p-0 u-center" type="submit">
             <span id="invadeButtonText" class="font-bold">Invade</span>
         </button>
@@ -272,6 +286,7 @@
                         <th>10</th>
                         <th>11</th>
                         <th>12</th>
+                        <th>Total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -291,6 +306,7 @@
                             <td class="u-align-middle">{{ unit.returning_dict.10|no_zeroes|intcomma }}</td>
                             <td class="u-align-middle">{{ unit.returning_dict.11|no_zeroes|intcomma }}</td>
                             <td class="u-align-middle">{{ unit.returning_dict.12|no_zeroes|intcomma }}</td>
+                            <td class="u-align-middle">{{ unit.quantity_returning|no_zeroes|intcomma }}</td>
                         </tr>
                     {% endif %}
                     {% endfor %}
@@ -320,6 +336,7 @@
                         <th>10</th>
                         <th>11</th>
                         <th>12</th>
+                        <th>Total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -338,6 +355,7 @@
                         <td class="u-align-middle">{{ dominion.incoming_acres_dict.10|no_zeroes|intcomma }}</td>
                         <td class="u-align-middle">{{ dominion.incoming_acres_dict.11|no_zeroes|intcomma }}</td>
                         <td class="u-align-middle">{{ dominion.incoming_acres_dict.12|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres|no_zeroes|intcomma }}</td>
                     </tr>
                     {% endif %}
                 </tbody>
@@ -367,6 +385,7 @@
                         <th>10</th>
                         <th>11</th>
                         <th>12</th>
+                        <th>Total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -386,6 +405,7 @@
                             <td class="u-align-middle">{{ unit.training_dict.10|no_zeroes|intcomma }}</td>
                             <td class="u-align-middle">{{ unit.training_dict.11|no_zeroes|intcomma }}</td>
                             <td class="u-align-middle">{{ unit.training_dict.12|no_zeroes|intcomma }}</td>
+                            <td class="u-align-middle">{{ unit.quantity_in_training|no_zeroes|intcomma }}</td>
                         </tr>
                     {% endif %}
                     {% endfor %}
