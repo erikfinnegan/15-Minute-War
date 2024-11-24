@@ -24,82 +24,6 @@
 	</head>
 
     <style>
-        :root {
-        {% if active_user_settings.theme == "Mustard and blue" %}
-            --base_background: #003049;
-            --base_text: white;
-
-            --card_background: #181818;
-            --card_text: #edede9;
-
-            --header_background: #fca311;
-            --header_text: black;
-        {% elif active_user_settings.theme == "Blood and beige" %}
-            --base_background: #fdf0d5;
-            --base_text: black;
-
-            --card_background: #003049;
-            --card_text: white;
-
-            --header_background: #780000;
-            --header_text: white;
-        {% elif active_user_settings.theme == "It's a boy" %}
-            --base_background: #caf0f8;
-            --base_text: black;
-
-            --card_background: #003049;
-            --card_text: white;
-
-            --header_background: #0077b6;
-            --header_text: white;
-        {% elif active_user_settings.theme == "Elesh Norn" %}
-            --base_background: #800020;
-            --base_text: white;
-
-            --card_background: #334149;
-            --card_text: white;
-
-            --header_background: #fffff0;
-            --header_text: black;
-        {% elif active_user_settings.theme == "Swampy" %}
-            --base_background: #59a96a;
-            --base_text: white;
-
-            --card_background: #636940;
-            --card_text: white;
-
-            --header_background: #474a2c;
-            --header_text: white;
-        {% elif active_user_settings.theme == "OpenDominion" %}
-            --base_background: white;
-            --base_text: black;
-
-            --card_background: #ecf0f5;
-            --card_text: black;
-
-            --header_background: #3c8dbc;
-            --header_text: white;
-        {% elif active_user_settings.theme == "ODA" %}
-            --base_background: white;
-            --base_text: black;
-
-            --card_background: #ecf0f5;
-            --card_text: black;
-
-            --header_background: #dd4b39;
-            --header_text: white;
-        {% else %}
-            --base_background: white;
-            --base_text: black;
-
-            --card_background: #ecf0f5;
-            --card_text: black;
-
-            --header_background: #3c8dbc;
-            --header_text: white;
-        {% endif %}
-        }
-
         .base_colors {
             background: {{ active_user_settings.used_theme.base_background }};
             color: {{ active_user_settings.used_theme.base_text }};
@@ -131,6 +55,11 @@
                 color: {{ active_user_settings.used_theme.base_text }};
             }
             font-weight: bold;
+        }
+
+        input {
+            background: {{ active_user_settings.used_theme.input_background }};
+            color: {{ active_user_settings.used_theme.input_text }};
         }
 
         .table {

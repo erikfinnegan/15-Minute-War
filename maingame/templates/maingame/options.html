@@ -38,26 +38,50 @@
                     <label for="head" class="u-center">Card text</label>
                 </div>
             </div>
+            <div class="u-flex u-flex-column u-gap-1">
+                <div class="u-flex u-flex-row">
+                    <input type="color" id="input_background" name="input_background" value="{{ current_theme.input_background }}" class="w-12" oninput="updatePreview()"/>
+                    <label for="head" class="u-center">Input background</label>
+                </div>
+                <div class="u-flex u-flex-row">
+                    <input type="color" id="input_text" name="input_text" value="{{ current_theme.input_text }}" class="w-12" oninput="updatePreview()"/>
+                    <label for="head" class="u-center">Input text</label>
+                </div>
+            </div>
+        </div>
 
-            <div class="card card_colors u-shadow-xl p-1">
-                <div class="h-16 w-24 u-flex u-flex-column text-xs" id="base-preview" style="background: {{ current_theme.base_background }}; color: {{ current_theme.base_text }};">
-                    <div class="u-flex u-flex-row u-gap-2 h-4 pl-4" id="header-preview" style="background: {{ current_theme.header_background }}; color: {{ current_theme.header_text }};">
-                        <span id="gold-preview" style="color: {{ current_theme.header_text }}">Gold: 123</span>
-                        <span id="ore-preview" style="color: {{ current_theme.header_text }}">Ore: 50</span>
+        <div class="card card_colors u-shadow-xl p-1" style="width: fit-content;">
+            <div class="h-16 w-24 u-flex u-flex-column text-xs" id="base-preview" style="background: {{ current_theme.base_background }}; color: {{ current_theme.base_text }};">
+                <div class="u-flex u-flex-row u-gap-2 h-4 pl-4" id="header-preview" style="background: {{ current_theme.header_background }}; color: {{ current_theme.header_text }};">
+                    <span id="gold-preview" style="color: {{ current_theme.header_text }}">Gold: 123</span>
+                    <span id="ore-preview" style="color: {{ current_theme.header_text }}">Ore: 50</span>
+                </div>
+                <div class="u-flex u-flex-row">
+                    <div class="u-flex u-flex-column w-4 h-12" id="sidebar-preview" style="background: {{ current_theme.header_background }}; color: {{ current_theme.header_color }};">
+                        <span id="menu-a-preview" style="color: {{ current_theme.header_text }}">Menu</span>
+                        <span id="menu-b-preview" style="color: {{ current_theme.header_text }}">Items</span>
+                        <span id="menu-c-preview" style="color: {{ current_theme.header_text }}">Here</span>
                     </div>
-                    <div class="u-flex u-flex-row">
-                        <div class="u-flex u-flex-column w-4 h-12" id="sidebar-preview" style="background: {{ current_theme.header_background }}; color: {{ current_theme.header_color }};">
-                            <span id="menu-a-preview" style="color: {{ current_theme.header_text }}">Menu</span>
-                            <span id="menu-b-preview" style="color: {{ current_theme.header_text }}">Items</span>
-                            <span id="menu-c-preview" style="color: {{ current_theme.header_text }}">Here</span>
-                        </div>
-                        <div class="px-1 u-flex u-flex-column u-gap-1">
-                            <span class="font-bold">Units</span>
-                            <div class="h-3 w-12 px-1" id="card-preview-a" style="background: {{ current_theme.card_background }}; color: {{ current_theme.card_text }};">
-                                Defender 2/6
+                    <div class="px-1 u-flex u-flex-column">
+                        <span class="font-bold">Units</span>
+
+                        <div class="u-flex u-flex-row u-gap-1">
+                            <div class="u-flex u-flex-column u-gap-1">
+                                <div class="h-3 w-8 px-1" id="card-preview-a" style="background: {{ current_theme.card_background }}; color: {{ current_theme.card_text }};">
+                                    Orc 2/6
+                                </div>
+                                <div class="h-3 w-8 px-1" id="card-preview-b" style="background: {{ current_theme.card_background }}; color: {{ current_theme.card_text }};">
+                                    Elf 5/3
+                                </div>
                             </div>
-                            <div class="h-3 w-12 px-1" id="card-preview-b" style="background: {{ current_theme.card_background }}; color: {{ current_theme.card_text }};">
-                                Attacker 5/3
+
+                            <div class="u-flex u-flex-column u-gap-1">
+                                <div class="h-3 w-8 px-1 u-border-1" id="input-preview-a" style="background: {{ current_theme.input_background }}; color: {{ current_theme.input_text }};">
+                                    123
+                                </div>
+                                <div class="h-3 w-8 px-1 u-border-1" id="input-preview-b" style="background: {{ current_theme.input_background }}; color: {{ current_theme.input_text }};">
+                                    456
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -88,12 +112,17 @@
                 let cardPreviewA = document.getElementById("card-preview-a");
                 let cardPreviewB = document.getElementById("card-preview-b");
 
+                let inputPreviewA = document.getElementById("input-preview-a");
+                let inputPreviewB = document.getElementById("input-preview-b");
+
                 let headerBackground = document.getElementById("header_background").value;
                 let headerText = document.getElementById("header_text").value;
                 let baseBackground = document.getElementById("base_background").value;
                 let baseText = document.getElementById("base_text").value;
                 let cardBackground = document.getElementById("card_background").value;
                 let cardText = document.getElementById("card_text").value;
+                let inputBackground = document.getElementById("input_background").value;
+                let inputText = document.getElementById("input_text").value;
 
                 headerPreview.style.background = headerBackground
                 headerPreview.style.color = headerText
@@ -112,6 +141,11 @@
                 cardPreviewA.style.color = cardText
                 cardPreviewB.style.background = cardBackground
                 cardPreviewB.style.color = cardText
+
+                inputPreviewA.style.background = inputBackground
+                inputPreviewA.style.color = inputText
+                inputPreviewB.style.background = inputBackground
+                inputPreviewB.style.color = inputText
             }
         </script>
 

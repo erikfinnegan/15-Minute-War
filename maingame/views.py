@@ -816,6 +816,8 @@ def submit_options(request):
     base_text = request.POST["base_text"]
     card_background = request.POST["card_background"]
     card_text = request.POST["card_text"]
+    input_background = request.POST["input_background"]
+    input_text = request.POST["input_text"]
 
     try:
         my_theme = Theme.objects.get(creator_user_settings_id=user_settings.id)
@@ -829,6 +831,8 @@ def submit_options(request):
             header_text=header_text,
             card_background=card_background,
             card_text=card_text,
+            input_background=input_background,
+            input_text=input_text,   
         )
 
     if (
@@ -839,22 +843,27 @@ def submit_options(request):
             base_background != selected_theme.base_background or
             base_text != selected_theme.base_text or
             card_background != selected_theme.card_background or
-            card_text != selected_theme.card_text
+            card_text != selected_theme.card_text or
+            input_background != selected_theme.input_background or
+            input_text != selected_theme.input_text
         )
     ):
-        print("abc")
         my_theme.header_background = header_background
         my_theme.header_text = header_text
         my_theme.base_background = base_background
         my_theme.base_text = base_text
         my_theme.card_background = card_background
         my_theme.card_text = card_text
+        my_theme.input_background = input_background
+        my_theme.input_text = input_text
         my_theme.save()
         user_settings.theme_model = my_theme
+        print("abc")
     else:
         print("def")
         user_settings.theme_model = selected_theme
 
+    print("input_background", input_background)
     user_settings.save()
     messages.success(request, "Options saved")
     return redirect("options")

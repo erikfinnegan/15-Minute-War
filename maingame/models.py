@@ -31,6 +31,9 @@ class Theme(models.Model):
     card_background = models.CharField(max_length=50, default="#000000")
     card_text = models.CharField(max_length=50, default="#FFFFFF")
 
+    input_background = models.CharField(max_length=50, default="#FFFFFF")
+    input_text = models.CharField(max_length=50, default="#000000")
+
     def __str__(self):
         return f"{self.name}"
 
