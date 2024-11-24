@@ -36,10 +36,3 @@
 {% else %}
     <span class="mx-1 pt-4 font-bold">The round does not have a planned start time yet.</span>
 {% endif %}
-
-<form action="{% url 'logout' %}" method="post" class="mt-8">
-    {% csrf_token %}
-    <button type="submit" class="px-1 py-0 w-12 h-4 base_colors">
-        <span class="font-bold">Log out</span>
-    </button>
-</form>
