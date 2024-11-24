@@ -13,7 +13,7 @@ from django.db.models import Q
 from maingame.formatters import create_or_add_to_key
 from maingame.models import Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings
 from maingame.tick_processors import do_global_tick
-from maingame.utils import abandon_dominion, delete_dominion, get_acres_conquered, get_grudge_bonus, initialize_dominion, prune_buildings, round_x_to_nearest_y, unlock_discovery, update_trade_prices, cast_spell
+from maingame.utils import abandon_dominion, delete_dominion, get_acres_conquered, get_grudge_bonus, initialize_dominion, prune_buildings, round_x_to_nearest_y, unlock_discovery, cast_spell
 
 
 def index(request):
@@ -102,8 +102,23 @@ def discoveries(request):
     for discovery_name in dominion.available_discoveries:
         available_discoveries.append(Discovery.objects.get(name=discovery_name))
 
+    depth = ""
+
+    if "mining_depth" in dominion.perk_dict:
+        cm = dominion.perk_dict["mining_depth"]
+        m = cm / 100
+        km = m / 1000
+
+        if km >= 1:
+            depth = f"{round(km, 1):2,} kilometers"
+        elif m >= 1:
+            depth = f"{round(m, 1):2,} meters"
+        else:
+            depth = f"{cm} centimeters"
+
     context = {
         "available_discoveries": available_discoveries,
+        "depth": depth,
     }
     
     return render(request, "maingame/discoveries.html", context)
@@ -133,8 +148,11 @@ def submit_discovery(request):
         return redirect("discoveries")
     else:
         dominion.discovery_points -= 50
-        unlock_discovery(dominion, discovery_name)
+        new_discoveries_message = unlock_discovery(dominion, discovery_name)
         messages.success(request, f"Discovered {discovery_name}")
+        
+        if new_discoveries_message:
+            messages.success(request, f"New discoveries unlocked: {new_discoveries_message}")
 
     return redirect("discoveries")
 
@@ -329,7 +347,6 @@ def resources(request):
     round = Round.objects.first()
     resources_dict = {}
     dominion_resource_total_dict = {}
-    
 
     for resource in Resource.objects.filter(ruler=dominion):
         if not resource.name == "corpses":
@@ -343,21 +360,28 @@ def resources(request):
 
             resources_dict[resource.name]["net"] = resources_dict[resource.name]["produced"] - resources_dict[resource.name]["consumed"]
 
-    update_trade_prices()
     trade_price_dict = round.trade_price_dict
     trade_price_data = {}
+    my_tradeable_price_data = {}
 
     for resource_name, price in trade_price_dict.items():
+        trade_price_data[resource_name] = {
+            "name": resource_name,
+            "price": int(price * 10),
+            "difference": int((price / round.base_price_dict[resource_name]) * 100)
+        }
+
         if Resource.objects.filter(ruler=dominion, name=resource_name).exists():
-            trade_price_data[resource_name] = {
-                "name": Resource.objects.get(ruler=dominion, name=resource_name).name,
-                "price": int(price * 10),
-                "difference": int((price / round.base_price_dict[resource_name]) * 100)
-            }
+            my_tradeable_price_data[resource_name] = {
+            "name": resource_name,
+            "price": int(price * 10),
+            "difference": int((price / round.base_price_dict[resource_name]) * 100)
+        }
 
     context = {
         "resources_dict": resources_dict,
         "trade_price_data": trade_price_data,
+        "my_tradeable_price_data": my_tradeable_price_data,
         "resources_dict_json": json.dumps(resources_dict),
         "dominion_resources_json": json.dumps(dominion_resource_total_dict),
         "trade_price_json": json.dumps(trade_price_dict),
@@ -384,11 +408,14 @@ def trade(request):
     amount = int(request.POST["resourceAmount"])
     output_resource_name = request.POST["outputResource"]
 
-    if input_resource_name == output_resource_name:
+    if not Resource.objects.filter(ruler=dominion, name=input_resource_name).exists() or not Resource.objects.filter(ruler=dominion, name=output_resource_name).exists():
+        messages.error(request, f"You don't have access to that resource")
+        return redirect("resources")
+    elif input_resource_name == output_resource_name:
         messages.error(request, f"You can't trade a resource for itself")
         return redirect("resources")
 
-    untradable_resources = ["corpses", "faith"]
+    untradable_resources = ["corpses", "faith", "mithril"]
 
     if input_resource_name in untradable_resources or output_resource_name in untradable_resources:
         messages.error(request, f"You can't trade that resource.")
@@ -396,6 +423,10 @@ def trade(request):
 
     input_resource = Resource.objects.get(ruler=dominion, name=input_resource_name)
     output_resource = Resource.objects.get(ruler=dominion, name=output_resource_name)
+
+    if amount > input_resource.quantity:
+        messages.error(request, f"You can't trade more {input_resource_name} than you have")
+        return redirect("resources")
 
     credit = round.trade_price_dict[input_resource.name] * amount
     payout = int((credit / round.trade_price_dict[output_resource.name]) * 0.9)
@@ -406,15 +437,22 @@ def trade(request):
     output_resource.quantity += payout
     output_resource.save()
 
-    round.resource_bank_dict[input_resource.name] += amount
-    round.resource_bank_dict[output_resource.name] -= payout
+    input_total_production = 0
+    output_total_production = 0
+    dominion_count = 0
+
+    for dominion in Dominion.objects.all():
+        input_total_production += dominion.get_production(input_resource_name)
+        output_total_production += dominion.get_production(output_resource_name)
+        dominion_count += 1
+
+    round.resource_bank_dict[input_resource.name] += min(amount, 24 * int(input_total_production / dominion_count))
+    round.resource_bank_dict[output_resource.name] -= min(amount, 24 * int(output_total_production / dominion_count))
     round.save()
 
     dominion.last_sold_resource_name = input_resource.name
     dominion.last_bought_resource_name = output_resource.name
     dominion.save()
-
-    update_trade_prices()
 
     messages.success(request, f"Traded {amount:2,} {input_resource.name} for {payout:2,} {output_resource.name}")
     return redirect("resources")
@@ -663,6 +701,19 @@ def overview(request, dominion_id):
         if discovery.name in dominion.learned_discoveries:
             learned_discoveries.append(discovery)
 
+    resources_dict = {}
+
+    for resource in Resource.objects.filter(ruler=dominion):
+        if not resource.name == "corpses":
+            resources_dict[resource.name] = {
+                "name": resource.name,
+                "quantity": resource.quantity,
+                "produced": dominion.get_production(resource.name),
+                "consumed": dominion.get_consumption(resource.name),
+            }
+
+            resources_dict[resource.name]["net"] = resources_dict[resource.name]["produced"] - resources_dict[resource.name]["consumed"]
+
     if "book_of_grudges" in dominion.perk_dict and my_dominion.protection_ticks_remaining == 0 and my_dominion.id != dominion_id:
         if str(my_dominion.id) in dominion.perk_dict["book_of_grudges"]:
             dominion.perk_dict["book_of_grudges"][str(my_dominion.id)]["pages"] += 1
@@ -673,16 +724,24 @@ def overview(request, dominion_id):
         
         dominion.save()
 
+    battles_with_this_dominion = Battle.objects.filter(attacker=dominion) | Battle.objects.filter(defender=dominion)
+
     context = {
         "dominion": dominion,
+        "other_dominions": Dominion.objects.filter(is_abandoned=False, protection_ticks_remaining=0).order_by('protection_ticks_remaining', '-acres'),
         "units": units,
         "buildings": buildings,
         "resources": resources,
+        "resources_dict": resources_dict,
         "my_units": my_units,
         "offense_multiplier": my_dominion.offense_multiplier + get_grudge_bonus(my_dominion, dominion),
+        "raw_defense": my_dominion.raw_defense,
+        "defense_multiplier": my_dominion.defense_multiplier,
+        "minimum_defense_left": my_dominion.acres * 5,
         "spells": Spell.objects.filter(ruler=dominion),
         "learned_discoveries": learned_discoveries,
-        "acres_conquered": get_acres_conquered(my_dominion, dominion)
+        "acres_conquered": get_acres_conquered(my_dominion, dominion),
+        "battles_with_this_dominion": battles_with_this_dominion,
     }
 
     return render(request, "maingame/overview.html", context)
@@ -740,7 +799,7 @@ def submit_options(request):
     
     user_settings.display_name = request.POST["display_name"]
     user_settings.theme = request.POST["theme"]
-    user_settings.show_tutorials = "show_tutorials" in request.POST
+    # user_settings.show_tutorials = "show_tutorials" in request.POST
     user_settings.use_am_pm = "use_am_pm" in request.POST
     user_settings.timezone = request.POST["timezone"]
     user_settings.save()
@@ -786,7 +845,7 @@ def tutorial(request):
 
 
 @login_required
-def church_declarations(request):
+def church_affairs(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
     except:
@@ -799,18 +858,17 @@ def church_declarations(request):
     if dominion.perk_dict["inquisition_rate"] > 0:
         sinners_per_tick = -1 * dominion.perk_dict["inquisition_rate"]
     else:
-        sinners_per_tick = dominion.perk_dict.get("sinners_per_hundred_acres_per_tick")
+        sinners_per_tick = dominion.get_production("sinners")
 
-    sinners = dominion.perk_dict.get("sinners")
+    sinners = Resource.objects.get(ruler=dominion, name="sinners").quantity
 
     context = {
         "inquisition_ticks_left": dominion.perk_dict["inquisition_ticks_left"],
-        "crusade_ticks_left": dominion.perk_dict["crusade_ticks_left"],
         "sinners_per_tick": sinners_per_tick,
         "sinners": sinners,
     }
     
-    return render(request, "maingame/church_declarations.html", context)
+    return render(request, "maingame/church_affairs.html", context)
 
 
 @login_required
@@ -822,33 +880,14 @@ def submit_inquisition(request):
     
     if Round.objects.first().has_ended:
         messages.error(request, f"The round has already ended")
-        return redirect("church_declarations")
+        return redirect("church_affairs")
     
-    dominion.perk_dict["inquisition_rate"] = math.ceil(dominion.perk_dict["sinners"] / 24)
+    dominion.perk_dict["inquisition_rate"] = math.ceil(Resource.objects.get(ruler=dominion, name="sinners").quantity / 24)
     dominion.perk_dict["inquisition_ticks_left"] = 24
     dominion.save()
 
     messages.success(request, "The inquisition has begun.")
-    return redirect("church_declarations")
-
-
-@login_required
-def submit_crusade(request):
-    try:
-        dominion = Dominion.objects.get(associated_user=request.user)
-    except:
-        return redirect("register")
-    
-    if Round.objects.first().has_ended:
-        messages.error(request, f"The round has already ended")
-        return redirect("church_declarations")
-    
-    dominion.perk_dict["crusade_ticks_left"] = 24
-    dominion.perk_dict["martyr_cost"] = 2000
-    dominion.save()
-
-    messages.success(request, "The crusade has begun.")
-    return redirect("church_declarations")
+    return redirect("church_affairs")
 
 
 @login_required
@@ -862,25 +901,23 @@ def experimentation(request):
         messages.error(request, f"Go swim in a cesspool")
         return redirect("resources")
     
-    cost_multiplier = 1
-    
-    for _ in range(dominion.perk_dict["experiment_cost_coefficient"]):
-        cost_multiplier *= 1.01
-
-    research_cost = int(dominion.perk_dict["experiment_cost_dict"]["research_per_acre"] * dominion.acres * cost_multiplier)
-    sludge_cost = int(dominion.perk_dict["experiment_cost_dict"]["sludge_per_acre"] * dominion.acres * cost_multiplier)
+    research_cost = int(dominion.perk_dict["experiment_cost_dict"]["research_per_acre"] * dominion.acres)
+    sludge_cost = int(dominion.perk_dict["experiment_cost_dict"]["sludge_per_acre"] * dominion.acres)
 
     experimental_units = []
 
     for unit in Unit.objects.filter(ruler=dominion):
         if "sludge" in unit.cost_dict:
             experimental_units.append(unit)
+
+    latest_experiment_unit = Unit.objects.filter(id=dominion.perk_dict["latest_experiment_id"]).first()
     
     context = {
         "research_cost": research_cost,
         "sludge_cost": sludge_cost,
         "allow_new_experiments": dominion.perk_dict["custom_units"] < dominion.perk_dict["max_custom_units"],
         "latest_experiment": dominion.perk_dict["latest_experiment"],
+        "latest_experiment_unit": latest_experiment_unit,
         "experimental_units": experimental_units,
         "has_experimental_units": dominion.perk_dict["custom_units"] > 0,
     }
@@ -903,13 +940,8 @@ def generate_experiment(request):
         messages.error(request, f"Go swim in a cesspool")
         return redirect("resources")
     
-    cost_multiplier = 1
-    
-    for _ in range(dominion.perk_dict["experiment_cost_coefficient"]):
-        cost_multiplier *= 1.01
-
-    experiment_research_cost = int(dominion.perk_dict["experiment_cost_dict"]["research_per_acre"] * dominion.acres * cost_multiplier)
-    experiment_sludge_cost = int(dominion.perk_dict["experiment_cost_dict"]["sludge_per_acre"] * dominion.acres * cost_multiplier)
+    experiment_research_cost = int(dominion.perk_dict["experiment_cost_dict"]["research_per_acre"] * dominion.acres)
+    experiment_sludge_cost = int(dominion.perk_dict["experiment_cost_dict"]["sludge_per_acre"] * dominion.acres)
 
     players_research = Resource.objects.get(ruler=dominion, name="research")
     players_sludge = Resource.objects.get(ruler=dominion, name="sludge")
@@ -917,6 +949,12 @@ def generate_experiment(request):
     if experiment_research_cost > players_research.quantity or experiment_sludge_cost > players_sludge.quantity:
         messages.error(request, f"You can't afford this experiment")
         return redirect("experimentation")
+    
+    try:
+        old_experiment = Unit.objects.get(id=dominion.perk_dict["latest_experiment_id"])
+        old_experiment.delete()
+    except:
+        pass
     
     players_research.quantity -= experiment_research_cost
     players_research.save()
@@ -932,7 +970,7 @@ def generate_experiment(request):
     high_op = False
     high_dp = False
 
-    bonus_roll = randint(1,5)
+    bonus_roll = randint(1,6)
     low_gold_cost = bonus_roll == 1
     low_sludge_cost = bonus_roll == 2
     low_upkeep = bonus_roll == 3
@@ -947,7 +985,7 @@ def generate_experiment(request):
         high_op = second_bonus_roll == 4 or high_op
         high_dp = second_bonus_roll == 5 or high_dp
 
-    malus_roll = randint(1,5)
+    malus_roll = randint(1,6)
     high_gold_cost = malus_roll == 1
     high_sludge_cost = malus_roll == 2
     high_upkeep = malus_roll == 3
@@ -1006,17 +1044,58 @@ def generate_experiment(request):
     elif low_dp:
         dp = int(dp/2)
 
-    gold_cost = max(op * 1.3, dp) * 150
-    sludge_cost = max(op * 1.3, dp) * 67
+    perk_dict = {}
+    has_perks = False
 
-    bad_turtle_multiplier = (op / 200) / dp
+    if "Speedlings" in dominion.learned_discoveries and randint(1,100) <= 33:
+        perk_dict["returns_in_ticks"] = 8
+        has_perks = True
+    
+    # Toughlings and Cheaplings modify the same perk, so we randomize which order to check in because we're too lazy to do this intelligently
+    if randint(1,2) == 1:
+        if "Cheaplings" in dominion.learned_discoveries and randint(1,100) <= 33:
+            perk_dict["casualty_multiplier"] = 2
+            has_perks = True
+
+        if "Toughlings" in dominion.learned_discoveries and randint(1,100) <= 33:
+            perk_dict["casualty_multiplier"] = 0.5
+            has_perks = True
+    else:
+        if "Toughlings" in dominion.learned_discoveries and randint(1,100) <= 33:
+            perk_dict["casualty_multiplier"] = 0.5
+            has_perks = True
+
+        if "Cheaplings" in dominion.learned_discoveries and randint(1,100) <= 33:
+            perk_dict["casualty_multiplier"] = 2
+            has_perks = True
+
+    cost_type = random.choice(["gold", "other", "hybrid"])
+    cost_basis_power = max(op * 1.3, dp)
+    is_offensive_unit = cost_basis_power != dp
+
+    goldunit_gold_cost = (cost_basis_power * 300) - 600
+    goldunit_sludge_cost = cost_basis_power * 70 * 1.5
+    otherunit_sludge_cost = (cost_basis_power * 6 * 70) - (10 * 70)
+
+    if cost_basis_power < 3:
+        goldunit_gold_cost = cost_basis_power * 100
+        otherunit_sludge_cost = cost_basis_power * 186
+
+    if cost_type == "gold":
+        gold_cost = goldunit_gold_cost
+        sludge_cost = goldunit_sludge_cost
+    elif cost_type == "other":
+        gold_cost = 0
+        sludge_cost = otherunit_sludge_cost
+    else:
+        gold_cost = int(goldunit_gold_cost / 2)
+        sludge_cost = int((goldunit_sludge_cost + otherunit_sludge_cost) / 2)
+
+    dont_divide_by_zero = 1 if dp == 0 else dp
+    bad_turtle_multiplier = (op / 200) / dont_divide_by_zero
 
     if op > (dp * 2):
         gold_cost *= 1 - (bad_turtle_multiplier)
-
-    for _ in range(max(op,dp)):
-        gold_cost *= 1.05
-        sludge_cost *= 1.05
 
     multiplier = randint(1,15)
     high_mult = 1 + (multiplier/100)
@@ -1032,6 +1111,31 @@ def generate_experiment(request):
     elif low_sludge_cost:
         sludge_cost = int(sludge_cost * low_mult)
 
+    if "returns_in_ticks" in perk_dict:
+        multiplier_base = randint(10, 20) / 100
+        gold_cost *= 1 + multiplier_base
+        sludge_cost *= 1 + multiplier_base
+
+    if "casualty_multiplier" in perk_dict:
+        casualty_based_multiplier = 1
+
+        if perk_dict["casualty_multiplier"] == 2:
+            if is_offensive_unit:
+                dp_op_ratio = dp / op
+                base_discount = int(randint(40, 50) * (1 - dp_op_ratio))
+                casualty_based_multiplier = min((1 - (base_discount / 100)), randint(90, 95))
+            else:
+                casualty_based_multiplier = randint(90, 95) / 100
+        elif perk_dict["casualty_multiplier"] == 0.5:
+            if is_offensive_unit:
+                casualty_based_multiplier = 1 + randint(20, 30) / 100
+            else:
+                casualty_based_multiplier = 1 + randint(5, 10) / 100
+
+        gold_cost *= casualty_based_multiplier
+        sludge_cost *= casualty_based_multiplier
+
+    # No more cost modifiers after this. It's time to start rounding off.
     if gold_cost > 1000:
         gold_cost = round_x_to_nearest_y(gold_cost, 50)
     else:
@@ -1084,22 +1188,66 @@ def generate_experiment(request):
         name = random.choice(["sludger", "oozeling", "gooper", "marshling", "sogger", "squishling", "slimezoid", "pudling", "swamper", "snotling",
                               "slurpling", "slopling", "dampling", "grossling", "slurpazoid"])
 
-    gold_per_op = int(gold_cost / op)
-    gold_per_dp = int(gold_cost / dp)
+    if op == 0:
+        gold_per_op = 0
+    else:
+        gold_per_op = int(gold_cost / op)
+
+    if dp == 0:
+        gold_per_dp = 0
+    else:
+        gold_per_dp = int(gold_cost / dp)
+
     op_per_normalized_upkeep = (op * 3) / upkeep_dict["gold"]
     dp_per_normalized_upkeep = (dp * 3) / upkeep_dict["gold"]
+
+    if gold_cost == 0:
+        cost_dict = {
+            "sludge": sludge_cost,
+        }
+    else:
+        cost_dict = {
+            "gold": gold_cost,
+            "sludge": sludge_cost,
+        }
+
+    timer_template = {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0,
+        "10": 0,
+        "11": 0,
+        "12": 0,
+    }
+
+    latest_experiment = Unit.objects.create(
+        name=name,
+        op=op,
+        dp=dp,
+        cost_dict=cost_dict,
+        upkeep_dict=upkeep_dict,
+        perk_dict=perk_dict,
+        training_dict=timer_template,
+        returning_dict=timer_template,
+    )
+
+    dominion.perk_dict["latest_experiment_id"] = latest_experiment.id
 
     dominion.perk_dict["latest_experiment"] = {
         "should_display": True,
         "name": name,
         "op": op,
         "dp": dp,
-        "cost_dict": {
-            "gold": gold_cost,
-            "sludge": sludge_cost,
-        },
+        "cost_dict": cost_dict,
         "upkeep_dict": upkeep_dict,
-        "perk_dict": {},
+        "perk_dict": perk_dict,
+        "has_perks": has_perks,
         "gold_per_op": gold_per_op,
         "gold_per_dp": gold_per_dp,
         "op_per_normalized_upkeep": op_per_normalized_upkeep,
@@ -1107,7 +1255,6 @@ def generate_experiment(request):
     }
 
     dominion.perk_dict["experiments_done"] += 1
-    dominion.perk_dict["experiment_cost_coefficient"] += 12
     dominion.save()
 
     return redirect("experimentation")
@@ -1134,6 +1281,12 @@ def approve_experiment(request):
     dominion.perk_dict["latest_experiment"]["should_display"] = False
     dominion.perk_dict["custom_units"] += 1
     dominion.save()
+
+    try:
+        old_experiment = Unit.objects.get(id=dominion.perk_dict["latest_experiment_id"])
+        old_experiment.delete()
+    except:
+        pass
 
     unit_data = dominion.perk_dict["latest_experiment"]
 
@@ -1191,8 +1344,8 @@ def terminate_experiment(request):
         messages.error(request, f"Can't terminate experiments while units are in training")
         return redirect("experimentation")
 
-    gold_refund = int(unit.quantity_at_home * unit.cost_dict["gold"] * 0.8)
-    sludge_refund = int(unit.quantity_at_home * unit.cost_dict["sludge"] * 0.8)
+    gold_refund = int(unit.quantity_at_home * unit.cost_dict["gold"] * dominion.perk_dict["recycling_refund"])
+    sludge_refund = int(unit.quantity_at_home * unit.cost_dict["sludge"] * dominion.perk_dict["recycling_refund"])
     
     gold = Resource.objects.get(ruler=dominion, name="gold")
     gold.quantity += gold_refund
@@ -1231,9 +1384,9 @@ def submit_invasion(request, dominion_id):
     if target_dominion.protection_ticks_remaining > 0 or my_dominion.protection_ticks_remaining > 0 or not round.has_started or round.has_ended or target_dominion.is_abandoned:
         messages.error(request, f"Illegal invasion")
         return redirect("overview", dominion_id=dominion_id)
-    
-    if "crusade_ticks_left" in my_dominion.perk_dict and my_dominion.perk_dict["crusade_ticks_left"] > 0:
-        my_dominion.perk_dict["crusade_ticks_left"] = 24
+    elif int(request.POST["dpLeftHidden"]) < my_dominion.acres * 5:
+        messages.error(request, f"You must leave at least {my_dominion.acres * 5} defense at home")
+        return redirect("overview", dominion_id=dominion_id)
 
     total_units_sent = 0
     units_sent_dict = {}
@@ -1278,6 +1431,7 @@ def submit_invasion(request, dominion_id):
         target_dominion.failed_defenses += 1
         target_dominion.save()
         my_dominion.successful_invasions += 1
+        my_dominion.determination = 0
         my_dominion.save()
 
         if "book_of_grudges" in target_dominion.perk_dict:
@@ -1363,9 +1517,18 @@ def submit_invasion(request, dominion_id):
             survivors = quantity_sent
         else:
             survivors = math.ceil(quantity_sent * offensive_survival)
+            deaths = quantity_sent - survivors
+
+            if "casualty_multiplier" in unit.perk_dict:
+                bonus_death_multiplier = unit.perk_dict["casualty_multiplier"] - 1
+                survivors -= (deaths * bonus_death_multiplier)
 
         if "always_dies_on_offense" in unit.perk_dict:
             survivors = 0
+        elif "faith_per_power_died" in my_dominion.perk_dict:
+            faith = Resource.objects.get(ruler=my_dominion, name="faith")
+            faith.quantity += deaths * unit.op * my_dominion.perk_dict["faith_per_power_died"]
+            faith.save()
 
         casualties = quantity_sent - survivors
 
@@ -1377,12 +1540,17 @@ def submit_invasion(request, dominion_id):
 
     # Apply defensive casualties
     for unit in Unit.objects.filter(ruler=target_dominion):
-        if "immortal" in unit.perk_dict:
+        if "immortal" in unit.perk_dict or unit.dp == 0:
             survivors = unit.quantity_at_home
         else:
             survivors = math.ceil(unit.quantity_at_home * defensive_survival)
 
         casualties = unit.quantity_at_home - survivors
+
+        if "faith_per_power_died" in target_dominion.perk_dict:
+            faith = Resource.objects.get(ruler=target_dominion, name="faith")
+            faith.quantity += deaths * unit.op * target_dominion.perk_dict["faith_per_power_died"]
+            faith.save()
 
         if "mana" not in unit.upkeep_dict and "mana" not in unit.cost_dict and "always_dies_on_offense" not in unit.perk_dict:
             defensive_casualties += casualties
@@ -1400,16 +1568,6 @@ def submit_invasion(request, dominion_id):
         faith.save()
         martyrs = Unit.objects.get(ruler=target_dominion, name="Blessed Martyr")
         martyrs.quantity_at_home += martyrs_gained
-        martyrs.save()
-
-    if attacker_victory and my_dominion.faction_name == "blessed order" and my_dominion.perk_dict["crusade_ticks_left"] > 0:
-        faith = Resource.objects.get(ruler=my_dominion, name="faith")
-        martyrs_affordable = int(faith.quantity / my_dominion.perk_dict["martyr_cost"])
-        martyrs_gained = min(martyrs_affordable, offensive_casualties)
-        faith.quantity -= my_dominion.perk_dict["martyr_cost"] * martyrs_gained
-        faith.save()
-        martyrs = Unit.objects.get(ruler=my_dominion, name="Blessed Martyr")
-        martyrs.returning_dict["12"] += martyrs_gained
         martyrs.save()
 
     if attacker_victory and Resource.objects.filter(ruler=my_dominion, name="corpses").exists():

@@ -25,14 +25,20 @@ def initialize_resources():
         {
             "name": "corpses",
         },
-        {
-            "name": "gems",
-        },
+        # {
+        #     "name": "gems",
+        # },
         {
             "name": "faith",
         },
         {
             "name": "sludge",
+        },
+        {
+            "name": "sinners",
+        },
+        {
+            "name": "mithril",
         },
     ]
 
@@ -50,12 +56,12 @@ def initialize_buildings():
         {
             "name": "quarry",
             "resource_produced_name": "ore",
-            "amount_produced": 50,
+            "amount_produced": 70,
         },
         {
             "name": "lumberyard",
             "resource_produced_name": "wood",
-            "amount_produced": 100,
+            "amount_produced": 85,
         },
         {
             "name": "school",
@@ -69,17 +75,22 @@ def initialize_buildings():
         {
             "name": "tower",
             "resource_produced_name": "mana",
-            "amount_produced": 10,
+            "amount_produced": 50,
         },
-        {
-            "name": "mine",
-            "resource_produced_name": "gems",
-            "amount_produced": 8,
-        },
+        # {
+        #     "name": "mine",
+        #     "resource_produced_name": "gems",
+        #     "amount_produced": 8,
+        # },
         {
             "name": "cesspool",
             "resource_produced_name": "sludge",
             "amount_produced": 60,
+        },
+        {
+            "name": "mithril mine",
+            "resource_produced_name": "mithril",
+            "amount_produced": 30,
         },
     ]
 
@@ -102,9 +113,9 @@ def initialize_factions():
         building_secondary_resource_name="wood",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"],
         description="""Dwarves keep a book of grudges, chronicling any slight against them, no matter how minor. When a dominion invades a dwarf, 100 pages of 
-        grudges are added. Every tick, dwarves gain +0.03% offense against each dominion equal to the number of pages of grudges they have about that dominion. It 
-        doesn't sound like much, but it adds up quick. When a dwarf invades another dominion, any grudges they have against that dominion are 
-        satisfied and cleared. Oh, and simply viewing a dwarf's overview page is enough to warrant one page of grudges."""
+        grudges are added about that dominion. Every tick, those grudges simmer and the dwarf's offense bonus against that dominion increases by 0.003% per page,
+        accumulating until the dwarf invades that player successfully. 0.003% may not sound like much, but it adds up quickly. Oh, and simply viewing a dwarf's 
+        overview page is enough to warrant one page of grudges."""
     )
 
     Faction.objects.create(
@@ -114,12 +125,10 @@ def initialize_factions():
         building_primary_resource_name="gold",
         building_secondary_resource_name="wood",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"],
-        description="""The priests of the Blessed Order generate faith, which is used to restore the vengeful spirits of warriors who fall defending
+        description="""The brothers of the Blessed Order generate faith, which is used to restore the vengeful spirits of warriors who fall defending
         their people. When they're invaded, any accumulated faith is spent to turn defensive casualties into blessed martyrs at the cost of 1,000 faith
         per martyr. However, one sinner appears per tick for each 100 acres and each drains 1 faith per tick until the order places their offense
-        on hold for 24 ticks to begin an inquisition to root them out. The Blessed Order may declare a crusade, which raises blessed martyrs from
-        offensive casualties as well, but doubles the cost of blessed martyrs and costs 1 faith per acre per tick. This crusade will last until
-        24 ticks pass without invading."""
+        # on hold for 24 ticks to begin an inquisition to root them out."""
     )
 
     Faction.objects.create(
@@ -137,15 +146,87 @@ def initialize_factions():
     )
 
 
-def initialize_units():
+def initialize_generic_units():
+    Unit.objects.create(
+        name="Battering Ram",
+        op=15,
+        dp=0,
+        cost_dict={
+            "wood": 5000,
+            "ore": 4000,
+        },
+        upkeep_dict={
+            "wood": 4,
+        },
+    )
+
+    Unit.objects.create(
+        name="Palisade",
+        op=0,
+        dp=5,
+        cost_dict={
+            "wood": 1900,
+        },
+        upkeep_dict={
+            "wood": 5,
+        },
+    )
+
+    Unit.objects.create(
+        name="Bastion",
+        op=0,
+        dp=30,
+        cost_dict={
+            "ore": 14000,
+        },
+    )
+
+    Unit.objects.create(
+        name="Zombie",
+        op=4,
+        dp=3,
+        cost_dict={
+            "mana": 1000,
+            "corpses": 1,
+        },
+        upkeep_dict={
+            "mana": 0.3,
+        },
+    )
+
+    Unit.objects.create(
+        name="Archmage",
+        op=0,
+        dp=0,
+        upkeep_dict={
+            "gold": 3,
+            "food": 1,
+        },
+        is_trainable=False,
+        perk_dict={"surplus_research_consumed_to_add_one_op_and_dp": 1200}
+    )
+
+    Unit.objects.create(
+        name="Fireball",
+        op=9,
+        dp=0,
+        cost_dict={
+            "mana": 750,
+        },
+        perk_dict={"always_dies_on_offense": True}
+    )
+
+
+def initialize_dwarf_units():
     dwarf = Faction.objects.get(name="dwarf")
+
     Unit.objects.create(
         name="Stoneshield",
         op=3,
         dp=6,
         cost_dict={
             "gold": 1200,
-            "ore": 450,
+            "ore": 700,
         },
         upkeep_dict={
             "gold": 3,
@@ -153,13 +234,14 @@ def initialize_units():
         },
         faction=dwarf
     )
+
     Unit.objects.create(
         name="Hammerer",
         op=5,
         dp=4,
         cost_dict={
-            "gold": 1300,
-            "ore": 500,
+            "gold": 1250,
+            "ore": 800,
         },
         upkeep_dict={
             "gold": 3,
@@ -167,6 +249,7 @@ def initialize_units():
         },
         faction=dwarf
     )
+
     Unit.objects.create(
         name="Grudgestoker",
         op=0,
@@ -180,14 +263,73 @@ def initialize_units():
         is_trainable=False,
     )
 
-    blessed_order = Faction.objects.get(name="blessed order")
     Unit.objects.create(
-        name="Priest",
+        name="Miner",
+        op=0,
+        dp=3,
+        cost_dict={
+            "gold": 700,
+            "ore": 400,
+        },
+        upkeep_dict={
+            "gold": 3,
+            "food": 1,
+        },
+        perk_dict={"ore_per_tick": 3, "cm_dug_per_tick": 1},
+    )
+
+    Unit.objects.create(
+        name="Steelbreaker",
+        op=12,
+        dp=8,
+        cost_dict={
+            "gold": 2000,
+            "mithril": 2000,
+        },
+        upkeep_dict={
+            "gold": 3,
+            "food": 1,
+        },
+        perk_dict={"casualty_multiplier": 0.5},
+    )
+
+    Unit.objects.create(
+        name="Deep Angel",
+        op=151,
+        dp=151,
+        cost_dict={
+            "mana": 33469,
+            "mithril": 23197,
+        },
+        upkeep_dict={
+            "mithril": 773,
+        },
+        perk_dict={"immortal": True, "converts_apostles": True},
+    )
+
+    Unit.objects.create(
+        name="Deep Apostle",
+        op=7,
+        dp=11,
+        upkeep_dict={
+            "gold": 3,
+            "food": 1,
+        },
+        is_trainable=False,
+        perk_dict={"casualty_multiplier": 0.5},
+    )
+
+
+def initialize_blessed_order_units():
+    blessed_order = Faction.objects.get(name="blessed order")
+
+    Unit.objects.create(
+        name="Blessed Brother",
         op=0,
         dp=2,
         cost_dict={
-            "gold": 400,
-            "research": 450,
+            "gold": 350,
+            "research": 350,
         },
         upkeep_dict={
             "gold": 3,
@@ -196,14 +338,14 @@ def initialize_units():
         perk_dict={"faith_per_tick": 1},
         faction=blessed_order,
     )
+
     Unit.objects.create(
         name="Novitiate",
         op=5,
         dp=5,
         cost_dict={
-            "gold": 1400,
-            "ore": 250,
-            "wood": 500,
+            "gold": 1150,
+            "ore": 750,
         },
         upkeep_dict={
             "gold": 3,
@@ -211,25 +353,29 @@ def initialize_units():
         },
         faction=blessed_order,
     )
+
     Unit.objects.create(
         name="Blessed Martyr",
         op=15,
-        dp=8,
+        dp=5,
         upkeep_dict={
             "faith": 1,
         },
-        perk_dict={"immortal": True},
+        perk_dict={
+            "immortal": True,
+        },
         is_trainable=False,
         faction=blessed_order,
     )
+
     Unit.objects.create(
         name="Living Saint",
         op=0,
         dp=100,
         cost_dict={
-            "gold": 12000,
-            "faith": 6000,
-            "mana": 2000,
+            "gold": 9000,
+            "faith": 8000,
+            "mana": 7000,
         },
         upkeep_dict={
             "faith": 10,
@@ -237,14 +383,74 @@ def initialize_units():
         },
     )
 
+    Unit.objects.create(
+        name="Penitent Engine",
+        op=19,
+        dp=7,
+        cost_dict={
+            "gold": 2250,
+            "ore": 4600,
+            "sinners": 1,
+        },
+        upkeep_dict={
+            "gold": 3,
+            "faith": 1,
+            "food": 1,
+        },
+        perk_dict={"casualty_multiplier": 2},
+    )
+
+    Unit.objects.create(
+        name="Wight",
+        op=12,
+        dp=10,
+        cost_dict={
+            "faith": 2000,
+            "mana": 1000,
+            "corpses": 1,
+        },
+        upkeep_dict={
+            "mana": 0.3,
+        },
+    )
+
+    Unit.objects.create(
+        name="Cathedral Titan",
+        op=0,
+        dp=300,
+        cost_dict={
+            "gold": 21500,
+            "faith": 10000,
+            "ore": 85000,
+        },
+        upkeep_dict={
+            "faith": 10,
+        },
+        perk_dict={"casualty_multiplier": 0.5},
+    )
+
+    Unit.objects.create(
+        name="Cremain Knight",
+        op=14,
+        dp=0,
+        cost_dict={
+            "faith": 250,
+            "mana": 750,
+        },
+        perk_dict={"always_dies_on_offense": True}
+    )
+
+
+def initialize_sludgeling_units():
     sludgeling = Faction.objects.get(name="sludgeling")
+
     Unit.objects.create(
         name="Dreg",
         op=0,
         dp=4,
         cost_dict={
-            "gold": 800,
-            "food": 600,
+            "gold": 550,
+            "food": 450,
         },
         upkeep_dict={
             "gold": 3,
@@ -253,66 +459,12 @@ def initialize_units():
         faction=sludgeling,
     )
 
-    Unit.objects.create(
-        name="Battering Ram",
-        op=15,
-        dp=0,
-        cost_dict={
-            "wood": 4000,
-            "ore": 2200,
-        },
-    )
-    Unit.objects.create(
-        name="Palisade",
-        op=0,
-        dp=5,
-        cost_dict={
-            "wood": 3000,
-        },
-        upkeep_dict={
-            "wood": 1,
-        },
-    )
-    Unit.objects.create(
-        name="Bastion",
-        op=0,
-        dp=30,
-        cost_dict={
-            "ore": 12000,
-        },
-    )
-    Unit.objects.create(
-        name="Zombie",
-        op=4,
-        dp=3,
-        cost_dict={
-            "mana": 100,
-            "corpses": 1,
-        },
-        upkeep_dict={
-            "mana": 0.1,
-        },
-    )
-    Unit.objects.create(
-        name="Archmagus",
-        op=0,
-        dp=0,
-        upkeep_dict={
-            "gold": 3,
-            "food": 1,
-        },
-        is_trainable=False,
-        perk_dict={"surplus_research_consumed_to_add_one_op_and_dp": 1300}
-    )
-    Unit.objects.create(
-        name="Fireball",
-        op=9,
-        dp=0,
-        cost_dict={
-            "mana": 250,
-        },
-        perk_dict={"always_dies_on_offense": True}
-    )
+
+def initialize_units():
+    initialize_generic_units()
+    initialize_dwarf_units()
+    initialize_blessed_order_units()
+    initialize_sludgeling_units()
 
     for unit in Unit.objects.all():
         give_unit_timer_template(unit)
@@ -349,21 +501,26 @@ def initialize_spells():
     )
 
 
-def initialize_discoveries():
+def initialize_generic_discoveries():
     Discovery.objects.create(
-        name="Battering Ram",
+        name="Prosperity",
+        description="Increases gold per acre by 1. Can be taken multiple times.",
+    )
+
+    Discovery.objects.create(
+        name="Battering Rams",
         description="Allows for the creation of a powerful offensive unit costing wood and ore.",
         associated_unit_name="Battering Ram"
     )
 
     Discovery.objects.create(
-        name="Palisade",
+        name="Palisades",
         description="Unlocks the ability to build cheap defenses using only wood.",
         associated_unit_name="Palisade",
     )
 
     Discovery.objects.create(
-        name="Bastion",
+        name="Bastions",
         description="A blueprint for building large fortifications out of ore.",
         associated_unit_name="Bastion",
     )
@@ -373,7 +530,6 @@ def initialize_discoveries():
         description="""Gain bodies from invasion casualties when you're victorious and use them to magically raise undead soldiers. Note that you don't get corpses from
         units with a mana cost or mana upkeep or units that always die on invasions.""",
         associated_unit_name="Zombie",
-        not_for_factions=["blessed order"]
     )
 
     # Discovery.objects.create(
@@ -383,46 +539,186 @@ def initialize_discoveries():
     # )
 
     Discovery.objects.create(
-        name="Archmagus",
-        description="""Gain the allegiance of a terrifyingly powerful sorcerer who will, each tick, consume 10% of any research points beyond your most 
-        expensive upgrade to gain 1 OP and DP per 1300 consumed.""",
-        associated_unit_name="Archmagus",
+        name="Archmage",
+        description="""Gain the allegiance of a terrifyingly powerful sorcerer who consumes half of your stockpiled research each tick, but leaves 
+        enough to afford your upgrades. Gains 1 OP and 1 DP per 1200 research consumed.""",
+        associated_unit_name="Archmage",
     )
 
     Discovery.objects.create(
-        name="Fireball",
+        name="Fireballs",
         description="Conjure massive fireballs to support your invasions.",
         associated_unit_name="Fireball",
     )
 
-    Discovery.objects.create(
-        name="Gem Mines",
-        description="Construct a new building to mine for precious gems. Produces 8 gems per tick. When trade values are determined, gems get a +30% bonus."
-    )
+    # Discovery.objects.create(
+    #     name="Gem Mines",
+    #     description="Construct a new building to mine for precious gems. Produces 8 gems per tick. When trade values are determined, gems get a +30% bonus."
+    # )
 
+
+def initialize_dwarf_discoveries():
     Discovery.objects.create(
         name="Grudgestoker",
         description="A holy scribe takes up residence with you and appends three pages to your book of grudges each tick.",
-        requirement="dwarf",
+        required_faction_name="dwarf",
         associated_unit_name="Grudgestoker",
     )
 
     Discovery.objects.create(
-        name="Living Saint",
+        name="Miners",
+        description="Industrious dwarves who dig ever deeper in search of valuable ore. Who knows what they might find if they dig deep enough...",
+        required_faction_name="dwarf",
+        associated_unit_name="Miner",
+    )
+
+    Discovery.objects.create(
+        name="Mithril",
+        description="Having dug very deep, your miners discover mithril deposits. Construct mithril mines to gather it and equip mighty Steelbreakers to crush your enemies.",
+        required_faction_name="dwarf",
+        associated_unit_name="Steelbreaker",
+        required_perk_dict={"mining_depth": 250000},
+    )
+
+    Discovery.objects.create(
+        name="The Deep Angels",
+        description="Praise the depths and honor the deep angels beneath. They shall bless their apostles with mithril and their enemies with a merciful death.",
+        required_perk_dict={"mining_depth": 500000},
+    )
+
+
+def initialize_blessed_order_discoveries():
+    Discovery.objects.create(
+        name="Living Saints",
         description="Pray for assistance from the incredible living saints.",
-        requirement="blessed order",
+        required_faction_name="blessed order",
         associated_unit_name="Living Saint",
     )
+
+    Discovery.objects.create(
+        name="Heresy",
+        description="Triples the number of sinners generated.",
+        required_faction_name="blessed order",
+    )
+
+    Discovery.objects.create(
+        name="Grim Sacrament",
+        description="Sinners killed by inquisition generate corpses.",
+        required_faction_name="blessed order",
+    )
+
+    Discovery.objects.create(
+        name="Wights",
+        description="Imbuing a dead body with a spirit other than its own creates a being of terrible power.",
+        required_faction_name="blessed order",
+        associated_unit_name="Wight",
+        required_discoveries=["Heresy", "Grim Sacrament", "Zombies"],
+    )
+
+    Discovery.objects.create(
+        name="Penitent Engines",
+        description="Deadly machines of war piloted by sinners given a chance for redemption through glorious death.",
+        required_faction_name="blessed order",
+        associated_unit_name="Penitent Engine",
+    )
+
+    Discovery.objects.create(
+        name="Cathedral Titans",
+        description="Towering masterworks driven by fervor given form.",
+        required_faction_name="blessed order",
+        associated_unit_name="Cathedral Titan",
+        required_discoveries=["Living Saints", "Penitent Engines", "Bastions"],
+    )
+
+    Discovery.objects.create(
+        name="Funerals",
+        description="Your casualties will be mourned, generating 10 faith per OP (on offense) or per DP (on defense).",
+        required_faction_name="blessed order",
+    )
+
+    Discovery.objects.create(
+        name="Cremain Knights",
+        description="Deceased spirits seeking absolution in fire before passing to the afterlife.",
+        required_faction_name="blessed order",
+        associated_unit_name="Cremain Knight",
+        required_discoveries=["Funerals", "Fireballs"],
+    )
+
+
+def initialize_sludgeling_discoveries():
+    Discovery.objects.create(
+        name="More Experiment Slots",
+        description="Provides an extra slot for experimental units, taking you from three to four.",
+        required_faction_name="sludgeling",
+    )
+
+    Discovery.objects.create(
+        name="Even More Experiment Slots",
+        description="Provides two more extra slots for experimental units, taking you from four to six.",
+        required_discoveries=["More Experiment Slots"],
+        required_faction_name="sludgeling",
+    )
+
+    Discovery.objects.create(
+        name="Recycling Center",
+        description="Increases refund for terminated experiments from 80% to 95%",
+        required_discoveries=["More Experiment Slots", "Even More Experiment Slots"],
+        required_faction_name="sludgeling",
+    )
+    
+    Discovery.objects.create(
+        name="Speedlings",
+        description="33% of experimental units will cost slightly more and gain the 'returns in 8 ticks' perk.",
+        required_faction_name="sludgeling",
+        required_discoveries=["More Experiment Slots"],
+    )
+
+    Discovery.objects.create(
+        name="Toughlings",
+        description="33% of experimental units will cost slightly more and gain the 'takes half as many casualties' perk.",
+        required_faction_name="sludgeling",
+        required_discoveries=["More Experiment Slots"],
+    )
+
+    Discovery.objects.create(
+        name="Cheaplings",
+        description="33% of experimental units will cost less and gain the 'takes twice as many casualties' perk.",
+        required_faction_name="sludgeling",
+        required_discoveries=["More Experiment Slots"],
+    )
+
+    Discovery.objects.create(
+        name="Magnum Goopus",
+        description="""Behold your glorious magnum goopus! At the time this is selected, combine all units at home with a sludge 
+            cost into a single unit with their combined offense and defense. Your incredible masterpiece requires no gold or sludge
+            upkeep, just one food per combined unit. If a unit with perks is included, it also 
+            gains those perks. You can still train more of those experimental units afterwards.""",
+        required_faction_name="sludgeling",
+        required_discoveries_or=["Speedlings", "Toughlings", "Cheaplings"],
+    )
+
+    Discovery.objects.create(
+        name="Encore",
+        description="""Another magnum goopus! ANOTHER!! Your fans love you and cannot get enough and you WILL NOT let them down!""",
+        required_faction_name="sludgeling",
+        required_discoveries=["Magnum Goopus", "Even More Experiment Slots"],
+    )
+
+
+def initialize_discoveries():
+    initialize_generic_discoveries()
+    initialize_dwarf_discoveries()
+    initialize_sludgeling_discoveries()
 
 
 def initialize_trade_prices():
     round = Round.objects.first()
+    round.resource_bank_dict["gold"] = 0
 
     for building in Building.objects.all():
-        if building.amount_produced > 0:
+        if building.amount_produced > 0 and building.resource_produced_name not in ["corpses", "mithril", "faith"]:
             round.resource_bank_dict[building.resource_produced_name] = 0
 
-    round.resource_bank_dict["gold"] = 0
     round.save()
     update_trade_prices()
     round.base_price_dict = round.trade_price_dict.copy()

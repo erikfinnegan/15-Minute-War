@@ -4,11 +4,12 @@
 {% block title %}Spells{% endblock %}
 
 {% block content %}
-{% if active_user_settings.show_tutorials %}
+<details class="accordion card card_colors max-w-md">
+    <summary class="accordion__summary">Tutorial notes</summary>
     <p>
         Spells have unique effects and a mana cost that scales with your acreage.
     </p>
-{% endif %}
+</details>
 <div class="u-flex u-flex-wrap">
     {% for spell in spells %}
     <div class="card card_colors px-1 pt-1 u-flex u-flex-column u-gap-1 w-64">

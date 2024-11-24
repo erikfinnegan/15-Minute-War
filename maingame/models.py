@@ -37,9 +37,10 @@ class Dominion(models.Model):
     has_unread_events = models.BooleanField(default=False)
     protection_ticks_remaining = models.IntegerField(default=72)
     complacency = models.IntegerField(default=0)
+    determination = models.IntegerField(default=0)
     has_tick_units = models.BooleanField(default=False)
     is_abandoned = models.BooleanField(default=False)
-    acres = models.IntegerField(default=100)
+    acres = models.IntegerField(default=500)
     incoming_acres_dict = models.JSONField(default=dict, blank=True)
     successful_invasions = models.IntegerField(default=0)
     failed_defenses = models.IntegerField(default=0)
@@ -52,8 +53,8 @@ class Dominion(models.Model):
     building_primary_cost_per_acre = models.IntegerField(default=100)
     building_secondary_cost_per_acre = models.IntegerField(default=50)
 
-    upgrade_cost = models.IntegerField(default=10000)
-    upgrade_exponent = models.FloatField(default=1.03, null=True, blank=True)
+    upgrade_cost = models.IntegerField(default=50000)
+    upgrade_exponent = models.FloatField(default=1.01, null=True, blank=True)
     
     perk_dict = models.JSONField(default=dict, blank=True)
     faction_name = models.CharField(max_length=50, null=True, blank=True)
@@ -90,25 +91,39 @@ class Dominion(models.Model):
         return True
 
     @property
-    def complacency_penalty_readout(self):
-        penalty = self.complacency / 2
+    def complacency_penalty_percent(self):
+        penalty = self.complacency * 0.33
 
         return penalty
+    
+    @property
+    def determination_bonus_percent(self):
+        bonus = self.determination * 0.33
+
+        return bonus
 
     @property
     def offense_multiplier(self):
-        return 1
-
+        return 1 + (self.determination_bonus_percent / 100)
+    
     @property
-    def defense(self):
+    def raw_defense(self):
         defense = 0
 
         for unit in Unit.objects.filter(ruler=self):
             defense += unit.quantity_at_home * unit.dp
 
-        multiplier = 1 - (self.complacency / 200)
+        return defense
+    
+    @property
+    def defense_multiplier(self):
+        multiplier = 1 - (self.complacency_penalty_percent / 100)
 
-        return max(0, int(defense * multiplier))
+        return multiplier
+
+    @property
+    def defense(self):
+        return max(0, int(self.raw_defense * self.defense_multiplier))
     
     @property
     def defense_short(self):
@@ -193,6 +208,10 @@ class Dominion(models.Model):
         return header_rows
     
     @property
+    def resource_types(self):
+        return Resource.objects.filter(ruler=self).count()
+
+    @property
     def ticks_to_next_discovery(self):
         return max(0, 50 - self.discovery_points % 50)
     
@@ -227,6 +246,17 @@ class Dominion(models.Model):
             if f"{resource_name}_per_tick" in unit.perk_dict:
                 production += unit.perk_dict[f"{resource_name}_per_tick"] * unit.quantity_at_home
 
+        if resource_name == "sinners" and "sinners_per_hundred_acres_per_tick" in self.perk_dict:
+            if "inquisition_ticks_left" in self.perk_dict and self.perk_dict["inquisition_ticks_left"] > 0:
+                return 0
+            
+            sinners_gained = int((self.acres / 100) * self.perk_dict["sinners_per_hundred_acres_per_tick"])
+
+            if random.randint(1,100) <= self.acres % 100:
+                sinners_gained += 1
+
+            production += sinners_gained
+
         return production
     
     def get_consumption(self, resource_name):
@@ -237,11 +267,12 @@ class Dominion(models.Model):
                 if resource_name == upkeep_resource_name:
                     consumption += int(unit.quantity_trained_and_alive * upkeep)
 
-        if resource_name == "faith" and "sinners" in self.perk_dict:
-            consumption += self.perk_dict["sinners"]
-
-        if resource_name == "faith" and "crusade_ticks_left" in self.perk_dict and self.perk_dict["crusade_ticks_left"] > 0:
-            consumption += self.acres
+        if resource_name == "faith":
+            try:
+                sinners = Resource.objects.get(ruler=self, name="sinners")
+                consumption += sinners.quantity
+            except:
+                pass
 
         return consumption
     
@@ -292,27 +323,35 @@ class Dominion(models.Model):
 
                     self.perk_dict["book_of_grudges"][str(dominion.id)]["animosity"] = round(self.perk_dict["book_of_grudges"][str(dominion.id)]["animosity"], rounding)
 
-        if "sinners_per_hundred_acres_per_tick" in self.perk_dict and "sinners" in self.perk_dict:
-            if "inquisition_ticks_left" in self.perk_dict and self.perk_dict["inquisition_ticks_left"] > 0:
-                self.perk_dict["sinners"] -= self.perk_dict["inquisition_rate"]
-                self.perk_dict["sinners"] = max(0, self.perk_dict["sinners"])
-                self.perk_dict["inquisition_ticks_left"] -= 1
+        if "mining_depth" in self.perk_dict:
+            miners = Unit.objects.get(ruler=self, name="Miner")
+            self.perk_dict["mining_depth"] += miners.quantity_at_home * miners.perk_dict["cm_dug_per_tick"]
 
-                if self.perk_dict["inquisition_ticks_left"] == 0:
-                    self.perk_dict["inquisition_rate"] = 0
-                    self.perk_dict["sinners"] = 0
-            elif self.protection_ticks_remaining == 0:
-                self.perk_dict["sinners"] += self.perk_dict["sinners_per_hundred_acres_per_tick"]
+        if "inquisition_ticks_left" in self.perk_dict and self.perk_dict["inquisition_ticks_left"] > 0:
+            sinners = Resource.objects.get(ruler=self, name="sinners")
+            self.perk_dict["inquisition_ticks_left"] -= 1
+            sinners_killed = sinners.quantity if self.perk_dict["inquisition_ticks_left"] == 0 else min(self.perk_dict["inquisition_rate"], sinners.quantity)
+            sinners.quantity -= sinners_killed
 
-        if "crusade_ticks_left" in self.perk_dict and self.perk_dict["crusade_ticks_left"] > 0:
-            self.perk_dict["crusade_ticks_left"] -= 1
+            if "inquisition_makes_corpses" in self.perk_dict:
+                corpses = Resource.objects.get(ruler=self, name="corpses")
+                corpses.quantity += sinners_killed
+                corpses.save()
 
-            if self.perk_dict["crusade_ticks_left"] == 0:
-                self.perk_dict["martyr_cost"] = 1000
+            sinners.save()
 
-        if "experiment_cost_coefficient" in self.perk_dict and self.perk_dict["experiment_cost_coefficient"] > 0:
-            self.perk_dict["experiment_cost_coefficient"] -= 1
+        if "The Deep Angels" in self.learned_discoveries:
+            deep_angels = Unit.objects.get(ruler=self, name="Deep Angel")
+            stoneshields = Unit.objects.get(ruler=self, name="Stoneshield")
+            deep_apostles = Unit.objects.get(ruler=self, name="Deep Apostle")
 
+            max_converts = min(stoneshields.quantity_at_home, deep_angels.quantity_at_home)
+            stoneshields.quantity_at_home -= max_converts
+            deep_apostles.quantity_at_home += max_converts
+
+            stoneshields.save()
+            deep_apostles.save()
+                
     def do_tick(self):
         self.do_resource_production()
         self.advance_land_returning()
@@ -325,6 +364,7 @@ class Dominion(models.Model):
         
         if self.protection_ticks_remaining == 0:
             self.complacency += 1
+            self.determination += 1
 
         if self.has_tick_units:
             do_tick_units(self)
@@ -346,6 +386,10 @@ class Resource(models.Model):
     @property
     def production(self):
         return self.ruler.get_production(self.name)
+    
+    @property
+    def net_production(self):
+        return self.ruler.get_production(self.name) - self.ruler.get_consumption(self.name)
 
 
 class Faction(models.Model):
@@ -470,10 +514,13 @@ class Unit(models.Model):
     @property
     def perk_text(self):
         perk_text = ""
+
+        if "is_glorious" in self.perk_dict:
+            perk_text += "My god, it's glorious. "
         
         if "surplus_research_consumed_to_add_one_op_and_dp" in self.perk_dict:
-            perk_text += f"""Consumes 10% of any research points beyond your most expensive upgrade each tick. Gains 1 OP and 1 DP per  
-            {self.perk_dict['surplus_research_consumed_to_add_one_op_and_dp']} consumed"""
+            perk_text += f"""Consumes half of your stockpiled research each tick, but leaves enough to afford your upgrades. Gains 1 OP and 1 DP per  
+            {self.perk_dict['surplus_research_consumed_to_add_one_op_and_dp']} consumed. """
 
         if "random_grudge_book_pages_per_tick" in self.perk_dict:
             pages_per_tick = self.perk_dict["random_grudge_book_pages_per_tick"]
@@ -485,9 +532,29 @@ class Unit(models.Model):
         if "immortal" in self.perk_dict:
             perk_text += "Does not die in combat. "
 
-        if "faith_per_tick" in self.perk_dict:
-            faith_produced = self.perk_dict["faith_per_tick"]
-            perk_text += f"Produces {faith_produced} faith per tick. "
+        for resource in Resource.objects.filter(ruler=None):
+            if f"{resource.name}_per_tick" in self.perk_dict:
+                amount_produced = self.perk_dict[f"{resource.name}_per_tick"]
+                perk_text += f"Produces {amount_produced} {resource.name} per tick. "
+
+        if "casualty_multiplier" in self.perk_dict:
+            multiplier = self.perk_dict["casualty_multiplier"]
+            if multiplier == 2:
+                perk_text += f"Takes twice as many casualties. "
+            elif multiplier == 0.5:
+                perk_text += f"Takes half as many casualties. "
+            else:
+                perk_text += f"Takes {multiplier}x as many casualties. "
+
+        if "converts_apostles" in self.perk_dict:
+            perk_text += "Converts one Stoneshield to a Deep Apostle every tick. "
+
+        if "cm_dug_per_tick" in self.perk_dict:
+            perk_text += "Digs 1cm per tick. "
+
+        if "returns_in_ticks" in self.perk_dict:
+            ticks_to_return = self.perk_dict["returns_in_ticks"]
+            perk_text += f"Returns from battle in {ticks_to_return} ticks. "
 
         return perk_text
     
@@ -577,6 +644,10 @@ class Event(models.Model):
             return battle.event_text
         elif self.reference_type == "signup":
             return self.message_override
+        elif self.reference_type == "abandon":
+            return self.message_override
+        elif self.message_override:
+            return self.message_override
         
         return "Unknown event type"
     
@@ -594,7 +665,7 @@ class Round(models.Model):
     resource_bank_dict = models.JSONField(default=dict, blank=True)
     start_time = models.DateTimeField(null=True, blank=True)
     ticks_passed = models.IntegerField(default=0)
-    ticks_to_end = models.IntegerField(default=0)
+    ticks_to_end = models.IntegerField(default=672)
 
     @property
     def allow_ticks(self):
@@ -621,13 +692,19 @@ class Round(models.Model):
         now = datetime.now(ZoneInfo('America/New_York'))
         minutes_left_in_current_tick = 15 - (now.minute % 15)
         minutes_left_in_remaining_full_ticks = (self.ticks_left - 1) * 15
-        return format_minutes(minutes_left_in_remaining_full_ticks + minutes_left_in_current_tick)
+        minutes_left_in_round = minutes_left_in_remaining_full_ticks + minutes_left_in_current_tick
+
+        return format_minutes(minutes_left_in_round)
         
 
 class Discovery(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
     description = models.CharField(max_length=500, null=True, blank=True)
-    requirement = models.CharField(max_length=50, null=True, blank=True)
+    required_discoveries = models.JSONField(default=list, blank=True)
+    required_discoveries_or = models.JSONField(default=list, blank=True)
+    required_faction_name = models.CharField(max_length=50, null=True, blank=True)
+    required_perk_dict = models.JSONField(default=dict, blank=True)
+    other_requirements_dict = models.JSONField(default=dict, blank=True)
     not_for_factions = models.JSONField(default=list, blank=True)
     associated_unit_name = models.CharField(max_length=50, null=True, blank=True)
 
@@ -675,11 +752,10 @@ def do_tick_units(dominion: Dominion):
                     for building in Building.objects.filter(ruler=dominion):
                         highest_upgrade_cost = max(highest_upgrade_cost, building.upgrade_cost)
 
-                    if research.quantity > highest_upgrade_cost + 10:
-                        surplus_research_points = research.quantity - highest_upgrade_cost
-                        consumable_research_points = int(surplus_research_points * 0.1)
-                        instances_consumed = int(consumable_research_points / value)
+                    consumable_research_points = min(int(research.quantity / 2), research.quantity - highest_upgrade_cost)
 
+                    if consumable_research_points >= value:
+                        instances_consumed = int(consumable_research_points / value)
                         research.quantity -= instances_consumed * value
                         unit.op += instances_consumed
                         unit.dp += instances_consumed

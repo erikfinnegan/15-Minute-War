@@ -6,10 +6,11 @@
 
 {% block content %}
 <div>
-    {% if active_user_settings.show_tutorials %}
-    <p>These are all the dominions at the moment. You can click the info button next to anyone's name to see an overview of their dominion.</p>
-    <p>When someone makes an invasion, the units they send take 12 ticks to return home, leaving them more vulnerable to attack in the meantime.</p>
-    {% endif %}
+    <details class="accordion card card_colors max-w-md">
+        <summary class="accordion__summary">Tutorial notes</summary>
+        <p>These are all the dominions at the moment. You can click the info button next to anyone's name to see an overview of their dominion.</p>
+        <p>When someone makes an invasion, the units they send take 12 ticks to return home, leaving them more vulnerable to attack in the meantime.</p>
+    </details>
 
     <div class="u-none u-block-md">
         <table class="table striped card_colors">
@@ -20,6 +21,8 @@
                     <th class="u-align-middle">Land</th>
                     <th class="u-align-middle">Faction</th>
                     <th class="u-align-middle">Defense</th>
+                    <th class="u-align-middle">Complacency</th>
+                    <th class="u-align-middle">Determination</th>
                     <th class="u-align-middle">Units Returning</th>
                     {% if "book_of_grudges" in active_dominion.perk_dict %}
                     <th class="u-align-middle">Book of Grudges</th>
@@ -35,13 +38,30 @@
                     <td class="u-align-middle tooltip tooltip--right" data-tooltip="{{ dominion.acres_with_incoming }}">
                         {{ dominion.acres }}{% if dominion.incoming_acres > 0 %} ({{ dominion.incoming_acres }}){% endif %}
                     </td>
+
+                    {% if dominion.faction_name == "dwarf" %}
+                    <td class="u-align-middle tooltip" 
+                        {% if active_dominion.strid in dominion.perk_dict.book_of_grudges %}
+                            data-tooltip="{{ dominion.perk_dict.book_of_grudges|getattr:active_dominion.strid|getattr:'pages' }} pages, 
+                            +{{ dominion.perk_dict.book_of_grudges|getattr:active_dominion.strid|getattr:"animosity"|floatformat:"1" }}% OP"
+                        {% else %}
+                            data-tooltip="No grudge against you"
+                        {% endif %}
+                    >
+                        {{ dominion.faction_name|title }}
+                    </td>
+                    {% else %}
                     <td class="u-align-middle">{{ dominion.faction_name|title }}</td>
+                    {% endif %}
 
                     <td class="u-align-middle">
                         <span class="u-center {% if dominion.protection_ticks_remaining > 0 or not round.has_started %}text-teal-400{% endif %}">
                             {% if dominion.protection_ticks_remaining == 0 and round.has_started %}{{ dominion.defense_short }}{% else %}Magical protection{% endif %}
                         </span>
                     </td>
+
+                    <td>-{{ dominion.complacency_penalty_percent|floatformat:0 }}% DP</td>
+                    <td>+{{ dominion.determination_bonus_percent|floatformat:0 }}% OP</td>
 
                     <td class="u-align-middle">
                         {% if dominion.has_units_returning %}

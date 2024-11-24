@@ -1,3 +1,4 @@
+from random import randint
 from django.core.management.base import BaseCommand
 
 from maingame.models import UserSettings, Resource, Round, Event, Dominion
@@ -22,9 +23,9 @@ class Command(BaseCommand):
 
         # print(totals)
 
-        event = Event.objects.filter(category="Signup").last()
-        user = User.objects.get(username="test")
-        testdom = Dominion.objects.get(associated_user=user)
-        print(testdom)
-        print(testdom in event.notified_dominions.all())
-        print(event.reference_id, testdom.id)
+        # event = Event.objects.filter(category="Signup").last()
+        # user = User.objects.get(username="test")
+        # testdom = Dominion.objects.get(associated_user=user)
+        # print(testdom)
+        # print(testdom in event.notified_dominions.all())
+        # print(event.reference_id, testdom.id)

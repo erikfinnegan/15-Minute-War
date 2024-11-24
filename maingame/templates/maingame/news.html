@@ -6,11 +6,12 @@
 
 {% block content %}
 <div class="">
-    {% if active_user_settings.show_tutorials %}
+    <details class="accordion card card_colors max-w-md">
+        <summary class="accordion__summary">Tutorial notes</summary>
         <p>
             Shows significant events in the round, primarily invasions and dominions signing up.
         </p>
-    {% endif %}
+    </details>
 
     <div>
     {% for event in displayed_events %}
@@ -28,6 +29,10 @@
                 {% if event.event.reference_type == "battle" %}
                 <form>
                     <button class="u-center {% if active_dominion in event.event.notified_dominions_list or event.event.reference_id == active_dominion.id %}base_colors{% else %}header_colors{% endif %} py-0" formaction="{% url 'battle_report' event.event.reference_id %}">Details</button>
+                </form>
+                {% elif event.event.reference_type == "signup" %}
+                <form>
+                    <button class="u-center {% if event.event.reference_id == active_dominion.id %}base_colors{% else %}header_colors{% endif %} py-0" formaction="{% url 'overview' event.event.reference_id %}">Overview</button>
                 </form>
                 {% endif %}
             </div>

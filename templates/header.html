@@ -37,16 +37,18 @@
         }, 1000);
     </script>
 
-    <div class="u-none u-flex-md u-flex-wrap u-gap-6">
+    {% comment %} DESKTOP HEADER {% endcomment %}
+    <div class="u-none u-flex-md u-flex-wrap {% if active_dominion.resource_types >= 9 %}u-gap-4{% else %}u-gap-6{% endif %}">
         <span class="font-bold u-center tooltip tooltip--right" data-tooltip="{{ active_dominion.acres_with_incoming }}">{{ active_dominion.acres }}{% if active_dominion.incoming_acres > 0 %} ({{ active_dominion.incoming_acres }}){% endif %} acres</span>
         <span class="font-bold u-center">{{ active_dominion.defense_short }} DP</span>
         {% for resource in active_dominion.resources %}
-        <div class="u-flex u-flex-column">
+        <div class="u-flex u-flex-column tooltip tooltip--bottom" data-tooltip="{{ resource.net_production|intcomma }} / tick">
             <span class="font-bold">{{ resource.name|title }}:</span>
             <span>{{ resource.quantity|intcomma }}</span>
         </div>
         {% endfor %}
     </div>
+    {% comment %} DESKTOP HEADER {% endcomment %}
 
     <table class="header_colors w-100p u-none-md{% if active_dominion.is_starving %} text-red-400{% endif %}">
         {% for key, value in active_dominion.header_rows.items %}

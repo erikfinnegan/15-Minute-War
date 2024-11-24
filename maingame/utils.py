@@ -1,7 +1,7 @@
 from random import randint, choice
+import random
 
-from maingame.formatters import create_or_add_to_key
-from maingame.models import Unit, Dominion, Discovery, Building, Deity, Event, Round, Faction, Resource, Spell, UserSettings
+from maingame.models import Unit, Dominion, Discovery, Building, Event, Round, Faction, Resource, Spell, UserSettings
 from django.contrib.auth.models import User
 from django.db.models import Q
 
@@ -10,13 +10,12 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
     if faction.name == "dwarf":
         dominion.perk_dict["book_of_grudges"] = {}
     elif faction.name == "blessed order":
-        dominion.perk_dict["sinners"] = 1
         dominion.perk_dict["sinners_per_hundred_acres_per_tick"] = 1
         dominion.perk_dict["inquisition_rate"] = 0
         dominion.perk_dict["inquisition_ticks_left"] = 0
-        dominion.perk_dict["crusade_ticks_left"] = 0
         dominion.perk_dict["martyr_cost"] = 1000
     elif faction.name == "sludgeling":
+        dominion.perk_dict["latest_experiment_id"] = 0
         dominion.perk_dict["latest_experiment"] = {
             "should_display": False,
             "name": "",
@@ -36,10 +35,10 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
             "research_per_acre": 100,
             "sludge_per_acre": 18,
         }
-        dominion.perk_dict["experiment_cost_coefficient"] = 0
         dominion.perk_dict["custom_units"] = 0
         dominion.perk_dict["max_custom_units"] = 3
         dominion.perk_dict["experiments_done"] = 0
+        dominion.perk_dict["recycling_refund"] = 0.8
 
     dominion.save()
 
@@ -57,22 +56,59 @@ def create_resource_for_dominion(resource_identifier, dominion: Dominion):
         dominions_resource.save()
 
 
+def meets_discovery_requirements(dominion: Dominion, discovery: Discovery):
+    if discovery.required_faction_name and dominion.faction_name != discovery.required_faction_name:
+        return False
+    
+    if dominion.faction_name in discovery.not_for_factions:
+        return False
+
+    for requirement in discovery.required_discoveries:
+        if requirement not in dominion.learned_discoveries:
+            return False
+        
+    if len(discovery.required_discoveries_or) > 0:
+        has_at_least_one = False
+
+        for requirement in discovery.required_discoveries_or:
+            if requirement in dominion.learned_discoveries:
+                has_at_least_one = True
+
+        if not has_at_least_one:
+            return False
+    
+    for perk, required_value in discovery.required_perk_dict.items():
+        if perk not in dominion.perk_dict:
+            return False
+        elif required_value == True and dominion.perk_dict[perk] == False:
+            return False
+        elif required_value > dominion.perk_dict[perk]:
+            return False
+
+    return True
+
+
+def update_available_discoveries(dominion: Dominion):
+    new_discoveries = []
+
+    for discovery in Discovery.objects.all():
+        if discovery.name not in dominion.learned_discoveries and discovery.name not in dominion.available_discoveries and meets_discovery_requirements(dominion, discovery):
+            dominion.available_discoveries.insert(0, discovery.name)
+            new_discoveries.append(discovery.name)
+
+    dominion.save()
+
+    return ", ".join(new_discoveries)
+
+
 def initialize_dominion(user: User, faction: Faction, display_name):
-    starter_discovery_names = []
-
-    for discovery in Discovery.objects.filter(requirement=None):
-        if faction.name not in discovery.not_for_factions:
-            starter_discovery_names.append(discovery.name)
-
-    for discovery in Discovery.objects.filter(requirement=faction.name):
-        starter_discovery_names.append(discovery.name)
-
     dominion = Dominion.objects.create(
         associated_user=user, 
         name=display_name, 
         faction_name=faction.name, 
-        available_discoveries=starter_discovery_names
     )
+
+    update_available_discoveries(dominion)
 
     for unit in Unit.objects.filter(ruler=None, faction=faction):
         give_dominion_unit(dominion, unit)
@@ -91,6 +127,9 @@ def initialize_dominion(user: User, faction: Faction, display_name):
         for perk_name in unit.perk_dict:
             if perk_name[-9:] == "_per_tick":
                 create_resource_for_dominion(perk_name[:-9], dominion)
+
+    if dominion.faction_name == "blessed order":
+        create_resource_for_dominion("sinners", dominion)
 
     for spell in Spell.objects.filter(ruler=None, is_starter=True):
         dominions_spell = spell
@@ -188,8 +227,8 @@ def get_trade_value(resource_name):
 
     trade_value = round(trade_value, 2)
 
-    if resource_name == "gems":
-        trade_value *= 1.3
+    # if resource_name == "gems":
+    #     trade_value *= 1.3
 
     return max(1, trade_value)
 
@@ -198,7 +237,16 @@ def update_trade_prices():
     round = Round.objects.first()
 
     for resource_name in round.resource_bank_dict:
-        round.trade_price_dict[resource_name] = get_trade_value(resource_name)
+        if resource_name in round.trade_price_dict:
+            current_value = round.trade_price_dict[resource_name]
+            goal_value = get_trade_value(resource_name)
+            
+            if goal_value > current_value:
+                round.trade_price_dict[resource_name] = min(goal_value, current_value * 1.01)
+            elif goal_value < current_value:
+                round.trade_price_dict[resource_name] = max(goal_value, current_value / 1.01)
+        else:
+            round.trade_price_dict[resource_name] = get_trade_value(resource_name)
 
         if resource_name not in round.base_price_dict:
             round.base_price_dict[resource_name] = get_trade_value(resource_name)
@@ -208,6 +256,9 @@ def update_trade_prices():
 
 def get_grudge_bonus(my_dominion: Dominion, other_dominion: Dominion):
     try:
+        # Offense gets calculated as 1 + this
+        # 0.003 gets added to animosity per page, which makes sense as it's +0.003% per page
+        # X animosity is +X% OP, so we need to turn 0.003 into 0.00003 because that's how percents work
         return my_dominion.perk_dict["book_of_grudges"][str(other_dominion.id)]["animosity"] / 100
     except:
         return 0
@@ -224,45 +275,128 @@ def prune_buildings(dominion: Dominion):
                 surplus -= 1
 
 
+def create_magnum_goopus(dominion: Dominion, encore=False):
+    total_quantity = 0
+    total_op = 0
+    total_dp = 0
+    perk_dict = {"is_glorious": True}
+
+    for unit in Unit.objects.filter(ruler=dominion):
+        if "sludge" in unit.cost_dict and unit.quantity_at_home > 0:
+            total_quantity += unit.quantity_at_home
+            total_op += unit.quantity_at_home * unit.op
+            total_dp += unit.quantity_at_home * unit.dp
+
+            for perk, value in unit.perk_dict.items():
+                if perk == "casualty_multiplier" and perk in perk_dict:
+                    perk_dict[perk] = min(value, perk_dict[perk])
+                else:
+                    perk_dict[perk] = value
+            
+            unit.quantity_at_home = 0
+            unit.save()
+
+    encore_suffixes = [" Mk II", " 2: Electric Goopaloo", " Remastered", ": the Remix", " 2", " Jr.", " Magnum Goopier"]
+
+    if encore:
+        name = f"Magnum Goopus {random.choice(encore_suffixes)}"
+    else:
+        name = "Magnum Goopus"
+
+    Unit.objects.create(
+        ruler=dominion,
+        name=name,
+        op=total_op,
+        dp=total_dp,
+        upkeep_dict={
+            "food": total_quantity,
+        },
+        perk_dict=perk_dict,
+        is_trainable=False,
+        quantity_at_home=1,
+    )
+
+
 def unlock_discovery(dominion: Dominion, discovery_name):
     if not discovery_name in dominion.available_discoveries:
-        return
+        return False
     
-    dominion.available_discoveries.remove(discovery_name)
     dominion.learned_discoveries.append(discovery_name)
 
-    for unlocked_discovery in Discovery.objects.filter(requirement=discovery_name):
-        dominion.available_discoveries.append(unlocked_discovery.name)
+    can_take_multiple_times = False
 
     match discovery_name:
-        case "Battering Ram":
+        case "Prosperity":
+            dominion.primary_resource_per_acre += 1
+            can_take_multiple_times = True
+        case "Battering Rams":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Battering Ram"))
-        case "Palisade":
+        case "Palisades":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Palisade"))
-        case "Bastion":
+        case "Bastions":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Bastion"))
         case "Zombies":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Zombie"))
-        case "Butcher":
-            print("Implement spells, silly")
-        case "Archmagus":
-            archmagus = give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Archmagus"))
-            archmagus.quantity_at_home = 1
-            archmagus.save()
+        # case "Butcher":
+        #     print("Implement spells, silly")
+        case "Archmage":
+            archmage = give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Archmage"))
+            archmage.quantity_at_home = 1
+            archmage.save()
             dominion.has_tick_units = True
-        case "Fireball":
+        case "Fireballs":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Fireball"))
         case "Grudgestoker":
             grudgestoker = give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Grudgestoker"))
             grudgestoker.quantity_at_home = 1
             grudgestoker.save()
             dominion.has_tick_units = True
-        case "Gem Mines":
-            give_dominion_building(dominion, Building.objects.get(ruler=None, name="mine"))
-        case "Living Saint":
-            living_saint = give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Living Saint"))
+        case "Miners":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Miner"))
+            dominion.perk_dict["mining_depth"] = 0
+        case "Mithril":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Steelbreaker"))
+            give_dominion_building(dominion, Building.objects.get(ruler=None, name="mithril mine"))
+        case "The Deep Angels":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Deep Angel"))
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Deep Apostle"))
+        # case "Gem Mines":
+        #     give_dominion_building(dominion, Building.objects.get(ruler=None, name="mine"))
+        case "Living Saints":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Living Saint"))
+        case "Penitent Engines":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Penitent Engine"))
+        case "Heresy":
+            dominion.perk_dict["sinners_per_hundred_acres_per_tick"] *= 3
+        case "Grim Sacrament":
+            dominion.perk_dict["inquisition_makes_corpses"] = True
+            create_resource_for_dominion("corpses", dominion)
+        case "Wights":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Wight"))
+        case "Cathedral Titans":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Cathedral Titan"))
+        case "Funerals":
+            dominion.perk_dict["faith_per_power_died"] = 10
+        case "Cremain Knights":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Cremain Knight"))
+        case "More Experiment Slots":
+            dominion.perk_dict["max_custom_units"] = 4
+        case "Even More Experiment Slots":
+            dominion.perk_dict["max_custom_units"] = 6
+        case "Recycling Center":
+            dominion.perk_dict["recycling_refund"] = 0.95
+        case "Magnum Goopus":
+            create_magnum_goopus(dominion)
+        case "Encore":
+            create_magnum_goopus(dominion, encore=True)
 
+    if not can_take_multiple_times:
+        dominion.available_discoveries.remove(discovery_name)
+
+    message = update_available_discoveries(dominion)
     dominion.save()
+
+    return message
 
 
 def give_dominion_unit(dominion: Dominion, unit: Unit):
