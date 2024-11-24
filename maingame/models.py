@@ -102,6 +102,13 @@ class Dominion(models.Model):
         return UserSettings.objects.get(associated_user=self.associated_user).display_name
     
     @property
+    def rulers_theme_name(self):
+        try:
+            return UserSettings.objects.get(associated_user=self.associated_user).theme_model.name
+        except:
+            return "None"
+
+    @property
     def ticks_til_training_time(self):
         return self.protection_ticks_remaining - 12
     
