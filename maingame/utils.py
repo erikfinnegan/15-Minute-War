@@ -455,7 +455,7 @@ def cast_spell(spell: Spell):
                         overwhelming_unit.quantity_at_home = 0
                         overwhelming_unit.is_trainable = False
                         overwhelming_unit.cost_dict = {}
-                        overwhelming_unit_upkeep = overwhelming_unit.op / 5
+                        overwhelming_unit_upkeep = overwhelming_unit.op
 
                         overwhelming_unit.upkeep_dict[mana.name] = overwhelming_unit_upkeep
                         
