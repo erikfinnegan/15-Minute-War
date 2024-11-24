@@ -165,8 +165,8 @@
                 ).sort((a, b) => a[3] - b[3])[0].slice(0, 2)
             let decfrac = decToFrac(inputPrice/outputPrice)
 
-            document.getElementById("ratioNumerator").innerHTML = decfrac[1] / decfrac[1]
-            document.getElementById("ratioDenominator").innerHTML = decfrac[0] / decfrac[1]
+            document.getElementById("ratioNumerator").innerHTML = +(decfrac[1] / decfrac[1]).toFixed(2)
+            document.getElementById("ratioDenominator").innerHTML = +(decfrac[0] / decfrac[1]).toFixed(2)
             showCurrentValue()
         }
     </script>

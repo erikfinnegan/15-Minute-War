@@ -1249,15 +1249,9 @@ def generate_experiment(request):
         name = random.choice(["sludger", "oozeling", "gooper", "marshling", "sogger", "squishling", "slimezoid", "pudling", "swamper", "snotling",
                               "slurpling", "slopling", "dampling", "grossling", "slurpazoid"])
 
-    if op == 0:
-        gold_per_op = 0
-    else:
-        gold_per_op = int(gold_cost / op)
 
-    if dp == 0:
-        gold_per_dp = 0
-    else:
-        gold_per_dp = int(gold_cost / dp)
+    cost_per_op = int(((gold_cost * 1.08) + sludge_cost) / max(op, 1))
+    cost_per_dp = int(((gold_cost * 1.08) + sludge_cost) / max(dp, 1))
 
     op_per_normalized_upkeep = (op * 3) / upkeep_dict["gold"]
     dp_per_normalized_upkeep = (dp * 3) / upkeep_dict["gold"]
@@ -1309,8 +1303,8 @@ def generate_experiment(request):
         "upkeep_dict": upkeep_dict,
         "perk_dict": perk_dict,
         "has_perks": has_perks,
-        "gold_per_op": gold_per_op,
-        "gold_per_dp": gold_per_dp,
+        "cost_per_op": cost_per_op,
+        "cost_per_dp": cost_per_dp,
         "op_per_normalized_upkeep": op_per_normalized_upkeep,
         "dp_per_normalized_upkeep": dp_per_normalized_upkeep,
     }

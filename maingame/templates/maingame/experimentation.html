@@ -10,7 +10,8 @@
     <details class="accordion card card_colors max-w-md">
         <summary class="accordion__summary">Tutorial notes</summary>
         <p>
-            Conduct experiments to unlock the perfect sludgelings for your army. Every time it's random.
+            Conduct experiments to unlock the perfect sludgelings for your army. Every time it's random. 
+            The more experiments you run, the (slightly) higher your chance of getting a very powerful unit.
         </p>
         <p>
             The cost of each experiment is based on your acreage and it temporarily goes up each time you do it. It decreases back to its base value over time, 
@@ -18,7 +19,8 @@
             for new ones as long as none are returning or in training. Doing so will refund you 80% of the cost of any units you had trained of that type.
         </p>
         <p>
-            The more experiments you run, the (slightly) higher your chance of getting a very powerful unit.
+            "Cost/OP" is based on "cost" being ((gold cost * 1.08) + sludge cost) to represent how much it would cost if you paid by converting gold to sludge.
+            "Upkeep-normalized OP" is ((OP * 3) / gold upkeep) to determine how efficient it is to pay for in the long run.
         </p>
     </details>
     <div class="u-flex u-flex-column u-gap-2">
@@ -79,16 +81,16 @@
             <table class="table striped card_colors">
                 <thead>
                     <tr>
-                        <th>Gold/OP</th>
-                        <th>Gold/DP</th>
+                        <th>Cost/OP</th>
+                        <th>Cost/DP</th>
                         <th>Upkeep-normalized OP</th>
                         <th>Upkeep-normalized DP</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td class="u-align-middle">{{ latest_experiment.gold_per_op }}</td>
-                        <td class="u-align-middle">{{ latest_experiment.gold_per_dp }}</td>
+                        <td class="u-align-middle">{{ latest_experiment.cost_per_op }}</td>
+                        <td class="u-align-middle">{{ latest_experiment.cost_per_dp }}</td>
                         <td class="u-align-middle">{{ latest_experiment.op_per_normalized_upkeep|floatformat:"-1" }}</td>
                         <td class="u-align-middle">{{ latest_experiment.dp_per_normalized_upkeep|floatformat:"-1" }}</td>
                     </tr>

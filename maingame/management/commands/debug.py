@@ -32,10 +32,14 @@ class Command(BaseCommand):
         # print(testdom)
         # print(testdom in event.notified_dominions.all())
         # print(event.reference_id, testdom.id)
-        vamps_to_convert = 50
-        vamps = 50
+        
+        pages = 1
+        opbonus = 0
 
-        for _ in range(6 * 96):
-            vamps += int(vamps / vamps_to_convert)
+        for x in range(96*2):
+            if x % 24 == 0:
+                pages += 1
 
-        print(vamps)
+            opbonus += pages * 0.003
+
+        print(opbonus)
