@@ -30,9 +30,11 @@
 {% elif round.has_started %}
     <span class="mx-1 pt-4">Round ends in:</span>
     <span>{{ round.time_til_round_end }}</span>
-{% else %}
+{% elif round.time_til_round_start %}
     <span class="mx-1 pt-4">Round starts in:</span>
     <span>{{ round.time_til_round_start }}</span>
+{% else %}
+    <span class="mx-1 pt-4 font-bold">The round does not have a planned start time yet.</span>
 {% endif %}
 
 <form action="{% url 'logout' %}" method="post" class="mt-8">

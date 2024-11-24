@@ -677,7 +677,7 @@ class Round(models.Model):
     
     @property
     def time_til_round_start(self):
-        if self.has_started:
+        if self.has_started or not self.start_time:
             return False
         
         now = datetime.now(ZoneInfo('UTC'))
