@@ -32,7 +32,7 @@
         {% endif %}
     </div>
 
-    {% if latest_experiment.should_display %}
+    {% if latest_experiment_unit %}
     <div class="card card_colors p-1 w-100p max-w-xs">
         <table class="table striped card_colors">
             <thead>
@@ -46,22 +46,22 @@
             <tbody>
                 <div class="modal card_colors w-32 h-24 u-center u-align-middle my-auto" id="test-modal">
                     <div class="modal-header u-flex u-flex-column u-justify-space-between">
-                        <p>{{ latest_experiment.perk_text }}</p>
+                        <p>{{ latest_experiment_unit.perk_text }}</p>
                     </div>
                 </div>
                 <tr>
-                    {% include "maingame/unit_name_row.html" with unit=latest_experiment %}
-                    <td class="u-align-middle">{{ latest_experiment.op|intcomma }} / {{ latest_experiment.dp|intcomma }}</td>
+                    {% include "maingame/unit_name_row.html" with unit=latest_experiment_unit %}
+                    <td class="u-align-middle">{{ latest_experiment_unit.op|intcomma }} / {{ latest_experiment_unit.dp|intcomma }}</td>
                     <td class="u-align-middle">
                         <div class="u-flex u-flex-column">
-                            {% for resource, amount in latest_experiment.upkeep_dict.items %}
+                            {% for resource, amount in latest_experiment_unit.upkeep_dict.items %}
                             <span>{{ amount|intcomma }} {{ resource }}</span>
                             {% endfor %}
                         </div>
                     </td>
                     <td class="u-align-middle">
                         <div class="u-flex u-flex-column">
-                            {% for resource, amount in latest_experiment.cost_dict.items %}
+                            {% for resource, amount in latest_experiment_unit.cost_dict.items %}
                             <span>{{ amount|intcomma }} {{ resource }}</span>
                             {% endfor %}
                         </div>

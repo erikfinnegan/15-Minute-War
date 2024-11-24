@@ -60,8 +60,8 @@
                         </span>
                     </td>
 
-                    <td>-{{ dominion.complacency_penalty_percent }}% DP</td>
-                    <td>+{{ dominion.determination_bonus_percent }}% OP</td>
+                    <td>-{{ dominion.complacency_penalty_percent|floatformat:0 }}% DP</td>
+                    <td>+{{ dominion.determination_bonus_percent|floatformat:0 }}% OP</td>
 
                     <td class="u-align-middle">
                         {% if dominion.has_units_returning %}

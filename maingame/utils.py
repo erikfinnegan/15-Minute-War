@@ -1,4 +1,5 @@
 from random import randint, choice
+import random
 
 from maingame.models import Unit, Dominion, Discovery, Building, Event, Round, Faction, Resource, Spell, UserSettings
 from django.contrib.auth.models import User
@@ -14,6 +15,7 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
         dominion.perk_dict["inquisition_ticks_left"] = 0
         dominion.perk_dict["martyr_cost"] = 1000
     elif faction.name == "sludgeling":
+        dominion.perk_dict["latest_experiment_id"] = 0
         dominion.perk_dict["latest_experiment"] = {
             "should_display": False,
             "name": "",
@@ -63,6 +65,16 @@ def meets_discovery_requirements(dominion: Dominion, discovery: Discovery):
 
     for requirement in discovery.required_discoveries:
         if requirement not in dominion.learned_discoveries:
+            return False
+        
+    if len(discovery.required_discoveries_or) > 0:
+        has_at_least_one = False
+
+        for requirement in discovery.required_discoveries_or:
+            if requirement in dominion.learned_discoveries:
+                has_at_least_one = True
+
+        if not has_at_least_one:
             return False
     
     for perk, required_value in discovery.required_perk_dict.items():
@@ -263,6 +275,48 @@ def prune_buildings(dominion: Dominion):
                 surplus -= 1
 
 
+def create_magnum_goopus(dominion: Dominion, encore=False):
+    total_quantity = 0
+    total_op = 0
+    total_dp = 0
+    perk_dict = {"is_glorious": True}
+
+    for unit in Unit.objects.filter(ruler=dominion):
+        if "sludge" in unit.cost_dict and unit.quantity_at_home > 0:
+            total_quantity += unit.quantity_at_home
+            total_op += unit.quantity_at_home * unit.op
+            total_dp += unit.quantity_at_home * unit.dp
+
+            for perk, value in unit.perk_dict.items():
+                if perk == "casualty_multiplier" and perk in perk_dict:
+                    perk_dict[perk] = min(value, perk_dict[perk])
+                else:
+                    perk_dict[perk] = value
+            
+            unit.quantity_at_home = 0
+            unit.save()
+
+    encore_suffixes = [" Mk II", " 2: Electric Goopaloo", " Remastered", ": the Remix", " 2", " Jr.", " Magnum Goopier"]
+
+    if encore:
+        name = f"Magnum Goopus {random.choice(encore_suffixes)}"
+    else:
+        name = "Magnum Goopus"
+
+    Unit.objects.create(
+        ruler=dominion,
+        name=name,
+        op=total_op,
+        dp=total_dp,
+        upkeep_dict={
+            "food": total_quantity,
+        },
+        perk_dict=perk_dict,
+        is_trainable=False,
+        quantity_at_home=1,
+    )
+
+
 def unlock_discovery(dominion: Dominion, discovery_name):
     if not discovery_name in dominion.available_discoveries:
         return False
@@ -330,7 +384,11 @@ def unlock_discovery(dominion: Dominion, discovery_name):
         case "Even More Experiment Slots":
             dominion.perk_dict["max_custom_units"] = 6
         case "Recycling Center":
-            dominion.perk_dict["recycling_refund"] = 0.9
+            dominion.perk_dict["recycling_refund"] = 0.95
+        case "Magnum Goopus":
+            create_magnum_goopus(dominion)
+        case "Encore":
+            create_magnum_goopus(dominion, encore=True)
 
     if not can_take_multiple_times:
         dominion.available_discoveries.remove(discovery_name)

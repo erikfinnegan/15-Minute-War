@@ -514,6 +514,9 @@ class Unit(models.Model):
     @property
     def perk_text(self):
         perk_text = ""
+
+        if "is_glorious" in self.perk_dict:
+            perk_text += "My god, it's glorious. "
         
         if "surplus_research_consumed_to_add_one_op_and_dp" in self.perk_dict:
             perk_text += f"""Consumes half of your stockpiled research each tick, but leaves enough to afford your upgrades. Gains 1 OP and 1 DP per  
@@ -548,6 +551,10 @@ class Unit(models.Model):
 
         if "cm_dug_per_tick" in self.perk_dict:
             perk_text += "Digs 1cm per tick. "
+
+        if "returns_in_ticks" in self.perk_dict:
+            ticks_to_return = self.perk_dict["returns_in_ticks"]
+            perk_text += f"Returns from battle in {ticks_to_return} ticks. "
 
         return perk_text
     
@@ -658,7 +665,7 @@ class Round(models.Model):
     resource_bank_dict = models.JSONField(default=dict, blank=True)
     start_time = models.DateTimeField(null=True, blank=True)
     ticks_passed = models.IntegerField(default=0)
-    ticks_to_end = models.IntegerField(default=0)
+    ticks_to_end = models.IntegerField(default=672)
 
     @property
     def allow_ticks(self):
@@ -685,13 +692,16 @@ class Round(models.Model):
         now = datetime.now(ZoneInfo('America/New_York'))
         minutes_left_in_current_tick = 15 - (now.minute % 15)
         minutes_left_in_remaining_full_ticks = (self.ticks_left - 1) * 15
-        return format_minutes(minutes_left_in_remaining_full_ticks + minutes_left_in_current_tick)
+        minutes_left_in_round = minutes_left_in_remaining_full_ticks + minutes_left_in_current_tick
+
+        return format_minutes(minutes_left_in_round)
         
 
 class Discovery(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
     description = models.CharField(max_length=500, null=True, blank=True)
     required_discoveries = models.JSONField(default=list, blank=True)
+    required_discoveries_or = models.JSONField(default=list, blank=True)
     required_faction_name = models.CharField(max_length=50, null=True, blank=True)
     required_perk_dict = models.JSONField(default=dict, blank=True)
     other_requirements_dict = models.JSONField(default=dict, blank=True)

@@ -25,7 +25,9 @@
 <a href="{% url 'options' %}" class="">Options</a>
 <a href="{% url 'faction_info' %}" class="">Faction Info</a>
 
-{% if round.has_started %}
+{% if round.has_ended %}
+    <span class="mx-1 pt-4 font-bold">The round is over</span>
+{% elif round.has_started %}
     <span class="mx-1 pt-4">Round ends in:</span>
     <span>{{ round.time_til_round_end }}</span>
 {% else %}

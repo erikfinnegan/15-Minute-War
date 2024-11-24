@@ -909,12 +909,15 @@ def experimentation(request):
     for unit in Unit.objects.filter(ruler=dominion):
         if "sludge" in unit.cost_dict:
             experimental_units.append(unit)
+
+    latest_experiment_unit = Unit.objects.filter(id=dominion.perk_dict["latest_experiment_id"]).first()
     
     context = {
         "research_cost": research_cost,
         "sludge_cost": sludge_cost,
         "allow_new_experiments": dominion.perk_dict["custom_units"] < dominion.perk_dict["max_custom_units"],
         "latest_experiment": dominion.perk_dict["latest_experiment"],
+        "latest_experiment_unit": latest_experiment_unit,
         "experimental_units": experimental_units,
         "has_experimental_units": dominion.perk_dict["custom_units"] > 0,
     }
@@ -947,6 +950,12 @@ def generate_experiment(request):
         messages.error(request, f"You can't afford this experiment")
         return redirect("experimentation")
     
+    try:
+        old_experiment = Unit.objects.get(id=dominion.perk_dict["latest_experiment_id"])
+        old_experiment.delete()
+    except:
+        pass
+    
     players_research.quantity -= experiment_research_cost
     players_research.save()
 
@@ -961,7 +970,7 @@ def generate_experiment(request):
     high_op = False
     high_dp = False
 
-    bonus_roll = randint(1,5)
+    bonus_roll = randint(1,6)
     low_gold_cost = bonus_roll == 1
     low_sludge_cost = bonus_roll == 2
     low_upkeep = bonus_roll == 3
@@ -976,7 +985,7 @@ def generate_experiment(request):
         high_op = second_bonus_roll == 4 or high_op
         high_dp = second_bonus_roll == 5 or high_dp
 
-    malus_roll = randint(1,5)
+    malus_roll = randint(1,6)
     high_gold_cost = malus_roll == 1
     high_sludge_cost = malus_roll == 2
     high_upkeep = malus_roll == 3
@@ -1035,17 +1044,58 @@ def generate_experiment(request):
     elif low_dp:
         dp = int(dp/2)
 
-    gold_cost = max(op * 1.3, dp) * 150
-    sludge_cost = max(op * 1.3, dp) * 67
+    perk_dict = {}
+    has_perks = False
 
-    bad_turtle_multiplier = (op / 200) / dp
+    if "Speedlings" in dominion.learned_discoveries and randint(1,100) <= 33:
+        perk_dict["returns_in_ticks"] = 8
+        has_perks = True
+    
+    # Toughlings and Cheaplings modify the same perk, so we randomize which order to check in because we're too lazy to do this intelligently
+    if randint(1,2) == 1:
+        if "Cheaplings" in dominion.learned_discoveries and randint(1,100) <= 33:
+            perk_dict["casualty_multiplier"] = 2
+            has_perks = True
+
+        if "Toughlings" in dominion.learned_discoveries and randint(1,100) <= 33:
+            perk_dict["casualty_multiplier"] = 0.5
+            has_perks = True
+    else:
+        if "Toughlings" in dominion.learned_discoveries and randint(1,100) <= 33:
+            perk_dict["casualty_multiplier"] = 0.5
+            has_perks = True
+
+        if "Cheaplings" in dominion.learned_discoveries and randint(1,100) <= 33:
+            perk_dict["casualty_multiplier"] = 2
+            has_perks = True
+
+    cost_type = random.choice(["gold", "other", "hybrid"])
+    cost_basis_power = max(op * 1.3, dp)
+    is_offensive_unit = cost_basis_power != dp
+
+    goldunit_gold_cost = (cost_basis_power * 300) - 600
+    goldunit_sludge_cost = cost_basis_power * 70 * 1.5
+    otherunit_sludge_cost = (cost_basis_power * 6 * 70) - (10 * 70)
+
+    if cost_basis_power < 3:
+        goldunit_gold_cost = cost_basis_power * 100
+        otherunit_sludge_cost = cost_basis_power * 186
+
+    if cost_type == "gold":
+        gold_cost = goldunit_gold_cost
+        sludge_cost = goldunit_sludge_cost
+    elif cost_type == "other":
+        gold_cost = 0
+        sludge_cost = otherunit_sludge_cost
+    else:
+        gold_cost = int(goldunit_gold_cost / 2)
+        sludge_cost = int((goldunit_sludge_cost + otherunit_sludge_cost) / 2)
+
+    dont_divide_by_zero = 1 if dp == 0 else dp
+    bad_turtle_multiplier = (op / 200) / dont_divide_by_zero
 
     if op > (dp * 2):
         gold_cost *= 1 - (bad_turtle_multiplier)
-
-    for _ in range(max(op,dp)):
-        gold_cost *= 1.05
-        sludge_cost *= 1.05
 
     multiplier = randint(1,15)
     high_mult = 1 + (multiplier/100)
@@ -1061,6 +1111,31 @@ def generate_experiment(request):
     elif low_sludge_cost:
         sludge_cost = int(sludge_cost * low_mult)
 
+    if "returns_in_ticks" in perk_dict:
+        multiplier_base = randint(10, 20) / 100
+        gold_cost *= 1 + multiplier_base
+        sludge_cost *= 1 + multiplier_base
+
+    if "casualty_multiplier" in perk_dict:
+        casualty_based_multiplier = 1
+
+        if perk_dict["casualty_multiplier"] == 2:
+            if is_offensive_unit:
+                dp_op_ratio = dp / op
+                base_discount = int(randint(40, 50) * (1 - dp_op_ratio))
+                casualty_based_multiplier = min((1 - (base_discount / 100)), randint(90, 95))
+            else:
+                casualty_based_multiplier = randint(90, 95) / 100
+        elif perk_dict["casualty_multiplier"] == 0.5:
+            if is_offensive_unit:
+                casualty_based_multiplier = 1 + randint(20, 30) / 100
+            else:
+                casualty_based_multiplier = 1 + randint(5, 10) / 100
+
+        gold_cost *= casualty_based_multiplier
+        sludge_cost *= casualty_based_multiplier
+
+    # No more cost modifiers after this. It's time to start rounding off.
     if gold_cost > 1000:
         gold_cost = round_x_to_nearest_y(gold_cost, 50)
     else:
@@ -1113,22 +1188,66 @@ def generate_experiment(request):
         name = random.choice(["sludger", "oozeling", "gooper", "marshling", "sogger", "squishling", "slimezoid", "pudling", "swamper", "snotling",
                               "slurpling", "slopling", "dampling", "grossling", "slurpazoid"])
 
-    gold_per_op = int(gold_cost / op)
-    gold_per_dp = int(gold_cost / dp)
+    if op == 0:
+        gold_per_op = 0
+    else:
+        gold_per_op = int(gold_cost / op)
+
+    if dp == 0:
+        gold_per_dp = 0
+    else:
+        gold_per_dp = int(gold_cost / dp)
+
     op_per_normalized_upkeep = (op * 3) / upkeep_dict["gold"]
     dp_per_normalized_upkeep = (dp * 3) / upkeep_dict["gold"]
+
+    if gold_cost == 0:
+        cost_dict = {
+            "sludge": sludge_cost,
+        }
+    else:
+        cost_dict = {
+            "gold": gold_cost,
+            "sludge": sludge_cost,
+        }
+
+    timer_template = {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0,
+        "10": 0,
+        "11": 0,
+        "12": 0,
+    }
+
+    latest_experiment = Unit.objects.create(
+        name=name,
+        op=op,
+        dp=dp,
+        cost_dict=cost_dict,
+        upkeep_dict=upkeep_dict,
+        perk_dict=perk_dict,
+        training_dict=timer_template,
+        returning_dict=timer_template,
+    )
+
+    dominion.perk_dict["latest_experiment_id"] = latest_experiment.id
 
     dominion.perk_dict["latest_experiment"] = {
         "should_display": True,
         "name": name,
         "op": op,
         "dp": dp,
-        "cost_dict": {
-            "gold": gold_cost,
-            "sludge": sludge_cost,
-        },
+        "cost_dict": cost_dict,
         "upkeep_dict": upkeep_dict,
-        "perk_dict": {},
+        "perk_dict": perk_dict,
+        "has_perks": has_perks,
         "gold_per_op": gold_per_op,
         "gold_per_dp": gold_per_dp,
         "op_per_normalized_upkeep": op_per_normalized_upkeep,
@@ -1162,6 +1281,12 @@ def approve_experiment(request):
     dominion.perk_dict["latest_experiment"]["should_display"] = False
     dominion.perk_dict["custom_units"] += 1
     dominion.save()
+
+    try:
+        old_experiment = Unit.objects.get(id=dominion.perk_dict["latest_experiment_id"])
+        old_experiment.delete()
+    except:
+        pass
 
     unit_data = dominion.perk_dict["latest_experiment"]
 

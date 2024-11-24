@@ -146,8 +146,80 @@ def initialize_factions():
     )
 
 
-def initialize_units():
+def initialize_generic_units():
+    Unit.objects.create(
+        name="Battering Ram",
+        op=15,
+        dp=0,
+        cost_dict={
+            "wood": 5000,
+            "ore": 4000,
+        },
+        upkeep_dict={
+            "wood": 4,
+        },
+    )
+
+    Unit.objects.create(
+        name="Palisade",
+        op=0,
+        dp=5,
+        cost_dict={
+            "wood": 1900,
+        },
+        upkeep_dict={
+            "wood": 5,
+        },
+    )
+
+    Unit.objects.create(
+        name="Bastion",
+        op=0,
+        dp=30,
+        cost_dict={
+            "ore": 14000,
+        },
+    )
+
+    Unit.objects.create(
+        name="Zombie",
+        op=4,
+        dp=3,
+        cost_dict={
+            "mana": 1000,
+            "corpses": 1,
+        },
+        upkeep_dict={
+            "mana": 0.3,
+        },
+    )
+
+    Unit.objects.create(
+        name="Archmage",
+        op=0,
+        dp=0,
+        upkeep_dict={
+            "gold": 3,
+            "food": 1,
+        },
+        is_trainable=False,
+        perk_dict={"surplus_research_consumed_to_add_one_op_and_dp": 1200}
+    )
+
+    Unit.objects.create(
+        name="Fireball",
+        op=9,
+        dp=0,
+        cost_dict={
+            "mana": 750,
+        },
+        perk_dict={"always_dies_on_offense": True}
+    )
+
+
+def initialize_dwarf_units():
     dwarf = Faction.objects.get(name="dwarf")
+
     Unit.objects.create(
         name="Stoneshield",
         op=3,
@@ -162,6 +234,7 @@ def initialize_units():
         },
         faction=dwarf
     )
+
     Unit.objects.create(
         name="Hammerer",
         op=5,
@@ -176,6 +249,7 @@ def initialize_units():
         },
         faction=dwarf
     )
+
     Unit.objects.create(
         name="Grudgestoker",
         op=0,
@@ -188,6 +262,7 @@ def initialize_units():
         perk_dict={"random_grudge_book_pages_per_tick": 3},
         is_trainable=False,
     )
+
     Unit.objects.create(
         name="Miner",
         op=0,
@@ -202,6 +277,7 @@ def initialize_units():
         },
         perk_dict={"ore_per_tick": 3, "cm_dug_per_tick": 1},
     )
+
     Unit.objects.create(
         name="Steelbreaker",
         op=12,
@@ -216,6 +292,7 @@ def initialize_units():
         },
         perk_dict={"casualty_multiplier": 0.5},
     )
+
     Unit.objects.create(
         name="Deep Angel",
         op=151,
@@ -229,6 +306,7 @@ def initialize_units():
         },
         perk_dict={"immortal": True, "converts_apostles": True},
     )
+
     Unit.objects.create(
         name="Deep Apostle",
         op=7,
@@ -241,7 +319,10 @@ def initialize_units():
         perk_dict={"casualty_multiplier": 0.5},
     )
 
+
+def initialize_blessed_order_units():
     blessed_order = Faction.objects.get(name="blessed order")
+
     Unit.objects.create(
         name="Blessed Brother",
         op=0,
@@ -257,6 +338,7 @@ def initialize_units():
         perk_dict={"faith_per_tick": 1},
         faction=blessed_order,
     )
+
     Unit.objects.create(
         name="Novitiate",
         op=5,
@@ -271,6 +353,7 @@ def initialize_units():
         },
         faction=blessed_order,
     )
+
     Unit.objects.create(
         name="Blessed Martyr",
         op=15,
@@ -284,6 +367,7 @@ def initialize_units():
         is_trainable=False,
         faction=blessed_order,
     )
+
     Unit.objects.create(
         name="Living Saint",
         op=0,
@@ -298,6 +382,7 @@ def initialize_units():
             "food": 1,
         },
     )
+
     Unit.objects.create(
         name="Penitent Engine",
         op=19,
@@ -314,6 +399,7 @@ def initialize_units():
         },
         perk_dict={"casualty_multiplier": 2},
     )
+
     Unit.objects.create(
         name="Wight",
         op=12,
@@ -327,6 +413,7 @@ def initialize_units():
             "mana": 0.3,
         },
     )
+
     Unit.objects.create(
         name="Cathedral Titan",
         op=0,
@@ -341,6 +428,7 @@ def initialize_units():
         },
         perk_dict={"casualty_multiplier": 0.5},
     )
+
     Unit.objects.create(
         name="Cremain Knight",
         op=14,
@@ -352,7 +440,10 @@ def initialize_units():
         perk_dict={"always_dies_on_offense": True}
     )
 
+
+def initialize_sludgeling_units():
     sludgeling = Faction.objects.get(name="sludgeling")
+
     Unit.objects.create(
         name="Dreg",
         op=0,
@@ -368,69 +459,12 @@ def initialize_units():
         faction=sludgeling,
     )
 
-    Unit.objects.create(
-        name="Battering Ram",
-        op=15,
-        dp=0,
-        cost_dict={
-            "wood": 5000,
-            "ore": 4000,
-        },
-        upkeep_dict={
-            "wood": 4,
-        },
-    )
-    Unit.objects.create(
-        name="Palisade",
-        op=0,
-        dp=5,
-        cost_dict={
-            "wood": 1900,
-        },
-        upkeep_dict={
-            "wood": 5,
-        },
-    )
-    Unit.objects.create(
-        name="Bastion",
-        op=0,
-        dp=30,
-        cost_dict={
-            "ore": 14000,
-        },
-    )
-    Unit.objects.create(
-        name="Zombie",
-        op=4,
-        dp=3,
-        cost_dict={
-            "mana": 1000,
-            "corpses": 1,
-        },
-        upkeep_dict={
-            "mana": 0.3,
-        },
-    )
-    Unit.objects.create(
-        name="Archmage",
-        op=0,
-        dp=0,
-        upkeep_dict={
-            "gold": 3,
-            "food": 1,
-        },
-        is_trainable=False,
-        perk_dict={"surplus_research_consumed_to_add_one_op_and_dp": 1200}
-    )
-    Unit.objects.create(
-        name="Fireball",
-        op=9,
-        dp=0,
-        cost_dict={
-            "mana": 750,
-        },
-        perk_dict={"always_dies_on_offense": True}
-    )
+
+def initialize_units():
+    initialize_generic_units()
+    initialize_dwarf_units()
+    initialize_blessed_order_units()
+    initialize_sludgeling_units()
 
     for unit in Unit.objects.all():
         give_unit_timer_template(unit)
@@ -467,7 +501,7 @@ def initialize_spells():
     )
 
 
-def initialize_discoveries():
+def initialize_generic_discoveries():
     Discovery.objects.create(
         name="Prosperity",
         description="Increases gold per acre by 1. Can be taken multiple times.",
@@ -522,6 +556,8 @@ def initialize_discoveries():
     #     description="Construct a new building to mine for precious gems. Produces 8 gems per tick. When trade values are determined, gems get a +30% bonus."
     # )
 
+
+def initialize_dwarf_discoveries():
     Discovery.objects.create(
         name="Grudgestoker",
         description="A holy scribe takes up residence with you and appends three pages to your book of grudges each tick.",
@@ -550,6 +586,8 @@ def initialize_discoveries():
         required_perk_dict={"mining_depth": 500000},
     )
 
+
+def initialize_blessed_order_discoveries():
     Discovery.objects.create(
         name="Living Saints",
         description="Pray for assistance from the incredible living saints.",
@@ -606,6 +644,8 @@ def initialize_discoveries():
         required_discoveries=["Funerals", "Fireballs"],
     )
 
+
+def initialize_sludgeling_discoveries():
     Discovery.objects.create(
         name="More Experiment Slots",
         description="Provides an extra slot for experimental units, taking you from three to four.",
@@ -621,10 +661,54 @@ def initialize_discoveries():
 
     Discovery.objects.create(
         name="Recycling Center",
-        description="Increases refund for terminated experiments from 80% to 90%",
+        description="Increases refund for terminated experiments from 80% to 95%",
         required_discoveries=["More Experiment Slots", "Even More Experiment Slots"],
         required_faction_name="sludgeling",
     )
+    
+    Discovery.objects.create(
+        name="Speedlings",
+        description="33% of experimental units will cost slightly more and gain the 'returns in 8 ticks' perk.",
+        required_faction_name="sludgeling",
+        required_discoveries=["More Experiment Slots"],
+    )
+
+    Discovery.objects.create(
+        name="Toughlings",
+        description="33% of experimental units will cost slightly more and gain the 'takes half as many casualties' perk.",
+        required_faction_name="sludgeling",
+        required_discoveries=["More Experiment Slots"],
+    )
+
+    Discovery.objects.create(
+        name="Cheaplings",
+        description="33% of experimental units will cost less and gain the 'takes twice as many casualties' perk.",
+        required_faction_name="sludgeling",
+        required_discoveries=["More Experiment Slots"],
+    )
+
+    Discovery.objects.create(
+        name="Magnum Goopus",
+        description="""Behold your glorious magnum goopus! At the time this is selected, combine all units at home with a sludge 
+            cost into a single unit with their combined offense and defense. Your incredible masterpiece requires no gold or sludge
+            upkeep, just one food per combined unit. If a unit with perks is included, it also 
+            gains those perks. You can still train more of those experimental units afterwards.""",
+        required_faction_name="sludgeling",
+        required_discoveries_or=["Speedlings", "Toughlings", "Cheaplings"],
+    )
+
+    Discovery.objects.create(
+        name="Encore",
+        description="""Another magnum goopus! ANOTHER!! Your fans love you and cannot get enough and you WILL NOT let them down!""",
+        required_faction_name="sludgeling",
+        required_discoveries=["Magnum Goopus", "Even More Experiment Slots"],
+    )
+
+
+def initialize_discoveries():
+    initialize_generic_discoveries()
+    initialize_dwarf_discoveries()
+    initialize_sludgeling_discoveries()
 
 
 def initialize_trade_prices():

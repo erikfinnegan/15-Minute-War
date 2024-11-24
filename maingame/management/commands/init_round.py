@@ -11,10 +11,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         print("Initializing game pieces...")
 
+        # Deletes and inits everything
         initialize_game_pieces()
 
         round = Round.objects.first()
-        round.ticks_to_end = 4
+
+        # 4 ticks per hour * 24 hours in a day * X days of round
+        round.ticks_to_end = 4 * 24 * 7
+
         round.save()
 
         print("Done initializing.")
