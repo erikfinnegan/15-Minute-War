@@ -279,7 +279,11 @@ def create_magnum_goopus(dominion: Dominion, encore=False):
     total_quantity = 0
     total_op = 0
     total_dp = 0
-    perk_dict = {"is_glorious": True}
+
+    if encore:
+        perk_dict = {"is_more_glorious": True}
+    else:
+        perk_dict = {"is_glorious": True}
 
     for unit in Unit.objects.filter(ruler=dominion):
         if "sludge" in unit.cost_dict and unit.quantity_at_home > 0:

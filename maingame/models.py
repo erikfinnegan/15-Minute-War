@@ -285,6 +285,9 @@ class Dominion(models.Model):
             if "inquisition_ticks_left" in self.perk_dict and self.perk_dict["inquisition_ticks_left"] > 0:
                 return 0
             
+            if self.protection_ticks_remaining > 0:
+                return 0
+            
             sinners_gained = int((self.acres / 100) * self.perk_dict["sinners_per_hundred_acres_per_tick"])
 
             if random.randint(1,100) <= self.acres % 100:
@@ -552,6 +555,9 @@ class Unit(models.Model):
 
         if "is_glorious" in self.perk_dict:
             perk_text += "My god, it's glorious. "
+
+        if "is_more_glorious" in self.perk_dict:
+            perk_text += "HOW IS THIS ONE EVEN BETTER? "
         
         if "surplus_research_consumed_to_add_one_op_and_dp" in self.perk_dict:
             perk_text += f"""Consumes half of your stockpiled research each tick, but leaves enough to afford your upgrades. Gains 1 OP and 1 DP per  
