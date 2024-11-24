@@ -11,7 +11,7 @@ from django.contrib import messages
 from django.db.models import Q
 
 from maingame.formatters import create_or_add_to_key
-from maingame.models import Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings
+from maingame.models import Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings, Theme
 from maingame.tick_processors import do_global_tick
 from maingame.utils import abandon_dominion, delete_dominion, get_acres_conquered, get_grudge_bonus, initialize_dominion, prune_buildings, round_x_to_nearest_y, unlock_discovery, cast_spell
 
@@ -779,10 +779,18 @@ def options(request):
         return redirect("index")
     
     TIMEZONES_CHOICES = [tz for tz in zoneinfo.available_timezones()]
-    themes = ["Mustard and blue", "Blood and beige", "It's a boy", "Elesh Norn", "Swampy", "OpenDominion", "ODA"]
+    # themes = ["Mustard and blue", "Blood and beige", "It's a boy", "Elesh Norn", "Swampy", "OpenDominion", "ODA"]
+    current_theme = user_settings.theme_model
+
+    try:
+        my_theme = Theme.objects.get(creator_user_settings_id=user_settings.id)
+    except:
+        my_theme = Theme.objects.get(name="OpenDominion")
 
     context = {
-        "themes": themes,
+        "themes": Theme.objects.all(),
+        "my_theme": my_theme,
+        "current_theme": current_theme,
         "current_display_name": user_settings.display_name,
         "timezones": TIMEZONES_CHOICES,
     }
@@ -798,12 +806,56 @@ def submit_options(request):
         return redirect("index")
     
     user_settings.display_name = request.POST["display_name"]
-    user_settings.theme = request.POST["theme"]
-    # user_settings.show_tutorials = "show_tutorials" in request.POST
     user_settings.use_am_pm = "use_am_pm" in request.POST
     user_settings.timezone = request.POST["timezone"]
-    user_settings.save()
+    selected_theme = Theme.objects.get(id=request.POST["theme"])
 
+    header_background = request.POST["header_background"]
+    header_text = request.POST["header_text"]
+    base_background = request.POST["base_background"]
+    base_text = request.POST["base_text"]
+    card_background = request.POST["card_background"]
+    card_text = request.POST["card_text"]
+
+    try:
+        my_theme = Theme.objects.get(creator_user_settings_id=user_settings.id)
+    except:
+        my_theme = Theme.objects.create(
+            name=f"{user_settings.display_name}'s Theme",
+            creator_user_settings_id=user_settings.id,
+            base_background=base_background,
+            base_text=base_text,
+            header_background=header_background,
+            header_text=header_text,
+            card_background=card_background,
+            card_text=card_text,
+        )
+
+    if (
+        user_settings.theme_model == selected_theme and
+        (
+            header_background != selected_theme.header_background or
+            header_text != selected_theme.header_text or
+            base_background != selected_theme.base_background or
+            base_text != selected_theme.base_text or
+            card_background != selected_theme.card_background or
+            card_text != selected_theme.card_text
+        )
+    ):
+        print("abc")
+        my_theme.header_background = header_background
+        my_theme.header_text = header_text
+        my_theme.base_background = base_background
+        my_theme.base_text = base_text
+        my_theme.card_background = card_background
+        my_theme.card_text = card_text
+        my_theme.save()
+        user_settings.theme_model = my_theme
+    else:
+        print("def")
+        user_settings.theme_model = selected_theme
+
+    user_settings.save()
     messages.success(request, "Options saved")
     return redirect("options")
 

@@ -6,6 +6,115 @@
 <div>
     <form action="{% url 'submit_options' %}" method="post" class="u-flex u-flex-column u-gap-4">
         {% csrf_token %}
+        <span>Your custom theme</span>
+        <div class="u-flex u-flex-wrap u-gap-2 u-gap-8-md">
+            <div class="u-flex u-flex-column u-gap-1">
+                <div class="u-flex u-flex-row">
+                    <input type="color" id="header_background" name="header_background" value="{{ current_theme.header_background }}" class="w-12" oninput="updatePreview()"/>
+                    <label for="head" class="u-center">Header background</label>
+                </div>
+                <div class="u-flex u-flex-row">
+                    <input type="color" id="header_text" name="header_text" value="{{ current_theme.header_text }}" class="w-12" oninput="updatePreview()"/>
+                    <label for="head" class="u-center">Header text</label>
+                </div>
+            </div>
+            <div class="u-flex u-flex-column u-gap-1">
+                <div class="u-flex u-flex-row">
+                    <input type="color" id="base_background" name="base_background" value="{{ current_theme.base_background }}" class="w-12" oninput="updatePreview()"/>
+                    <label for="head" class="u-center">Body background</label>
+                </div>
+                <div class="u-flex u-flex-row">
+                    <input type="color" id="base_text" name="base_text" value="{{ current_theme.base_text }}" class="w-12" oninput="updatePreview()"/>
+                    <label for="head" class="u-center">Body text</label>
+                </div>
+            </div>
+            <div class="u-flex u-flex-column u-gap-1">
+                <div class="u-flex u-flex-row">
+                    <input type="color" id="card_background" name="card_background" value="{{ current_theme.card_background }}" class="w-12" oninput="updatePreview()"/>
+                    <label for="head" class="u-center">Card background</label>
+                </div>
+                <div class="u-flex u-flex-row">
+                    <input type="color" id="card_text" name="card_text" value="{{ current_theme.card_text }}" class="w-12" oninput="updatePreview()"/>
+                    <label for="head" class="u-center">Card text</label>
+                </div>
+            </div>
+
+            <div class="card card_colors u-shadow-xl p-1">
+                <div class="h-16 w-24 u-flex u-flex-column text-xs" id="base-preview" style="background: {{ current_theme.base_background }}; color: {{ current_theme.base_text }};">
+                    <div class="u-flex u-flex-row u-gap-2 h-4 pl-4" id="header-preview" style="background: {{ current_theme.header_background }}; color: {{ current_theme.header_text }};">
+                        <span id="gold-preview" style="color: {{ current_theme.header_text }}">Gold: 123</span>
+                        <span id="ore-preview" style="color: {{ current_theme.header_text }}">Ore: 50</span>
+                    </div>
+                    <div class="u-flex u-flex-row">
+                        <div class="u-flex u-flex-column w-4 h-12" id="sidebar-preview" style="background: {{ current_theme.header_background }}; color: {{ current_theme.header_color }};">
+                            <span id="menu-a-preview" style="color: {{ current_theme.header_text }}">Menu</span>
+                            <span id="menu-b-preview" style="color: {{ current_theme.header_text }}">Items</span>
+                            <span id="menu-c-preview" style="color: {{ current_theme.header_text }}">Here</span>
+                        </div>
+                        <div class="px-1 u-flex u-flex-column u-gap-1">
+                            <span class="font-bold">Units</span>
+                            <div class="h-3 w-12 px-1" id="card-preview-a" style="background: {{ current_theme.card_background }}; color: {{ current_theme.card_text }};">
+                                Defender 2/6
+                            </div>
+                            <div class="h-3 w-12 px-1" id="card-preview-b" style="background: {{ current_theme.card_background }}; color: {{ current_theme.card_text }};">
+                                Attacker 5/3
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <select name="theme" class="max-w-xs">
+            {% for theme in themes %}
+            <option value="{{ theme.id }}" {% if theme == active_user_settings.theme_model %}selected{% endif %}>
+                {{ theme }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <script>
+            function updatePreview() {
+                let basePreview = document.getElementById("base-preview");
+                let headerPreview = document.getElementById("header-preview");
+                let goldPreview = document.getElementById("gold-preview");
+                let orePreview = document.getElementById("ore-preview");
+
+                let sidebarPreview = document.getElementById("sidebar-preview");
+                let menuApreview = document.getElementById("menu-a-preview");
+                let menuBpreview = document.getElementById("menu-b-preview");
+                let menuCpreview = document.getElementById("menu-c-preview");
+
+                let cardPreviewA = document.getElementById("card-preview-a");
+                let cardPreviewB = document.getElementById("card-preview-b");
+
+                let headerBackground = document.getElementById("header_background").value;
+                let headerText = document.getElementById("header_text").value;
+                let baseBackground = document.getElementById("base_background").value;
+                let baseText = document.getElementById("base_text").value;
+                let cardBackground = document.getElementById("card_background").value;
+                let cardText = document.getElementById("card_text").value;
+
+                headerPreview.style.background = headerBackground
+                headerPreview.style.color = headerText
+                sidebarPreview.style.background = headerBackground
+                sidebarPreview.style.color = headerText
+                goldPreview.style.color = headerText
+                orePreview.style.color = headerText
+                menuApreview.style.color = headerText
+                menuBpreview.style.color = headerText
+                menuCpreview.style.color = headerText
+
+                basePreview.style.background = baseBackground
+                basePreview.style.color = baseText
+
+                cardPreviewA.style.background = cardBackground
+                cardPreviewA.style.color = cardText
+                cardPreviewB.style.background = cardBackground
+                cardPreviewB.style.color = cardText
+            }
+        </script>
+
         <div>
             <label for="display_name">Display name</label>
             <input name="display_name" value="{{ current_display_name }}" />
@@ -31,14 +140,14 @@
             </label>
         </div>
 
-        <div class="u-flex u-flex-column">
+        {% comment %} <div class="u-flex u-flex-column">
             <label for="theme">Theme</label>
             <select name="theme" class="">
                 {% for theme in themes %}
                 <option {% if theme == active_user_settings.theme %}selected{% endif %}>{{ theme }}</option>
                 {% endfor %}
             </select>
-        </div>
+        </div> {% endcomment %}
 
         <div>
             <h6 class="my-auto">Set timezone</h6>

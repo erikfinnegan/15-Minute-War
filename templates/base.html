@@ -101,34 +101,34 @@
         }
 
         .base_colors {
-            background: var(--base_background);
-            color: var(--base_text);
+            background: {{ active_user_settings.used_theme.base_background }};
+            color: {{ active_user_settings.used_theme.base_text }};
             a {
-                color: var(--base_text);
+                color: {{ active_user_settings.used_theme.base_text }};
             }
         }
 
         .card_colors {
-            background: var(--card_background);
-            color: var(--card_text);
+            background: {{ active_user_settings.used_theme.card_background }};
+            color: {{ active_user_settings.used_theme.card_text }};
             a {
-                color: var(--card_text);
+                color: {{ active_user_settings.used_theme.card_text }};
             }
         }
 
         .header_colors {
-            background: var(--header_background);
-            color: var(--header_text);
+            background: {{ active_user_settings.used_theme.header_background }};
+            color: {{ active_user_settings.used_theme.header_text }};
             a {
-                color: var(--header_text);
+                color: {{ active_user_settings.used_theme.header_text }};
             }
         }
 
         button {
-            background: var(--base_background);
-            color: var(--base_text);
+            background: {{ active_user_settings.used_theme.base_background }};
+            color: {{ active_user_settings.used_theme.base_text }};
             a {
-                color: var(--base_text);
+                color: {{ active_user_settings.used_theme.base_text }};
             }
             font-weight: bold;
         }

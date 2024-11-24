@@ -599,6 +599,7 @@ def initialize_blessed_order_discoveries():
         name="Heresy",
         description="Triples the number of sinners generated.",
         required_faction_name="blessed order",
+        required_discoveries_or=["Grim Sacrament", "Penitent Engines"],
     )
 
     Discovery.objects.create(
@@ -708,6 +709,7 @@ def initialize_sludgeling_discoveries():
 def initialize_discoveries():
     initialize_generic_discoveries()
     initialize_dwarf_discoveries()
+    initialize_blessed_order_discoveries()
     initialize_sludgeling_discoveries()
 
 

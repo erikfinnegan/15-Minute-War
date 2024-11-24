@@ -18,16 +18,41 @@ class Deity(models.Model):
         verbose_name_plural = "deities"
         
 
+class Theme(models.Model):
+    name = models.CharField(max_length=30, null=True, blank=True, unique=True)
+    creator_user_settings_id = models.IntegerField(null=True, blank=True, unique=True)
+
+    base_background = models.CharField(max_length=50, default="#000000")
+    base_text = models.CharField(max_length=50, default="#FFFFFF")
+
+    header_background = models.CharField(max_length=50, default="#000000")
+    header_text = models.CharField(max_length=50, default="#FFFFFF")
+
+    card_background = models.CharField(max_length=50, default="#000000")
+    card_text = models.CharField(max_length=50, default="#FFFFFF")
+
+    def __str__(self):
+        return f"{self.name}"
+
+
 class UserSettings(models.Model):
     associated_user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, unique=True)
     display_name = models.CharField(max_length=50, null=True, blank=True, default="")
     timezone = models.CharField(max_length=50, default="UTC")
     show_tutorials = models.BooleanField(default=True)
     theme = models.CharField(max_length=50, null=True, blank=True, default="OpenDominion")
+    theme_model = models.ForeignKey(Theme, on_delete=models.PROTECT, null=True, blank=True)
     use_am_pm = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.display_name}'s settings"
+    
+    @property
+    def used_theme(self):
+        if self.theme_model:
+            return self.theme_model
+        else:
+            return Theme.objects.get(name="OpenDominion")
 
 
 class Dominion(models.Model):
