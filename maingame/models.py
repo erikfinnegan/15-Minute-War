@@ -48,7 +48,7 @@ class UserSettings(models.Model):
     use_am_pm = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"{self.display_name}'s settings"
+        return f"{self.display_name} -- {self.theme_model}"
     
     @property
     def used_theme(self):
@@ -499,10 +499,10 @@ class Unit(models.Model):
     faction = models.ForeignKey(Faction, on_delete=models.PROTECT, null=True, blank=True)
 
     def __str__(self):
-        base_name = f"{self.name} ({self.op}/{self.dp}) -- {self.id}"
+        base_name = f"{self.name} ({self.op}/{self.dp}) -- x{self.quantity_at_home}"
 
         if self.ruler:
-            return f"{self.ruler.name}'s {base_name}"
+            return f"{self.ruler.name} -- {base_name}"
         
         return f"🟩Base --- {base_name}"
     
