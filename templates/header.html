@@ -39,8 +39,12 @@
 
     {% comment %} DESKTOP HEADER {% endcomment %}
     <div class="u-none u-flex-md u-flex-wrap {% if active_dominion.resource_types >= 9 %}u-gap-4{% else %}u-gap-6{% endif %}">
-        <span class="font-bold u-center tooltip tooltip--right" data-tooltip="{{ active_dominion.acres_with_incoming }}">{{ active_dominion.acres }}{% if active_dominion.incoming_acres > 0 %} ({{ active_dominion.incoming_acres }}){% endif %} acres</span>
+        {% if active_dominion %}
+        <span class="font-bold u-center tooltip tooltip--right" data-tooltip="{{ active_dominion.acres_with_incoming }}">
+            {{ active_dominion.acres }}{% if active_dominion.incoming_acres > 0 %} ({{ active_dominion.incoming_acres }}){% endif %} acres
+        </span>
         <span class="font-bold u-center">{{ active_dominion.defense_short }} DP</span>
+        {% endif %}
         {% for resource in active_dominion.resources %}
         <div class="u-flex u-flex-column tooltip tooltip--bottom" data-tooltip="{{ resource.net_production|intcomma }} / tick">
             <span class="font-bold">{{ resource.name|title }}:</span>
