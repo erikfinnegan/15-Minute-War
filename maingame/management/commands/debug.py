@@ -5,11 +5,14 @@ from maingame.models import UserSettings, Resource, Round, Event, Dominion
 from django.contrib.auth.models import User
 import os
 
+from maingame.static_init import initialize_blessed_order_discoveries
+
 class Command(BaseCommand):
     help = "Initiates a battle"
 
     def handle(self, *args, **options):
         print("IT'S DEBUG TIME BABY")
+        initialize_blessed_order_discoveries()
         # user = User.objects.get(username="erik")
         # user_settings = UserSettings.objects.get(associated_user=user)
 
