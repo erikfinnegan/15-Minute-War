@@ -32,3 +32,10 @@ class Command(BaseCommand):
         # print(testdom)
         # print(testdom in event.notified_dominions.all())
         # print(event.reference_id, testdom.id)
+        vamps_to_convert = 50
+        vamps = 50
+
+        for _ in range(6 * 96):
+            vamps += int(vamps / vamps_to_convert)
+
+        print(vamps)
