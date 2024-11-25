@@ -348,6 +348,7 @@
                         {{ unit.quantity_at_home|intcomma }}
                     </td>
                     <td class="u-align-middle u-flex-md u-flex-row-md">
+                        {% if unit.is_trainable %}
                         <input 
                             name="release_{{ unit.id }}" 
                             id="release_{{ unit.id }}" 
@@ -356,6 +357,9 @@
                             max="{{ unit.quantity_at_home }}" 
                             class="w-12 w-16-md ml-auto-md mr-2-md"
                         >
+                        {% else %}
+                        <span>Can't be released</span>
+                        {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
