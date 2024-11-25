@@ -92,7 +92,7 @@
         <select name="theme" class="max-w-xs">
             {% for theme in themes %}
             <option value="{{ theme.id }}" {% if theme == active_user_settings.theme_model %}selected{% endif %}>
-                {{ theme }}
+                {{ theme.name }}
             </option>
             {% endfor %}
         </select>
@@ -203,16 +203,6 @@
             <input name="display_name" value="{{ current_display_name }}" />
         </div>
 
-        {% comment %} <div class="form-ext-control pl-0 w-12">
-            <label class="form-ext-toggle__label u-flex u-flex-row u-gap-2">
-                <span>Tutorials</span>
-                <div class="form-ext-toggle">
-                    <input name="show_tutorials" type="checkbox" class="form-ext-input" {% if active_user_settings.show_tutorials %}checked{% endif %} />
-                    <div class="form-ext-toggle__toggler"><i></i></div>
-                </div>
-            </label>
-        </div> {% endcomment %}
-
         <div class="form-ext-control pl-0 w-24">
             <label class="form-ext-toggle__label u-flex u-flex-row u-gap-2">
                 <span>Use AM/PM in timestamps</span>
@@ -222,15 +212,6 @@
                 </div>
             </label>
         </div>
-
-        {% comment %} <div class="u-flex u-flex-column">
-            <label for="theme">Theme</label>
-            <select name="theme" class="">
-                {% for theme in themes %}
-                <option {% if theme == active_user_settings.theme %}selected{% endif %}>{{ theme }}</option>
-                {% endfor %}
-            </select>
-        </div> {% endcomment %}
 
         <div>
             <h6 class="my-auto">Set timezone</h6>

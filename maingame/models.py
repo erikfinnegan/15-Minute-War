@@ -35,7 +35,7 @@ class Theme(models.Model):
     input_text = models.CharField(max_length=50, default="#000000")
 
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.name} -- id: {self.id}"
 
 
 class UserSettings(models.Model):
