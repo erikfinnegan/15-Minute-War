@@ -434,6 +434,7 @@
         </thead>
         <tbody>
             {% for other_dominion in other_dominions %}
+            {% if other_dominion != active_dominion %}
             <tr class="{% if other_dominion == active_dominion %}font-bold{% endif %}">
                 <th class="u-align-middle">{{ other_dominion.name }}</td>
                 <td class="u-align-middle">{{ other_dominion.rulers_display_name }}</td>
@@ -468,6 +469,7 @@
                     {% endif %}
                 </td>
             </tr>
+            {% endif %}
             {% endfor %}
         </tbody>
     </table>
