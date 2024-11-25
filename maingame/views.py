@@ -342,7 +342,7 @@ def resources(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
     except:
-        return redirect("options")
+        return redirect("register")
     
     round = Round.objects.first()
     resources_dict = {}
