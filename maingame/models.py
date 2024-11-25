@@ -46,6 +46,7 @@ class UserSettings(models.Model):
     theme = models.CharField(max_length=50, null=True, blank=True, default="OpenDominion")
     theme_model = models.ForeignKey(Theme, on_delete=models.PROTECT, null=True, blank=True)
     use_am_pm = models.BooleanField(default=True)
+    is_tutorial = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.display_name} -- {self.theme_model}"
