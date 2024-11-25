@@ -460,6 +460,7 @@ def cast_spell(spell: Spell):
                         overwhelming_unit.is_trainable = False
                         overwhelming_unit.cost_dict = {}
                         overwhelming_unit_upkeep = overwhelming_unit.op
+                        overwhelming_unit.perk_dict["is_releasable"] = True
 
                         overwhelming_unit.upkeep_dict[mana.name] = overwhelming_unit_upkeep
                         

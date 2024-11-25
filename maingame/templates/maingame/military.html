@@ -348,7 +348,7 @@
                         {{ unit.quantity_at_home|intcomma }}
                     </td>
                     <td class="u-align-middle u-flex-md u-flex-row-md">
-                        {% if unit.is_trainable %}
+                        {% if unit.is_trainable or "is_releasable" in unit.perk_dict %}
                         <input 
                             name="release_{{ unit.id }}" 
                             id="release_{{ unit.id }}" 
