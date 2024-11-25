@@ -2,6 +2,11 @@
 
 {% block title %}Register{% endblock %}
 
+{% block tutorial %}
+<h6>Hello and welcome to 15 Minute War!</h6>
+<p>This yellow band is the tutorial zone. You can disable tutorial mode from the options menu on the side there, but if it's your first time, I suggest you don't!</p>
+{% endblock %}
+
 {% block content %}
 <form action="{% url 'submit_register' %}" method="post" class="w-64 u-flex u-flex-column u-gap-4">
     {% csrf_token %}
@@ -15,7 +20,9 @@
         <label for="factionChoice">Select a faction</label>
         <select class="" name="factionChoice">
             {% for faction in factions %}
+            {% if active_user_settings.tutorial_stage >= 1 or faction.name == "dwarf" %}
             <option>{{ faction.name|title }}</option>
+            {% endif %}
             {% endfor %}
         </select>
     </div>
