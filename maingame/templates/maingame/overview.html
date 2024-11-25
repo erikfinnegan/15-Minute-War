@@ -434,7 +434,6 @@
         </thead>
         <tbody>
             {% for other_dominion in other_dominions %}
-            {% if other_dominion != active_dominion %}
             <tr class="{% if other_dominion == active_dominion %}font-bold{% endif %}">
                 <th class="u-align-middle">{{ other_dominion.name }}</td>
                 <td class="u-align-middle">{{ other_dominion.rulers_display_name }}</td>
@@ -463,13 +462,12 @@
 
                 <td class="u-align-middle">
                     {% if other_dominion.protection_ticks_remaining == 0 %}
-                    <a href="{% url 'overview' dominion.id %}" class="u-center">
+                    <a href="{% url 'overview' other_dominion.id %}" class="u-center">
                         <button class="py-0 header_colors">Info</button>
                     </a>
                     {% endif %}
                 </td>
             </tr>
-            {% endif %}
             {% endfor %}
         </tbody>
     </table>
