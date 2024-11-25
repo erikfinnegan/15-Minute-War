@@ -1483,6 +1483,8 @@ def submit_invasion(request, dominion_id):
         quantity_sent = unit_details_dict["quantity_sent"]
         offense_sent += unit.op * quantity_sent
 
+    my_dominion.highest_raw_op_sent = max(offense_sent, my_dominion.highest_raw_op_sent)
+    my_dominion.save()
     offense_sent *= (my_dominion.offense_multiplier + get_grudge_bonus(my_dominion, target_dominion))
 
     # Determine victor

@@ -72,6 +72,7 @@ class Dominion(models.Model):
     incoming_acres_dict = models.JSONField(default=dict, blank=True)
     successful_invasions = models.IntegerField(default=0)
     failed_defenses = models.IntegerField(default=0)
+    highest_raw_op_sent = models.IntegerField(default=0)
 
     primary_resource_name = models.CharField(max_length=50, null=True, blank=True)
     primary_resource_per_acre = models.IntegerField(default=0)
@@ -163,6 +164,17 @@ class Dominion(models.Model):
     @property
     def defense_short(self):
         defense = self.defense
+
+        if defense < 100000: # 100k
+            return f"{defense:2,}"
+        elif defense < 1000000: # 1m
+            return f"{int(defense/1000)}k"
+        else:
+            return f"{round(defense/1000000, 2)}m"
+        
+    @property
+    def highest_op_short(self):
+        defense = self.highest_raw_op_sent
 
         if defense < 100000: # 100k
             return f"{defense:2,}"
