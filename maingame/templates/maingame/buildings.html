@@ -3,6 +3,44 @@
 
 {% block title %}Buildings{% endblock %}
 
+{% block tutorial %}
+{% if active_user_settings.tutorial_step == 1 %}
+<p>
+    You're going to need some resources to do anything. Your resources appear at the top of the page and it might look like you have a lot of gold, but that's only just
+    enough to construct buildings on all your available land! You start with {{ active_dominion.acres }} acres and each acre can support one building.
+</p>
+<p>Each building produces a different resource, but not all resources are equally important for dwarves.</p>
+<p>Construct 50 farms to get food to feed your future units.</p>
+<p>Construct 225 quarries to get the ore you'll need to train your units.</p>
+<p>Construct 30 lumberyards to get the wood you'll need to build future buildings.</p>
+<p>Construct 195 schools to get research to upgrade your buildings later.</p>
+<p>We're not going to need any towers for our strategy.</p>
+{% endif %}
+
+{% if active_user_settings.tutorial_step == 2 %}
+<p>Great! Now go to the Resources page.</p>
+{% endif %}
+
+{% if active_user_settings.tutorial_step == 6 %}
+<p>Now that we've accumulated 60 ticks' worth of resources, it's time to train your army. Go to the Military page.</p>
+{% endif %}
+
+{% if active_user_settings.tutorial_step == 10 %}
+<p>
+    Now you're ready for war. Process ticks until there's only one left. It would be wise to spend your accumulated research and it would be optimal to revisit
+    the Military page each tick to put some more units in training. I won't hold your hand for this, so do it however you see fit. I'll see you when you have
+    one tick left.
+</p>
+{% endif %}
+
+{% if active_user_settings.tutorial_step == 11 %}
+<p>
+    The rest of the menu has been unlocked. Take a few minutes to click around before processing your last tick and leaving protection. You'll want to check out
+    the Overview, Spells, The World, News, Faction Info, and Options pages.
+</p>
+{% endif %}
+{% endblock %}
+
 {% block content %}
 <div>
     <details class="accordion card card_colors max-w-md">

@@ -3,9 +3,11 @@
 {% block title %}Register{% endblock %}
 
 {% block tutorial %}
+{% if active_user_settings.tutorial_step == 0 %}
 <h6>Hello and welcome to 15 Minute War!</h6>
 <p>This yellow band is the tutorial zone. If it's not your first time, you can disable tutorial mode from the options menu on the side there.</p>
-<p>While other factions exist, please select dwarf for the purposes of this tutorial.</p>
+<p>Several other factions exist, but please select dwarf for the purposes of this tutorial.</p>
+{% endif %}
 {% endblock %}
 
 {% block content %}

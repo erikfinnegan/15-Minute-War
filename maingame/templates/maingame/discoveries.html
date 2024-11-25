@@ -3,6 +3,39 @@
 
 {% block title %}Discoveries{% endblock %}
 
+{% block tutorial %}
+{% if active_user_settings.tutorial_step == 8 %}
+<p>
+    Every 50 ticks, you can unlock a dicovery. There are lots of them - some give passive bonuses, others unlock new units or buildings, and others do even more.
+    Your menu displays an icon next to the Discoveries page whenever you have a discovery available to unlock.
+</p>
+<p>
+    You're here because you have surplus wood. Unlock the Palisades discovery using the dropdown.
+</p>
+{% endif %}
+
+{% if active_user_settings.tutorial_step == 9 %}
+<p>
+    Now that you have access to palisades, head back to the Military page.
+</p>
+{% endif %}
+
+{% if active_user_settings.tutorial_step == 10 %}
+<p>
+    Now you're ready for war. Process ticks until there's only one left. It would be wise to spend your accumulated research and it would be optimal to revisit
+    the Military page each tick to put some more units in training. I won't hold your hand for this, so do it however you see fit. I'll see you when you have
+    one tick left.
+</p>
+{% endif %}
+
+{% if active_user_settings.tutorial_step == 11 %}
+<p>
+    The rest of the menu has been unlocked. Take a few minutes to click around before processing your last tick and leaving protection. You'll want to check out
+    the Overview, Spells, The World, News, Faction Info, and Options pages.
+</p>
+{% endif %}
+{% endblock %}
+
 {% block content %}
 <div>
     <details class="accordion card card_colors max-w-md">
@@ -48,7 +81,9 @@
             <select name="discovery_name" class="w-32 h-6 u-center">
                 <option selected></option>
                 {% for discovery in available_discoveries %}
+                {% if active_user_settings >= 9 or discovery.name == "Palisades" or discovery.name == "Battering Rams" or discovery.name == "Prosperity" %}
                 <option value="{{ discovery.name }}">{{ discovery.name }}</option>
+                {% endif %}
                 {% endfor %}
             </select>
             <button class="header_colors w-16 h-6 p-0 u-center" type="submit" {% if active_dominion.discoveries_to_make < 1 %}disabled{% endif %}>
@@ -59,6 +94,7 @@
 
     <div class="u-flex u-flex-wrap u-gap-2">
         {% for discovery in available_discoveries %}
+        {% if active_user_settings >= 9 or discovery.name == "Palisades" or discovery.name == "Battering Rams" or discovery.name == "Prosperity" %}
         <div class="card card_colors p-1 w-100p max-w-xs">
             <h6>{{ discovery.name }}</h6>
             <p>{{ discovery.description }}</p>
@@ -102,6 +138,7 @@
 
             {% endif %}
         </div>
+        {% endif %}
         {% endfor %}
     </div>
 </div>

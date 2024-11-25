@@ -128,6 +128,7 @@ def discoveries(request):
 def submit_discovery(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
+        user_settings = UserSettings.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
@@ -136,6 +137,10 @@ def submit_discovery(request):
         return redirect("discoveries")
     
     discovery_name = request.POST["discovery_name"]
+
+    if user_settings.tutorial_step < 999 and discovery_name != "Palisades":
+        messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+        return redirect("discoveries")
     
     if dominion.discovery_points < 50:
         messages.error(request, f"Insufficient discovery points")
@@ -168,6 +173,7 @@ def submit_building(request):
         messages.error(request, f"The round has already ended")
         return redirect("buildings")
     
+    user_settings = UserSettings.objects.get(associated_user=dominion.associated_user)
     primary_resource = Resource.objects.get(ruler=dominion, name=dominion.building_primary_resource_name)
     secondary_resource = Resource.objects.get(ruler=dominion, name=dominion.building_secondary_resource_name)
     total_built = 0
@@ -178,6 +184,23 @@ def submit_building(request):
         # key is like "build_123" where 123 is the ID of the Building
         if "build_" in key and string_amount != "":
             building = Building.objects.get(id=key[6:])
+
+            if user_settings.tutorial_step == 1:
+                if building.name == "farm" and int(string_amount) != 50:
+                    messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+                    return redirect("buildings")
+                elif building.name == "quarry" and int(string_amount) != 225:
+                    messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+                    return redirect("buildings")
+                elif building.name == "lumberyard" and int(string_amount) != 30:
+                    messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+                    return redirect("buildings")
+                elif building.name == "school" and int(string_amount) != 195:
+                    messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+                    return redirect("buildings")
+                elif building.name == "tower" and int(string_amount) != 0:
+                    messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+                    return redirect("buildings")
 
             if destroy_mode:
                 amount = int(string_amount)
@@ -244,6 +267,7 @@ def military(request):
 def submit_training(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
+        user_settings = UserSettings.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
@@ -258,6 +282,21 @@ def submit_training(request):
         # key is like "train_123" where 123 is the ID of the Unit
         if "train_" in key and string_amount != "":
             unit = Unit.objects.get(id=key[6:])
+
+            if user_settings.tutorial_step < 999:
+                if user_settings.tutorial_step <= 5:
+                    messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+                    return redirect("military")
+                if unit.name == "Stoneshield" and int(string_amount) != 500 and user_settings.tutorial_step <= 6:
+                    messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+                    return redirect("military")
+                elif unit.name == "Hammerer" and int(string_amount) != 720 and user_settings.tutorial_step <= 7:
+                    messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+                    return redirect("military")
+                elif unit.name == "Palisade" and int(string_amount) != 80 and user_settings.tutorial_step <= 9:
+                    messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+                    return redirect("military")
+                
 
             if unit.is_trainable:
                 amount = int(string_amount)
@@ -480,6 +519,7 @@ def upgrades(request):
 def upgrade_building(request, building_id):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
+        user_settings = UserSettings.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
@@ -489,8 +529,11 @@ def upgrade_building(request, building_id):
     
     building = Building.objects.get(ruler=dominion, id=building_id)
     research_resource = Resource.objects.get(ruler=dominion, name="research")
-
     available_research_points = research_resource.quantity
+
+    if user_settings.tutorial_step == 4 and building.name != "quarry":
+        messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+        return redirect("upgrades")
 
     if available_research_points < building.upgrade_cost:
         messages.error(request, f"This would cost {f'{building.upgrade_cost:,}'} research. You have {f'{available_research_points:,}'}. You're {f'{building.upgrade_cost - available_research_points:,}'} short.")
@@ -573,8 +616,34 @@ def protection_tick(request, quantity):
     if quantity <= 96:
         try:
             dominion = Dominion.objects.get(associated_user=request.user)
+            user_settings = UserSettings.objects.get(associated_user=request.user)
         except:
             return redirect("register")
+        
+        print("aaa")
+        
+        if user_settings.tutorial_step == 1:
+            messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+            return redirect("buildings")
+        elif user_settings.tutorial_step == 2 and dominion.protection_ticks_remaining - quantity != 71:
+            messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+            return redirect("resources")
+        elif user_settings.tutorial_step == 3 and quantity != 12:
+            messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+            return redirect("resources")
+        elif user_settings.tutorial_step == 10 and dominion.protection_ticks_remaining - quantity < 1:
+            messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+            return redirect("resources")
+        elif user_settings.tutorial_step < 999 and user_settings.tutorial_step not in [1, 2, 3, 5, 10, 11]:
+            messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+            if user_settings.tutorial_step in [7]:
+                return redirect("military")
+            elif user_settings.tutorial_step in [8]:
+                return redirect("discoveries")
+            else:
+                return redirect("resources")
+        
+        print("user_settings.tutorial_step", user_settings.tutorial_step)
         
         if dominion.protection_ticks_remaining - quantity < 12:
             forgot_units = True

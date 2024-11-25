@@ -4,6 +4,27 @@
 
 {% block title %}The World{% endblock %}
 
+{% block tutorial %}
+{% if active_user_settings.tutorial_step == 11 %}
+<p>
+    These are all the dominions at the moment. You can click the info button next to anyone's name to see an overview of their dominion.
+</p>
+<p>
+    Complacency is a penalty to that dominion's defense. It worses by 0.33% per tick and resets to zero when they get invaded.
+</p>
+<p>
+    Determination is a bonus to that dominion's offense. It improves by 0.33% per tick and resets to zero when they invade someone.
+</p>
+<p>
+    Highest OP tracks the greatest total offense that dominion has sent on an invasion. It doesn't represent their maximum potential, but it's
+    a useful tool for determining if you have enough defense.
+</p>
+<p>
+    The "INFO" button will take you to that dominion's overview page where you can see what they're building and also invade them.
+</p>
+{% endif %}
+{% endblock %}
+
 {% block content %}
 <div>
     <details class="accordion card card_colors max-w-md">

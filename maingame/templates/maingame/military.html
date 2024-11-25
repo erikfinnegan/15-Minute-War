@@ -4,6 +4,62 @@
 
 {% block title %}Army training{% endblock %}
 
+{% block tutorial %}
+{% if active_user_settings.tutorial_step == 6 %}
+<p>
+    Your military will make up the vast majority of your resource usage in 15 Minute War. Units have a power represented like X/Y where X is their power when
+    invading someone else and Y is their power when defending. You're going to want a healthy mix of both.
+</p>
+<p>
+    Start by training 500 Stoneshields. They're not very good on offense but each will provide 6 defense for a total of 6 * 500 = 3,000 defense. 
+</p>
+{% endif %}
+
+{% if active_user_settings.tutorial_step == 7 %}
+<p>
+    You'll notice that the quantity shows "0 (500)". That's because those 500 units are still in training. When you train units, they take 12 units to 
+    show up - that's why we stopped here when we had 12 ticks left in protection!
+    You can keep track of your training progress below in the "Units in training" section.
+</p>
+<p>
+    You won't get very far in 15 Minute War without conquering land from your enemies, so you'll need an offense as well. You can afford 720 Hammerers, so spend
+    the rest of your gold training that full amount! They provide 5 offense each and, while they're not out invading, they'll still provide 4 defense as well.
+    When units invade, they take 12 ticks to return home, during which time they won't be providing their defense.
+</p>
+{% endif %}
+
+{% if active_user_settings.tutorial_step == 8 %}
+<p>
+    It seems you have a bunch of wood accumulated. While this will come in handy for building new buildings once you conquer more land, it's not doing you any
+    good just sitting around. You produce enough that, even if you spend all of what you have now, you'll be able to afford your buildings later.
+</p>
+<p>
+    You probably noticed that you don't have any units to spend it on, though. You can change that. Head over to the Discoveries page.
+</p>
+{% endif %}
+
+{% if active_user_settings.tutorial_step == 9 %}
+<p>
+    Looks like you can afford 80 palisades. That's good for 400 more defense and it doesn't cost any precious gold.
+</p>
+{% endif %}
+
+{% if active_user_settings.tutorial_step == 10 %}
+<p>
+    Now you're ready for war. Process ticks until there's only one left. It would be wise to spend your accumulated research and it would be optimal to revisit
+    the Military page each tick to put some more units in training. I won't hold your hand for this, so do it however you see fit. I'll see you when you have
+    one tick left.
+</p>
+{% endif %}
+
+{% if active_user_settings.tutorial_step == 11 %}
+<p>
+    The rest of the menu has been unlocked. Take a few minutes to click around before processing your last tick and leaving protection. You'll want to check out
+    the Overview, Spells, The World, News, Faction Info, and Options pages.
+</p>
+{% endif %}
+{% endblock %}
+
 {% block content %}
 <div>
     <details class="accordion card card_colors max-w-md">

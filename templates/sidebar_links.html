@@ -1,13 +1,33 @@
 {% load extra_tags %}
 
 {% if active_dominion %}
+    {% if active_user_settings.tutorial_step >= 11 %}
     <a href="{% url 'overview' active_dominion.id %}" class="mt-1">Overview</a>
+    {% endif %}
+
+    {% if active_user_settings.tutorial_step >= 2 %}
     <a href="{% url 'resources' %}" class="">Resources</a>
+    {% endif %}
+
+    {% if active_user_settings.tutorial_step >= 1 %}
     <a href="{% url 'buildings' %}" class="">Buildings{% if active_dominion.barren_acres > 0 %} ⚠️{% endif %}</a>
+    {% endif %}
+    
+    {% if active_user_settings.tutorial_step >= 6 %}
     <a href="{% url 'military' %}" class="">Military</a>
+    {% endif %}
+
+    {% if active_user_settings.tutorial_step >= 11 %}
     <a href="{% url 'spells' %}" class="">Spells</a>
+    {% endif %}
+
+    {% if active_user_settings.tutorial_step >= 4 %}
     <a href="{% url 'upgrades' %}" class="">Upgrades</a>
+    {% endif %}
+
+    {% if active_user_settings.tutorial_step >= 8 %}
     <a href="{% url 'discoveries' %}" class="">Discoveries{% if active_dominion.discovery_points >= 50 %} 💡{% endif %}</a>
+    {% endif %}
 
     {% if active_dominion.faction_name == "blessed order" %}
         <a href="{% url 'church_affairs' %}" class="">Church Affairs</a>
@@ -15,15 +35,24 @@
         <a href="{% url 'experimentation' %}" class="">Experimentation</a>
     {% endif %}
 
+    {% if active_user_settings.tutorial_step >= 11 %}
     <a href="{% url 'world' %}" class="">The World</a>
+    {% endif %}
+
+    {% if active_user_settings.tutorial_step >= 11 %}
     <a href="{% url 'news' %}" class="mb-4">News{% if active_dominion.has_unread_events > 0 %} ⚠️{% endif %}</a>
+    {% endif %}
+
     <a href="{% url 'tutorial' %}" class="">Tutorial</a>
 {% else %}
     <a href="{% url 'register' %}" class="">Register</a>
 {% endif %}
 
 <a href="{% url 'options' %}" class="">Options</a>
+
+{% if active_user_settings.tutorial_step >= 11 %}
 <a href="{% url 'faction_info' %}" class="">Faction Info</a>
+{% endif %}
 
 {% if round.has_ended %}
     <span class="mx-1 pt-4 font-bold">The round is over</span>

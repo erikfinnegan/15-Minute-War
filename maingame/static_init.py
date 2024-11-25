@@ -633,7 +633,7 @@ def initialize_blessed_order_discoveries():
 
     Discovery.objects.create(
         name="Funerals",
-        description="Your casualties will be mourned, generating 10 faith per OP (on offense) or per DP (on defense).",
+        description="Your casualties will be mourned, generating 10 faith per OP (on offense) or per DP (on defense). Does not apply to units that always die on offense.",
         required_faction_name="blessed order",
     )
 
