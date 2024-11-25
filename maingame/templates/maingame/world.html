@@ -23,9 +23,10 @@
                     <th class="u-align-middle">Defense</th>
                     <th class="u-align-middle">Complacency</th>
                     <th class="u-align-middle">Determination</th>
+                    <th class="u-align-middle">Highest OP</th>
                     <th class="u-align-middle">Units Returning</th>
                     {% if "book_of_grudges" in active_dominion.perk_dict %}
-                    <th class="u-align-middle">Book of Grudges</th>
+                    <th class="u-align-middle">Grudges</th>
                     {% endif %}
                     <th class="u-align-middle">Info</th>
                 </tr>
@@ -66,6 +67,7 @@
 
                     <td>-{{ dominion.complacency_penalty_percent|floatformat:0 }}% DP</td>
                     <td>+{{ dominion.determination_bonus_percent|floatformat:0 }}% OP</td>
+                    <td>{{ dominion.highest_op_short }}</td>
 
                     <td class="u-align-middle">
                         {% if dominion.has_units_returning %}
