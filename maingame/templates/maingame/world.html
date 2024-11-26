@@ -24,14 +24,14 @@
                     <th class="u-align-middle">Player</th>
                     <th class="u-align-middle">Land</th>
                     <th class="u-align-middle">Faction</th>
-                    <th class="u-align-middle">Defense</th>
-                    <th class="u-align-middle">Complacency</th>
-                    <th class="u-align-middle">Determination</th>
                     <th class="u-align-middle">Highest OP</th>
-                    <th class="u-align-middle">Units Returning</th>
+                    <th class="u-align-middle">Determination</th>
+                    <th class="u-align-middle">Complacency</th>
                     {% if "book_of_grudges" in active_dominion.perk_dict %}
                     <th class="u-align-middle">Grudges</th>
                     {% endif %}
+                    <th class="u-align-middle">Defense</th>
+                    <th class="u-align-middle">Units Returning</th>
                     <th class="u-align-middle">Info</th>
                 </tr>
             </thead>
@@ -63,21 +63,9 @@
                     <td class="u-align-middle">{{ dominion.faction_name|title }}</td>
                     {% endif %}
 
-                    <td class="u-align-middle">
-                        <span class="u-center {% if dominion.protection_ticks_remaining > 0 or not round.has_started %}text-teal-400{% endif %}">
-                            {% if dominion.protection_ticks_remaining == 0 and round.has_started %}{{ dominion.defense_short }}{% else %}Magical protection{% endif %}
-                        </span>
-                    </td>
-
-                    <td>-{{ dominion.complacency_penalty_percent|floatformat:0 }}% DP</td>
-                    <td>+{{ dominion.determination_bonus_percent|floatformat:0 }}% OP</td>
                     <td>{{ dominion.highest_op_short }}</td>
-
-                    <td class="u-align-middle">
-                        {% if dominion.has_units_returning %}
-                        <span class="tag tag--danger py-0 mx-auto">Units returning</span>
-                        {% endif %}
-                    </td>
+                    <td>+{{ dominion.determination_bonus_percent|floatformat:0 }}% OP</td>
+                    <td>-{{ dominion.complacency_penalty_percent|floatformat:0 }}% DP</td>
 
                     {% if "book_of_grudges" in active_dominion.perk_dict %}
                     {% if dominion.strid in active_dominion.perk_dict.book_of_grudges %}
@@ -91,6 +79,18 @@
                     <td class="u-align-middle">None</td>
                     {% endif %}
                     {% endif %}
+
+                    <td class="u-align-middle">
+                        <span class="u-center {% if dominion.protection_ticks_remaining > 0 or not round.has_started %}text-teal-400{% endif %}">
+                            {% if dominion.protection_ticks_remaining == 0 and round.has_started %}{{ dominion.defense_short }}{% else %}Magical protection{% endif %}
+                        </span>
+                    </td>
+
+                    <td class="u-align-middle">
+                        {% if dominion.has_units_returning %}
+                        <span class="tag tag--danger py-0 mx-auto">Units returning</span>
+                        {% endif %}
+                    </td>
 
                     <td class="u-align-middle">
                         {% if dominion.protection_ticks_remaining == 0 %}
