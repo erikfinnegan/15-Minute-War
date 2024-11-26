@@ -1668,7 +1668,10 @@ def submit_invasion(request, dominion_id):
         if "mana" not in unit.upkeep_dict and "mana" not in unit.cost_dict and "always_dies_on_offense" not in unit.perk_dict:
             offensive_casualties += casualties
 
-        unit.returning_dict["12"] += survivors
+        if "returns_in_ticks" in unit.perk_dict:
+            unit.returning_dict[str(unit.perk_dict["returns_in_ticks"])] += survivors
+        else:
+            unit.returning_dict["12"] += survivors
         unit.save()
 
     # Apply defensive casualties
