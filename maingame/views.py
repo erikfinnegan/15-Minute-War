@@ -620,8 +620,6 @@ def protection_tick(request, quantity):
         except:
             return redirect("register")
         
-        print("aaa")
-        
         if user_settings.tutorial_step == 1:
             messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
             return redirect("buildings")

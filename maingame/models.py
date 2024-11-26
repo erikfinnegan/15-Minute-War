@@ -40,7 +40,7 @@ class Theme(models.Model):
 
 class UserSettings(models.Model):
     associated_user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, unique=True)
-    display_name = models.CharField(max_length=50, null=True, blank=True, default="")
+    display_name = models.CharField(max_length=25, null=True, blank=True, default="")
     timezone = models.CharField(max_length=50, default="UTC")
     show_tutorials = models.BooleanField(default=True)
     theme = models.CharField(max_length=50, null=True, blank=True, default="OpenDominion")
