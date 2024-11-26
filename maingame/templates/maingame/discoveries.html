@@ -81,7 +81,7 @@
             <select name="discovery_name" class="w-32 h-6 u-center">
                 <option selected></option>
                 {% for discovery in available_discoveries %}
-                {% if active_user_settings >= 9 or discovery.name == "Palisades" or discovery.name == "Battering Rams" or discovery.name == "Prosperity" %}
+                {% if active_user_settings.tutorial_step >= 9 or discovery.name == "Palisades" or discovery.name == "Battering Rams" or discovery.name == "Prosperity" %}
                 <option value="{{ discovery.name }}">{{ discovery.name }}</option>
                 {% endif %}
                 {% endfor %}
@@ -94,7 +94,7 @@
 
     <div class="u-flex u-flex-wrap u-gap-2">
         {% for discovery in available_discoveries %}
-        {% if active_user_settings >= 9 or discovery.name == "Palisades" or discovery.name == "Battering Rams" or discovery.name == "Prosperity" %}
+        {% if active_user_settings.tutorial_step >= 9 or discovery.name == "Palisades" or discovery.name == "Battering Rams" or discovery.name == "Prosperity" %}
         <div class="card card_colors p-1 w-100p max-w-xs">
             <h6>{{ discovery.name }}</h6>
             <p>{{ discovery.description }}</p>
