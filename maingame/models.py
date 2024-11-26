@@ -70,6 +70,14 @@ class UserSettings(models.Model):
             current_step += 1 #1
 
             dominion = Dominion.objects.get(associated_user=self.associated_user)
+            
+            if dominion.faction_name != "dwarf":
+                return 8888
+            elif len(dominion.learned_discoveries) > 0 and "Palisades" not in dominion.learned_discoveries:
+                return 8888
+            elif dominion.acres > 500:
+                return 8888
+
             if dominion.barren_acres == 0:
                 current_step += 1 #2
             
