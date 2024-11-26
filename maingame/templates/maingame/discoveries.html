@@ -4,36 +4,7 @@
 {% block title %}Discoveries{% endblock %}
 
 {% block tutorial %}
-{% if active_user_settings.tutorial_step == 8 %}
-<p>
-    Every 50 ticks, you can unlock a dicovery. There are lots of them - some give passive bonuses, others unlock new units or buildings, and others do even more.
-    Your menu displays an icon next to the Discoveries page whenever you have a discovery available to unlock.
-</p>
-<p>
-    You're here because you have surplus wood. Unlock the Palisades discovery using the dropdown.
-</p>
-{% endif %}
-
-{% if active_user_settings.tutorial_step == 9 %}
-<p>
-    Now that you have access to palisades, head back to the Military page.
-</p>
-{% endif %}
-
-{% if active_user_settings.tutorial_step == 10 %}
-<p>
-    Now you're ready for war. Process ticks until there's only one left. It would be wise to spend your accumulated research and it would be optimal to revisit
-    the Military page each tick to put some more units in training. I won't hold your hand for this, so do it however you see fit. I'll see you when you have
-    one tick left.
-</p>
-{% endif %}
-
-{% if active_user_settings.tutorial_step == 11 %}
-<p>
-    The rest of the menu has been unlocked. Take a few minutes to click around before processing your last tick and leaving protection. You'll want to check out
-    the Overview, Spells, The World, News, Faction Info, and Options pages.
-</p>
-{% endif %}
+{% include "maingame/tutorial_text.html" with page="discoveries" %}
 {% endblock %}
 
 {% block content %}

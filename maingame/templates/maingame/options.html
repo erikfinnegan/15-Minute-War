@@ -3,11 +3,7 @@
 {% block title %}Options{% endblock %}
 
 {% block tutorial %}
-{% if active_user_settings.tutorial_step < 999 %}
-<p>
-    Here you can change your color scheme, your ruler name (not your dominion name), disable this very tutorial, and customize how timestamps appear for you.
-</p>
-{% endif %}
+{% include "maingame/tutorial_text.html" with page="options" %}
 {% endblock %}
 
 {% block content %}

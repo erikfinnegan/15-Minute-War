@@ -634,7 +634,9 @@ def protection_tick(request, quantity):
             return redirect("resources")
         elif user_settings.tutorial_step < 999 and user_settings.tutorial_step not in [1, 2, 3, 5, 10, 11]:
             messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
-            if user_settings.tutorial_step in [7]:
+            if user_settings.tutorial_step in [4]:
+                return redirect("upgrades")
+            elif user_settings.tutorial_step in [6, 7, 10]:
                 return redirect("military")
             elif user_settings.tutorial_step in [8]:
                 return redirect("discoveries")

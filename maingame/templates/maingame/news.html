@@ -5,11 +5,7 @@
 {% block title %}News{% endblock %}
 
 {% block tutorial %}
-{% if active_user_settings.tutorial_step == 11 %}
-<p>
-    Shows significant events in the round, primarily invasions and dominions signing up. Events involving you will have a different color.
-</p>
-{% endif %}
+{% include "maingame/tutorial_text.html" with page="news" %}
 {% endblock %}
 
 {% block content %}

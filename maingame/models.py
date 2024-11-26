@@ -112,7 +112,11 @@ class UserSettings(models.Model):
             if dominion.protection_ticks_remaining == 0:
                 current_step += 1 #12
 
+            if dominion.successful_invasions >= 1:
+                return 8888
+
         return current_step
+
 
 class Dominion(models.Model):
     associated_user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, unique=True)

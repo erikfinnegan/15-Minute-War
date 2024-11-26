@@ -79,7 +79,7 @@
             {% include "sidebar.html" %}
             <div class="w-100p">
                 {% include "header.html" %}
-                <div class="{% if active_user_settings.is_tutorial %}p-2 bg-yellow-100 font-bold{% endif %}">
+                <div class="{% if active_user_settings.tutorial_steps < 999 %}p-2 bg-yellow-100 font-bold{% endif %}">
                     {% block tutorial %}
                     {% endblock %}
                 </div>

@@ -6,16 +6,7 @@
 {% block title %}Overview{% endblock %}
 
 {% block tutorial %}
-{% if active_user_settings.tutorial_step == 11 %}
-<p>
-    This shows just about everything about this dominion at a glance. If you and this dominion are both out of protection, it also has
-    the interface for invading them. In order to invade someone, you need to send an amount of offense that matches or exceeds their defense.
-</p>
-<p>
-    Some units have special perks. These are marked by differently-colored text and the description can be seen by mousing over the name (desktop)
-    or tapping on the name (mobile).
-</p>
-{% endif %}
+{% include "maingame/tutorial_text.html" with page="overview" %}
 {% endblock %}
 
 {% block content %}

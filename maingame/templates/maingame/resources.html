@@ -4,52 +4,7 @@
 {% block title %}Resources{% endblock %}
 
 {% block tutorial %}
-{% if active_user_settings.tutorial_step == 2 %}
-<p>
-    Here you can see how much of each resource you produce per "tick". 15 Minute War "ticks" every 15 minutes, which is when resource production happens.
-    You'll notice that, in addition to what your buildings are producing, you're also gaining gold. You always produce 50 gold per acre regardless of what
-    buildings you construct.
-<p>
-<p>
-    When you register, you start in a state of magical protection. No one can attack you and you have 72 free ticks that you can process on command.
-    During this time, you don't actually benefit from the automatic ticks every 15 minutes. Once you process all 72 of your ticks in protection, you
-    come out of protection and the action starts.
-</p>
-<p>
-    Let's take advantage of this time under protection and produce some resources. Click "+1 TICK" to process one tick and watch those resources come in.
-</p>
-{% endif %}
-
-{% if active_user_settings.tutorial_step == 3 %}
-<p>
-    Now we've got some resources... but not much. It's rarely important to go through each tick in protection individually, so go ahead and process +12 ticks.
-</p>
-{% endif %}
-
-{% if active_user_settings.tutorial_step == 4 %}
-<p>
-    Fantastic. We've got quite a bit of research accumulated, so let's go spend some to upgrade our buildings. Head to the Upgrades page.
-</p>
-{% endif %}
-
-{% if active_user_settings.tutorial_step == 6 %}
-<p>Now that we've accumulated 60 ticks' worth of resources, it's time to train your army. Go to the Military page.</p>
-{% endif %}
-
-{% if active_user_settings.tutorial_step == 10 %}
-<p>
-    Now you're ready for war. Process ticks until there's only one left. It would be wise to spend your accumulated research and it would be optimal to revisit
-    the Military page each tick to put some more units in training. I won't hold your hand for this, so do it however you see fit. I'll see you when you have
-    one tick left.
-</p>
-{% endif %}
-
-{% if active_user_settings.tutorial_step == 11 %}
-<p>
-    The rest of the menu has been unlocked. Take a few minutes to click around before processing your last tick and leaving protection. You'll want to check out
-    the Overview, Spells, The World, News, Faction Info, and Options pages.
-</p>
-{% endif %}
+{% include "maingame/tutorial_text.html" with page="resources" %}
 {% endblock %}
 
 {% block content %}
