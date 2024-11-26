@@ -100,6 +100,9 @@ class UserSettings(models.Model):
 
             if dominion.protection_ticks_remaining <= 1:
                 current_step += 1 #11
+            
+            if dominion.protection_ticks_remaining == 0:
+                current_step += 1 #12
 
         return current_step
 
