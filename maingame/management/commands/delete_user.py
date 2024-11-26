@@ -46,6 +46,7 @@ class Command(BaseCommand):
         print()
 
         for username_to_delete in ["test2", "test3", "test4", "test5", "new", "newb", "noob"]:
+
             user = User.objects.filter(username=username_to_delete).first()
         
             try:

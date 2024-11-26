@@ -251,11 +251,11 @@ class Dominion(models.Model):
 
     @property
     def building_primary_cost(self):
-        return self.building_primary_cost_per_acre * self.acres
+        return 1000
     
     @property
     def building_secondary_cost(self):
-        return self.building_secondary_cost_per_acre * self.acres
+        return 100
     
     @property 
     def barren_acres(self):
