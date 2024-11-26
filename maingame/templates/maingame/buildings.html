@@ -3,6 +3,10 @@
 
 {% block title %}Buildings{% endblock %}
 
+{% block tutorial %}
+{% include "maingame/tutorial_text.html" with page="buildings" %}
+{% endblock %}
+
 {% block content %}
 <div>
     <details class="accordion card card_colors max-w-md">

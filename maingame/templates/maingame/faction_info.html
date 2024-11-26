@@ -3,6 +3,15 @@
 
 {% block title %}Faction Info{% endblock %}
 
+{% block tutorial %}
+{% if active_user_settings.tutorial_step < 999 %}
+<p>
+    This is a summary of each playable faction and their starting units. Each has at least one unique mechanic and several unique discoveries that further
+    distinguish the playstyle of one from another.
+</p>
+{% endif %}
+{% endblock %}
+
 {% block content %}
 <div>
     <div class="u-flex u-flex-column u-gap-4">

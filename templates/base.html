@@ -79,6 +79,10 @@
             {% include "sidebar.html" %}
             <div class="w-100p">
                 {% include "header.html" %}
+                <div class="{% if active_user_settings.is_tutorial %}p-2 bg-yellow-100 font-bold{% endif %}">
+                    {% block tutorial %}
+                    {% endblock %}
+                </div>
                 <section class="container pt-2 pb-8 px-2">
                     {% block content %}
                     {% endblock %}

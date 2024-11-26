@@ -40,12 +40,14 @@ class Theme(models.Model):
 
 class UserSettings(models.Model):
     associated_user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, unique=True)
-    display_name = models.CharField(max_length=50, null=True, blank=True, default="")
+    display_name = models.CharField(max_length=25, null=True, blank=True, default="")
     timezone = models.CharField(max_length=50, default="UTC")
     show_tutorials = models.BooleanField(default=True)
     theme = models.CharField(max_length=50, null=True, blank=True, default="OpenDominion")
     theme_model = models.ForeignKey(Theme, on_delete=models.PROTECT, null=True, blank=True)
     use_am_pm = models.BooleanField(default=True)
+    is_tutorial = models.BooleanField(default=True)
+    tutorial_stage = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.display_name} -- {self.theme_model}"
@@ -56,7 +58,50 @@ class UserSettings(models.Model):
             return self.theme_model
         else:
             return Theme.objects.get(name="OpenDominion")
+        
+    @property
+    def tutorial_step(self):
+        if not self.is_tutorial:
+            return 8888
+        
+        current_step = 0
 
+        if Dominion.objects.filter(associated_user=self.associated_user).exists():
+            current_step += 1 #1
+
+            dominion = Dominion.objects.get(associated_user=self.associated_user)
+            if dominion.barren_acres == 0:
+                current_step += 1 #2
+            
+            if dominion.protection_ticks_remaining <= 71:
+                current_step += 1 #3
+
+            if dominion.protection_ticks_remaining <= 59:
+                current_step += 1 #4
+
+            if Building.objects.get(ruler=dominion, name="quarry").upgrades >= 5:
+                current_step += 1 #5
+
+            if dominion.protection_ticks_remaining <= 12:
+                current_step += 1 #6
+
+            if Unit.objects.get(ruler=dominion, name="Stoneshield").training_dict["12"] == 500 or dominion.protection_ticks_remaining <= 11:
+                current_step += 1 #7
+
+            if Unit.objects.get(ruler=dominion, name="Hammerer").training_dict["12"] == 720 or dominion.protection_ticks_remaining <= 11:
+                current_step += 1 #8
+
+            if "Palisades" in dominion.learned_discoveries:
+                current_step += 1 #9
+
+            if Unit.objects.filter(ruler=dominion, name="Palisade").exists():
+                if Unit.objects.get(ruler=dominion, name="Palisade").training_dict["12"] == 80 or dominion.protection_ticks_remaining <= 11:
+                    current_step += 1 #10
+
+            if dominion.protection_ticks_remaining <= 1:
+                current_step += 1 #11
+
+        return current_step
 
 class Dominion(models.Model):
     associated_user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, unique=True)

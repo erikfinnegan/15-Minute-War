@@ -3,6 +3,14 @@
 
 {% block title %}Spells{% endblock %}
 
+{% block tutorial %}
+{% if active_user_settings.tutorial_step < 999 %}
+<p>
+    Here you can cast spells. They have unique effects and a mana cost that scales with your acreage.
+</p>
+{% endif %}
+{% endblock %}
+
 {% block content %}
 <details class="accordion card card_colors max-w-md">
     <summary class="accordion__summary">Tutorial notes</summary>

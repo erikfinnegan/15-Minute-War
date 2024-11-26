@@ -3,6 +3,44 @@
 
 {% block title %}Upgrades{% endblock %}
 
+{% block tutorial %}
+{% if active_user_settings.tutorial_step == 4 %}
+<p>
+    The primary use of research is to upgrade buildings. Each upgrade increases the production amount of that building by one. The building you have the
+    most of is quarries, so get some upgrades there first. Each upgrade for the same building costs more than the last, you should be able to afford to do it five times.
+</p>
+{% endif %}
+
+{% if active_user_settings.tutorial_step == 5 %}
+<p>
+    Great. You'll notice that your quarry now produces 75 ore per tick, up from the 70 was producing when you started.
+</p>
+<p>
+    You're going to fast forward a bit now. Go ahead and process ticks until there's only 12 left. There's a handy button after the +12 TICKS that will
+    process however many it takes until you have 12 left. You'll see why that's an important cutoff shortly.
+</p>
+{% endif %}
+
+{% if active_user_settings.tutorial_step == 6 %}
+<p>Now that we've accumulated 60 ticks' worth of resources, it's time to train your army. Go to the Military page.</p>
+{% endif %}
+
+{% if active_user_settings.tutorial_step == 10 %}
+<p>
+    Now you're ready for war. Process ticks until there's only one left. It would be wise to spend your accumulated research and it would be optimal to revisit
+    the Military page each tick to put some more units in training. I won't hold your hand for this, so do it however you see fit. I'll see you when you have
+    one tick left.
+</p>
+{% endif %}
+
+{% if active_user_settings.tutorial_step == 11 %}
+<p>
+    The rest of the menu has been unlocked. Take a few minutes to click around before processing your last tick and leaving protection. You'll want to check out
+    the Overview, Spells, The World, News, Faction Info, and Options pages.
+</p>
+{% endif %}
+{% endblock %}
+
 {% block content %}
 <div class="">
     <details class="accordion card card_colors max-w-md">
