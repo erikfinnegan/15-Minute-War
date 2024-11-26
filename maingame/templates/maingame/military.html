@@ -11,14 +11,23 @@
 {% block content %}
 <div>
     <details class="accordion card card_colors max-w-md">
-        <summary class="accordion__summary">Tutorial notes</summary>
+        <summary class="accordion__summary">Details</summary>
         <p>
             Train units to defend your dominion and attack others. Units cost resources to train and will arrive after 12 ticks. Once a unit is trained,
             their upkeep cost must be paid each tick. If a unit's upkeep can't be paid, you'll lose 1% of your current stock of that unit each tick until you can
             afford it. You can also manually release units. This is instant and free, but has no benefit other than reducing your upkeep or other negative impact 
             of the unit.
         </p>
-        <p>Clicking the max button or the unit or upkeep cost will fill in the maximum you can afford into the input field. Some units can't be trained.</p>
+        {% if active_dominion.faction_name == "blessed order" %}
+        <p>
+            Blessed Martyrs can't be trained, but any time you get invaded, each casualty you suffer will become a Blessed Martyr so long as you've got 1,000
+            faith to pay for it.
+        </p>
+        {% elif active_dominion.faction_name == "sludgeling" %}
+        <p>
+            Sludgeling dominions only start with one unit. You'll have to get in the lab and create more in the Experiments page.
+        </p>
+        {% endif %}
     </details>
 
     <div class="u-none u-block-md">

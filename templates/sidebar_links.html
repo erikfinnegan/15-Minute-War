@@ -43,16 +43,16 @@
     <a href="{% url 'news' %}" class="mb-4">News{% if active_dominion.has_unread_events > 0 %} ⚠️{% endif %}</a>
     {% endif %}
 
-    <a href="{% url 'tutorial' %}" class="">Tutorial</a>
+    <a href="{% url 'tutorial' %}" class="">Game overview</a>
 {% else %}
     <a href="{% url 'register' %}" class="">Register</a>
 {% endif %}
 
-<a href="{% url 'options' %}" class="">Options</a>
-
 {% if active_user_settings.tutorial_step >= 11 %}
 <a href="{% url 'faction_info' %}" class="">Faction Info</a>
 {% endif %}
+
+<a href="{% url 'options' %}" class="">Options</a>
 
 {% if round.has_ended %}
     <span class="mx-1 pt-4 font-bold">The round is over</span>
