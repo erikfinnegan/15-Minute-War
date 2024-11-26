@@ -181,7 +181,7 @@ class Dominion(models.Model):
     def can_attack(self):
         if self.protection_ticks_remaining > 0:
             return False
-        elif self.perk_dict.get("inquisition_rate") and self.perk_dict.get("inquisition_rate") > 0:
+        elif self.perk_dict.get("inquisition_ticks_left") and self.perk_dict.get("inquisition_ticks_left") > 0:
             return False
         
         return True
@@ -440,6 +440,10 @@ class Dominion(models.Model):
         if "inquisition_ticks_left" in self.perk_dict and self.perk_dict["inquisition_ticks_left"] > 0:
             sinners = Resource.objects.get(ruler=self, name="sinners")
             self.perk_dict["inquisition_ticks_left"] -= 1
+
+            if self.perk_dict["inquisition_ticks_left"] == 0:
+                self.perk_dict["inquisition_rate"] = 0
+
             sinners_killed = sinners.quantity if self.perk_dict["inquisition_ticks_left"] == 0 else min(self.perk_dict["inquisition_rate"], sinners.quantity)
             sinners.quantity -= sinners_killed
 
