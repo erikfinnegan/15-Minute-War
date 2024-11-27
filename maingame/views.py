@@ -1648,6 +1648,7 @@ def submit_invasion(request, dominion_id):
 
         if "immortal" in unit.perk_dict:
             survivors = quantity_sent
+            deaths = 0
         else:
             survivors = math.ceil(quantity_sent * offensive_survival)
             deaths = quantity_sent - survivors
