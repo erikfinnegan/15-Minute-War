@@ -12,30 +12,28 @@
 {% block content %}
 
 <div class="u-flex u-flex-column u-gap-4">
-    {% if active_user_settings.show_tutorials %}
-        <div>
-            <details class="accordion card card_colors max-w-md">
-                <summary class="accordion__summary">Details</summary>
-                <p>
-                    This shows just about everything about this dominion at a glance. If you and this dominion are both out of protection, it also has
-                    the interface for invading them. In order to invade someone, you need to send an amount of offense that matches or exceeds their defense.
-                </p>
-                <p>
-                    On an invasion, the attacker takes 10% casualties if they win and 15% casualties if they lose. The defender takes 5% casualties if 
-                    they lose, 2% casualties if they win, and no casualties if the offense less than half the defense. Of course, the attacker will likely
-                    always win, because the total offense and defense are both public information.
-                </p>
-                <p>
-                    Some units have special perks. These are marked by differently-colored text and the description can be seen by mousing over the name (desktop)
-                    or tapping on the name (mobile).
-                </p>
-                <p>
-                    Every tick, a dominion gains 1 complacency, giving -0.33% defense each. Complacency resets when that dominion gets invaded. They also gain 1
-                    determination, giving +0.33% offense each and resetting when they successfully invade another dominion.
-                </p>
-            </details>
-        </div>
-    {% endif %}
+    <div>
+        <details class="accordion card card_colors max-w-md">
+            <summary class="accordion__summary">Details</summary>
+            <p>
+                This shows just about everything about this dominion at a glance. If you and this dominion are both out of protection, it also has
+                the interface for invading them. In order to invade someone, you need to send an amount of offense that matches or exceeds their defense.
+            </p>
+            <p>
+                On an invasion, the attacker takes 10% casualties if they win and 15% casualties if they lose. The defender takes 5% casualties if 
+                they lose, 2% casualties if they win, and no casualties if the offense less than half the defense. Of course, the attacker will likely
+                always win, because the total offense and defense are both public information.
+            </p>
+            <p>
+                Some units have special perks. These are marked by differently-colored text and the description can be seen by mousing over the name (desktop)
+                or tapping on the name (mobile).
+            </p>
+            <p>
+                Every tick, a dominion gains 1 complacency, giving -0.33% defense each. Complacency resets when that dominion gets invaded. They also gain 1
+                determination, giving +0.33% offense each and resetting when they successfully invade another dominion.
+            </p>
+        </details>
+    </div>
     <div>
         <h6>{{ dominion.name }}</h6>
         <h6>{{ dominion.acres }} acres</h6>
