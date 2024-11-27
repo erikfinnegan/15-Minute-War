@@ -1696,7 +1696,7 @@ def submit_invasion(request, dominion_id):
 
     total_casualties = offensive_casualties + defensive_casualties
 
-    if attacker_victory and target_dominion.faction_name == "blessed order":
+    if target_dominion.faction_name == "blessed order":
         faith = Resource.objects.get(ruler=target_dominion, name="faith")
         martyrs_affordable = int(faith.quantity / target_dominion.perk_dict["martyr_cost"])
         martyrs_gained = min(martyrs_affordable, defensive_casualties)
