@@ -1625,8 +1625,7 @@ def submit_invasion(request, dominion_id):
 
         # Dwarves erase their grudges for a dominion once they hit them
         if "book_of_grudges" in my_dominion.perk_dict and str(target_dominion.id) in my_dominion.perk_dict["book_of_grudges"]:
-            my_dominion.perk_dict["book_of_grudges"][str(target_dominion.id)]["pages"] = 0
-            my_dominion.perk_dict["book_of_grudges"][str(target_dominion.id)]["animosity"] = 0
+            del my_dominion.perk_dict["book_of_grudges"][str(target_dominion.id)]
             my_dominion.save()
     else:
         offensive_survival = 0.85
