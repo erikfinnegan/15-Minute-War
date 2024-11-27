@@ -501,7 +501,7 @@
         </details>
     </div>
 
-    <p>Complacency: {{ dominion.complacency }} ticks (-{{ dominion.complacency_penalty_percent }}% defense)</p>
+    <p>Complacency: {{ dominion.complacency }} ticks (-{{ dominion.complacency_penalty_percent|floatformat:0 }}% defense)</p>
 
     <div>
         <table class="table striped card_colors max-w-md">
