@@ -36,9 +36,10 @@ class Command(BaseCommand):
         pages = 1
         opbonus = 0
 
-        for x in range(96*2):
-            if x % 24 == 0:
-                pages += 1
+        for x in range(96):
+            # pages += 3
+            if x % 6 == 0:
+                pages += 3
 
             opbonus += pages * 0.003
 

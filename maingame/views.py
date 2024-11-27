@@ -783,14 +783,6 @@ def overview(request, dominion_id):
 
             resources_dict[resource.name]["net"] = resources_dict[resource.name]["produced"] - resources_dict[resource.name]["consumed"]
 
-    if "book_of_grudges" in dominion.perk_dict and my_dominion.protection_ticks_remaining == 0 and my_dominion.id != dominion_id:
-        if str(my_dominion.id) in dominion.perk_dict["book_of_grudges"]:
-            dominion.perk_dict["book_of_grudges"][str(my_dominion.id)]["pages"] += 1
-        else:
-            dominion.perk_dict["book_of_grudges"][str(my_dominion.id)] = {}
-            dominion.perk_dict["book_of_grudges"][str(my_dominion.id)]["pages"] = 1
-            dominion.perk_dict["book_of_grudges"][str(my_dominion.id)]["animosity"] = 0
-        
         dominion.save()
 
     battles_with_this_dominion = Battle.objects.filter(attacker=dominion) | Battle.objects.filter(defender=dominion)
