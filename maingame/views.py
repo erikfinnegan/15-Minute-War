@@ -1678,14 +1678,16 @@ def submit_invasion(request, dominion_id):
     for unit in Unit.objects.filter(ruler=target_dominion):
         if "immortal" in unit.perk_dict or unit.dp == 0:
             survivors = unit.quantity_at_home
+            deaths = 0
         else:
             survivors = math.ceil(unit.quantity_at_home * defensive_survival)
+            deaths = unit.quantity_at_home - survivors
 
         casualties = unit.quantity_at_home - survivors
 
         if "faith_per_power_died" in target_dominion.perk_dict:
             faith = Resource.objects.get(ruler=target_dominion, name="faith")
-            faith.quantity += deaths * unit.op * target_dominion.perk_dict["faith_per_power_died"]
+            faith.quantity += deaths * unit.dp * target_dominion.perk_dict["faith_per_power_died"]
             faith.save()
 
         if "mana" not in unit.upkeep_dict and "mana" not in unit.cost_dict and "always_dies_on_offense" not in unit.perk_dict:
