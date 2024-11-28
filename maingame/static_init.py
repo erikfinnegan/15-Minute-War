@@ -692,7 +692,7 @@ def initialize_sludgeling_discoveries():
         name="Magnum Goopus",
         description="""Behold your glorious magnum goopus! At the time this is selected, combine all units at home with a sludge 
             cost into a single unit with their combined offense and defense. Your incredible masterpiece requires no gold or sludge
-            upkeep, just one food per combined unit. If a unit with perks is included, it also 
+            upkeep and consumes just as much food as all of the units that went into making it. If a unit with perks is included, it also 
             gains those perks. You can still train more of those experimental units afterwards.""",
         required_faction_name="sludgeling",
         required_discoveries_or=["Speedlings", "Toughlings", "Cheaplings"],

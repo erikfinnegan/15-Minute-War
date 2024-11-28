@@ -279,6 +279,7 @@ def create_magnum_goopus(dominion: Dominion, encore=False):
     total_quantity = 0
     total_op = 0
     total_dp = 0
+    food_upkeep = 0
 
     if encore:
         perk_dict = {"is_more_glorious": True}
@@ -290,6 +291,9 @@ def create_magnum_goopus(dominion: Dominion, encore=False):
             total_quantity += unit.quantity_at_home
             total_op += unit.quantity_at_home * unit.op
             total_dp += unit.quantity_at_home * unit.dp
+
+            if "food" in unit.upkeep_dict:
+                food_upkeep += unit.quantity_at_home * unit.upkeep_dict["food"]
 
             for perk, value in unit.perk_dict.items():
                 if perk == "casualty_multiplier" and perk in perk_dict:
@@ -313,7 +317,7 @@ def create_magnum_goopus(dominion: Dominion, encore=False):
         op=total_op,
         dp=total_dp,
         upkeep_dict={
-            "food": total_quantity,
+            "food": food_upkeep,
         },
         perk_dict=perk_dict,
         is_trainable=False,
