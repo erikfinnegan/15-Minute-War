@@ -677,7 +677,7 @@ class Unit(models.Model):
     
     @property
     def has_perks(self):
-        return self.perk_dict != {}
+        return self.perk_dict != {} and self.perk_dict != {"is_releasable": True}
     
     def advance_training_and_returning(self):
         for key, value in self.training_dict.items():
