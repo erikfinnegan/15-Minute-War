@@ -311,6 +311,21 @@ def create_magnum_goopus(dominion: Dominion, encore=False):
     else:
         name = "Magnum Goopus"
 
+    timer_template = {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0,
+        "10": 0,
+        "11": 0,
+        "12": 0,
+    }
+
     Unit.objects.create(
         ruler=dominion,
         name=name,
@@ -322,6 +337,8 @@ def create_magnum_goopus(dominion: Dominion, encore=False):
         perk_dict=perk_dict,
         is_trainable=False,
         quantity_at_home=1,
+        training_dict=timer_template,
+        returning_dict=timer_template,
     )
 
 
