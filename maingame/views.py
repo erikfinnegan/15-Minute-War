@@ -1646,7 +1646,7 @@ def submit_invasion(request, dominion_id):
 
             if "casualty_multiplier" in unit.perk_dict:
                 bonus_death_multiplier = unit.perk_dict["casualty_multiplier"] - 1
-                survivors -= (deaths * bonus_death_multiplier)
+                survivors -= int(deaths * bonus_death_multiplier)
 
         if "always_dies_on_offense" in unit.perk_dict:
             survivors = 0
@@ -1672,8 +1672,12 @@ def submit_invasion(request, dominion_id):
             survivors = unit.quantity_at_home
             deaths = 0
         else:
-            survivors = math.ceil(unit.quantity_at_home * defensive_survival)
-            deaths = unit.quantity_at_home - survivors
+            deaths = int((1 - defensive_survival) * unit.quantity_at_home)
+
+            if "casualty_multiplier" in unit.perk_dict:
+                deaths = int(unit.perk_dict["casualty_multiplier"] * deaths)
+
+            survivors = unit.quantity_at_home - deaths
 
         casualties = unit.quantity_at_home - survivors
 
