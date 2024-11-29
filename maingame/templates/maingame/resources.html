@@ -69,7 +69,7 @@
                     <option {% if key == active_dominion.last_sold_resource_name %} selected{% endif %}>{{ key }}</option>
                     {% endfor %}
                 </select>
-                <input type="range" min="1" max="100" value="0" id="resourceRange" name="resourceAmount" oninput="showCurrentValue()">
+                <input type="range" min="0" max="100" value="0" id="resourceRange" name="resourceAmount" oninput="showCurrentValue()">
                 <div class="u-center u-flex-row u-gap-1">
                     <span id="ratioNumerator">1</span>
                     <span>:</span>
