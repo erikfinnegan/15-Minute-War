@@ -116,7 +116,7 @@
                     <div class="card row base_colors">
                         <div class="col">
                             {% if active_user_settings.show_tutorials %}<span class="u-center font-bold">Name</span>{% endif %}
-                            <span class="u-center">{{ unit.name|title}}</span>
+                            <span class="u-center">{{ unit.name}}</span>
                         </div>
 
                         <div class="col">
@@ -219,7 +219,7 @@
                     {% for unit in units %}
                     {% if unit.quantity_returning > 0 %}
                     <tr>
-                        <th class="u-align-middle w-24">{{ unit.name|title }}</th>
+                        <th class="u-align-middle w-24">{{ unit.name }}</th>
                         <td class="u-align-middle">{{ unit.returning_dict.1|no_zeroes|intcomma }}</td>
                         <td class="u-align-middle">{{ unit.returning_dict.2|no_zeroes|intcomma }}</td>
                         <td class="u-align-middle">{{ unit.returning_dict.3|no_zeroes|intcomma }}</td>
@@ -317,7 +317,7 @@
                     {% for unit in units %}
                     {% if unit.quantity_in_training > 0 %}
                     <tr>
-                        <th class="u-align-middle">{{ unit.name|title }}</th>
+                        <th class="u-align-middle">{{ unit.name }}</th>
                         <td class="u-align-middle">{{ unit.training_dict.1|no_zeroes|intcomma }}</td>
                         <td class="u-align-middle">{{ unit.training_dict.2|no_zeroes|intcomma }}</td>
                         <td class="u-align-middle">{{ unit.training_dict.3|no_zeroes|intcomma }}</td>

@@ -297,7 +297,7 @@
                     {% for unit in units %}
                     {% if unit.quantity_returning > 0 %}
                         <tr>
-                            <th class="u-align-middle">{{ unit.name|title }}</th>
+                            <th class="u-align-middle">{{ unit.name }}</th>
                             <td class="u-align-middle">{{ unit.returning_dict.1|no_zeroes|intcomma }}</td>
                             <td class="u-align-middle">{{ unit.returning_dict.2|no_zeroes|intcomma }}</td>
                             <td class="u-align-middle">{{ unit.returning_dict.3|no_zeroes|intcomma }}</td>
@@ -396,7 +396,7 @@
                     {% for unit in units %}
                     {% if unit.quantity_in_training > 0 %}
                         <tr>
-                            <th class="u-align-middle">{{ unit.name|title }}</th>
+                            <th class="u-align-middle">{{ unit.name }}</th>
                             <td class="u-align-middle">{{ unit.training_dict.1|no_zeroes|intcomma }}</td>
                             <td class="u-align-middle">{{ unit.training_dict.2|no_zeroes|intcomma }}</td>
                             <td class="u-align-middle">{{ unit.training_dict.3|no_zeroes|intcomma }}</td>
