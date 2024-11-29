@@ -14,7 +14,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         my_faction_name = "dwarf"
 
-        my_starting_resource_quantity = 100123000
+        my_starting_resource_quantity = 1234567
 
         print("Generating stuff...")
 
@@ -80,7 +80,7 @@ class Command(BaseCommand):
         admindominion.save()
 
         for unit in Unit.objects.filter(ruler=admindominion):
-            unit.quantity_at_home = 10
+            unit.quantity_at_home = 100000
             unit.save()
 
         print("Done generating stuff.")

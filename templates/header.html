@@ -1,6 +1,14 @@
 {% load humanize %}
 
-<div class="u-flex u-flex-row u-gap-1 u-items-center header_colors" style="height: 99px !important">
+<style>
+    @media only screen and (max-width: 600px) {
+    .header-height {
+        height: 150px !important
+    }
+}
+</style>
+
+<div class="u-flex u-flex-row u-gap-1 u-items-center header_colors header-height h-12">
     <div class="header_colors px-1 u-none-md" onclick="toggleMenu()">
             <i class="fa fa-bars text-xl"></i>
     </div>

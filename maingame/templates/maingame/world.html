@@ -12,8 +12,10 @@
 <div>
     <details class="accordion card card_colors max-w-md">
         <summary class="accordion__summary">Details</summary>
-        <p>These are all the dominions at the moment. You can click the info button next to anyone's name to see an overview of their dominion.</p>
-        <p>When someone makes an invasion, the units they send take 12 ticks to return home, leaving them more vulnerable to attack in the meantime.</p>
+            <p>
+                These are all the dominions at the moment. When someone makes an invasion, the units they send take 12 ticks to return home, leaving 
+                them more vulnerable to attack in the meantime.
+            </p>
     </details>
 
     <div class="u-none u-block-md">
@@ -63,9 +65,9 @@
                     <td class="u-align-middle">{{ dominion.faction_name|title }}</td>
                     {% endif %}
 
-                    <td>{{ dominion.highest_op_short }}</td>
-                    <td>+{{ dominion.determination_bonus_percent|floatformat:0 }}% OP</td>
-                    <td>-{{ dominion.complacency_penalty_percent|floatformat:0 }}% DP</td>
+                    <td class="u-align-middle">{{ dominion.highest_op_short }}</td>
+                    <td class="u-align-middle">+{{ dominion.determination_bonus_percent|floatformat:0 }}% OP</td>
+                    <td class="u-align-middle">-{{ dominion.complacency_penalty_percent|floatformat:0 }}% DP</td>
 
                     {% if "book_of_grudges" in active_dominion.perk_dict %}
                     {% if dominion.strid in active_dominion.perk_dict.book_of_grudges %}
@@ -107,8 +109,65 @@
 
     <div class="u-none-md">
         {% for dominion in dominions %}
-        <div class="card card_colors p-1 max-w-xs">
-            <div class="">
+            <details class="accordion card {% if active_dominion == dominion %}header_colors{% else %}card_colors{% endif %}">
+                <summary class="accordion__summary">
+                    <div class="u-flex u-flex-column w-100p pr-1">
+                        <span class="">{{ dominion.name }}</span>
+                        <div class="u-flex u-flex-row u-gap-2">
+                            <span class="w-50p">{{ dominion.faction_name|title }}</span>
+                            <span class="ml-auto">{{ dominion.acres }} acres</span>
+                        </div>
+                        <div class="u-flex u-flex-row u-gap-2 {% if dominion.protection_ticks_remaining > 0 %}text-teal-400{% endif %}">
+                            <span class="w-50p">
+                                {% if dominion.protection_ticks_remaining == 0 and round.has_started %}{{ dominion.defense_short }} defense{% else %}Magical protection{% endif %}
+                            </span>
+                            {% if dominion.has_units_returning %}
+                            <div class="u-flex u-flex-column tag tag--danger py-0 px-1 ml-auto">
+                                <span class="my-auto">Returning</span>
+                            </div>
+                            {% comment %} <span class="tag tag--danger py-0 mx-auto">Units returning</span> {% endcomment %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% comment %} <div class="u-flex u-flex-column">
+                        <div class="u-flex u-flex-row u-gap-2">
+                            <div>
+                                <span class="w-36">{{ dominion.name }}</span>
+                            </div>
+                            <div class="">
+                                <span>{{ dominion.acres }} acres</span>
+                            </div>
+                        </div>
+                    </div> {% endcomment %}
+                </summary>
+                <div>
+                    <div class="u-flex u-flex-column">
+                        <span>{{ dominion.rulers_display_name }}</span>
+                        <span>{{ dominion.highest_op_short }} highest raw OP sent</span>
+                        <span>+{{ dominion.determination_bonus_percent|floatformat:0 }}% OP (determination)</span>
+                        <span>-{{ dominion.complacency_penalty_percent|floatformat:0 }}% DP (complacency)</span>
+                        {% if "book_of_grudges" in active_dominion.perk_dict %}
+                            {% if dominion.strid in active_dominion.perk_dict.book_of_grudges %}
+                                <div class="u-flex u-flex-row u-gap-1">
+                                    <span>Grudge: {{ active_dominion.perk_dict.book_of_grudges|getattr:dominion.strid|getattr:"pages" }} pages,</span>
+                                    <span>+{{ active_dominion.perk_dict.book_of_grudges|getattr:dominion.strid|getattr:"animosity"|floatformat:"1" }}% OP</span>
+                                </div>
+                            {% else %}
+                                <span class="">No grudge</span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    <div>
+                        {% if dominion.protection_ticks_remaining == 0 %}
+                        <a href="{% url 'overview' dominion.id %}" class="u-center">
+                            <button class="py-0 header_colors">Info</button>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </details>  
+
+            {% comment %} <div class="">
                 <h6 class="u-center tooltip tooltip--bottom" data-tooltip="Ruler: {{ dominion.associated_user }}">{{ dominion.name }}</h6>
             </div>
 
@@ -150,9 +209,9 @@
                     <span class="u-center">None</span>
                     {% endif %}
                     {% endif %}
-                </div>
-            </div>
-        </div>
+                </div> {% endcomment %}
+            {% comment %} </div> {% endcomment %}
+        {% comment %} </div> {% endcomment %}
         {% endfor %}
     </div>
 </div>

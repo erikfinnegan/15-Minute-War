@@ -303,7 +303,7 @@ class Dominion(models.Model):
         for resource in Resource.objects.filter(ruler=self):
             iterator += 1
             
-            if iterator % math.ceil(Resource.objects.filter(ruler=self).count() / 2) == 0:
+            if iterator % math.ceil(Resource.objects.filter(ruler=self).count() / 3) == 0:
                 row_number += 1
                 header_rows[str(row_number)] = []
 
