@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 
-from maingame.formatters import create_or_add_to_key
+from maingame.formatters import create_or_add_to_key, get_sludgeling_name
 from maingame.models import Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings, Theme
 from maingame.tick_processors import do_global_tick
 from maingame.utils import abandon_dominion, delete_dominion, get_acres_conquered, get_grudge_bonus, initialize_dominion, prune_buildings, round_x_to_nearest_y, unlock_discovery, cast_spell
@@ -1305,12 +1305,10 @@ def generate_experiment(request):
     for unit in Unit.objects.filter(ruler=dominion):
         current_names.append(unit.name)
 
-    name = random.choice(["sludger", "oozeling", "gooper", "marshling", "sogger", "squishling", "slimezoid", "pudling", "swamper", "snotling",])
+    name = get_sludgeling_name()
 
     while name in current_names:
-        name = random.choice(["sludger", "oozeling", "gooper", "marshling", "sogger", "squishling", "slimezoid", "pudling", "swamper", "snotling",
-                              "slurpling", "slopling", "dampling", "grossling", "slurpazoid"])
-
+        name = get_sludgeling_name()
 
     cost_per_op = int(((gold_cost * 1.08) + sludge_cost) / max(op, 1))
     cost_per_dp = int(((gold_cost * 1.08) + sludge_cost) / max(dp, 1))

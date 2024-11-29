@@ -1,3 +1,4 @@
+import random
 from string import Formatter
 
 
@@ -27,3 +28,8 @@ def format_minutes(minutes):
         return f'{hours} hour{"s" if hours != 1 else ""}, {minutes} minute{"s" if minutes != 1 else ""}'
     else:
         return f'{minutes} minute{"s" if minutes != 1 else ""}'
+
+
+def get_sludgeling_name():
+    return random.choice(["Sludger", "Oozeling", "Gooper", "Marshling", "Sogger", "Squishling", "Slimezoid", "Pudling", "Swamper", "Snotling",
+                              "Slurpling", "Slopling", "Dampling", "Grossling", "Slurpazoid"])
