@@ -295,14 +295,14 @@ def initialize_dwarf_units():
 
     Unit.objects.create(
         name="Deep Angel",
-        op=151,
+        op=7,
         dp=151,
         cost_dict={
             "mana": 33469,
             "mithril": 23197,
         },
         upkeep_dict={
-            "mithril": 773,
+            "mithril": 739,
         },
         perk_dict={"immortal": True, "converts_apostles": True},
     )

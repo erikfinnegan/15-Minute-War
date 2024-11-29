@@ -38,7 +38,7 @@
             <tbody>
                 {% for dominion in dominions %}
                 <tr class="{% if dominion == active_dominion %}font-bold{% endif %}">
-                    <th class="u-align-middle">{{ dominion.name }}</td>
+                    <th class="u-align-middle">{{ dominion.name }}</th>
 
                     <td class="u-align-middle tooltip tooltip--right" data-tooltip="Theme: {{ dominion.rulers_theme_name }}">
                         {{ dominion.rulers_display_name }}

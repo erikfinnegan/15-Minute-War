@@ -59,6 +59,9 @@
 {% elif round.has_started %}
     <span class="mx-1 pt-4">Round ends in:</span>
     <span>{{ round.time_til_round_end }}</span>
+    {% if round.ticks_left <= 48 %}
+    <span>({{ round.ticks_left }} ticks left)</span>
+    {% endif%}
 {% elif round.time_til_round_start %}
     <span class="mx-1 pt-4">Round starts in:</span>
     <span>{{ round.time_til_round_start }}</span>
