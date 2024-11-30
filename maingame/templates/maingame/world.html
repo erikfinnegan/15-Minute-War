@@ -53,8 +53,8 @@
                     {% comment %} Land {% endcomment %}
                     <td class="u-align-middle">
                         <div class="u-flex u-flex-column">
-                            <span>{{ dominion.acres }}</span>
-                            <small>{% if dominion.incoming_acres > 0 %}({{ dominion.incoming_acres }}){% endif %}</small>
+                            <span>{{ dominion.acres|intcomma }}</span>
+                            <small>{% if dominion.incoming_acres > 0 %}({{ dominion.incoming_acres|intcomma }}){% endif %}</small>
                         </div>
                     </td>
 
@@ -70,9 +70,11 @@
                     </td>
 
                     {% comment %} Bonuses {% endcomment %}
-                    <td class="u-align-middle u-flex u-flex-column">
-                        <span>+{{ dominion.determination_bonus_percent|floatformat:0 }}% OP</span>
-                        <span>-{{ dominion.complacency_penalty_percent|floatformat:0 }}% DP</span>
+                    <td class="u-align-middle">
+                        <div class="u-flex u-flex-column">
+                            <span>+{{ dominion.determination_bonus_percent|floatformat:0 }}% OP</span>
+                            <span>-{{ dominion.complacency_penalty_percent|floatformat:0 }}% DP</span>
+                        </div>
                     </td>
 
                     {% comment %} Highest OP {% endcomment %}
