@@ -48,6 +48,7 @@ class UserSettings(models.Model):
     use_am_pm = models.BooleanField(default=True)
     is_tutorial = models.BooleanField(default=True)
     tutorial_stage = models.IntegerField(default=0)
+    juicy_target_threshold = models.FloatField(default=0.66)
 
     def __str__(self):
         return f"{self.display_name} -- {self.theme_model}"
@@ -242,6 +243,10 @@ class Dominion(models.Model):
             return f"{int(defense/1000)}k"
         else:
             return f"{round(defense/1000000, 2)}m"
+
+    @property
+    def juicy_target_threshold(self):
+        return self.defense * UserSettings.objects.get(associated_user=self.associated_user).juicy_target_threshold
 
     @property
     def strid(self):

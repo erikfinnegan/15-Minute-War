@@ -853,6 +853,7 @@ def options(request):
         "my_theme": my_theme,
         "current_theme": current_theme,
         "current_display_name": user_settings.display_name,
+        "juicy_target_threshold": user_settings.juicy_target_threshold,
         "timezones": TIMEZONES_CHOICES,
     }
     
@@ -871,6 +872,7 @@ def submit_options(request):
     user_settings.timezone = request.POST["timezone"]
     user_settings.is_tutorial = "tutorial_mode" in request.POST
     selected_theme = Theme.objects.get(id=request.POST["theme"])
+    user_settings.juicy_target_threshold = request.POST["juicy_target_threshold"]
 
     header_background = request.POST["header_background"]
     header_text = request.POST["header_text"]

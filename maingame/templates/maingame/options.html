@@ -202,9 +202,14 @@
             }
         </script>
 
-        <div>
+        <div class="u-flex u-flex-column">
             <label for="display_name">Display name</label>
-            <input name="display_name" value="{{ current_display_name }}" />
+            <input class="max-w-xs" name="display_name" value="{{ current_display_name }}" />
+        </div>
+
+        <div class="u-flex u-flex-column">
+            <label for="juicy_target_threshold">Highlight target defense if it's less than this times your own</label>
+            <input type="number" step="0.0001" class="max-w-xs" name="juicy_target_threshold" value="{{ juicy_target_threshold }}" />
         </div>
 
         <div class="form-ext-control pl-0 w-24">
