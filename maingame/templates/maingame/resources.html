@@ -59,7 +59,6 @@
         </table>
     </div>
 
-    {% if active_dominion.protection_ticks_remaining == 0 and round.has_started and not round.has_ended %}
     <div>
         <form action="{% url 'trade' %}" method="post">
             {% csrf_token %}
@@ -125,7 +124,6 @@
             </tbody>
         </table>
     </div>
-    {% endif %}
 
     <script>
         const dominionResourcesDict = JSON.parse('{{ dominion_resources_json|escapejs }}');
