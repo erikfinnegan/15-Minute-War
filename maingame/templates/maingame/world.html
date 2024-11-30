@@ -45,8 +45,8 @@
                     <td class="u-align-middle">
                         <div class="u-flex u-flex-column">
                             <a class="font-bold" href="{% url 'overview' dominion.id %}">{{ dominion.name }}</a>
-                            <a href="{% url 'overview' dominion.id %}"><small>{{ dominion.rulers_display_name }}</small></a>
-                            <a href="{% url 'overview' dominion.id %}"><small>{{ dominion.faction_name|title }}</small></a>
+                            <a href="{% url 'overview' dominion.id %}"><small class="{% if dominion == active_dominion %}font-bold{% endif %}">{{ dominion.rulers_display_name }}</small></a>
+                            <a href="{% url 'overview' dominion.id %}"><small class="{% if dominion == active_dominion %}font-bold{% endif %}">{{ dominion.faction_name|title }}</small></a>
                         </div>
                     </td>
 
