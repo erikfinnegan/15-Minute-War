@@ -825,6 +825,7 @@ def world(request):
 
     offense_multiplier_dict = {}
     current_defense_dict = {}
+    land_conquered_dict = {}
     lowest_defense_larger_than_you = 99999999999
     lowest_defense_in_game = 99999999999
 
@@ -838,6 +839,8 @@ def world(request):
             current_defense_dict[str(dominion.id)] = False
         else:
             current_defense_dict[str(dominion.id)] = dominion.defense
+
+        land_conquered_dict[str(dominion.id)] = get_acres_conquered(my_dominion, dominion)
 
         if dominion.acres >= my_dominion.acres and dominion.protection_ticks_remaining == 0:
             lowest_defense_larger_than_you = min(dominion.defense, lowest_defense_larger_than_you)
@@ -854,6 +857,7 @@ def world(request):
         "base_offense_multiplier": my_dominion.offense_multiplier,
         "offense_multiplier_dict": json.dumps(offense_multiplier_dict),
         "current_defense_dict": json.dumps(current_defense_dict),
+        "land_conquered_dict": json.dumps(land_conquered_dict),
         "raw_defense": my_dominion.raw_defense,
         "defense_multiplier": my_dominion.defense_multiplier,
         "lowest_defense_larger_than_you": lowest_defense_larger_than_you,

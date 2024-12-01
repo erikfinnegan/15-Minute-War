@@ -112,7 +112,7 @@
     {% if active_dominion.can_attack and round.has_started and not round.has_ended %}
     <form action="{% url 'submit_invasion' %}" method="post" class="max-w-md u-overflow-x-scroll u-overflow-x-auto-md">
         {% csrf_token %}
-        <div class="u-flex u-flex-row u-center pt-2 pb-4">
+        <div class="u-flex u-flex-row u-center py-2">
             <select class="max-w-xs" name="target_dominion_id" id="target_select_dropdown" oninput="updateTargetDefense()">
                 <option value="0">Select a target to plan an invasion</option>
                 {% for dominion in dominions %}
@@ -122,9 +122,15 @@
                 {% endfor %}
             </select>
         </div>
-        {% comment %} <div class="w-100p u-center">
-            <h6>Plan invasion for ERIK-FIX-ME acres</h6>
-        </div> {% endcomment %}
+
+        <div>
+            <span class="u-center" id="acre_count_placeholder">Invasions discover extra acres equal to the amount conquered.</span>
+            <div class="u-none u-gap-1 u-center" id="acre_count_sentence" style="visibiliy: hidden;">
+                <span>This invasion would conquer</span>
+                <span id="acre_count_number">0</span>
+                <span>acres.</span>
+            </div>
+        </div>
         <table class="table striped">
             <thead>
                 <tr>
@@ -190,7 +196,6 @@
                 </button></span>
             </marquee>
         </marquee> {% endcomment %}
-
         {% comment %} <textarea placeholder="Smack talk"></textarea> {% endcomment %}
 
         <button class="btn-danger mt-1 w-24 h-6 p-0 u-center" type="submit" id="invadeButton" disabled>
@@ -207,11 +212,29 @@
 
         function updateTargetDefense() {
             const currentDefenseDict = JSON.parse('{{ current_defense_dict|escapejs }}');
+            const landConqueredDict = JSON.parse('{{ land_conquered_dict|escapejs }}');
             const targetId = document.getElementById("target_select_dropdown").value;
             const invadeButton = document.getElementById("invadeButton")
             const dpHereReadout = document.getElementById("dpHere");
+            const acreCountPlaceholder = document.getElementById("acre_count_placeholder");
+            const acreCountSentence = document.getElementById("acre_count_sentence");
+            const acreCountNumber = document.getElementById("acre_count_number");
+
             dpHereReadout.innerHTML = currentDefenseDict[targetId];
             invadeButton.disabled = targetId == 0
+            
+            if (targetId == 0) {
+                acreCountPlaceholder.classList.remove("u-none")
+                acreCountSentence.classList.add("u-none")
+                acreCountSentence.classList.remove("u-flex")
+                acreCountSentence.classList.remove("u-flex-wrap")
+            } else {
+                acreCountPlaceholder.classList.add("u-none")
+                acreCountSentence.classList.remove("u-none")
+                acreCountSentence.classList.add("u-flex")
+                acreCountSentence.classList.add("u-flex-wrap")
+                acreCountNumber.innerHTML = landConqueredDict[targetId]
+            }
         }
 
         function updateOffenseToSend() {
