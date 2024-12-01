@@ -113,7 +113,7 @@
     <form action="{% url 'submit_invasion' %}" method="post" class="max-w-md u-overflow-x-scroll u-overflow-x-auto-md">
         {% csrf_token %}
         <div class="u-flex u-flex-row u-center py-2">
-            <select class="max-w-xs" name="target_dominion_id" id="target_select_dropdown" oninput="updateTargetDefense()">
+            <select class="max-w-xs" name="target_dominion_id" id="target_select_dropdown" oninput="updateTargetDefense(); updateOffenseToSend();">
                 <option value="0">Select a target to plan an invasion</option>
                 {% for dominion in dominions %}
                 {% if dominion != active_dominion and dominion.protection_ticks_remaining == 0 and not dominion.is_abandoned %}

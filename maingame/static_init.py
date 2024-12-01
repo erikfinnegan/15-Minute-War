@@ -114,8 +114,7 @@ def initialize_factions():
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"],
         description="""Dwarves keep a book of grudges, chronicling any slight against them, no matter how minor. When a dominion invades a dwarf, 100 pages of 
         grudges are added about that dominion. Every tick, those grudges simmer and the dwarf's offense bonus against that dominion increases by 0.003% per page,
-        accumulating until the dwarf invades that player successfully. 0.003% may not sound like much, but it adds up quickly. Oh, and simply viewing a dwarf's 
-        overview page is enough to warrant one page of grudges."""
+        accumulating until the dwarf invades that player successfully. 0.003% may not sound like much, but it adds up quickly."""
     )
 
     Faction.objects.create(
