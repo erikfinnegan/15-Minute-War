@@ -758,8 +758,6 @@ def overview(request, dominion_id):
     if dominion_id != my_dominion.id and dominion.protection_ticks_remaining > 0:
         return redirect("world")
 
-    my_units = my_dominion.sorted_units
-
     dominion = Dominion.objects.get(id=dominion_id)
     units = dominion.sorted_units
     buildings = Building.objects.filter(ruler=dominion, quantity__gte=1)
@@ -794,15 +792,13 @@ def overview(request, dominion_id):
         "buildings": buildings,
         "resources": resources,
         "resources_dict": resources_dict,
-        "my_units": my_units,
-        "offense_multiplier": my_dominion.offense_multiplier + get_grudge_bonus(my_dominion, dominion),
         "raw_defense": my_dominion.raw_defense,
         "defense_multiplier": my_dominion.defense_multiplier,
         "minimum_defense_left": my_dominion.acres * 5,
         "spells": Spell.objects.filter(ruler=dominion),
         "learned_discoveries": learned_discoveries,
         "acres_conquered": get_acres_conquered(my_dominion, dominion),
-        "battles_with_this_dominion": battles_with_this_dominion,
+        "battles_with_this_dominion": battles_with_this_dominion.order_by("-timestamp"),
     }
 
     return render(request, "maingame/overview.html", context)
@@ -817,6 +813,8 @@ def world(request):
     
     dominions = Dominion.objects.filter(is_abandoned=False).order_by('protection_ticks_remaining', '-acres')
 
+    my_units = my_dominion.sorted_units
+
     # If you don't have grudge values set for someone, set them now
     if "book_of_grudges" in my_dominion.perk_dict:
         for dominion in dominions:
@@ -825,8 +823,41 @@ def world(request):
                 my_dominion.perk_dict["book_of_grudges"][str(dominion.id)]["pages"] = 0
                 my_dominion.perk_dict["book_of_grudges"][str(dominion.id)]["animosity"] = 0
 
+    offense_multiplier_dict = {}
+    current_defense_dict = {}
+    lowest_defense_larger_than_you = 99999999999
+    lowest_defense_in_game = 99999999999
+
+    for dominion in dominions:
+        if "book_of_grudges" in my_dominion.perk_dict:
+            offense_multiplier_dict[str(dominion.id)] = my_dominion.offense_multiplier + get_grudge_bonus(my_dominion, dominion)
+        else:
+            offense_multiplier_dict[str(dominion.id)] = my_dominion.offense_multiplier
+
+        if dominion.protection_ticks_remaining > 0:
+            current_defense_dict[str(dominion.id)] = False
+        else:
+            current_defense_dict[str(dominion.id)] = dominion.defense
+
+        if dominion.acres >= my_dominion.acres and dominion.protection_ticks_remaining == 0:
+            lowest_defense_larger_than_you = min(dominion.defense, lowest_defense_larger_than_you)
+
+        if dominion.protection_ticks_remaining == 0:
+            lowest_defense_in_game = min(dominion.defense, lowest_defense_in_game)
+
+    
+
     context = {
         "dominions": dominions,
+        "minimum_defense_left": my_dominion.acres * 5,
+        "my_units": my_units,
+        "base_offense_multiplier": my_dominion.offense_multiplier,
+        "offense_multiplier_dict": json.dumps(offense_multiplier_dict),
+        "current_defense_dict": json.dumps(current_defense_dict),
+        "raw_defense": my_dominion.raw_defense,
+        "defense_multiplier": my_dominion.defense_multiplier,
+        "lowest_defense_larger_than_you": lowest_defense_larger_than_you,
+        "lowest_defense_in_game": lowest_defense_in_game,
     }
 
     return render(request, "maingame/world.html", context)
@@ -1490,7 +1521,7 @@ def terminate_experiment(request):
 
 
 @login_required
-def submit_invasion(request, dominion_id):
+def submit_invasion(request):
     try:
         my_dominion = Dominion.objects.get(associated_user=request.user)
     except:
@@ -1500,6 +1531,7 @@ def submit_invasion(request, dominion_id):
         messages.error(request, f"The round has already ended")
         return redirect("resources")
     
+    dominion_id = request.POST["target_dominion_id"]
     target_dominion = Dominion.objects.get(id=dominion_id)
     round = Round.objects.first()
     defense_snapshot = target_dominion.defense
@@ -1509,7 +1541,7 @@ def submit_invasion(request, dominion_id):
         return redirect("overview", dominion_id=dominion_id)
     elif int(request.POST["dpLeftHidden"]) < my_dominion.acres * 5:
         messages.error(request, f"You must leave at least {my_dominion.acres * 5} defense at home")
-        return redirect("overview", dominion_id=dominion_id)
+        return redirect("world", dominion_id=dominion_id)
 
     total_units_sent = 0
     units_sent_dict = {}
@@ -1531,11 +1563,11 @@ def submit_invasion(request, dominion_id):
                 unit.save()
             else:
                 messages.error(request, f"You can't send more units than you have at home.")
-                return redirect("overview", dominion_id=dominion_id)
+                return redirect("world", dominion_id=dominion_id)
 
     if total_units_sent < 1:
         messages.error(request, f"Zero units sent")
-        return redirect("overview", dominion_id=dominion_id)
+        return redirect("world", dominion_id=dominion_id)
     
     offense_sent = 0
     

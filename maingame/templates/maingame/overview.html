@@ -46,179 +46,6 @@
         <h6>Ruled by {{ dominion.rulers_display_name }}</h6>
     </div>
 
-    {% if dominion != active_dominion and dominion.protection_ticks_remaining == 0 and active_dominion.can_attack and round.has_started and not round.has_ended and not dominion.is_abandoned %}
-    <form action="{% url 'submit_invasion' dominion.id %}" method="post" class="max-w-md u-overflow-x-scroll">
-        {% csrf_token %}
-        <div class="w-100p u-center">
-            <h6>Plan invasion for {{ acres_conquered}} acres</h6>
-        </div>
-        <table class="table striped">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Power</th>
-                    <th>At home</th>
-                    <th class="w-16">Send</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for unit in my_units %}
-                <tr>
-                    {% include "maingame/unit_name_row.html" %}
-                    <td class="u-align-middle" id="power_{{ unit.id }}" style="white-space:nowrap">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
-                    <td class="u-align-middle">{{ unit.quantity_at_home|intcomma }}</td>
-                    <td class="u-align-middle u-flex-md u-flex-row-md">
-                        <input 
-                            name="send_{{ unit.id }}" 
-                            id="send_{{ unit.id }}" 
-                            type="number" 
-                            min="0"
-                            max="{{ unit.quantity_at_home }}" 
-                            class="w-12 w-16-md ml-auto-md mr-2-md unitInput"
-                            oninput="updateOffenseToSend()"
-                        >
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <div>
-            <div id="readoutSection" class="u-center u-flex u-gap-1 text-red-400">
-                <span id="opToSend">0</span>
-                <span>OP</span>
-                <span>vs.</span>
-                <span id="dpHere">{{ dominion.defense|intcomma }}</span>
-                <span> DP</span>
-            </div>
-            <div class="u-center u-flex u-gap-1" id="dpLeftText">
-                <span>You'll have</span>
-                <span id="dpLeft">{{ active_dominion.defense }}</span>
-                <span>defense after attacking</span>
-            </div>
-            <input type="number" id="dpLeftHidden" name="dpLeftHidden" hidden value="{{ active_dominion.defense }}" />
-        </div>
-        <div style="display: none;">
-            <input type="submit" name="prevent-enter-submit" onclick="return false;">
-        </div>
-
-        {% comment %} <marquee
-            direction="down"
-            width="1000"
-            height="150"
-            behavior="alternate"
-            style="border:solid">
-            <marquee behavior="alternate"><span id="bigscreen-time" class="u-center font-bold">
-                <button class="btn-danger mt-1 w-24 h-6 p-0 u-center" type="submit">
-                    <span id="invadeButtonText" class="font-bold">Invade</span>
-                </button></span>
-            </marquee>
-        </marquee> {% endcomment %}
-
-        {% comment %} <textarea placeholder="Smack talk"></textarea> {% endcomment %}
-
-        <button class="btn-danger mt-1 w-24 h-6 p-0 u-center" type="submit">
-            <span id="invadeButtonText" class="font-bold">Invade</span>
-        </button>
-    </form>
-
-    <script>
-        const offenseMultiplier = JSON.parse('{{ offense_multiplier|escapejs }}');
-        const rawDefense = JSON.parse('{{ raw_defense|escapejs }}');
-        const defenseMultiplier = JSON.parse('{{ defense_multiplier|escapejs }}');
-        const minimumDefenseLeft = JSON.parse('{{ minimum_defense_left|escapejs }}');
-
-        function updateOffenseToSend() {
-            let opReadout = document.getElementById("opToSend");
-            let dpLeftReadout = document.getElementById("dpLeft");
-            let dpLeftReadoutHidden = document.getElementById("dpLeftHidden");
-            let dpLeftText = document.getElementById("dpLeftText");
-            let dpHere = document.getElementById("dpHere").innerHTML;
-            dpHere = parseInt(dpHere.replace(',', ''));
-            let readoutSection = document.getElementById("readoutSection");
-            let invadeButtonText = document.getElementById("invadeButtonText");
-            let unitInputs = document.getElementsByClassName("unitInput")
-
-            let totalOp = 0
-            let dpSent = 0
-
-            for (const [key, value] of Object.entries(unitInputs)) {
-                unitId = value.id.substr(5)
-                let op = document.getElementById("power_" + unitId).innerHTML.split("/")[0]
-                let dp = document.getElementById("power_" + unitId).innerHTML.split("/")[1]
-                op = parseInt(op.replace(/,/g, ''))
-                dp = parseInt(dp.replace(/,/g, ''))
-                totalOp = totalOp + value.value * op
-                dpSent = dpSent + value.value * dp
-            }
-
-            totalOp = Math.floor(totalOp * offenseMultiplier)
-            opReadout.innerHTML = totalOp
-            
-            const dpLeft = Math.floor((rawDefense - dpSent) * defenseMultiplier)
-            dpLeftReadout.innerHTML = dpLeft
-            dpLeftReadoutHidden.value = dpLeft
-
-            if (totalOp >= dpHere) {
-                readoutSection.classList.remove("text-red-400")
-                readoutSection.classList.add("text-green-400")
-                invadeButtonText.classList.remove("text-red-400")
-            } else {
-                readoutSection.classList.remove("text-green-400")
-                readoutSection.classList.add("text-red-400")
-                invadeButtonText.classList.add("text-red-400")
-            }
-
-            if (dpLeft < minimumDefenseLeft) {
-                dpLeftText.classList.add("text-red-400")
-            } else {
-                dpLeftText.classList.remove("text-red-400")
-            }
-        }
-
-        function updateDefenseHere(regionDefense) {
-            const regionDefenstInt = parseInt(regionDefense)
-            let dpReadout = document.getElementById("dp-left");
-            const unitHereInputs = document.getElementsByClassName("unitHereInput")
-            let totalLostDp = 0
-
-            for (const [key, value] of Object.entries(unitHereInputs)) {
-                unitId = value.id.substr(8)
-                const dp = document.getElementById("power_" + unitId).innerHTML.split("/")[1]
-                totalLostDp = totalLostDp + value.value * dp
-            }
-
-            dpReadout.innerHTML = regionDefenstInt - totalLostDp
-        }
-    </script>
-    {% else %}
-    <h6>Can't invade this dominion</h6>
-    {% endif %}
-
-    <div class="">
-        <table class="table striped max-w-md">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Quantity</th>
-                    <th>Produced</th>
-                    <th>Spent</th>
-                    <th>Net</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for key, value in resources_dict.items %}
-                <tr>
-                    <th class="u-align-middle">{{ value.name|title }}</th>
-                    <td class="u-align-middle">{{ value.quantity|intcomma }}</td>
-                    <td class="u-align-middle text-green-400">{{ value.produced|intcomma }}</td>
-                    <td class="u-align-middle text-red-400">{{ value.consumed|intcomma }}</td>
-                    <td class="u-align-middle {% if value.net < 0 %}text-red-400{% else %}text-green-400{% endif %}">{{ value.net|intcomma }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    
     {% if dominion == active_dominion or round.has_started and dominion.protection_ticks_remaining == 0 %}
     <div>
         <table class="table striped small max-w-sm">
@@ -246,6 +73,31 @@
     <h6>Units will be displayed here once this dominion is out of protection and the round has started.</h6>
     {% endif %}
 
+    <div class="">
+        <table class="table striped max-w-md">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Quantity</th>
+                    <th>Produced</th>
+                    <th>Spent</th>
+                    <th>Net</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key, value in resources_dict.items %}
+                <tr>
+                    <th class="u-align-middle">{{ value.name|title }}</th>
+                    <td class="u-align-middle">{{ value.quantity|intcomma }}</td>
+                    <td class="u-align-middle text-green-400">{{ value.produced|intcomma }}</td>
+                    <td class="u-align-middle text-red-400">{{ value.consumed|intcomma }}</td>
+                    <td class="u-align-middle {% if value.net < 0 %}text-red-400{% else %}text-green-400{% endif %}">{{ value.net|intcomma }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
     <div>
         <table class="table striped small max-w-xs">
             <thead>
@@ -501,10 +353,13 @@
         </details>
     </div>
 
-    <p>Complacency: {{ dominion.complacency }} ticks (-{{ dominion.complacency_penalty_percent|floatformat:0 }}% defense)</p>
+    <div>
+        <p>Determination: {{ dominion.complacency }} ticks (+{{ dominion.determination_bonus_percent|floatformat:0 }}% offense)</p>
+        <p>Complacency: {{ dominion.complacency }} ticks (-{{ dominion.complacency_penalty_percent|floatformat:0 }}% defense)</p>
+    </div>
 
     <div>
-        <table class="table striped card_colors max-w-md">
+        <table class="table card_colors max-w-md">
             <thead>
                 <tr>
                     <th class="u-align-middle">Timestamp</th>
@@ -518,7 +373,7 @@
             </thead>
             <tbody>
                 {% for battle in battles_with_this_dominion %}
-                <tr>
+                <tr class="{% if battle.winner == dominion %}header_colors{% endif %}">
                     <td class="u-align-middle">
                         {% if active_user_settings.use_am_pm %}
                         {{ battle.timestamp|timezone:active_user_settings.timezone|date:"F j, g:i:s a" }}
