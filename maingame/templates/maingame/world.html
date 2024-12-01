@@ -110,7 +110,7 @@
     {% endfor %}
 
     {% if active_dominion.can_attack and round.has_started and not round.has_ended %}
-    <form action="{% url 'submit_invasion' %}" method="post" class="max-w-md u-overflow-x-scroll">
+    <form action="{% url 'submit_invasion' %}" method="post" class="max-w-md u-overflow-x-scroll u-overflow-x-auto-md">
         {% csrf_token %}
         <div class="u-flex u-flex-row u-center pt-2 pb-4">
             <select class="max-w-xs" name="target_dominion_id" id="target_select_dropdown" oninput="updateTargetDefense()">
