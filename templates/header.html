@@ -104,7 +104,6 @@
 
 {% if active_dominion.protection_ticks_remaining > 0 or not round.has_started and active_dominion %}
 <div class="u-flex u-flex-column u-flex-row-md u-gap-4 header_colors p-1">
-    <span>Tutorial step {{ active_user_settings.tutorial_step }} / 11</span>
     {% if active_user_settings.tutorial_step >= 2 %}
     <span>{{ active_dominion.protection_ticks_remaining }} protection ticks left</span>
     {% endif %}
