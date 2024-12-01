@@ -270,6 +270,17 @@ class Dominion(models.Model):
         return False
 
     @property
+    def ticks_til_all_units_return(self):
+        latest_return = 0
+
+        for unit in Unit.objects.filter(ruler=self):
+            for ticks, value in unit.returning_dict.items():
+                if value > 0:
+                    latest_return = max(latest_return, int(ticks))
+
+        return latest_return
+
+    @property
     def building_primary_cost(self):
         return 1000
     
