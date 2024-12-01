@@ -48,7 +48,7 @@ class UserSettings(models.Model):
     use_am_pm = models.BooleanField(default=True)
     is_tutorial = models.BooleanField(default=True)
     tutorial_stage = models.IntegerField(default=0)
-    juicy_target_threshold = models.FloatField(default=0.66)
+    juicy_target_threshold = models.FloatField(default=0)
 
     def __str__(self):
         return f"{self.display_name} -- {self.theme_model}"
