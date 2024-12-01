@@ -48,11 +48,11 @@
     {% comment %} DESKTOP HEADER {% endcomment %}
     <div class="u-none u-flex-md u-flex-wrap {% if active_dominion.resource_types >= 9 %}u-gap-4{% else %}u-gap-6{% endif %}">
         {% if active_dominion %}
-        <div class="u-align-center">
+        {% comment %} <div class="u-align-center">
             {% include "maingame/current_incoming.html" with current=active_dominion.acres incoming=active_dominion.incoming_acres %}
         </div>
 
-        <span class="font-bold u-center">{{ active_dominion.defense_short }} DP</span>
+        <span class="font-bold u-center">{{ active_dominion.defense_short }} DP</span> {% endcomment %}
         
         <div class="u-flex u-flex-column">
             {% if active_dominion.ticks_til_all_units_return > 0 %}
