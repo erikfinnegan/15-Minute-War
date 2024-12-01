@@ -20,17 +20,8 @@
                 the interface for invading them. In order to invade someone, you need to send an amount of offense that matches or exceeds their defense.
             </p>
             <p>
-                On an invasion, the attacker takes 10% casualties if they win and 15% casualties if they lose. The defender takes 5% casualties if 
-                they lose, 2% casualties if they win, and no casualties if the offense less than half the defense. Of course, the attacker will likely
-                always win, because the total offense and defense are both public information.
-            </p>
-            <p>
                 Some units have special perks. These are marked by differently-colored text and the description can be seen by mousing over the name (desktop)
                 or tapping on the name (mobile).
-            </p>
-            <p>
-                Every tick, a dominion gains 1 complacency, giving -0.33% defense each. Complacency resets when that dominion gets invaded. They also gain 1
-                determination, giving +0.33% offense each and resetting when they successfully invade another dominion.
             </p>
         </details>
     </div>
@@ -62,7 +53,11 @@
                     <tr>
                         {% include "maingame/unit_name_row.html" %}
                         <td class="u-align-middle" style="white-space:nowrap">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
-                        <td class="tooltip tooltip--right" data-tooltip="{{ unit.quantity_total_and_paid }}">{{ unit.quantity_trained_and_alive|intcomma }} {% if unit.quantity_in_training > 0 %} ({{ unit.quantity_in_training|intcomma }}){% endif %}</td>
+
+                        <td class="u-align-middle">
+                            {% include "maingame/current_incoming.html" with current=unit.quantity_trained_and_alive incoming=unit.quantity_in_training %}
+                        </td>
+                        
                         <td class="u-align-middle">{{ unit.quantity_at_home|intcomma }}</td>
                     </tr>
                 {% endfor %}

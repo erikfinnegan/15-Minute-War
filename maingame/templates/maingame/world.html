@@ -16,6 +16,15 @@
                 These are all the dominions at the moment. When someone makes an invasion, the units they send take 12 ticks to return home, leaving 
                 them more vulnerable to attack in the meantime.
             </p>
+            <p>
+                On an invasion, the attacker takes 10% casualties if they win and 15% casualties if they lose. The defender takes 5% casualties if 
+                they lose, 2% casualties if they win, and no casualties if the offense less than half the defense. Of course, the attacker will likely
+                win, because the total offense and defense are both public information.
+            </p>
+            <p>
+                Every tick, a dominion gains -0.33% defense. This resets when that dominion gets invaded. They also gain +0.33% offense, which
+                resets when they successfully invade another dominion.
+            </p>
     </details>
 
     <div class="u-overflow-x-scroll u-overflow-x-auto-md pr-2 max-w-md">
@@ -52,10 +61,7 @@
 
                     {% comment %} Land {% endcomment %}
                     <td class="u-align-middle">
-                        <div class="u-flex u-flex-column">
-                            <span>{{ dominion.acres|intcomma }}</span>
-                            <small>{% if dominion.incoming_acres > 0 %}({{ dominion.incoming_acres|intcomma }}){% endif %}</small>
-                        </div>
+                        {% include "maingame/current_incoming.html" with current=dominion.acres incoming=dominion.incoming_acres %}
                     </td>
 
                     {% comment %} Defense {% endcomment %}

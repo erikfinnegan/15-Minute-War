@@ -1,0 +1,29 @@
+{% load humanize %}
+
+<div class="current-incoming w-6 h-8 u-center">
+    <div class="u-flex u-flex-column separate">
+        <span>{{ current|intcomma }}</span>
+        <small class="u-center">{% if incoming > 0 %}({{ incoming|intcomma }}){% endif %}</small>
+    </div>
+    <div class="combined">
+        <span>{{ current|add:incoming|intcomma }}</span>
+    </div>
+</div>
+
+<style>
+    .current-incoming:hover div.separate span {
+        display: none;
+    }
+
+    .current-incoming:hover div.separate small {
+        display: none;
+    }
+
+    .current-incoming:hover div.combined span {
+        display: block;
+    }
+
+    .combined span {
+        display: none;
+    }
+</style>
