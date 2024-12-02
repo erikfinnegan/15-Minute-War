@@ -480,11 +480,9 @@ def cast_spell(spell: Spell):
                         overwhelming_unit.quantity_at_home = 0
                         overwhelming_unit.is_trainable = False
                         overwhelming_unit.cost_dict = {}
-                        overwhelming_unit_upkeep = overwhelming_unit.op
                         overwhelming_unit.perk_dict["is_releasable"] = True
+                        overwhelming_unit.perk_dict["percent_attrition"] = 3
 
-                        overwhelming_unit.upkeep_dict[mana.name] = overwhelming_unit_upkeep
-                        
                     overwhelming_quantity = int(unit.quantity_at_home * 0.2)
 
                     if overwhelming_quantity > 0:

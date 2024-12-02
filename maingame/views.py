@@ -848,8 +848,6 @@ def world(request):
         if dominion.protection_ticks_remaining == 0:
             lowest_defense_in_game = min(dominion.defense, lowest_defense_in_game)
 
-    
-
     context = {
         "dominions": dominions,
         "minimum_defense_left": my_dominion.acres * 5,

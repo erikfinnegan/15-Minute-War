@@ -270,6 +270,17 @@ class Dominion(models.Model):
         return False
 
     @property
+    def ticks_til_soonest_return(self):
+        soonest_return = 999
+
+        for unit in Unit.objects.filter(ruler=self):
+            for ticks, value in unit.returning_dict.items():
+                if value > 0:
+                    soonest_return = min(soonest_return, int(ticks))
+
+        return soonest_return
+
+    @property
     def ticks_til_all_units_return(self):
         latest_return = 0
 
@@ -496,8 +507,7 @@ class Dominion(models.Model):
             self.complacency += 1
             self.determination += 1
 
-        if self.has_tick_units:
-            do_tick_units(self)
+        do_tick_units(self)
 
         self.save()
 
@@ -688,6 +698,10 @@ class Unit(models.Model):
         if "returns_in_ticks" in self.perk_dict:
             ticks_to_return = self.perk_dict["returns_in_ticks"]
             perk_text += f"Returns from battle in {ticks_to_return} ticks. "
+
+        if "percent_attrition" in self.perk_dict:
+            attrition_percent = self.perk_dict["percent_attrition"]
+            perk_text += f"{attrition_percent}% of these die every tick, rounding up. "
 
         return perk_text
     
@@ -901,3 +915,11 @@ def do_tick_units(dominion: Dominion):
                         random_key = random.choice(keys_list)
                         dominion.perk_dict["book_of_grudges"][random_key]["pages"] += value
                         dominion.save()
+                case "percent_attrition":
+                    attrition_multiplier = 1 - (value / 100)
+                    unit.quantity_at_home = math.floor(unit.quantity_at_home * attrition_multiplier)
+                        
+                    for tick, quantity in unit.returning_dict.items():
+                        unit.returning_dict[tick] = math.floor(quantity * attrition_multiplier)
+                    
+                    unit.save()
