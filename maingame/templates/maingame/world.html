@@ -14,12 +14,13 @@
         <summary class="accordion__summary">Details</summary>
             <p>
                 These are all the dominions at the moment. When someone makes an invasion, the units they send take 12 ticks to return home, leaving 
-                them more vulnerable to attack in the meantime.
+                them more vulnerable to attack in the meantime. The land they conquer also takes 12 ticks to arrive and they can't attack again until
+                it does.
             </p>
             <p>
                 On an invasion, the attacker takes 10% casualties if they win and 15% casualties if they lose. The defender takes 5% casualties if 
                 they lose, 2% casualties if they win, and no casualties if the offense less than half the defense. Of course, the attacker will likely
-                win, because the total offense and defense are both public information.
+                win because the total offense and defense are both public information.
             </p>
             <p>
                 Every tick, a dominion gains -0.33% defense. This resets when that dominion gets invaded. They also gain +0.33% offense, which
@@ -115,7 +116,14 @@
     {% endif %}
     {% endfor %}
 
-    {% if active_dominion.can_attack and round.has_started and not round.has_ended %}
+    {% if active_dominion.incoming_acres > 0 %}
+    <div class="max-w-md">
+        <div class="u-flex u-flex-column u-gap-1 u-center">
+            <h6>You can't invade while you have land incoming.</h6>
+            <span>Your land arrives in {{ active_dominion.ticks_til_all_acres_return }} ticks.</span>
+        </div>
+    </div>
+    {% elif active_dominion.can_attack and round.has_started and not round.has_ended %}
     <form action="{% url 'submit_invasion' %}" method="post" class="max-w-md u-overflow-x-scroll u-overflow-x-auto-md">
         {% csrf_token %}
         <div class="u-flex u-flex-row u-center py-2">

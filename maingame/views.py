@@ -1531,7 +1531,11 @@ def submit_invasion(request):
     
     if Round.objects.first().has_ended:
         messages.error(request, f"The round has already ended")
-        return redirect("resources")
+        return redirect("world")
+    
+    if my_dominion.has_units_returning:
+        messages.error(request, f"You can't send another invasion while you have units returning")
+        return redirect("world")
     
     dominion_id = request.POST["target_dominion_id"]
     target_dominion = Dominion.objects.get(id=dominion_id)
