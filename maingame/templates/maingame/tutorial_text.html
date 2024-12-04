@@ -34,8 +34,8 @@
     {% if active_user_settings.tutorial_step == 2 %}
     <p>
         Here you can see how much of each resource you produce per "tick". 15 Minute War "ticks" every 15 minutes, which is when resource production happens.
-        You'll notice that, in addition to what your buildings are producing, you're also gaining gold. You always produce 50 gold per acre regardless of what
-        buildings you construct.
+        You'll notice that, in addition to what your buildings are producing, you're also gaining gold. You always produce 50 gold per acre regardless of
+        your buildings.
     <p>
     <p>
         When you register, you start in a state of magical protection. No one can attack you and you have 72 free ticks that you can process on command.
@@ -84,14 +84,15 @@
 {% if page == "buildings" %}
     {% if active_user_settings.tutorial_step == 1 %}
     <p>
-        You're going to need some resources to do anything. Your resources appear at the top of the page and it might look like you have a lot of gold, but that's only just
-        enough to construct buildings on all your available land! You start with {{ active_dominion.acres }} acres and each acre can support one building.
+        You're going to need some resources to do anything. Your resources appear at the top of the page. You start with {{ active_dominion.acres }} 
+        acres and each acre can support one building. Buildings are assigned by percentage, so if you have 10% farms (which produce 100 food), that means 
+        10% of your 500 acres will be producing 100 food each.
     </p>
     <p>Each building produces a different resource, but not all resources are equally important for dwarves.</p>
-    <p>Construct 50 farms to get food to feed your future units.</p>
-    <p>Construct 225 quarries to get the ore you'll need to train your units.</p>
-    <p>Construct 30 lumberyards to get the wood you'll need to build future buildings.</p>
-    <p>Construct 195 schools to get research to upgrade your buildings later.</p>
+    <p>Construct 10% farms to get food to feed your future units.</p>
+    <p>Construct 45% quarries to get the ore you'll need to train your units.</p>
+    <p>Construct 6% lumberyards for... secret reasons.</p>
+    <p>Construct 39% schools to get research to upgrade your buildings later.</p>
     <p>We're not going to need any towers for our strategy.</p>
     {% endif %}
 
@@ -134,7 +135,7 @@
 
     {% if active_user_settings.tutorial_step == 7 %}
     <p>
-        You'll notice that the quantity shows "0 (500)". That's because those 500 units are still in training. When you train units, they take 12 units to 
+        You'll notice that the quantity shows "0 (500)". That's because those 500 units are still in training. When you train units, they take 12 ticks to 
         show up - that's why we stopped here when we had 12 ticks left in protection!
         You can keep track of your training progress below in the "Units in training" section.
     </p>
@@ -147,11 +148,10 @@
 
     {% if active_user_settings.tutorial_step == 8 %}
     <p>
-        It seems you have a bunch of wood accumulated. While this will come in handy for building new buildings once you conquer more land, it's not doing you any
-        good just sitting around. You produce enough that, even if you spend all of what you have now, you'll be able to afford your buildings later.
+        Remember when you allocated 6% of your land to lumberyards for "secret reasons"? It was to help with your army.
     </p>
     <p>
-        You probably noticed that you don't have any units to spend it on, though. You can change that. Head over to the Discoveries page.
+        What do you mean "none of my units cost wood"? Oh, you just haven't discovered them yet. Head on over to the Discoveries page.
     </p>
     {% endif %}
 
@@ -267,22 +267,17 @@
 {% if page == "world" %}
     {% if active_user_settings.tutorial_step == 11 %}
     <p>
-        These are all the dominions at the moment. You can click the info button next to anyone's name to see an overview of their dominion.
+        These are all the dominions at the moment. You can click on anyone's name to see an overview of their dominion.
     </p>
     <p>
-        Complacency is a penalty to that dominion's defense. It worses by 0.33% per tick and resets to zero when they get invaded.
-    </p>
-    <p>
-        Determination is a bonus to that dominion's offense. It improves by 0.33% per tick and resets to zero when they invade someone.
+        Each dominion has a penalty to their defense (DP) It worses by 0.33% per tick and resets to zero when they get invaded.
+        Similarly, they have a bonus to their offense (OP). It improves by 0.33% per tick and resets to zero when they invade someone.
     </p>
     <p>
         Highest OP tracks the greatest total offense that dominion has sent on an invasion. It doesn't represent their maximum potential, but it's
         a useful tool for determining if you have enough defense.
     </p>
-    <p>
-        The "INFO" button will take you to that dominion's overview page where you can see what they're building and also invade them.
-    </p>
-    <p>When you're ready, process your final tick of protection and go to the World page.</p>
+    <p>When you're ready, process your final tick of protection.</p>
     {% endif %}
 
     {% if active_user_settings.tutorial_step == 12 %}

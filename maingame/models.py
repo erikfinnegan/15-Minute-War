@@ -78,8 +78,8 @@ class UserSettings(models.Model):
                 return 8888
             elif dominion.acres > 500:
                 return 8888
-
-            if dominion.barren_acres == 0:
+            
+            if Building.objects.get(ruler=dominion, name="farm").percent_of_land > 0:
                 current_step += 1 #2
             
             if dominion.protection_ticks_remaining <= 71:
@@ -253,15 +253,6 @@ class Dominion(models.Model):
         return f"{self.id}"
 
     @property
-    def building_count(self):
-        building_count = 0
-        
-        for building in Building.objects.filter(ruler=self):
-            building_count += building.quantity
-
-        return building_count
-
-    @property
     def has_units_returning(self):
         for unit in Unit.objects.filter(ruler=self):
             if unit.quantity_returning > 0:
@@ -309,15 +300,6 @@ class Dominion(models.Model):
     def building_secondary_cost(self):
         return 100
     
-    @property 
-    def barren_acres(self):
-        barren_acres = self.acres
-
-        for building in Building.objects.filter(ruler=self):
-            barren_acres -= building.quantity
-
-        return barren_acres
-
     @property
     def incoming_acres(self):
         total = 0
@@ -381,7 +363,7 @@ class Dominion(models.Model):
         production = 0
 
         for building in Building.objects.filter(ruler=self, resource_produced_name=resource_name):
-            production += building.amount_produced * building.quantity
+            production += building.amount_produced * (building.percent_of_land/100) * self.acres
 
         if resource_name == self.primary_resource_name:
             production += self.primary_resource_per_acre * self.acres
@@ -404,7 +386,7 @@ class Dominion(models.Model):
 
             production += sinners_gained
 
-        return production
+        return int(production)
     
     def get_consumption(self, resource_name):
         consumption = 0
@@ -562,6 +544,7 @@ class Building(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
     resource_produced_name = models.CharField(max_length=50, null=True, blank=True)
     amount_produced = models.IntegerField(default=0)
+    percent_of_land = models.IntegerField(default=0)
     quantity = models.IntegerField(default=0)
     trade_multiplier = models.IntegerField(default=0)
     defense_multiplier = models.IntegerField(default=0)
@@ -592,18 +575,6 @@ class Building(models.Model):
             perks.append(f"Produces {self.amount_produced} {resource_produced.name} per tick.")
 
         return " ".join(perks)
-    
-    @property
-    def percent(self):
-        percent = (self.quantity / self.ruler.acres) * 100
-
-        if percent.is_integer():
-            return int(percent)
-        
-        return round(percent, 2)
-    
-    def max_x_or_self_quantity(self, x):
-        return max(x, self.quantity)
     
 
 class Unit(models.Model):

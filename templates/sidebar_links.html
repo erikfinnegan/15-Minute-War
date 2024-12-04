@@ -10,7 +10,7 @@
     {% endif %}
 
     {% if active_user_settings.tutorial_step >= 1 %}
-    <a href="{% url 'buildings' %}" class="">Buildings{% if active_dominion.barren_acres > 0 %} ⚠️{% endif %}</a>
+    <a href="{% url 'buildings' %}" class="">Buildings</a>
     {% endif %}
     
     {% if active_user_settings.tutorial_step >= 6 %}

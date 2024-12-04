@@ -65,7 +65,7 @@ class Command(BaseCommand):
 
         buildings_each = int(100 / Building.objects.filter(ruler=testdominion).count())
         for building in Building.objects.filter(ruler=testdominion):
-            building.quantity = buildings_each
+            building.percent_of_land = buildings_each
             building.save()
 
         for unit in Unit.objects.filter(ruler=testdominion):

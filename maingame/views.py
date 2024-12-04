@@ -13,7 +13,7 @@ from django.db.models import Q
 from maingame.formatters import create_or_add_to_key, get_sludgeling_name
 from maingame.models import Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings, Theme
 from maingame.tick_processors import do_global_tick
-from maingame.utils import abandon_dominion, delete_dominion, get_acres_conquered, get_grudge_bonus, initialize_dominion, prune_buildings, round_x_to_nearest_y, unlock_discovery, cast_spell
+from maingame.utils import abandon_dominion, delete_dominion, get_acres_conquered, get_grudge_bonus, initialize_dominion, round_x_to_nearest_y, unlock_discovery, cast_spell
 
 
 def index(request):
@@ -82,9 +82,6 @@ def buildings(request):
 
     context = {
         "buildings": Building.objects.filter(ruler=dominion),
-        "primary_resource": primary_resource,
-        "secondary_resource": secondary_resource,
-        "max_buildable": min(dominion.barren_acres, max_affordable),
     }
     
     return render(request, "maingame/buildings.html", context)
@@ -174,77 +171,43 @@ def submit_building(request):
         return redirect("buildings")
     
     user_settings = UserSettings.objects.get(associated_user=dominion.associated_user)
-    primary_resource = Resource.objects.get(ruler=dominion, name=dominion.building_primary_resource_name)
-    secondary_resource = Resource.objects.get(ruler=dominion, name=dominion.building_secondary_resource_name)
-    total_built = 0
 
-    destroy_mode = request.POST["buildOrDestroy"] == "Destroy"
+    total_new_percent = 0
 
-    for key, string_amount in request.POST.items():
+    for key, string_percent in request.POST.items():
         # key is like "build_123" where 123 is the ID of the Building
-        if "build_" in key and string_amount != "":
+        if "build_" in key and string_percent != "":
             building = Building.objects.get(id=key[6:])
+            total_new_percent += int(string_percent)
 
             if user_settings.tutorial_step == 1:
-                if building.name == "farm" and int(string_amount) != 50:
+                if building.name == "farm" and int(string_percent) != 10:
                     messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
                     return redirect("buildings")
-                elif building.name == "quarry" and int(string_amount) != 225:
+                elif building.name == "quarry" and int(string_percent) != 45:
                     messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
                     return redirect("buildings")
-                elif building.name == "lumberyard" and int(string_amount) != 30:
+                elif building.name == "lumberyard" and int(string_percent) != 6:
                     messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
                     return redirect("buildings")
-                elif building.name == "school" and int(string_amount) != 195:
+                elif building.name == "school" and int(string_percent) != 39:
                     messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
                     return redirect("buildings")
-                elif building.name == "tower" and int(string_amount) != 0:
+                elif building.name == "tower" and int(string_percent) != 0:
                     messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
                     return redirect("buildings")
 
-            if destroy_mode:
-                amount = int(string_amount)
-                total_built += min(amount, building.quantity)
-                building.quantity -= amount
-                building.quantity = max(0, building.quantity)
-                building.save()
-            elif building.is_buildable:
-                total_built += int(string_amount)
-
-    if total_built < 1:
-        verb = "destroyed" if destroy_mode else "built"
-        messages.error(request, f"Zero buildings {verb}")
-        return redirect("buildings")
-    elif destroy_mode:
-        messages.success(request, f"Destruction of {total_built} buildings successful")
-        return redirect("buildings")
-    elif total_built > dominion.barren_acres:
-        messages.error(request, f"You tried to build {total_built} buildings but only have {dominion.barren_acres} acres of barren land")
+    if total_new_percent != 100:
+        messages.error(request, f"Building allocation must add up to exactly 100%")
         return redirect("buildings")
 
-    building_succeeded = True
+    for key, string_percent in request.POST.items():
+        if "build_" in key and string_percent != "":
+            building = Building.objects.get(id=key[6:])
+            building.percent_of_land = int(string_percent)
+            building.save()
 
-    if total_built * dominion.building_primary_cost > primary_resource.quantity:
-        building_succeeded = False
-        messages.error(request, f"This would cost {f'{total_built * dominion.building_primary_cost:,}'} {primary_resource.name}. You have {f'{primary_resource.quantity:,}'}.")
-    elif total_built * dominion.building_secondary_cost > secondary_resource.quantity:
-        building_succeeded = False
-        messages.error(request, f"This would cost {f'{total_built * dominion.building_secondary_cost:,}'} {secondary_resource.name}. You have {f'{secondary_resource.quantity:,}'}.")
-
-    if building_succeeded:
-        primary_resource.quantity -= total_built * dominion.building_primary_cost
-        primary_resource.save()
-        secondary_resource.quantity -= total_built * dominion.building_secondary_cost
-        secondary_resource.save()
-        dominion.save()
-
-        for key, string_amount in request.POST.items():
-            if "build_" in key and string_amount != "":
-                building = Building.objects.get(id=key[6:])
-                building.quantity += int(string_amount)
-                building.save()
-
-        messages.success(request, f"Construction of {total_built} buildings successful")
+    messages.success(request, f"Building allocation successful")
     
     return redirect("buildings")
 
@@ -1646,7 +1609,6 @@ def submit_invasion(request):
 
         target_dominion.acres -= acres_conquered
         target_dominion.save()
-        prune_buildings(target_dominion)
 
         my_dominion.incoming_acres_dict["12"] += acres_conquered * 2
         my_dominion.save()

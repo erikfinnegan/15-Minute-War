@@ -12,38 +12,64 @@
     <details class="accordion card card_colors max-w-md">
         <summary class="accordion__summary">Details</summary>
         <p>
-            While there are exceptions, most buildings produce resources each tick. Each has a cost to build with a primary and secondary resource. The cost
-            per building increases depending on how many acres you have. Unlike units, buildings are constructed instantly. You can also destroy buildings,
-            which is free and also instant. This offers no refunds, just a chance to build something else in its place.
+            Buildings produce resources. Each building is assigned a percent, which represents what percent of your acres is dedicated to that building type.
+            Each tick, you'll get an amount of that resource equal to the production of that building multiplied by the amount of acres dedicated to it.
         </p>
-        <p>You can construct one building per acre. If you have fewer than that, the available space is referred to as "barren" acres.</p>
+        <p>
+            For example, if you have 500 acres and 20% of your land is dedicated to a building that produces 8 widgets per tick, that means 100 acres (20% of 500)
+            are dedicated to that building, so you'll produce 800 widgets (100 times 8) per tick.
+        </p>
+        <p>
+            When allocating building percentages, the total must equal exactly 100%.
+        </p>
     </details>
-    <h6>{{ active_dominion.barren_acres}} barren acres</h6>
-    <p>
-        Buildings cost {{ active_dominion.building_primary_cost|intcomma }} {{ primary_resource.name }} and 
-        {{ active_dominion.building_secondary_cost|intcomma }} {{ secondary_resource.name }}. You can build {{ max_buildable|intcomma }}.
-    </p>
+    <div class="u-flex u-flex-row u-gap-1" id="total-percent-container">
+        <h6>Total:</h6>
+        <h6 id="total-percent-readout">100</h6>
+        <h6>%</h6>
+    </div>
     <form action="{% url 'submit_building' %}" method="post" class="">
         {% csrf_token %}
 
         <div class="u-flex u-flex-wrap u-gap-2">
         {% for building in buildings %}
-        {% if building.quantity > 0 or building.is_buildable %}
+        {% if building.percent_of_land > 0 or building.is_buildable %}
         {% include "maingame/building_card.html" %}
         {% endif %}
         {% endfor %}
         </div>
 
         <div class="u-center u-flex u-gap-4 mt-2" style="width: fit-content">
-            <select name="buildOrDestroy" class="w-16 h-6 u-center">
-                <option selected>Build</option>
-                <option>Destroy</option>
-            </select>
-            <button class="header_colors w-16 h-6 p-0 u-center" type="submit">
+            <button class="header_colors w-16 h-6 p-0 u-center" type="submit" id="building-submit-button">
                 <span class="font-bold">Submit</span>
             </button>
         </div>
     
     </form>
+
+    <script>
+        function updateTotalPercent() {
+            const inputs = document.querySelectorAll('.building-input');
+            const totalPercentReadout = document.getElementById("total-percent-readout");
+            const totalPercentContainer = document.getElementById("total-percent-container");
+            const buildingSubmitButton = document.getElementById("building-submit-button");
+            
+            let totalPercent = 0
+
+            inputs.forEach(input => {
+                totalPercent = totalPercent + parseInt(input.value)
+            });
+
+            totalPercentReadout.innerHTML = totalPercent
+
+            if (totalPercent == 100) {
+                totalPercentContainer.classList.remove("text-red-400")
+                buildingSubmitButton.disabled = false
+            } else {
+                totalPercentContainer.classList.add("text-red-400")
+                buildingSubmitButton.disabled = true
+            }
+        }
+    </script>
 </div>
 {% endblock %}

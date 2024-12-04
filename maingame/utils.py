@@ -159,14 +159,8 @@ def initialize_dominion(user: User, faction: Faction, display_name):
     }
 
     primary_building_resource = Resource.objects.get(ruler=dominion, name=dominion.building_primary_resource_name)
-    primary_building_resource.quantity = dominion.acres * dominion.building_primary_cost
-    primary_building_resource.save()
     dominion.last_bought_resource_name = primary_building_resource.name
     dominion.last_sold_resource_name = primary_building_resource.name
-
-    secondary_building_resource = Resource.objects.get(ruler=dominion, name=dominion.building_secondary_resource_name)
-    secondary_building_resource.quantity = dominion.acres * dominion.building_secondary_cost
-    secondary_building_resource.save()
 
     user_settings, _ = UserSettings.objects.get_or_create(associated_user=user)
 
@@ -263,17 +257,6 @@ def get_grudge_bonus(my_dominion: Dominion, other_dominion: Dominion):
     except:
         return 0
     
-
-def prune_buildings(dominion: Dominion):
-    while dominion.building_count > dominion.acres:
-        surplus = dominion.building_count - dominion.acres
-
-        for building in Building.objects.filter(ruler=dominion).order_by('-quantity'):
-            if building.quantity > 0 and surplus > 0:
-                building.quantity -= 1
-                building.save()
-                surplus -= 1
-
 
 def create_magnum_goopus(dominion: Dominion, encore=False):
     total_quantity = 0
