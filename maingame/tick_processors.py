@@ -47,4 +47,24 @@ def do_global_tick():
                 round.has_ended = randint(1,100) <= round.percent_chance_for_round_end
 
         round.save()
+
+        if round.has_ended:
+            for dominion in Dominion.objects.all():
+                dominion.acres += dominion.incoming_acres
+                dominion.incoming_acres_dict = {
+                    "1": 0,
+                    "2": 0,
+                    "3": 0,
+                    "4": 0,
+                    "5": 0,
+                    "6": 0,
+                    "7": 0,
+                    "8": 0,
+                    "9": 0,
+                    "10": 0,
+                    "11": 0,
+                    "12": 0,
+                }
+                dominion.save()
+
         print("Round management done", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
