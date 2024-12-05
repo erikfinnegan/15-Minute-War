@@ -14,9 +14,12 @@
             The more experiments you run, the (slightly) higher your chance of getting a very powerful unit.
         </p>
         <p>
-            The cost of each experiment is based on your acreage and it temporarily goes up each time you do it. It decreases back to its base value over time, 
-            with 12 ticks undoing the cost of one experiment. You can only have three experimental units at a time, but you can terminate any existing experiments to make room 
-            for new ones as long as none are returning or in training. Doing so will refund you 80% of the cost of any units you had trained of that type.
+            The cost of each experiment is based on your acreage. You can only have three experimental units at a time, but you can terminate any 
+            existing experiments to make room for new ones as long as none are returning or in training. Doing so will refund you 80% of the 
+            cost of any units you had trained of that type.
+        </p>
+        <p>
+            When someone invades you, you'll get five free experiments.
         </p>
         <p>
             "Cost/OP" is based on "cost" being ((gold cost * 1.08) + sludge cost) to represent how much it would cost if you paid by converting gold to sludge.
@@ -27,6 +30,9 @@
         {% if allow_new_experiments %}
         <span>
             New experiment: {{ research_cost|intcomma }} research, {{ sludge_cost|intcomma }} sludge
+        </span>
+        <span>
+            You have {{ active_dominion.perk_dict.free_experiments }} free experiments available.
         </span>
         <form class="max-w-xs">
             <button class="u-center header_colors" formaction="{% url 'generate_experiment' %}">Generate</button>

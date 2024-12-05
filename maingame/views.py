@@ -1067,9 +1067,10 @@ def generate_experiment(request):
     players_research = Resource.objects.get(ruler=dominion, name="research")
     players_sludge = Resource.objects.get(ruler=dominion, name="sludge")
 
-    if experiment_research_cost > players_research.quantity or experiment_sludge_cost > players_sludge.quantity:
-        messages.error(request, f"You can't afford this experiment")
-        return redirect("experimentation")
+    if dominion.perk_dict["free_experiments"] == 0:
+        if experiment_research_cost > players_research.quantity or experiment_sludge_cost > players_sludge.quantity:
+            messages.error(request, f"You can't afford this experiment")
+            return redirect("experimentation")
     
     try:
         old_experiment = Unit.objects.get(id=dominion.perk_dict["latest_experiment_id"])
@@ -1077,11 +1078,15 @@ def generate_experiment(request):
     except:
         pass
     
-    players_research.quantity -= experiment_research_cost
-    players_research.save()
+    if dominion.perk_dict["free_experiments"] == 0:
+        players_research.quantity -= experiment_research_cost
+        players_research.save()
 
-    players_sludge.quantity -= experiment_sludge_cost
-    players_sludge.save()
+        players_sludge.quantity -= experiment_sludge_cost
+        players_sludge.save()
+    else:
+        dominion.perk_dict["free_experiments"] -= 1
+        dominion.save()
     
     past_experiments = dominion.perk_dict["experiments_done"]
 
@@ -1561,13 +1566,27 @@ def submit_invasion(request):
         my_dominion.determination = 0
         my_dominion.save()
 
+        # It should be for everyone, but better safe than sorry
         if "book_of_grudges" in target_dominion.perk_dict:
+            pages_to_gain = 50
+
+            for _ in range(round.ticks_passed):
+                pages_to_gain *= 1.003
+
+            if "grudge_page_multiplier" in target_dominion.perk_dict:
+                pages_to_gain *= target_dominion.perk_dict["grudge_page_multiplier"]
+            
+            pages_to_gain = int(pages_to_gain)
+
             if str(my_dominion.id) in target_dominion.perk_dict["book_of_grudges"]:
-                target_dominion.perk_dict["book_of_grudges"][str(my_dominion.id)]["pages"] += 100
+                target_dominion.perk_dict["book_of_grudges"][str(my_dominion.id)]["pages"] += pages_to_gain
             else:
                 target_dominion.perk_dict["book_of_grudges"][str(my_dominion.id)] = {}
-                target_dominion.perk_dict["book_of_grudges"][str(my_dominion.id)]["pages"] = 100
+                target_dominion.perk_dict["book_of_grudges"][str(my_dominion.id)]["pages"] = pages_to_gain
                 target_dominion.perk_dict["book_of_grudges"][str(my_dominion.id)]["animosity"] = 0
+
+        if "free_experiments" in target_dominion.perk_dict:
+            target_dominion.perk_dict["free_experiments"] += 5
     else:
         attacker_victory = False
 
@@ -1616,9 +1635,16 @@ def submit_invasion(request):
         battle.acres_conquered = acres_conquered
         battle.save()
 
-        # Dwarves erase their grudges for a dominion once they hit them
+        # Attackers erase their grudges for a dominion once they hit them
         if "book_of_grudges" in my_dominion.perk_dict and str(target_dominion.id) in my_dominion.perk_dict["book_of_grudges"]:
-            del my_dominion.perk_dict["book_of_grudges"][str(target_dominion.id)]
+            if "grudge_page_keep_multiplier" in my_dominion.perk_dict:
+                pages = my_dominion.perk_dict["book_of_grudges"][str(target_dominion.id)]["pages"]
+                multiplier = my_dominion.perk_dict["grudge_page_keep_multiplier"]
+                my_dominion.perk_dict["book_of_grudges"][str(target_dominion.id)]["pages"] = max(1, int(pages * multiplier))
+                my_dominion.perk_dict["book_of_grudges"][str(target_dominion.id)]["animosity"] *= 0
+            else:
+                del my_dominion.perk_dict["book_of_grudges"][str(target_dominion.id)]
+
             my_dominion.save()
     else:
         offensive_survival = 0.85

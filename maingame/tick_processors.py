@@ -1,3 +1,4 @@
+from random import randint
 from maingame.models import Dominion, Round
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -43,7 +44,7 @@ def do_global_tick():
             round.ticks_passed += 1
 
             if round.ticks_passed >= round.ticks_to_end:
-                round.has_ended = True
+                round.has_ended = randint(1,100) <= round.percent_chance_for_round_end
 
         round.save()
         print("Round management done", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))

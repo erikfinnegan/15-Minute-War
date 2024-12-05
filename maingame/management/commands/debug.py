@@ -16,25 +16,9 @@ class Command(BaseCommand):
         # user = User.objects.get(username="erik")
         # user_settings = UserSettings.objects.get(associated_user=user)
 
-        attempts = 100000
-        lowest = 99999999
-        highest = 0
-        total = 0
+        pages = 50
 
-        for _ in range(attempts):
-            ticks = 1
+        for _ in range(96 * 2):
+            pages *= 1.003
 
-            keep_going = True
-
-            while keep_going:
-                roll = randint(1,100)
-                keep_going = roll > (ticks/4)
-                ticks += 1
-
-            total += ticks
-            lowest = min(lowest, ticks)
-            highest = max(highest, ticks)
-
-        print(int(total/attempts))
-        print(lowest)
-        print(highest)
+        print(int(pages))

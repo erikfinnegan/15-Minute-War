@@ -270,12 +270,16 @@
         These are all the dominions at the moment. You can click on anyone's name to see an overview of their dominion.
     </p>
     <p>
-        Each dominion has a penalty to their defense (DP) It worses by 0.33% per tick and resets to zero when they get invaded.
-        Similarly, they have a bonus to their offense (OP). It improves by 0.33% per tick and resets to zero when they invade someone.
+        Each dominion has a penalty to their defense called "complacency". It worsens by 0.5% per tick and resets to zero when they get invaded.
     </p>
     <p>
         Highest OP tracks the greatest total offense that dominion has sent on an invasion. It doesn't represent their maximum potential, but it's
         a useful tool for determining if you have enough defense.
+    </p>
+    <p>
+        When one dominion invades another, the victim gains pages of grudges against their attacker. Every tick, they get a little extra bonus
+        offense against the subjects of their grudges - the more pages, the greater the gains. When they successfully retaliate, the
+        grudge is cleared.
     </p>
     <p>When you're ready, process your final tick of protection.</p>
     {% endif %}

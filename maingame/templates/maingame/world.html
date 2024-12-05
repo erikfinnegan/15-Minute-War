@@ -23,8 +23,9 @@
                 win because the total offense and defense are both public information.
             </p>
             <p>
-                Every tick, a dominion gains -0.33% defense. This resets when that dominion gets invaded. They also gain +0.33% offense, which
-                resets when they successfully invade another dominion.
+                Every tick, a dominion gains -0.5% defense. This resets when that dominion gets invaded. Also gain grudges against anyone who invades
+                them, slowly increasing their offense against their previous attackers until they finally retaliate, at which point their grudge against
+                that particular dominion is cleared.
             </p>
     </details>
 
@@ -40,11 +41,10 @@
                     </th>
                     <th class="u-align-middle">Land</th>
                     <th class="u-align-middle">Defense</th>
-                    <th class="u-align-middle">Bonuses</th>
+                    <th class="u-align-middle">Complacency</th>
+                    <th class="u-align-middle">Your grudge</th>
                     <th class="u-align-middle">Highest OP</th>
-                    {% if "book_of_grudges" in active_dominion.perk_dict %}
-                    <th class="u-align-middle">Grudges</th>
-                    {% endif %}
+                    <th class="u-align-middle">Grudge against you</th>
                 </tr>
             </thead>
             <tbody>
@@ -81,29 +81,50 @@
                         </div>
                     </td>
 
-                    {% comment %} Bonuses {% endcomment %}
+                    {% comment %} Complacency {% endcomment %}
                     <td class="u-align-middle">
                         <div class="u-flex u-flex-column">
-                            <span>+{{ dominion.determination_bonus_percent|floatformat:0 }}% OP</span>
                             <span>-{{ dominion.complacency_penalty_percent|floatformat:0 }}% DP</span>
                         </div>
                     </td>
 
+                    {% comment %} Grudges {% endcomment %}
+                    {% if "book_of_grudges" in active_dominion.perk_dict %}
+                        {% if dominion.strid in active_dominion.perk_dict.book_of_grudges %}
+                            <td class="u-align-middle">
+                                <div class="u-flex u-flex-column u-center w-16">
+                                    <span>
+                                        {{ active_dominion.perk_dict.book_of_grudges|getattr:dominion.strid|getattr:"pages" }} page{% if active_dominion.perk_dict.book_of_grudges|getattr:dominion.strid|getattr:"pages" > 1 %}s{% endif %}
+                                    </span>
+                                    <span>+{{ active_dominion.perk_dict.book_of_grudges|getattr:dominion.strid|getattr:"animosity"|floatformat:"1" }}% OP</span>
+                                </div>
+                            </td>
+                        {% elif dominion == active_dominion %}
+                            <td class="u-align-middle">-</td>
+                        {% else %}
+                            <td class="u-align-middle">None</td>
+                        {% endif %}
+                    {% endif %}
+
                     {% comment %} Highest OP {% endcomment %}
                     <td class="u-align-middle">{{ dominion.highest_op_short }}</td>
 
-                    {% comment %} Grudges {% endcomment %}
-                    {% if "book_of_grudges" in active_dominion.perk_dict %}
-                    {% if dominion.strid in active_dominion.perk_dict.book_of_grudges %}
-                    <td class="u-align-middle">
-                        <div class="u-flex u-flex-column u-center w-16">
-                            <span>{{ active_dominion.perk_dict.book_of_grudges|getattr:dominion.strid|getattr:"pages" }} pages</span>
-                            <span>+{{ active_dominion.perk_dict.book_of_grudges|getattr:dominion.strid|getattr:"animosity"|floatformat:"1" }}% OP</span>
-                        </div>
-                    </td>
-                    {% else %}
-                    <td class="u-align-middle">None</td>
-                    {% endif %}
+                    {% comment %} Grudges against you {% endcomment %}
+                    {% if "book_of_grudges" in dominion.perk_dict %}
+                        {% if active_dominion.strid in dominion.perk_dict.book_of_grudges %}
+                            <td class="u-align-middle">
+                                <div class="u-flex u-flex-column u-center w-16">
+                                    <span>
+                                        {{ dominion.perk_dict.book_of_grudges|getattr:active_dominion.strid|getattr:"pages" }} page{% if dominion.perk_dict.book_of_grudges|getattr:active_dominion.strid|getattr:"pages" > 1 %}s{% endif %}
+                                    </span>
+                                    <span>+{{ dominion.perk_dict.book_of_grudges|getattr:active_dominion.strid|getattr:"animosity"|floatformat:"1" }}% OP</span>
+                                </div>
+                            </td>
+                        {% elif dominion == active_dominion %}
+                            <td class="u-align-middle">-</td>
+                        {% else %}
+                            <td class="u-align-middle">None</td>
+                        {% endif %}
                     {% endif %}
                 </tr>
                 {% endfor %}

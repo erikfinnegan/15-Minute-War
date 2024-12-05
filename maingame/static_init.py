@@ -334,23 +334,24 @@ def initialize_blessed_order_units():
             "gold": 3,
             "food": 1,
         },
-        perk_dict={"faith_per_tick": 1},
+        perk_dict={"faith_per_tick": 1, "casualty_multiplier": 0.5},
         faction=blessed_order,
     )
 
     Unit.objects.create(
-        name="Novitiate",
+        name="Zealot",
         op=5,
         dp=5,
         cost_dict={
-            "gold": 1150,
-            "ore": 750,
+            "gold": 875,
+            "ore": 600,
         },
         upkeep_dict={
             "gold": 3,
             "food": 1,
         },
         faction=blessed_order,
+        perk_dict={"casualty_multiplier": 2},
     )
 
     Unit.objects.create(
@@ -699,10 +700,17 @@ def initialize_sludgeling_discoveries():
     )
 
     Discovery.objects.create(
+        name="Inspiration",
+        description="""Your creativity runs wild! Gain a free experiment every 4 ticks.""",
+        required_faction_name="sludgeling",
+        required_discoveries=["Magnum Goopus"],
+    )
+
+    Discovery.objects.create(
         name="Encore",
         description="""Another magnum goopus! ANOTHER!! Your fans love you and cannot get enough and you WILL NOT let them down!""",
         required_faction_name="sludgeling",
-        required_discoveries=["Magnum Goopus", "Even More Experiment Slots"],
+        required_discoveries=["Magnum Goopus", "Inspiration"],
     )
 
 

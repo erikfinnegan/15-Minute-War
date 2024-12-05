@@ -189,15 +189,16 @@ class Dominion(models.Model):
 
     @property
     def complacency_penalty_percent(self):
-        penalty = self.complacency * 0.33
+        penalty = self.complacency * 0.5
 
         return penalty
     
     @property
     def determination_bonus_percent(self):
-        bonus = self.determination * 0.33
+        return 0
+        # bonus = self.determination * 0.33
 
-        return bonus
+        # return bonus
 
     @property
     def offense_multiplier(self):
@@ -484,6 +485,10 @@ class Dominion(models.Model):
 
             stoneshields.save()
             deep_apostles.save()
+
+        if "Inspiration" in self.learned_discoveries and Round.objects.first().ticks_passed % 4 == 1 and "free_experiments" in self.perk_dict:
+            self.perk_dict["free_experiments"] += 1
+
                 
     def do_tick(self):
         self.do_resource_production()
@@ -819,10 +824,23 @@ class Round(models.Model):
     def time_til_round_end(self):
         now = datetime.now(ZoneInfo('America/New_York'))
         minutes_left_in_current_tick = 15 - (now.minute % 15)
+
+        if self.ticks_left == 0:
+            return format_minutes(minutes_left_in_current_tick)
+
         minutes_left_in_remaining_full_ticks = (self.ticks_left - 1) * 15
         minutes_left_in_round = minutes_left_in_remaining_full_ticks + minutes_left_in_current_tick
 
         return format_minutes(minutes_left_in_round)
+    
+    @property
+    def percent_chance_for_round_end(self):
+        ticks_past_end = self.ticks_passed - self.ticks_to_end
+
+        if ticks_past_end < 1:
+            return 0
+
+        return math.ceil(ticks_past_end / 4)
         
 
 class Discovery(models.Model):

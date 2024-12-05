@@ -8,13 +8,15 @@ from django.db.models import Q
 
 def create_faction_perk_dict(dominion: Dominion, faction: Faction):
     if faction.name == "dwarf":
-        dominion.perk_dict["book_of_grudges"] = {}
+        dominion.perk_dict["grudge_page_multiplier"] = 1.5
+        dominion.perk_dict["grudge_page_keep_multiplier"] = 0.05
     elif faction.name == "blessed order":
         dominion.perk_dict["sinners_per_hundred_acres_per_tick"] = 1
         dominion.perk_dict["inquisition_rate"] = 0
         dominion.perk_dict["inquisition_ticks_left"] = 0
         dominion.perk_dict["martyr_cost"] = 1000
     elif faction.name == "sludgeling":
+        dominion.perk_dict["free_experiments"] = 0
         dominion.perk_dict["latest_experiment_id"] = 0
         dominion.perk_dict["latest_experiment"] = {
             "should_display": False,
@@ -171,6 +173,7 @@ def initialize_dominion(user: User, faction: Faction, display_name):
         message_override=f"{user_settings.display_name} has created a {faction} dominion named {dominion}"
     )
 
+    dominion.perk_dict["book_of_grudges"] = {}
     dominion.save()
 
     create_faction_perk_dict(dominion, faction)
@@ -211,7 +214,7 @@ def get_trade_value(resource_name):
     price_modifier = 1
 
     if total_production > 0 and resource_name in this_round.resource_bank_dict:
-        price_modifier = 1 + ((this_round.resource_bank_dict[resource_name] / (total_production * 12)) * -0.2)
+        price_modifier = 1 + ((this_round.resource_bank_dict[resource_name] / (total_production * 9)) * -0.2)
 
     if resource_name == "gold":
         trade_value = 10 * price_modifier

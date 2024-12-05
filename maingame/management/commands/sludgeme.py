@@ -80,7 +80,7 @@ class Command(BaseCommand):
         admindominion.save()
 
         for unit in Unit.objects.filter(ruler=admindominion):
-            unit.quantity_at_home = 10
+            unit.quantity_at_home = 10000
             unit.save()
 
         print("Done generating stuff.")

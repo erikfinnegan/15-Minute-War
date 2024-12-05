@@ -56,8 +56,11 @@
 
 {% if round.has_ended %}
     <span class="mx-1 pt-4 font-bold">The round is over</span>
+{% elif round.percent_chance_for_round_end > 0 %}
+    <span class="mx-1 pt-4">THE END IS NIGH</span>
+    <span class="mx-1 pt-1 u-text-center">{{ round.percent_chance_for_round_end }}% chance to end next tick
 {% elif round.has_started %}
-    <span class="mx-1 pt-4">Round ends in:</span>
+    <span class="mx-1 pt-4">Endgame begins in:</span>
     <span>{{ round.time_til_round_end }}</span>
     {% if round.ticks_left <= 48 %}
     <span>({{ round.ticks_left }} ticks left)</span>
