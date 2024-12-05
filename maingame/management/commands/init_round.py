@@ -17,7 +17,8 @@ class Command(BaseCommand):
         round = Round.objects.first()
 
         # 4 ticks per hour * 24 hours in a day * X days of round
-        round.ticks_to_end = 4 * 24 * 7
+        how_many_days_this_round = 7
+        round.ticks_to_end = 4 * 24 * how_many_days_this_round
 
         round.save()
 
