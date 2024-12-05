@@ -17,7 +17,12 @@
         <label for="dominionName">Dominion name</label>
         <input type="text" name="dominionName" id="dominionName" maxlength="50" />
         <span>Unlike your display name, this cannot be changed.</span>
+    </div>
+
+    <div class="u-flex u-flex-column">
+        <span>Debug: {{ active_user_settings.display_name }}</span>
         <span>Debug: {{ active_user_settings.tutorial_stage }}</span>
+        <span>Debug: {{ active_user_settings.is_tutorial }}</span>
     </div>
     
     <div>
