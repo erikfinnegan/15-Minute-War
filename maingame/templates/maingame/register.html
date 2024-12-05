@@ -19,19 +19,13 @@
         <span>Unlike your display name, this cannot be changed.</span>
     </div>
 
-    <div class="u-flex u-flex-column">
-        <span>Debug: {{ active_user_settings.display_name }}</span>
-        <span>Debug: {{ active_user_settings.tutorial_stage }}</span>
-        <span>Debug: {{ active_user_settings.is_tutorial }}</span>
-    </div>
-    
     <div>
         <label for="factionChoice">Select a faction</label>
         <select class="" name="factionChoice">
             {% for faction in factions %}
-            {% comment %} {% if active_user_settings.tutorial_stage >= 1 or faction.name == "dwarf" %} {% endcomment %}
+            {% if active_user_settings.tutorial_step >= 1 or faction.name == "dwarf" %}
             <option>{{ faction.name|title }}</option>
-            {% comment %} {% endif %} {% endcomment %}
+            {% endif %}
             {% endfor %}
         </select>
     </div>
