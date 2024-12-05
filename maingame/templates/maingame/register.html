@@ -29,9 +29,9 @@
         <label for="factionChoice">Select a faction</label>
         <select class="" name="factionChoice">
             {% for faction in factions %}
-            {% if active_user_settings.tutorial_stage >= 1 or faction.name == "dwarf" %}
+            {% comment %} {% if active_user_settings.tutorial_stage >= 1 or faction.name == "dwarf" %} {% endcomment %}
             <option>{{ faction.name|title }}</option>
-            {% endif %}
+            {% comment %} {% endif %} {% endcomment %}
             {% endfor %}
         </select>
     </div>
