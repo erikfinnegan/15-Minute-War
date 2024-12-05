@@ -30,7 +30,7 @@
         {% endif %}
     </details>
 
-    <div class="u-none u-block-md">
+    <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
         <form action="{% url 'submit_training' %}" method="post" class="max-w-md">
             {% csrf_token %}
             <table class="table striped">
@@ -38,8 +38,9 @@
                     <tr>
                         <th>Name</th>
                         <th>Power</th>
-                        <th>Quantity (Training)</th>
+                        <th class="u-none u-block-md">Quantity (Training)</th>
                         <th>Train</th>
+                        <th class="u-none-md">Quantity (Training)</th>
                         <th>Cost</th>
                         <th>Upkeep</th>
                     </tr>
@@ -49,12 +50,13 @@
                     <tr>
                         {% include "maingame/unit_name_row.html" %}
                         <td class="u-align-middle" id="power_{{ unit.id }}" style="white-space:nowrap">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
-                        <td class="u-align-middle">
+
+                        <td class="u-align-middle u-none u-block-md">
                             {% include "maingame/current_incoming.html" with current=unit.quantity_trained_and_alive incoming=unit.quantity_in_training %}
                         </td>
-                        {% comment %} <td class="u-align-middle tooltip" data-tooltip="{{ unit.quantity_total_and_paid }}">{{ unit.quantity_trained_and_alive}}{% if unit.quantity_in_training > 0 %} ({{ unit.quantity_in_training }}){% endif %}</td> {% endcomment %}
+
                         <td class="u-align-middle">
-                            <div class="u-flex u-flex-row u-gap-2 w-32">
+                            <div class="u-flex u-flex-row u-gap-2 w-32-md u-center">
                                 {% if unit.is_trainable %}
                                 <input 
                                     name="train_{{ unit.id }}" 
@@ -62,7 +64,7 @@
                                     placeholder="{{ unit.max_affordable }}" 
                                     type="number" 
                                     max="{{ unit.max_affordable }}" 
-                                    class=""
+                                    class="w-12 w-20-md"
                                 >
                                 <button type="button" class="header_colors u-center" onclick="trainMax('{{ unit.id }}', '{{ unit.max_affordable }}')">
                                     Max
@@ -83,6 +85,11 @@
                                 {% endif %}
                             </div>
                         </td>
+
+                        <td class="u-align-middle u-none-md">
+                            {% include "maingame/current_incoming.html" with current=unit.quantity_trained_and_alive incoming=unit.quantity_in_training %}
+                        </td>
+
                         <td class="u-align-middle">
                             {% if unit.is_trainable %}
                             {% for resource, amount in unit.cost_dict.items %}
@@ -105,7 +112,7 @@
         </form>
     </div>
 
-    <div class="u-none-md">
+    <div class="u-none">
         <form action="{% url 'submit_training' %}" method="post" class="max-w-xs">
             {% csrf_token %}
             
