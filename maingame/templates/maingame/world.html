@@ -68,13 +68,14 @@
                     {% comment %} Defense {% endcomment %}
                     <td class="u-align-middle">
                         <div class="u-flex u-flex-column">
-                            {% if dominion.defense < active_dominion.juicy_target_threshold and dominion.protection_ticks_remaining == 0 %}
+                            {% if dominion.defense < active_dominion.juicy_target_threshold and dominion.protection_ticks_remaining == 0 and round.has_started %}
                             <span class="tag tag--danger py-0 mx-auto text-md">{{ dominion.defense_short }}</span>
                             {% else %}
                             <span class="u-center {% if dominion.protection_ticks_remaining > 0 or not round.has_started %}text-teal-400{% endif %}">
                                 {% if dominion.protection_ticks_remaining == 0 and round.has_started %}{{ dominion.defense_short }}{% else %}Magical protection{% endif %}
                             </span>
                             {% endif %}
+                            
                             {% if dominion.has_units_returning %}
                             <small>Units return in {{ dominion.ticks_til_soonest_return }} ticks</small>
                             {% endif %}
