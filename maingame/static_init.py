@@ -494,7 +494,7 @@ def give_unit_timer_template(unit: Unit):
 def initialize_spells():
     Spell.objects.create(
         name="Power Overwhelming",
-        description="""Takes 20% (rounded down) of your units at home that have a higher OP than DP and no mana upkeep and transforms them permanently into a new unit with the 
+        description="""Takes 20% (rounded down) of your units at home that have a higher OP than DP and are not untrainable and transforms them permanently into a new unit with the 
         same DP but twice the OP... but every tick, 3% of them will die.""",
         mana_cost_per_acre=20,
         is_starter=True,
