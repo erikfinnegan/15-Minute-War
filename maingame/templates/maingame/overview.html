@@ -114,6 +114,7 @@
         </table>
     </div>
 
+    {% comment %} Units returning from battle {% endcomment %}
     <div class="u-flex u-flex-column max-w-md card card_colors p-1">
         <div>
             <h6 class="u-center">Units returning from battle</h6>
@@ -164,6 +165,7 @@
         </div>
     </div>
 
+    {% comment %} Incoming acres {% endcomment %}
     <div class="u-flex u-flex-column max-w-md card card_colors p-1">
         <div>
             <h6 class="u-center ">Incoming acres</h6>
@@ -212,6 +214,7 @@
         </div>
     </div>
 
+    {% comment %} Units in training {% endcomment %}
     {% if dominion == active_dominion or round.has_started and dominion.protection_ticks_remaining == 0 %}
     <div class="u-flex u-flex-column max-w-md card card_colors p-1">
         <div>
@@ -266,6 +269,7 @@
     <h6>Units in training will be displayed here once this dominion is out of protection and the round has started.</h6>
     {% endif %}
 
+    {% comment %} This dominion's grudges {% endcomment %}
     <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
         <table class="table striped card_colors max-w-md u-overflow-x-scroll u-overflow-x-hidden-md">
             <thead>

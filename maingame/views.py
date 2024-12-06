@@ -387,8 +387,8 @@ def resources(request):
         "resources_dict_json": json.dumps(resources_dict),
         "dominion_resources_json": json.dumps(dominion_resource_total_dict),
         "trade_price_json": json.dumps(trade_price_dict),
-        "last_sold_resource_name": Resource.objects.get(name=dominion.last_sold_resource_name, ruler=dominion).name,
-        "last_bought_resource_name": Resource.objects.get(name=dominion.last_bought_resource_name, ruler=dominion).name,
+        "last_sold_resource_name": dominion.last_sold_resource_name,
+        "last_bought_resource_name": dominion.last_bought_resource_name,
     }
 
     return render(request, "maingame/resources.html", context)
@@ -405,10 +405,15 @@ def trade(request):
         messages.error(request, f"The round has already ended")
         return redirect("resources")
     
+    try:
+        input_resource_name = request.POST["inputResource"]
+        amount = int(request.POST["resourceAmount"])
+        output_resource_name = request.POST["outputResource"]
+    except:
+        messages.error(request, f"Please ensure your trade resources are selected properly")
+        return redirect("resources")
+    
     round = Round.objects.first()
-    input_resource_name = request.POST["inputResource"]
-    amount = int(request.POST["resourceAmount"])
-    output_resource_name = request.POST["outputResource"]
 
     if not Resource.objects.filter(ruler=dominion, name=input_resource_name).exists() or not Resource.objects.filter(ruler=dominion, name=output_resource_name).exists():
         messages.error(request, f"You don't have access to that resource")

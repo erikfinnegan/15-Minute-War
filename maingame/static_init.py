@@ -297,8 +297,8 @@ def initialize_dwarf_units():
         op=7,
         dp=151,
         cost_dict={
-            "mana": 33469,
-            "mithril": 23197,
+            "mana": 17351,
+            "mithril": 12527,
         },
         upkeep_dict={
             "mithril": 739,
@@ -494,8 +494,9 @@ def give_unit_timer_template(unit: Unit):
 def initialize_spells():
     Spell.objects.create(
         name="Power Overwhelming",
-        description="""Takes 20% (rounded down) of your units at home that have a higher OP than DP and are not untrainable and transforms them permanently into a new unit with the 
-        same DP but twice the OP... but every tick, 3% of them will die.""",
+        description="""Takes 20% (rounded down) of your units at home that have a higher OP than DP and transforms them permanently into a 
+        new unit with the same DP but twice the OP... but every tick, 3% of them will die. Does not transform units that always die on offense 
+        or that cannot be trained.""",
         mana_cost_per_acre=20,
         is_starter=True,
     )
