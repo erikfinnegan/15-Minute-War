@@ -1548,7 +1548,7 @@ def submit_invasion(request):
         messages.error(request, f"Zero units sent")
         return redirect("world", dominion_id=dominion_id)
     
-    messages.success(request, f"If you don't see a second message saying 'CONFIRMATION', screenshot your battle report and post in #bug-reports")
+    messages.success(request, f"If you don't see a second message confirming that your invasion didn't crash, screenshot your battle report and post in #bug-reports")
     offense_sent = 0
     
     # Calculate OP
@@ -1749,6 +1749,6 @@ def submit_invasion(request):
         battle.battle_report_notes.append(f"{target_dominion} gained {total_casualties} corpses.")
         battle.save()
 
-    messages.success(request, f"CONFIRMATION")
+    messages.success(request, f"-- Congratulations, your invasion didn't crash! --")
 
     return redirect("battle_report", battle_id=battle.id)
