@@ -239,9 +239,13 @@ def update_trade_prices():
             goal_value = get_trade_value(resource_name)
             
             if goal_value > current_value:
-                round.trade_price_dict[resource_name] = min(goal_value, current_value * 1.01)
+                new_value = min(goal_value, current_value * 1.01)
+                round.trade_price_dict[resource_name] = new_value
+                round.save()
             elif goal_value < current_value:
-                round.trade_price_dict[resource_name] = max(goal_value, current_value / 1.01)
+                new_value = max(goal_value, current_value / 1.01)
+                round.trade_price_dict[resource_name] = new_value
+                round.save()
         else:
             round.trade_price_dict[resource_name] = get_trade_value(resource_name)
 
