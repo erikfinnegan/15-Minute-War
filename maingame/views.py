@@ -396,6 +396,9 @@ def resources(request):
 
 @login_required
 def trade(request):
+    messages.error(request, f"Trading has been disabled.")
+    return redirect("resources")
+
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
     except:
