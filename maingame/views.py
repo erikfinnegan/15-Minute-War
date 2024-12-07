@@ -731,7 +731,7 @@ def overview(request, dominion_id):
 
     dominion = Dominion.objects.get(id=dominion_id)
     units = dominion.sorted_units
-    buildings = Building.objects.filter(ruler=dominion, quantity__gte=1)
+    buildings = Building.objects.filter(ruler=dominion, percent_of_land__gte=1)
     resources = Resource.objects.filter(ruler=dominion)
     learned_discoveries = []
 
