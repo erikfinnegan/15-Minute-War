@@ -1,4 +1,5 @@
 {% load extra_tags %}
+{% load humanize %}
 
 {% if active_dominion %}
     {% if active_user_settings.tutorial_step >= 11 %}
@@ -55,8 +56,8 @@
 <a href="{% url 'options' %}" class="">Options</a>
 
 <div class="u-center mt-2">
-    <span>{{ active_dominion.acres }} acres</span>
-    <span>{{ active_dominion.defense }} defense</span>
+    <span>{{ active_dominion.acres|intcomma }} acres</span>
+    <span>{{ active_dominion.defense|intcomma }} defense</span>
 </div>
 
 {% if round.has_ended %}
