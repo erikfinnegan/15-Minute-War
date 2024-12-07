@@ -54,6 +54,11 @@
 
 <a href="{% url 'options' %}" class="">Options</a>
 
+<div class="u-center mt-2">
+    <span>{{ active_dominion.acres }} acres</span>
+    <span>{{ active_dominion.defense }} defense</span>
+</div>
+
 {% if round.has_ended %}
     <span class="mx-1 pt-4 font-bold">The round is over</span>
 {% elif round.percent_chance_for_round_end > 0 %}
