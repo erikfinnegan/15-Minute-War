@@ -926,12 +926,9 @@ def submit_options(request):
         my_theme.input_text = input_text
         my_theme.save()
         user_settings.theme_model = my_theme
-        print("abc")
     else:
-        print("def")
         user_settings.theme_model = selected_theme
 
-    print("input_background", input_background)
     user_settings.save()
     messages.success(request, "Options saved")
     return redirect("options")
