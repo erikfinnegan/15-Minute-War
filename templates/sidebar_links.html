@@ -55,10 +55,12 @@
 
 <a href="{% url 'options' %}" class="">Options</a>
 
-<div class="u-center mt-2">
+{% if active_dominion %}
+<div class="u-center mt-2 u-flex u-flex-column">
     <span>{{ active_dominion.acres|intcomma }} acres</span>
     <span>{{ active_dominion.defense|intcomma }} defense</span>
 </div>
+{% endif %}
 
 {% if round.has_ended %}
     <span class="mx-1 pt-4 font-bold">The round is over</span>
