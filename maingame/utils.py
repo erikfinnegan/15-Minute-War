@@ -16,7 +16,7 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
         dominion.perk_dict["inquisition_ticks_left"] = 0
         dominion.perk_dict["martyr_cost"] = 1000
     elif faction.name == "sludgeling":
-        dominion.perk_dict["free_experiments"] = 0
+        dominion.perk_dict["free_experiments"] = 10
         dominion.perk_dict["latest_experiment_id"] = 0
         dominion.perk_dict["latest_experiment"] = {
             "should_display": False,
