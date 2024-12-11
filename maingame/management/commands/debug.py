@@ -16,9 +16,10 @@ class Command(BaseCommand):
         # user = User.objects.get(username="erik")
         # user_settings = UserSettings.objects.get(associated_user=user)
 
-        pages = 50
+        exps = 100
+        minroll = 0
 
-        for _ in range(96 * 2):
-            pages *= 1.003
+        for _ in range(exps):
+            minroll += (100-minroll) / 75
 
-        print(int(pages))
+        print(minroll)

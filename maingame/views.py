@@ -1143,26 +1143,33 @@ def generate_experiment(request):
         high_dp = False
         low_dp = False
 
+    min_roll_for_extra_power = 1
+
+    for _ in range(past_experiments):
+            min_roll_for_extra_power += (100 - min_roll_for_extra_power) / 75
+
+    min_roll_for_extra_power = int(min_roll_for_extra_power)
+
     op = randint(1,10)
     extra_op = randint(1,2) == 1
 
     if extra_op and past_experiments >= 10:
-        roll = randint(past_experiments - 9, 100)
+        roll = randint(min_roll_for_extra_power, 100)
 
         while roll >= 100 and extra_op:
             op += randint(1, 4)
-            roll = randint(past_experiments - 9, 100)
+            roll = randint(min_roll_for_extra_power, 100)
             extra_op = randint(1,2) == 1
 
     dp = randint(1,10)
     extra_dp = randint(1,2) == 1
 
     if extra_dp and past_experiments >= 10:
-        roll = randint(past_experiments - 9, 100)
+        roll = randint(min_roll_for_extra_power, 100)
 
         while roll >= 100 and extra_dp:
             dp += randint(1, 4)
-            roll = randint(past_experiments - 9, 100)
+            roll = randint(min_roll_for_extra_power, 100)
             extra_dp = randint(1,2) == 1
 
     if high_op:
