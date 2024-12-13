@@ -133,6 +133,10 @@ def submit_discovery(request):
         messages.error(request, f"The round has already ended")
         return redirect("discoveries")
     
+    if Round.objects.first().is_ticking:
+        messages.error(request, f"The tick is being processed, try again shortly.")
+        return redirect("discoveries")
+    
     discovery_name = request.POST["discovery_name"]
 
     if user_settings.tutorial_step < 999 and discovery_name != "Palisades":
@@ -168,6 +172,10 @@ def submit_building(request):
     
     if Round.objects.first().has_ended:
         messages.error(request, f"The round has already ended")
+        return redirect("buildings")
+    
+    if Round.objects.first().is_ticking:
+        messages.error(request, f"The tick is being processed, try again shortly.")
         return redirect("buildings")
     
     user_settings = UserSettings.objects.get(associated_user=dominion.associated_user)
@@ -236,6 +244,10 @@ def submit_training(request):
     
     if Round.objects.first().has_ended:
         messages.error(request, f"The round has already ended")
+        return redirect("military")
+    
+    if Round.objects.first().is_ticking:
+        messages.error(request, f"The tick is being processed, try again shortly.")
         return redirect("military")
     
     total_trained = 0
@@ -312,6 +324,10 @@ def submit_release(request):
     
     if Round.objects.first().has_ended:
         messages.error(request, f"The round has already ended")
+        return redirect("military")
+    
+    if Round.objects.first().is_ticking:
+        messages.error(request, f"The tick is being processed, try again shortly.")
         return redirect("military")
     
     total_released = 0
@@ -408,6 +424,10 @@ def trade(request):
         messages.error(request, f"The round has already ended")
         return redirect("resources")
     
+    if Round.objects.first().is_ticking:
+        messages.error(request, f"The tick is being processed, try again shortly.")
+        return redirect("resources")
+    
     try:
         input_resource_name = request.POST["inputResource"]
         amount = int(request.POST["resourceAmount"])
@@ -498,6 +518,10 @@ def upgrade_building(request, building_id):
         messages.error(request, f"The round has already ended")
         return redirect("upgrades")
     
+    if Round.objects.first().is_ticking:
+        messages.error(request, f"The tick is being processed, try again shortly.")
+        return redirect("upgrades")
+    
     building = Building.objects.get(ruler=dominion, id=building_id)
     research_resource = Resource.objects.get(ruler=dominion, name="research")
     available_research_points = research_resource.quantity
@@ -551,6 +575,10 @@ def submit_spell(request, spell_id):
     
     if Round.objects.first().has_ended:
         messages.error(request, f"The round has already ended")
+        return redirect("spells")
+    
+    if Round.objects.first().is_ticking:
+        messages.error(request, f"The tick is being processed, try again shortly.")
         return redirect("spells")
     
     spell = Spell.objects.get(id=spell_id)
@@ -1008,6 +1036,10 @@ def submit_inquisition(request):
         messages.error(request, f"The round has already ended")
         return redirect("church_affairs")
     
+    if Round.objects.first().is_ticking:
+        messages.error(request, f"The tick is being processed, try again shortly.")
+        return redirect("church_affairs")
+    
     dominion.perk_dict["inquisition_rate"] = math.ceil(Resource.objects.get(ruler=dominion, name="sinners").quantity / 24)
     dominion.perk_dict["inquisition_ticks_left"] = 24
     dominion.save()
@@ -1060,6 +1092,10 @@ def generate_experiment(request):
     
     if Round.objects.first().has_ended:
         messages.error(request, f"The round has already ended")
+        return redirect("experimentation")
+    
+    if Round.objects.first().is_ticking:
+        messages.error(request, f"The tick is being processed, try again shortly.")
         return redirect("experimentation")
 
     if dominion.faction_name != "sludgeling":
@@ -1400,6 +1436,10 @@ def approve_experiment(request):
     if Round.objects.first().has_ended:
         messages.error(request, f"The round has already ended")
         return redirect("experimentation")
+    
+    if Round.objects.first().is_ticking:
+        messages.error(request, f"The tick is being processed, try again shortly.")
+        return redirect("experimentation")
 
     if dominion.faction_name != "sludgeling":
         messages.error(request, f"Go swim in a cesspool")
@@ -1460,6 +1500,10 @@ def terminate_experiment(request):
     if Round.objects.first().has_ended:
         messages.error(request, f"The round has already ended")
         return redirect("experimentation")
+    
+    if Round.objects.first().is_ticking:
+        messages.error(request, f"The tick is being processed, try again shortly.")
+        return redirect("experimentation")
 
     if dominion.faction_name != "sludgeling":
         messages.error(request, f"Go swim in a cesspool")
@@ -1511,6 +1555,10 @@ def submit_invasion(request):
     
     if Round.objects.first().has_ended:
         messages.error(request, f"The round has already ended")
+        return redirect("world")
+    
+    if Round.objects.first().is_ticking:
+        messages.error(request, f"The tick is being processed, try again shortly.")
         return redirect("world")
     
     if my_dominion.has_units_returning:

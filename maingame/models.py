@@ -488,7 +488,6 @@ class Dominion(models.Model):
 
         if "Inspiration" in self.learned_discoveries and Round.objects.first().ticks_passed % 4 == 1 and "free_experiments" in self.perk_dict:
             self.perk_dict["free_experiments"] += 1
-
                 
     def do_tick(self):
         self.do_resource_production()
@@ -799,6 +798,7 @@ class Round(models.Model):
     start_time = models.DateTimeField(null=True, blank=True)
     ticks_passed = models.IntegerField(default=0)
     ticks_to_end = models.IntegerField(default=672)
+    is_ticking = models.BooleanField(default=False)
 
     @property
     def allow_ticks(self):
