@@ -13,7 +13,7 @@ from django.db.models import Q
 from maingame.formatters import create_or_add_to_key, get_sludgeling_name
 from maingame.models import Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings, Theme
 from maingame.tick_processors import do_global_tick
-from maingame.utils import abandon_dominion, delete_dominion, get_acres_conquered, get_grudge_bonus, initialize_dominion, round_x_to_nearest_y, unlock_discovery, cast_spell
+from maingame.utils import abandon_dominion, delete_dominion, get_acres_conquered, get_grudge_bonus, initialize_dominion, round_x_to_nearest_y, unlock_discovery, cast_spell, update_available_discoveries
 
 
 def index(request):
@@ -93,6 +93,12 @@ def discoveries(request):
         dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
+    
+    new_discoveries_message = update_available_discoveries(dominion)
+    dominion.save()
+
+    if new_discoveries_message:
+        messages.success(request, f"New discoveries unlocked: {new_discoveries_message}")
 
     available_discoveries = []
 
