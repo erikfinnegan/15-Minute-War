@@ -31,38 +31,6 @@
 
 
 {% if page == "resources" %}
-    {% if active_user_settings.tutorial_step == 2 %}
-    <p>
-        Here you can see how much of each resource you produce per "tick". 15 Minute War "ticks" every 15 minutes, which is when resource production happens.
-        You'll notice that, in addition to what your buildings are producing, you're also gaining gold. You always produce 50 gold per acre regardless of
-        your buildings.
-    <p>
-    <p>
-        When you register, you start in a state of magical protection. No one can attack you and you have 72 free ticks that you can process on command.
-        During this time, you don't actually benefit from the automatic ticks every 15 minutes. Once you process all 72 of your ticks in protection, you
-        come out of protection and the action starts.
-    </p>
-    <p>
-        Let's take advantage of this time under protection and produce some resources. Click "+1 TICK" to process one tick and watch those resources come in.
-    </p>
-    {% endif %}
-
-    {% if active_user_settings.tutorial_step == 3 %}
-    <p>
-        Now we've got some resources... but not much. It's rarely important to go through each tick in protection individually, so go ahead and process +12 ticks.
-    </p>
-    {% endif %}
-
-    {% if active_user_settings.tutorial_step == 4 %}
-    <p>
-        Fantastic. We've got quite a bit of research accumulated, so let's go spend some to upgrade our buildings. Head to the Upgrades page.
-    </p>
-    {% endif %}
-
-    {% if active_user_settings.tutorial_step == 6 %}
-    <p>Now that we've accumulated 60 ticks' worth of resources, it's time to train your army. Go to the Military page.</p>
-    {% endif %}
-
     {% if active_user_settings.tutorial_step == 10 %}
     <p>
         Now you're ready for war. Process ticks until there's only one left. It would be wise to spend your accumulated research and it would be optimal to revisit
@@ -89,15 +57,39 @@
         10% of your 500 acres will be producing 100 food each.
     </p>
     <p>Each building produces a different resource, but not all resources are equally important for dwarves.</p>
-    <p>Construct 10% farms to get food to feed your future units.</p>
+    <p>Construct 5% farms to get food to feed your future units.</p>
     <p>Construct 45% quarries to get the ore you'll need to train your units.</p>
-    <p>Construct 6% lumberyards for... secret reasons.</p>
+    <p>Construct 11% lumberyards for... secret reasons.</p>
     <p>Construct 39% schools to get research to upgrade your buildings later.</p>
     <p>We're not going to need any towers for our strategy.</p>
     {% endif %}
 
     {% if active_user_settings.tutorial_step == 2 %}
-    <p>Great! Now go to the Resources page.</p>
+    <p>
+        Here you can also see how much of each resource you produce per "tick". 15 Minute War "ticks" every 15 minutes, which is when resource production happens.
+        You'll notice that, in addition to what your buildings are producing, you're also gaining gold. You always produce 50 gold per acre regardless of
+        your buildings.
+    <p>
+    <p>
+        When you register, you start in a state of magical protection. No one can attack you and you have 72 free ticks that you can process on command.
+        During this time, you don't actually benefit from the automatic ticks every 15 minutes. Once you process all 72 of your ticks in protection, you
+        come out of protection and the action starts.
+    </p>
+    <p>
+        Let's take advantage of this time under protection and produce some resources. Click "+1 TICK" to process one tick and watch those resources come in.
+    </p>
+    {% endif %}
+
+    {% if active_user_settings.tutorial_step == 3 %}
+    <p>
+        Now we've got some resources... but not much. It's rarely important to go through each tick in protection individually, so go ahead and process +12 ticks.
+    </p>
+    {% endif %}
+
+    {% if active_user_settings.tutorial_step == 4 %}
+    <p>
+        Fantastic. We've got quite a bit of research accumulated, so let's go spend some to upgrade our buildings. Head to the Upgrades page.
+    </p>
     {% endif %}
 
     {% if active_user_settings.tutorial_step == 6 %}
@@ -148,7 +140,7 @@
 
     {% if active_user_settings.tutorial_step == 8 %}
     <p>
-        Remember when you allocated 6% of your land to lumberyards for "secret reasons"? It was to help with your army.
+        Remember when you allocated a bunch of land to lumberyards for "secret reasons"? It was to help with your army.
     </p>
     <p>
         What do you mean "none of my units cost wood"? Oh, you just haven't discovered them yet. Head on over to the Discoveries page.
@@ -157,7 +149,7 @@
 
     {% if active_user_settings.tutorial_step == 9 %}
     <p>
-        Looks like you can afford 80 palisades. That's good for 400 more defense and it doesn't cost any precious gold.
+        Looks like you can afford 147 palisades. That's good for 735 more defense and it doesn't cost any precious gold.
     </p>
     {% endif %}
 

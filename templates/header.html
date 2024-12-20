@@ -148,14 +148,14 @@
 {% endif %}
 
 {% if messages %}
-<div class="p-4">
+<div class="pl-1 pt-1">
     <style>
         .error {
             color: rgb(249, 178, 178);
         }
     </style>
     {% for message in messages %}
-    <h6 class="font-bold {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</h6>
+    <span class="font-bold {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</span>
     {% endfor %}
 </div>
 {% endif %}

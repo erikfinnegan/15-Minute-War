@@ -9,7 +9,7 @@
 
 {% block content %}
 <div>
-    <div class="u-flex u-flex-column u-gap-4">
+    <div class="u-flex u-flex-wrap u-gap-4">
         {% for faction_dict in factions %}
         <div class="card card_colors p-1 max-w-xs p-2">
             <h6>{{ faction_dict.faction.name|title }}</h6>

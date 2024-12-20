@@ -6,9 +6,9 @@
     <a href="{% url 'overview' active_dominion.id %}" class="mt-1">Overview</a>
     {% endif %}
 
-    {% if active_user_settings.tutorial_step >= 2 %}
+    {% comment %} {% if active_user_settings.tutorial_step >= 2 %}
     <a href="{% url 'resources' %}" class="">Resources</a>
-    {% endif %}
+    {% endif %} {% endcomment %}
 
     {% if active_user_settings.tutorial_step >= 1 %}
     <a href="{% url 'buildings' %}" class="">Buildings</a>
@@ -34,6 +34,8 @@
         <a href="{% url 'church_affairs' %}" class="">Church Affairs</a>
     {% elif active_dominion.faction_name == "sludgeling" %}
         <a href="{% url 'experimentation' %}" class="">Experimentation</a>
+    {% elif active_dominion.faction_name == "biclops" %}
+        <a href="{% url 'other_head' %}" class="">Other Head</a>
     {% endif %}
 
     {% if active_user_settings.tutorial_step >= 11 %}

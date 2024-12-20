@@ -104,13 +104,13 @@ class UserSettings(models.Model):
                 current_step += 1 #9
 
             if Unit.objects.filter(ruler=dominion, name="Palisade").exists():
-                if Unit.objects.get(ruler=dominion, name="Palisade").training_dict["12"] == 80 or dominion.protection_ticks_remaining <= 11:
+                if Unit.objects.get(ruler=dominion, name="Palisade").training_dict["12"] == 147 or dominion.protection_ticks_remaining <= 11:
                     current_step += 1 #10
 
             if dominion.protection_ticks_remaining <= 1:
                 current_step += 1 #11
             
-            if dominion.protection_ticks_remaining == 0:
+            if dominion.is_oop:
                 current_step += 1 #12
 
             if dominion.successful_invasions >= 1:
@@ -159,6 +159,10 @@ class Dominion(models.Model):
     def __str__(self):
         return f"{self.name}"
     
+    @property
+    def is_oop(self):
+        return self.protection_ticks_remaining == 0
+
     @property
     def rulers_display_name(self):
         return UserSettings.objects.get(associated_user=self.associated_user).display_name
@@ -235,6 +239,17 @@ class Dominion(models.Model):
             return f"{round(defense/1000000, 2)}m"
         
     @property
+    def defense_raw_short(self):
+        defense = self.raw_defense
+
+        if defense < 100000: # 100k
+            return f"{defense:2,}"
+        elif defense < 1000000: # 1m
+            return f"{int(defense/1000)}k"
+        else:
+            return f"{round(defense/1000000, 2)}m"
+        
+    @property
     def highest_op_short(self):
         defense = self.highest_raw_op_sent
 
@@ -257,6 +272,14 @@ class Dominion(models.Model):
     def has_units_returning(self):
         for unit in Unit.objects.filter(ruler=self):
             if unit.quantity_returning > 0:
+                return True
+            
+        return False
+    
+    @property
+    def has_units_in_training(self):
+        for unit in Unit.objects.filter(ruler=self):
+            if unit.quantity_in_training > 0:
                 return True
             
         return False
@@ -387,6 +410,14 @@ class Dominion(models.Model):
 
             production += sinners_gained
 
+        if resource_name == "rats" and "rats_per_acre_per_tick" in self.perk_dict:
+            production += self.acres * self.perk_dict["rats_per_acre_per_tick"]
+
+        if "rulers_favorite_resource" in self.perk_dict:
+            if resource_name == self.perk_dict["rulers_favorite_resource"]:
+                bonus = 1 + ((10 + (2 * self.failed_defenses)) / 100)
+                production *= bonus
+
         return int(production)
     
     def get_consumption(self, resource_name):
@@ -441,7 +472,7 @@ class Dominion(models.Model):
         self.save()
 
     def do_perks(self):
-        if "book_of_grudges" in self.perk_dict and self.protection_ticks_remaining == 0:
+        if "book_of_grudges" in self.perk_dict and self.is_oop:
             for dominion in Dominion.objects.filter(~Q(id=self.id), protection_ticks_remaining=0):
                 if str(dominion.id) in self.perk_dict["book_of_grudges"]:
                     self.perk_dict["book_of_grudges"][str(dominion.id)]["animosity"] += self.perk_dict["book_of_grudges"][str(dominion.id)]["pages"] * 0.003
@@ -486,8 +517,20 @@ class Dominion(models.Model):
             stoneshields.save()
             deep_apostles.save()
 
-        if "Inspiration" in self.learned_discoveries and Round.objects.first().ticks_passed % 4 == 1 and "free_experiments" in self.perk_dict:
+        if "Inspiration" in self.learned_discoveries and Round.objects.first().ticks_passed % 4 == 0 and "free_experiments" in self.perk_dict:
             self.perk_dict["free_experiments"] += 1
+
+        if "Always Be Digging" in self.learned_discoveries and Round.objects.first().ticks_passed % 4 == 0:
+            self.acres += 1
+
+        if "partner_patience" in self.perk_dict and self.is_oop:
+            self.perk_dict["partner_patience"] -= 1
+
+        if "biclopean_ambition_ticks_remaining" in self.perk_dict:
+            self.perk_dict["biclopean_ambition_ticks_remaining"] -= 1
+
+            if self.perk_dict["biclopean_ambition_ticks_remaining"] == 0:
+                del self.perk_dict["biclopean_ambition_ticks_remaining"]
                 
     def do_tick(self):
         self.do_resource_production()
@@ -498,8 +541,13 @@ class Dominion(models.Model):
 
         for unit in Unit.objects.filter(ruler=self):
             unit.advance_training_and_returning()
+
+        for spell in Spell.objects.filter(ruler=self):
+            if spell.cooldown_remaining > 0:
+                spell.cooldown_remaining -= 1
+                spell.save()
         
-        if self.protection_ticks_remaining == 0:
+        if self.is_oop:
             self.complacency += 1
             self.determination += 1
 
@@ -652,7 +700,7 @@ class Unit(models.Model):
 
         if "random_grudge_book_pages_per_tick" in self.perk_dict:
             pages_per_tick = self.perk_dict["random_grudge_book_pages_per_tick"]
-            perk_text += f"Adds {pages_per_tick} pages to an existing grudge in your book of grudges each tick. "
+            perk_text += f"Adds {pages_per_tick} page{'s' if pages_per_tick > 1 else ''} to an existing grudge in your book of grudges each tick. "
 
         if "always_dies_on_offense" in self.perk_dict:
             perk_text += "Always dies when sent on an invasion. "
@@ -669,6 +717,8 @@ class Unit(models.Model):
             multiplier = self.perk_dict["casualty_multiplier"]
             if multiplier == 2:
                 perk_text += f"Takes twice as many casualties. "
+            elif multiplier == 3:
+                perk_text += f"Takes three times as many casualties. "
             elif multiplier == 0.5:
                 perk_text += f"Takes half as many casualties. "
             else:
@@ -682,11 +732,23 @@ class Unit(models.Model):
 
         if "returns_in_ticks" in self.perk_dict:
             ticks_to_return = self.perk_dict["returns_in_ticks"]
-            perk_text += f"Returns from battle in {ticks_to_return} ticks. "
+            perk_text += f"Returns from battle in {ticks_to_return} tick{'s' if ticks_to_return > 1 else ''}. "
 
         if "percent_attrition" in self.perk_dict:
             attrition_percent = self.perk_dict["percent_attrition"]
             perk_text += f"{attrition_percent}% of these die every tick, rounding up. "
+        
+        if "percent_becomes_rats" in self.perk_dict:
+            becomes_rats_percent = self.perk_dict["percent_becomes_rats"]
+            perk_text += f"{becomes_rats_percent}% of these return to normal rats every tick, rounding up. "
+
+        if "random_allies_killed_on_invasion" in self.perk_dict:
+            random_allies_killed = self.perk_dict["random_allies_killed_on_invasion"]
+            perk_text += f"When invading, each kills {random_allies_killed} randomly selected own unit{'s' if random_allies_killed > 1 else ''} on the same invasion. "
+
+        if "food_from_rat" in self.perk_dict:
+            food_from_rat = self.perk_dict["food_from_rat"]
+            perk_text += f"Each carves up one rat per tick into {food_from_rat} food. "
 
         return perk_text
     
@@ -835,12 +897,13 @@ class Round(models.Model):
     
     @property
     def percent_chance_for_round_end(self):
-        ticks_past_end = self.ticks_passed - self.ticks_to_end
+        return 1
+        # ticks_past_end = self.ticks_passed - self.ticks_to_end
 
-        if ticks_past_end < 1:
-            return 0
+        # if ticks_past_end < 1:
+        #     return 0
 
-        return math.ceil(ticks_past_end / 4)
+        # return math.ceil(ticks_past_end / 4)
         
 
 class Discovery(models.Model):
@@ -872,6 +935,9 @@ class Spell(models.Model):
     requirement = models.CharField(max_length=50, null=True, blank=True)
     mana_cost_per_acre = models.IntegerField(default=99)
     is_starter = models.BooleanField(default=False)
+    cooldown = models.IntegerField(default=0)
+    cooldown_remaining = models.IntegerField(default=0)
+    is_targeted = models.BooleanField(default=False)
 
     def __str__(self):
         if self.ruler:
@@ -922,3 +988,15 @@ def do_tick_units(dominion: Dominion):
                         unit.returning_dict[tick] = math.floor(quantity * attrition_multiplier)
                     
                     unit.save()
+
+                    if unit.quantity_total_and_paid == 0 and "Overwhelming" in unit.name:
+                        unit.delete()
+                case "percent_becomes_rats":
+                    attrition_multiplier = value / 100
+                    rats = Resource.objects.get(ruler=unit.ruler, name="rats")
+                    quantity_becomes_rats = math.ceil(unit.quantity_at_home * attrition_multiplier)
+
+                    unit.quantity_at_home -= quantity_becomes_rats
+                    unit.save()
+                    rats.quantity += quantity_becomes_rats
+                    rats.save()

@@ -12,7 +12,7 @@ class Command(BaseCommand):
     help = "Initiates a battle"
 
     def handle(self, *args, **options):
-        my_faction_name = "dwarf"
+        my_faction_name = "biclops"
 
         my_starting_resource_quantity = 1234567
 
@@ -61,6 +61,7 @@ class Command(BaseCommand):
         testdominion = initialize_dominion(user=testuser, faction=Faction.objects.get(name=my_faction_name), display_name="ERIKTEST")
         testdominion.protection_ticks_remaining = 0
         testdominion.discovery_points = 5000
+        testdominion.perk_dict["partner_patience"] = 1
         testdominion.save()
 
         buildings_each = int(100 / Building.objects.filter(ruler=testdominion).count())

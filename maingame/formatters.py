@@ -33,3 +33,31 @@ def format_minutes(minutes):
 def get_sludgeling_name():
     return random.choice(["Sludger", "Oozeling", "Gooper", "Marshling", "Sogger", "Squishling", "Slimezoid", "Pudling", "Swamper", "Snotling",
                               "Slurpling", "Slopling", "Dampling", "Grossling", "Slurpazoid"])
+
+
+def get_goblin_name():
+    name_base = random.choice(["Tok", "Gor", "Grum", "Grim", "Gut", "Kork", "Mux", "Buzzz", "Ruk", "Tuk", "Zu", "Zew", "Bok", "Wok", "Rik", "Yux", "Pox",
+                               "Sik", "Dux", "Fum", "Hog", "Juk", "Lug", "Zug", "Xix", "Cug", "Vit", "Nox", "Mud"])
+    
+    return f"{name_base}-{name_base}"
+
+
+def get_goblin_title():
+    roll = random.randint(1,103)
+
+    if roll <= 50:
+        return "Queen"
+    elif roll <= 100:
+        return "King"
+    elif roll <= 101:
+        return "Arch-arsonist"
+    elif roll <= 102:
+        return "Supreme Chancellor"
+    elif roll <= 103:
+        return "Almightiest"
+
+    return "Scumbucket"
+
+
+def get_goblin_ruler():
+    return f"{get_goblin_title()} {get_goblin_name()}"

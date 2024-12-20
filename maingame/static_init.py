@@ -40,6 +40,9 @@ def initialize_resources():
         {
             "name": "mithril",
         },
+        {
+            "name": "rats",
+        },
     ]
 
     for resource_template in resource_templates:
@@ -144,6 +147,33 @@ def initialize_factions():
         you run, the greater your chance of getting lucky with a very powerful unit."""
     )
 
+    Faction.objects.create(
+        name="goblin",
+        primary_resource_name="gold",
+        primary_resource_per_acre="50",
+        building_primary_resource_name="gold",
+        building_secondary_resource_name="wood",
+        starting_buildings=["farm", "lumberyard", "school", "tower", "quarry",],
+        description="""Goblins are nasty little creatures. Whether they like it or not (though they definitely do), they produce 1 rat for every 3 acres.
+        Each is ruled by an ambitious little wretch who favors one resource above all others, getting a 10% bonus to production. Every time goblins are 
+        invaded, they eat their leader and replace them with a new one who favors a new resource and increases the production bonus by 2%. Leaders will 
+        never favor gold as it would be seen as too unoriginal."""
+    )
+
+    Faction.objects.create(
+        name="biclops",
+        primary_resource_name="gold",
+        primary_resource_per_acre="50",
+        building_primary_resource_name="gold",
+        building_secondary_resource_name="wood",
+        starting_buildings=["farm", "lumberyard", "school", "tower", "quarry",],
+        description="""Fifteen feet tall, two heads, one eye apiece, and as greedy as they are cruel. Biclops have two distinct minds and their success in life almost always
+        hinges on their ability to avoid conflict with themselves. You'll be playing just one half of a biclops leader and will need to share control over your dominion
+        with your mostly-cooperative other head. Your other head will gain patience any time you invade another dominion (see Overview page), but if they run out of
+        patience, they'll wait until you stop actively managing your dominion (i.e. have no units in training) and take over choosing when and who to invade (anyone 
+        over 75% of your size who you can beat using only units with OP > DP). If they get TOO impatient, they'll ignore this restriction."""
+    )
+
 
 def initialize_generic_units():
     Unit.objects.create(
@@ -191,18 +221,19 @@ def initialize_generic_units():
         upkeep_dict={
             "mana": 0.3,
         },
+        perk_dict={"casualty_multiplier": 0.5},
     )
 
     Unit.objects.create(
         name="Archmage",
-        op=0,
+        op=1,
         dp=0,
         upkeep_dict={
             "gold": 3,
             "food": 1,
         },
         is_trainable=False,
-        perk_dict={"surplus_research_consumed_to_add_one_op_and_dp": 1200}
+        perk_dict={"surplus_research_consumed_to_add_one_op_and_dp": 1300}
     )
 
     Unit.objects.create(
@@ -213,6 +244,16 @@ def initialize_generic_units():
             "mana": 750,
         },
         perk_dict={"always_dies_on_offense": True}
+    )
+
+    Unit.objects.create(
+        name="Gingerbrute Man",
+        op=6,
+        dp=2,
+        cost_dict={
+            "food": 3600,
+        },
+        perk_dict={"returns_in_ticks": 4, "casualty_multiplier": 2}
     )
 
 
@@ -318,6 +359,21 @@ def initialize_dwarf_units():
         perk_dict={"casualty_multiplier": 0.5},
     )
 
+    Unit.objects.create(
+        name="Doom Prospector",
+        op=14,
+        dp=0,
+        cost_dict={
+            "gold": 1200,
+            "ore": 800,
+        },
+        upkeep_dict={
+            "gold": 3,
+            "food": 1,
+        },
+        perk_dict={"casualty_multiplier": 3},
+    )
+
 
 def initialize_blessed_order_units():
     blessed_order = Faction.objects.get(name="blessed order")
@@ -356,8 +412,8 @@ def initialize_blessed_order_units():
 
     Unit.objects.create(
         name="Blessed Martyr",
-        op=15,
-        dp=5,
+        op=5,
+        dp=0,
         upkeep_dict={
             "faith": 1,
         },
@@ -460,11 +516,129 @@ def initialize_sludgeling_units():
     )
 
 
+def initialize_goblin_units():
+    goblin = Faction.objects.get(name="goblin")
+
+    Unit.objects.create(
+        name="Stabber",
+        op=0,
+        dp=3,
+        cost_dict={
+            "gold": 700,
+            "wood": 425,
+        },
+        upkeep_dict={
+            "gold": 1,
+            "food": 0.3,
+        },
+        faction=goblin,
+    )
+
+    Unit.objects.create(
+        name="Trained Rat",
+        op=0,
+        dp=1,
+        cost_dict={
+            "food": 100,
+            "rats": 1,
+        },
+        upkeep_dict={
+            "food": 0.1,
+        },
+        faction=goblin,
+        perk_dict={"percent_becomes_rats": 2},
+    )
+
+    Unit.objects.create(
+        name="Shanker",
+        op=3,
+        dp=1,
+        cost_dict={
+            "gold": 900,
+            "wood": 550,
+        },
+        upkeep_dict={
+            "gold": 1,
+            "food": 0.3,
+        },
+        faction=goblin,
+    )
+
+    Unit.objects.create(
+        name="Wreckin Baller",
+        op=8,
+        dp=0,
+        cost_dict={
+            "gold": 700,
+            "ore": 1500,
+        },
+        upkeep_dict={
+            "gold": 1,
+            "food": 0.3,
+        },
+        perk_dict={"random_allies_killed_on_invasion": 1},
+    )
+
+    Unit.objects.create(
+        name="Charcutier",
+        op=0,
+        dp=2,
+        cost_dict={
+            "gold": 1000,
+            "ore": 25,
+            "research": 700,
+        },
+        upkeep_dict={
+            "gold": 1,
+            "food": 0.3,
+            "rats": 1,
+        },
+        perk_dict={"food_per_tick": 15},
+    )
+
+
+def initialize_biclops_units():
+    biclops = Faction.objects.get(name="biclops")
+
+    Unit.objects.create(
+        name="Smasher",
+        op=8,
+        dp=16,
+        cost_dict={
+            "gold": 2400,
+            "wood": 2200,
+        },
+        upkeep_dict={
+            "gold": 12,
+            "food": 4,
+        },
+        faction=biclops,
+    )
+
+    Unit.objects.create(
+        name="Ironclops",
+        op=20,
+        dp=12,
+        cost_dict={
+            "gold": 2600,
+            "ore": 6400,
+        },
+        upkeep_dict={
+            "gold": 12,
+            "food": 4,
+        },
+        faction=biclops,
+        perk_dict={"casualty_multiplier": 0.5},
+    )
+
+
 def initialize_units():
     initialize_generic_units()
     initialize_dwarf_units()
     initialize_blessed_order_units()
     initialize_sludgeling_units()
+    initialize_goblin_units()
+    initialize_biclops_units()
 
     for unit in Unit.objects.all():
         give_unit_timer_template(unit)
@@ -501,6 +675,15 @@ def initialize_spells():
         is_starter=True,
     )
 
+    Spell.objects.create(
+        name="Bestow Biclopean Ambition",
+        description="""For the next 11 ticks, the target dominion will attack anyone within 75% of their size if they can do so successfully using
+        only units with OP > DP and without the "always dies on offense" perk.""",
+        mana_cost_per_acre=150,
+        is_targeted=True,
+        cooldown=0,
+    )
+
 
 def initialize_generic_discoveries():
     Discovery.objects.create(
@@ -529,7 +712,7 @@ def initialize_generic_discoveries():
     Discovery.objects.create(
         name="Zombies",
         description="""Gain bodies from invasion casualties when you're victorious and use them to magically raise undead soldiers. Note that you don't get corpses from
-        units with a mana cost or mana upkeep or units that always die on invasions.""",
+        units with a mana cost or mana upkeep, units that always die on invasions, or units that always kill allied units on invasions.""",
         associated_unit_name="Zombie",
     )
 
@@ -542,7 +725,7 @@ def initialize_generic_discoveries():
     Discovery.objects.create(
         name="Archmage",
         description="""Gain the allegiance of a terrifyingly powerful sorcerer who consumes half of your stockpiled research each tick, but leaves 
-        enough to afford your upgrades. Gains 1 OP and 1 DP per 1200 research consumed.""",
+        enough to afford your upgrades. Gains OP and DP according to the amount of research consumed (see tooltip).""",
         associated_unit_name="Archmage",
     )
 
@@ -557,6 +740,12 @@ def initialize_generic_discoveries():
     #     description="Construct a new building to mine for precious gems. Produces 8 gems per tick. When trade values are determined, gems get a +30% bonus."
     # )
 
+    Discovery.objects.create(
+        name="Gingerbrute Men",
+        description="Run, run, as fast as you can.",
+        associated_unit_name="Gingerbrute Man",
+    )
+
 
 def initialize_dwarf_discoveries():
     Discovery.objects.create(
@@ -564,6 +753,13 @@ def initialize_dwarf_discoveries():
         description="A holy scribe takes up residence with you and appends three pages to your book of grudges each tick.",
         required_faction_name="dwarf",
         associated_unit_name="Grudgestoker",
+    )
+
+    Discovery.objects.create(
+        name="Never Forget",
+        description="Instead of forgetting your grudges once you successfully retaliate, you retain 20% of the pages.",
+        required_faction_name="dwarf",
+        required_discoveries=["Grudgestoker"],
     )
 
     Discovery.objects.create(
@@ -586,6 +782,19 @@ def initialize_dwarf_discoveries():
         description="Praise the depths and honor the deep angels beneath. They shall bless their apostles with mithril and their enemies with a merciful death.",
         required_perk_dict={"mining_depth": 500000},
         required_discoveries=["Mithril"],
+    )
+
+    Discovery.objects.create(
+        name="Doom Prospectors",
+        description='The dwarf language lacks a distinction between "seeking" and "prospecting". Doom Prospectors are dwarves whose grudges against themselves have grown too heavy to bear and prospect for glorious death in battle.',
+        required_faction_name="dwarf",
+        associated_unit_name="Doom Prospector",
+    )
+
+    Discovery.objects.create(
+        name="Always Be Digging",
+        description="All dwarves love digging, but some truly can't help it. Once the round starts, expand your dominion vertically by one acre every hour.",
+        required_faction_name="dwarf",
     )
 
 
@@ -715,11 +924,38 @@ def initialize_sludgeling_discoveries():
     )
 
 
+def initialize_goblin_discoveries():
+    Discovery.objects.create(
+        name="Wreckin Ballers",
+        description="Make the mistake of arming goblins with flails bigger than they are. Expect friendly fire.",
+        required_faction_name="goblin",
+        associated_unit_name="Wreckin Baller",
+    )
+
+    Discovery.objects.create(
+        name="Charcutiers",
+        description="Goblin cuisine is famous for its dishes intended to be tasted twice.",
+        required_faction_name="goblin",
+        associated_unit_name="Charcutier",
+    )
+
+
+def initialize_biclops_discoveries():
+    Discovery.objects.create(
+        name="Bestow Biclopean Ambition",
+        description="""Share the gift of desperate, biclopean ambition with another dominion. Unlocks a spell with an 84-tick cooldown that gives 
+        the target dominion 11 ticks of an impatient second head hungry for invasion, except it won't use units that always die on offense.""",
+        required_faction_name="biclops",
+    )
+
+
 def initialize_discoveries():
     initialize_generic_discoveries()
     initialize_dwarf_discoveries()
     initialize_blessed_order_discoveries()
     initialize_sludgeling_discoveries()
+    initialize_goblin_discoveries()
+    initialize_biclops_discoveries()
 
 
 def initialize_trade_prices():

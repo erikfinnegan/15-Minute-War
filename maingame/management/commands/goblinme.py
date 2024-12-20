@@ -12,7 +12,7 @@ class Command(BaseCommand):
     help = "Initiates a battle"
 
     def handle(self, *args, **options):
-        my_faction_name = "dwarf"
+        my_faction_name = "goblin"
 
         my_starting_resource_quantity = 1234567
 
@@ -69,7 +69,7 @@ class Command(BaseCommand):
             building.save()
 
         for unit in Unit.objects.filter(ruler=testdominion):
-            unit.quantity_at_home = 500
+            unit.quantity_at_home = 1500
             unit.save()
 
         for resource in Resource.objects.filter(ruler=testdominion):

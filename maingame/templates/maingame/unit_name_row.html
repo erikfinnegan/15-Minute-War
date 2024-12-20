@@ -1,15 +1,3 @@
-<style>
-    [data-tooltip]:hover::after {
-        display: block;
-        position: absolute;
-        content: attr(data-tooltip);
-        border: 1px solid black;
-        background: #111;
-        color: yellow;
-        padding: .25em;
-    }
-</style>
-
 <td class="u-align-middle {% if unit.has_perks %}header_colors{% endif %}" {% if unit.has_perks %}data-tooltip="{{ unit.perk_text }}"{% endif %}>
     <span>{{ unit.name }}</span>
 </td>

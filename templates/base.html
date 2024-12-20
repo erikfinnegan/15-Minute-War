@@ -72,6 +72,16 @@
         .table {
             border-collapse: initial;
         }
+
+        [data-tooltip]:hover::after {
+            display: flex;
+            position: absolute;
+            content: attr(data-tooltip);
+            padding: .25em;
+            border: 1px solid {{ active_user_settings.used_theme.header_background }};
+            background: {{ active_user_settings.used_theme.base_background }};
+            color: {{ active_user_settings.used_theme.base_text }};
+        }
     </style>
 
 	<body class="base_colors h-full">

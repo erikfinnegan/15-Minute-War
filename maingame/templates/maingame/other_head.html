@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load extra_tags %}
+{% load humanize %}
+
+{% block title %}Other Head{% endblock %}
+
+{% block content %}
+<div>
+    <div class="max-w-md">
+        {% if active_dominion.faction_name == "biclops" and active_dominion.perk_dict.partner_patience > 0 %}
+        <h6>Ruled by Right {{ active_dominion.rulers_display_name }} and Left {{ active_dominion.rulers_display_name }}</h6>
+        <h6>(one of whom will only be patient for {{ active_dominion.perk_dict.partner_patience }} more ticks)</h6>
+        {% elif active_dominion.faction_name == "biclops" and active_dominion.perk_dict.partner_patience == 0 %}
+        <h6>Ruled by Right {{ active_dominion.rulers_display_name }} and Left {{ active_dominion.rulers_display_name }}</h6>
+        <h6>(one of whom has lost patience with the other)</h6>
+        {% else %}
+        <h6>Ruled by {{ active_dominion.rulers_display_name }}</h6>
+        {% endif %}
+        <p>
+            If your other head has no patience left and you have no units in training, they will always attack another 
+            domnion so long as that dominion is at least 75% of your size and can be defeated entirely by units with OP > DP.
+        </p>
+        <p>
+            You can, if you like, set your other head to behave as such regardless of patience or units in training.
+        </p>
+    </div>
+
+    <form action="{% url 'submit_other_head' %}" method="post" class="u-flex u-flex-column u-gap-4 card card_colors p-1 max-w-sm p-2">
+        {% csrf_token %}
+        <div class="form-ext-control">
+            <label class="form-ext-toggle__label u-flex u-flex-row u-gap-2">
+                <span>Other head should always attack worthy foes, even when patient or units are training</span>
+                <div class="form-ext-toggle mr-auto">
+                    <input name="partner_attack_on_sight" type="checkbox" class="form-ext-input" {% if active_dominion.perk_dict.partner_attack_on_sight %}checked{% endif %} />
+                    <div class="form-ext-toggle__toggler"><i></i></div>
+                </div>
+            </label>
+        </div>
+        <button class="header_colors w-16 h-6 p-0 u-center" type="submit">
+            <span class="font-bold">Submit</span>
+        </button>
+    </form>
+</div>
+{% endblock %}

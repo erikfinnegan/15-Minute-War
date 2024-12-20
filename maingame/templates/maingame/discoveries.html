@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load humanize %}
+{% load extra_tags %}
 
 {% block title %}Discoveries{% endblock %}
 
@@ -76,8 +77,8 @@
                     <tr>
                         <th>Name</th>
                         <th>Pwr</th>
-                        <th>Upkeep</th>
                         <th class="w-16">Cost</th>
+                        <th>Upkeep</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -91,15 +92,15 @@
                         <td class="u-align-middle">{{ discovery.associated_unit.op|intcomma }} / {{ discovery.associated_unit.dp|intcomma }}</td>
                         <td class="u-align-middle">
                             <div class="u-flex u-flex-column">
-                                {% for resource, amount in discovery.associated_unit.upkeep_dict.items %}
-                                <span>{{ amount|intcomma }} {{ resource }}</span>
+                                {% for resource, amount in discovery.associated_unit.cost_dict.items %}
+                                <span>{{ amount|intcomma }} {{ resource|depluralize:amount }}</span>
                                 {% endfor %}
                             </div>
                         </td>
                         <td class="u-align-middle">
                             <div class="u-flex u-flex-column">
-                                {% for resource, amount in discovery.associated_unit.cost_dict.items %}
-                                <span>{{ amount|intcomma }} {{ resource }}</span>
+                                {% for resource, amount in discovery.associated_unit.upkeep_dict.items %}
+                                <span>{{ amount|intcomma }} {{ resource|depluralize:amount }}</span>
                                 {% endfor %}
                             </div>
                         </td>

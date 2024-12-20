@@ -14,15 +14,36 @@
         Spells have unique effects and a mana cost that scales with your acreage.
     </p>
 </details>
-<div class="u-flex u-flex-wrap">
+<div class="u-flex u-flex-wrap u-gap-2">
     {% for spell in spells %}
     <div class="card card_colors px-1 pt-1 u-flex u-flex-column u-gap-1 w-64">
         <h6>{{ spell.name }}</h6>
-        <span>{{ spell.mana_cost_per_acre }} mana/acre</span>
+        <div class="u-flex u-flex-row">
+            <span>{{ spell.mana_cost_per_acre }} mana/acre</span>
+            {% if spell.cooldown_remaining > 0 %}
+            <span class="ml-auto">Cooldown remaining: {{ spell.cooldown_remaining }} / {{ spell.cooldown }}</span>
+            {% elif spell.cooldown > 0 %}
+            <span class="ml-auto">Cooldown: {{ spell.cooldown }}</span>
+            {% endif %}
+        </div>
         <span>{{ spell.description }}</span>
-        <form>
-            <button class="u-center header_colors py-0" formaction="{% url 'submit_spell' spell.id %}" {% if mana_quantity < spell.mana_cost %}disabled{% endif %}>
-                Cast: {{ spell.mana_cost|intcomma }} mana
+        <form action="{% url 'submit_spell' spell.id %}" method="post">
+            {% csrf_token %}
+            {% if spell.is_targeted %}
+                <div class="u-flex u-flex-row u-center py-2">
+                    <select class="max-w-xs" name="target_dominion_id" oninput="updateTargetDefense(); updateOffenseToSend();" {% if mana_quantity < spell.mana_cost or spell.cooldown_remaining > 0 %}disabled{% endif %}>
+                        <option value="0">Select a target</option>
+                        {% for dominion in dominions %}
+                        {% if dominion != active_dominion and dominion.is_oop and not dominion.is_abandoned %}
+                        <option value="{{ dominion.id }}">{{ dominion.name }} ({{ dominion.acres|intcomma }} acres) {{ dominion.defense_short }} DP</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+            {% endif %}
+
+            <button class="px-1 py-0 h-4 header_colors u-center" type="submit" {% if mana_quantity < spell.mana_cost or spell.cooldown_remaining > 0 %}disabled{% endif %}>
+                <span class="font-bold">Cast: {{ spell.mana_cost|intcomma }} mana</span>
             </button>
         </form>
     </div>

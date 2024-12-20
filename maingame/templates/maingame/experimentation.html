@@ -47,8 +47,8 @@
                 <tr>
                     <th>Name</th>
                     <th>Pwr</th>
-                    <th>Upkeep</th>
                     <th class="w-16">Cost</th>
+                    <th>Upkeep</th>
                 </tr>
             </thead>
             <tbody>
@@ -62,15 +62,15 @@
                     <td class="u-align-middle">{{ latest_experiment_unit.op|intcomma }} / {{ latest_experiment_unit.dp|intcomma }}</td>
                     <td class="u-align-middle">
                         <div class="u-flex u-flex-column">
-                            {% for resource, amount in latest_experiment_unit.upkeep_dict.items %}
-                            <span>{{ amount|intcomma }} {{ resource }}</span>
+                            {% for resource, amount in latest_experiment_unit.cost_dict.items %}
+                            <span>{{ amount|intcomma }} {{ resource|depluralize:amount }}</span>
                             {% endfor %}
                         </div>
                     </td>
                     <td class="u-align-middle">
                         <div class="u-flex u-flex-column">
-                            {% for resource, amount in latest_experiment_unit.cost_dict.items %}
-                            <span>{{ amount|intcomma }} {{ resource }}</span>
+                            {% for resource, amount in latest_experiment_unit.upkeep_dict.items %}
+                            <span>{{ amount|intcomma }} {{ resource|depluralize:amount }}</span>
                             {% endfor %}
                         </div>
                     </td>

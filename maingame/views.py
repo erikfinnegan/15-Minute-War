@@ -10,10 +10,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 
-from maingame.formatters import create_or_add_to_key, get_sludgeling_name
+from maingame.formatters import create_or_add_to_key, get_goblin_ruler, get_sludgeling_name
 from maingame.models import Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings, Theme
 from maingame.tick_processors import do_global_tick
-from maingame.utils import abandon_dominion, delete_dominion, get_acres_conquered, get_grudge_bonus, initialize_dominion, round_x_to_nearest_y, unlock_discovery, cast_spell, update_available_discoveries
+from maingame.utils import abandon_dominion, delete_dominion, do_invasion, get_acres_conquered, get_grudge_bonus, get_random_resource, initialize_dominion, round_x_to_nearest_y, unlock_discovery, cast_spell, update_available_discoveries
 
 
 def index(request):
@@ -43,7 +43,7 @@ def faction_info(request):
 def register(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
-        return redirect("resources")
+        return redirect("buildings")
     except:
         pass
 
@@ -75,12 +75,24 @@ def buildings(request):
     except:
         return redirect("register")
     
-    primary_resource = Resource.objects.get(ruler=dominion, name=dominion.building_primary_resource_name)
-    secondary_resource = Resource.objects.get(ruler=dominion, name=dominion.building_secondary_resource_name)
+    # primary_resource = Resource.objects.get(ruler=dominion, name=dominion.building_primary_resource_name)
+    # secondary_resource = Resource.objects.get(ruler=dominion, name=dominion.building_secondary_resource_name)
+    # max_affordable = int(min(primary_resource.quantity / dominion.building_primary_cost, secondary_resource.quantity / dominion.building_secondary_cost))
 
-    max_affordable = int(min(primary_resource.quantity / dominion.building_primary_cost, secondary_resource.quantity / dominion.building_secondary_cost))
+    resources_dict = {}
+
+    for resource in Resource.objects.filter(ruler=dominion):
+        if not resource.name == "corpses":
+            resources_dict[resource.name] = {
+                "name": resource.name,
+                "produced": dominion.get_production(resource.name),
+                "consumed": dominion.get_consumption(resource.name),
+            }
+
+            resources_dict[resource.name]["net"] = resources_dict[resource.name]["produced"] - resources_dict[resource.name]["consumed"]
 
     context = {
+        "resources_dict": resources_dict,
         "buildings": Building.objects.filter(ruler=dominion),
     }
     
@@ -195,13 +207,13 @@ def submit_building(request):
             total_new_percent += int(string_percent)
 
             if user_settings.tutorial_step == 1:
-                if building.name == "farm" and int(string_percent) != 10:
+                if building.name == "farm" and int(string_percent) != 5:
                     messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
                     return redirect("buildings")
                 elif building.name == "quarry" and int(string_percent) != 45:
                     messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
                     return redirect("buildings")
-                elif building.name == "lumberyard" and int(string_percent) != 6:
+                elif building.name == "lumberyard" and int(string_percent) != 11:
                     messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
                     return redirect("buildings")
                 elif building.name == "school" and int(string_percent) != 39:
@@ -274,7 +286,7 @@ def submit_training(request):
                 elif unit.name == "Hammerer" and int(string_amount) != 720 and user_settings.tutorial_step <= 7:
                     messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
                     return redirect("military")
-                elif unit.name == "Palisade" and int(string_amount) != 80 and user_settings.tutorial_step <= 9:
+                elif unit.name == "Palisade" and int(string_amount) != 147 and user_settings.tutorial_step <= 9:
                     messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
                     return redirect("military")
                 
@@ -419,7 +431,7 @@ def resources(request):
 @login_required
 def trade(request):
     messages.error(request, f"Trading has been disabled.")
-    return redirect("resources")
+    return redirect("buildings")
 
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -428,11 +440,11 @@ def trade(request):
     
     if Round.objects.first().has_ended:
         messages.error(request, f"The round has already ended")
-        return redirect("resources")
+        return redirect("buildings")
     
     if Round.objects.first().is_ticking:
         messages.error(request, f"The tick is being processed, try again shortly.")
-        return redirect("resources")
+        return redirect("buildings")
     
     try:
         input_resource_name = request.POST["inputResource"]
@@ -440,29 +452,29 @@ def trade(request):
         output_resource_name = request.POST["outputResource"]
     except:
         messages.error(request, f"Please ensure your trade resources are selected properly")
-        return redirect("resources")
+        return redirect("buildings")
     
     round = Round.objects.first()
 
     if not Resource.objects.filter(ruler=dominion, name=input_resource_name).exists() or not Resource.objects.filter(ruler=dominion, name=output_resource_name).exists():
         messages.error(request, f"You don't have access to that resource")
-        return redirect("resources")
+        return redirect("buildings")
     elif input_resource_name == output_resource_name:
         messages.error(request, f"You can't trade a resource for itself")
-        return redirect("resources")
+        return redirect("buildings")
 
     untradable_resources = ["corpses", "faith", "mithril"]
 
     if input_resource_name in untradable_resources or output_resource_name in untradable_resources:
         messages.error(request, f"You can't trade that resource.")
-        return redirect("resources")
+        return redirect("buildings")
 
     input_resource = Resource.objects.get(ruler=dominion, name=input_resource_name)
     output_resource = Resource.objects.get(ruler=dominion, name=output_resource_name)
 
     if amount > input_resource.quantity:
         messages.error(request, f"You can't trade more {input_resource_name} than you have")
-        return redirect("resources")
+        return redirect("buildings")
 
     credit = round.trade_price_dict[input_resource.name] * amount
     payout = int((credit / round.trade_price_dict[output_resource.name]) * 0.9)
@@ -491,7 +503,7 @@ def trade(request):
     dominion.save()
 
     messages.success(request, f"Traded {amount:2,} {input_resource.name} for {payout:2,} {output_resource.name}")
-    return redirect("resources")
+    return redirect("buildings")
 
 
 @login_required
@@ -567,6 +579,7 @@ def spells(request):
     context = {
         "spells": spells,
         "mana_quantity": Resource.objects.get(ruler=dominion, name="mana").quantity,
+        "dominions": Dominion.objects.filter(is_abandoned=False).order_by('protection_ticks_remaining', '-acres'),
     }
 
     return render(request, "maingame/spells.html", context)
@@ -579,6 +592,20 @@ def submit_spell(request, spell_id):
     except:
         return redirect("register")
     
+    target_dominion = None
+    spell = Spell.objects.get(id=spell_id)
+    mana = Resource.objects.get(ruler=dominion, name="mana")
+
+    try:
+        dominion_id = request.POST["target_dominion_id"]
+        target_dominion = Dominion.objects.get(id=dominion_id)
+
+        if not target_dominion.is_oop or not dominion.is_oop or not round.has_started or round.has_ended or target_dominion.is_abandoned:
+            messages.error(request, f"Illegal target")
+            return redirect("spells")
+    except:
+        pass
+
     if Round.objects.first().has_ended:
         messages.error(request, f"The round has already ended")
         return redirect("spells")
@@ -586,15 +613,16 @@ def submit_spell(request, spell_id):
     if Round.objects.first().is_ticking:
         messages.error(request, f"The tick is being processed, try again shortly.")
         return redirect("spells")
-    
-    spell = Spell.objects.get(id=spell_id)
-    mana = Resource.objects.get(ruler=dominion, name="mana")
 
     if spell.mana_cost > mana.quantity:
         messages.error(request, f"This would cost {f'{spell.mana_cost:,}'} mana. You have {f'{mana.quantity:,}'}. You're {f'{spell.mana_cost - mana.quantity:,}'} short.")
         return redirect("spells")
     
-    cast_spell(spell)
+    if spell.cooldown_remaining > 0:
+        messages.error(request, f"This spell is still on cooldown.")
+        return redirect("spells")
+    
+    cast_spell(spell, target_dominion)
 
     messages.success(request, f"Cast {spell.name}")
     return redirect("spells")
@@ -604,7 +632,7 @@ def submit_spell(request, spell_id):
 def run_tick_view(request, quantity):
     if request.user.username != "test":
         messages.error(request, f"Ticky tick tick")
-        return redirect("resources")
+        return redirect("buildings")
 
     round = Round.objects.first()
     round.has_started = True
@@ -630,13 +658,13 @@ def protection_tick(request, quantity):
             return redirect("buildings")
         elif user_settings.tutorial_step == 2 and dominion.protection_ticks_remaining - quantity != 71:
             messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
-            return redirect("resources")
+            return redirect("buildings")
         elif user_settings.tutorial_step == 3 and quantity != 12:
             messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
-            return redirect("resources")
+            return redirect("buildings")
         elif user_settings.tutorial_step == 10 and dominion.protection_ticks_remaining - quantity < 1:
             messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
-            return redirect("resources")
+            return redirect("buildings")
         elif user_settings.tutorial_step < 999 and user_settings.tutorial_step not in [1, 2, 3, 5, 10, 11]:
             messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
             if user_settings.tutorial_step in [4]:
@@ -646,7 +674,7 @@ def protection_tick(request, quantity):
             elif user_settings.tutorial_step in [8]:
                 return redirect("discoveries")
             else:
-                return redirect("resources")
+                return redirect("buildings")
         
         print("user_settings.tutorial_step", user_settings.tutorial_step)
         
@@ -847,10 +875,10 @@ def world(request):
 
         land_conquered_dict[str(dominion.id)] = get_acres_conquered(my_dominion, dominion)
 
-        if dominion.acres >= my_dominion.acres and dominion.protection_ticks_remaining == 0:
+        if dominion.acres >= my_dominion.acres and dominion.is_oop:
             lowest_defense_larger_than_you = min(dominion.defense, lowest_defense_larger_than_you)
 
-        if dominion.protection_ticks_remaining == 0:
+        if dominion.is_oop:
             lowest_defense_in_game = min(dominion.defense, lowest_defense_in_game)
 
     context = {
@@ -1013,7 +1041,7 @@ def church_affairs(request):
     
     if dominion.faction_name != "blessed order":
         messages.error(request, f"I swear I WILL smite you")
-        return redirect("resources")
+        return redirect("buildings")
     
     if dominion.perk_dict["inquisition_rate"] > 0:
         sinners_per_tick = -1 * dominion.perk_dict["inquisition_rate"]
@@ -1063,7 +1091,7 @@ def experimentation(request):
 
     if dominion.faction_name != "sludgeling":
         messages.error(request, f"Go swim in a cesspool")
-        return redirect("resources")
+        return redirect("buildings")
     
     research_cost = int(dominion.perk_dict["experiment_cost_dict"]["research_per_acre"] * dominion.acres)
     sludge_cost = int(dominion.perk_dict["experiment_cost_dict"]["sludge_per_acre"] * dominion.acres)
@@ -1106,7 +1134,7 @@ def generate_experiment(request):
 
     if dominion.faction_name != "sludgeling":
         messages.error(request, f"Go swim in a cesspool")
-        return redirect("resources")
+        return redirect("buildings")
     
     experiment_research_cost = int(dominion.perk_dict["experiment_cost_dict"]["research_per_acre"] * dominion.acres)
     experiment_sludge_cost = int(dominion.perk_dict["experiment_cost_dict"]["sludge_per_acre"] * dominion.acres)
@@ -1449,10 +1477,10 @@ def approve_experiment(request):
 
     if dominion.faction_name != "sludgeling":
         messages.error(request, f"Go swim in a cesspool")
-        return redirect("resources")
+        return redirect("buildings")
     elif dominion.perk_dict["custom_units"] >= dominion.perk_dict["max_custom_units"]:
         messages.error(request, f"Go swim in a cesspool")
-        return redirect("resources")
+        return redirect("buildings")
     
     dominion.perk_dict["latest_experiment"]["should_display"] = False
     dominion.perk_dict["custom_units"] += 1
@@ -1513,7 +1541,7 @@ def terminate_experiment(request):
 
     if dominion.faction_name != "sludgeling":
         messages.error(request, f"Go swim in a cesspool")
-        return redirect("resources")
+        return redirect("buildings")
     
     unit = Unit.objects.get(id=request.POST["experiment_to_terminate"])
 
@@ -1553,7 +1581,47 @@ def terminate_experiment(request):
 
 
 @login_required
-def submit_invasion(request):
+def other_head(request):
+    try:
+        dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    if dominion.faction_name != "biclops":
+        messages.error(request, f"You don't have access to this page")
+        return redirect("buildings")
+    
+    return render(request, "maingame/other_head.html")
+
+
+@login_required
+def submit_other_head(request):
+    try:
+        dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    if Round.objects.first().has_ended:
+        messages.error(request, f"The round has already ended")
+        return redirect("other_head")
+    
+    if Round.objects.first().is_ticking:
+        messages.error(request, f"The tick is being processed, try again shortly.")
+        return redirect("other_head")
+    
+    if dominion.faction_name != "biclops" or "partner_attack_on_sight" not in dominion.perk_dict:
+        messages.error(request, f"You don't have access to this page")
+        return redirect("buildings")
+    
+    dominion.perk_dict["partner_attack_on_sight"] = "partner_attack_on_sight" in request.POST
+    dominion.save()
+    
+    messages.success(request, "Scheming with your other head successful")
+    return redirect("other_head")
+    
+
+@login_required
+def submit_invasion_old(request):
     try:
         my_dominion = Dominion.objects.get(associated_user=request.user)
     except:
@@ -1607,9 +1675,8 @@ def submit_invasion(request):
 
     if total_units_sent < 1:
         messages.error(request, f"Zero units sent")
-        return redirect("world", dominion_id=dominion_id)
+        return redirect("world")
     
-    messages.success(request, f"If you don't see a second message confirming that your invasion didn't crash, screenshot your battle report and post in #bug-reports")
     offense_sent = 0
     
     # Calculate OP
@@ -1618,12 +1685,12 @@ def submit_invasion(request):
         quantity_sent = unit_details_dict["quantity_sent"]
         offense_sent += unit.op * quantity_sent
 
-    my_dominion.highest_raw_op_sent = max(offense_sent, my_dominion.highest_raw_op_sent)
-    my_dominion.save()
     offense_sent *= (my_dominion.offense_multiplier + get_grudge_bonus(my_dominion, target_dominion))
 
     # Determine victor
     if offense_sent >= target_dominion.defense:
+        my_dominion.highest_raw_op_sent = max(offense_sent, my_dominion.highest_raw_op_sent)
+        my_dominion.save()
         attacker_victory = True
         target_dominion.complacency = 0
         target_dominion.failed_defenses += 1
@@ -1637,7 +1704,7 @@ def submit_invasion(request):
             pages_to_gain = 50
 
             for _ in range(round.ticks_passed):
-                pages_to_gain *= 1.003
+                pages_to_gain *= 1.002
 
             if "grudge_page_multiplier" in target_dominion.perk_dict:
                 pages_to_gain *= target_dominion.perk_dict["grudge_page_multiplier"]
@@ -1655,6 +1722,10 @@ def submit_invasion(request):
             target_dominion.perk_dict["free_experiments"] += 5
     else:
         attacker_victory = False
+        messages.error(request, f"Only successful invasions allowed (for now?)")
+        return redirect("world")
+    
+    messages.success(request, f"If you don't see a second message confirming that your invasion didn't crash, screenshot your battle report and post in #bug-reports")
 
     battle_units_sent_dict = {}
     battle_units_defending_dict = {}
@@ -1685,6 +1756,36 @@ def submit_invasion(request):
     event.notified_dominions.add(target_dominion)
     target_dominion.has_unread_events = True
     target_dominion.save()
+
+    # Handle goblin Wreckin Ballers
+    if "Wreckin Ballers" in my_dominion.learned_discoveries:
+        for unit_details_dict in units_sent_dict.values():
+            unit = unit_details_dict["unit"]
+            quantity_sent = unit_details_dict["quantity_sent"]
+
+            # RIght now it assumes a value of 1. Please don't make me figure out how to handle something else.
+            if "random_allies_killed_on_invasion" in unit.perk_dict:
+                # When in doubt, they kill themselves, just to help avoid exceptions
+                victim = unit
+                victim_count = 0
+
+                for _ in range(quantity_sent):
+                    roll = randint(1, total_units_sent - victim_count)
+                    print()
+                    print("roll:", roll)
+
+                    for victim_details_dict in units_sent_dict.values():
+                        print(f"Checking {victim_details_dict['unit'].name} with {victim_details_dict['quantity_sent']} against roll {roll}")
+                        if roll <= victim_details_dict["quantity_sent"]:
+                            print("kill")
+                            victim = victim_details_dict
+                            break
+                        else:
+                            roll -= victim_details_dict["quantity_sent"]
+
+                    victim_count += 1
+                    victim["quantity_sent"] -= 1
+                    print()
 
     # Determine casualty rates and handle victory triggers
     if attacker_victory:
@@ -1787,6 +1888,7 @@ def submit_invasion(request):
 
     total_casualties = offensive_casualties + defensive_casualties
 
+    # Handle martyrs
     if target_dominion.faction_name == "blessed order":
         faith = Resource.objects.get(ruler=target_dominion, name="faith")
         martyrs_affordable = int(faith.quantity / target_dominion.perk_dict["martyr_cost"])
@@ -1797,6 +1899,7 @@ def submit_invasion(request):
         martyrs.quantity_at_home += martyrs_gained
         martyrs.save()
 
+    # Handle corpses
     if attacker_victory and Resource.objects.filter(ruler=my_dominion, name="corpses").exists():
         my_bodies = Resource.objects.get(ruler=my_dominion, name="corpses")
         my_bodies.quantity += total_casualties
@@ -1810,6 +1913,75 @@ def submit_invasion(request):
         battle.battle_report_notes.append(f"{target_dominion} gained {total_casualties} corpses.")
         battle.save()
 
+    # Handle goblin leadership change
+    if attacker_victory and "goblin_ruler" in target_dominion.perk_dict:
+        target_dominion.perk_dict["goblin_ruler"] = get_goblin_ruler()
+        target_dominion.perk_dict["rulers_favorite_resource"] = get_random_resource(target_dominion).name
+        target_dominion.save()
+
     messages.success(request, f"-- Congratulations, your invasion didn't crash! --")
 
     return redirect("battle_report", battle_id=battle.id)
+
+
+@login_required
+def submit_invasion(request):
+    try:
+        my_dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    if Round.objects.first().has_ended:
+        messages.error(request, f"The round has already ended")
+        return redirect("world")
+    
+    if Round.objects.first().is_ticking:
+        messages.error(request, f"The tick is being processed, try again shortly.")
+        return redirect("world")
+    
+    if my_dominion.has_units_returning:
+        messages.error(request, f"You can't send another invasion while you have units returning")
+        return redirect("world")
+    
+    dominion_id = request.POST["target_dominion_id"]
+    target_dominion = Dominion.objects.get(id=dominion_id)
+    round = Round.objects.first()
+
+    if target_dominion.protection_ticks_remaining > 0 or my_dominion.protection_ticks_remaining > 0 or not round.has_started or round.has_ended or target_dominion.is_abandoned:
+        messages.error(request, f"Illegal invasion")
+        return redirect("overview", dominion_id=dominion_id)
+    elif int(request.POST["dpLeftHidden"]) < my_dominion.acres * 5:
+        messages.error(request, f"You must leave at least {my_dominion.acres * 5} defense at home")
+        return redirect("world", dominion_id=dominion_id)
+
+    total_units_sent = 0
+    units_sent_dict = {}
+
+    # Create a dict of the units sent
+    for key, string_amount in request.POST.items():
+        # key is like "send_123" where 123 is the ID of the Unit
+        if "send_" in key and string_amount != "":
+            unit = Unit.objects.get(id=key[5:])
+            amount = int(string_amount)
+
+            if amount <= unit.quantity_at_home:
+                total_units_sent += amount
+                units_sent_dict[str(unit.id)] = {
+                    "unit": unit,
+                    "quantity_sent": amount,
+                }
+            else:
+                messages.error(request, f"You can't send more units than you have at home.")
+                return redirect("world", dominion_id=dominion_id)
+
+    if total_units_sent < 1:
+        messages.error(request, f"Zero units sent")
+        return redirect("world")
+    
+    battle_id, message = do_invasion(units_sent_dict, my_dominion, target_dominion)
+
+    if battle_id == 0:
+        messages.error(request, message)
+        return redirect("world")
+
+    return redirect("battle_report", battle_id=battle_id)

@@ -3,7 +3,7 @@ from maingame.models import Dominion, Round
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from maingame.utils import update_trade_prices
+from maingame.utils import do_biclops_partner_attack, do_forced_attack, update_trade_prices
 
 def normalize_trade_prices():
     round = Round.objects.first()
@@ -21,18 +21,24 @@ def do_global_tick():
     round.save()
 
     if not round.has_ended:
-        print("Starting trade prices", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
+        # print("Starting trade prices", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
 
-        update_trade_prices()
-        normalize_trade_prices()
+        # update_trade_prices()
+        # normalize_trade_prices()
 
-        print("Trade prices done, starting dominion ticks", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
+        # print("Trade prices done, starting dominion ticks", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
 
         if Round.objects.first().allow_ticks:
             for dominion in Dominion.objects.all():
-                print(f"Starting {dominion.name}", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
-                if dominion.protection_ticks_remaining == 0:
+                # print(f"Starting {dominion.name}", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
+                if dominion.is_oop:
                     dominion.do_tick()
+
+                if dominion.faction_name == "biclops": 
+                    do_biclops_partner_attack(dominion)
+
+                if "biclopean_ambition_ticks_remaining" in dominion.perk_dict:
+                    do_forced_attack(dominion, use_always_dies_units=False)
             
             print("Dominions done", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
 

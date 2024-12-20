@@ -93,13 +93,13 @@
                         <td class="u-align-middle">
                             {% if unit.is_trainable %}
                             {% for resource, amount in unit.cost_dict.items %}
-                            <span class="u-center">{{ amount|intcomma }} {{ resource }}</span>
+                            <span class="u-center">{{ amount|intcomma }} {{ resource|depluralize:amount }}</span>
                             {% endfor %}
                             {% endif %}
                         </td>
                         <td class="u-align-middle">
                             {% for resource, amount in unit.upkeep_dict.items %}
-                            <span class="u-center">{{ amount|intcomma }} {{ resource }}</span>
+                            <span class="u-center">{{ amount|intcomma }} {{ resource|depluralize:amount }}</span>
                             {% endfor %}
                         </td>
                     </tr>

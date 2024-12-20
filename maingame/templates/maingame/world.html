@@ -45,6 +45,7 @@
                     <th class="u-align-middle">Your grudge</th>
                     <th class="u-align-middle">Highest OP</th>
                     <th class="u-align-middle">Grudge against you</th>
+                    <th class="u-align-middle">W/L</th>
                 </tr>
             </thead>
             <tbody>
@@ -68,11 +69,15 @@
                     {% comment %} Defense {% endcomment %}
                     <td class="u-align-middle">
                         <div class="u-flex u-flex-column">
-                            {% if dominion.defense < active_dominion.juicy_target_threshold and dominion.protection_ticks_remaining == 0 and round.has_started %}
+                            {% if dominion.defense < active_dominion.juicy_target_threshold and dominion.is_oop and round.has_started %}
                             <span class="tag tag--danger py-0 mx-auto text-md">{{ dominion.defense_short }}</span>
                             {% else %}
                             <span class="u-center {% if dominion.protection_ticks_remaining > 0 or not round.has_started %}text-teal-400{% endif %}">
-                                {% if dominion.protection_ticks_remaining == 0 and round.has_started %}{{ dominion.defense_short }}{% else %}Magical protection{% endif %}
+                                {% if dominion.is_oop and round.has_started %}
+                                {{ dominion.defense_short }}
+                                {% else %}
+                                Magical protection
+                                {% endif %}
                             </span>
                             {% endif %}
                             
@@ -84,9 +89,7 @@
 
                     {% comment %} Complacency {% endcomment %}
                     <td class="u-align-middle">
-                        <div class="u-flex u-flex-column">
-                            <span>-{{ dominion.complacency_penalty_percent|floatformat:0 }}% DP</span>
-                        </div>
+                        <span>-{{ dominion.complacency_penalty_percent|floatformat:0 }}% DP</span>
                     </td>
 
                     {% comment %} Grudges {% endcomment %}
@@ -127,6 +130,10 @@
                             <td class="u-align-middle">None</td>
                         {% endif %}
                     {% endif %}
+
+                    {% comment %} W/L {% endcomment %}
+                    <td class="u-align-middle">{{ dominion.successful_invasions }} - {{ dominion.failed_defenses }}</td>
+
                 </tr>
                 {% endfor %}
             </tbody>
@@ -134,7 +141,7 @@
     </div>
 
     {% for dominion in dominions %}
-    {% if dominion != active_dominion and dominion.protection_ticks_remaining == 0 and not dominion.is_abandoned %}
+    {% if dominion != active_dominion and dominion.is_oop and not dominion.is_abandoned %}
     {% endif %}
     {% endfor %}
 
@@ -152,8 +159,8 @@
             <select class="max-w-xs" name="target_dominion_id" id="target_select_dropdown" oninput="updateTargetDefense(); updateOffenseToSend();">
                 <option value="0">Select a target to plan an invasion</option>
                 {% for dominion in dominions %}
-                {% if dominion != active_dominion and dominion.protection_ticks_remaining == 0 and not dominion.is_abandoned %}
-                <option value="{{ dominion.id }}">{{ dominion.name }}</option>
+                {% if dominion != active_dominion and dominion.is_oop and not dominion.is_abandoned %}
+                <option value="{{ dominion.id }}">{{ dominion.name }} ({{ dominion.acres|intcomma }} acres) {{ dominion.defense_short }} DP</option>
                 {% endif %}
                 {% endfor %}
             </select>
@@ -178,6 +185,7 @@
             </thead>
             <tbody>
                 {% for unit in my_units %}
+                {% if unit.op > 0 %}
                 <tr>
                     {% include "maingame/unit_name_row.html" %}
                     <td class="u-align-middle" id="power_{{ unit.id }}" style="white-space:nowrap">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
@@ -194,6 +202,7 @@
                         >
                     </td>
                 </tr>
+                {% endif %}
                 {% endfor %}
             </tbody>
         </table>
@@ -277,6 +286,8 @@
             const offense_multiplier_dict = JSON.parse('{{ offense_multiplier_dict|escapejs }}');
             const baseOffenseMultiplier = JSON.parse('{{ base_offense_multiplier|escapejs }}');
             const targetId = document.getElementById("target_select_dropdown").value;
+            const invadeButton = document.getElementById("invadeButton")
+
             let opReadout = document.getElementById("opToSend");
             let dpLeftReadout = document.getElementById("dpLeft");
             let dpLeftReadoutHidden = document.getElementById("dpLeftHidden");
@@ -316,10 +327,12 @@
                 readoutSection.classList.remove("text-red-400")
                 readoutSection.classList.add("text-green-400")
                 invadeButtonText.classList.remove("text-red-400")
+                invadeButton.disabled = false
             } else {
                 readoutSection.classList.remove("text-green-400")
                 readoutSection.classList.add("text-red-400")
                 invadeButtonText.classList.add("text-red-400")
+                invadeButton.disabled = true
             }
 
             if (dpLeft < minimumDefenseLeft) {
@@ -341,10 +354,8 @@
 
             if (dpLeft < lowestDefenseInTheGame) {
                 youHaveTheLowestDefenseReadout.hidden = false
-                console.log("you have lowest")
             } else {
                 youHaveTheLowestDefenseReadout.hidden = true
-                console.log("well, you're not lowest")
             }
         }
 
@@ -376,10 +387,8 @@
 
             if (defenseLeft < lowestDefenseInTheGame) {
                 youHaveTheLowestDefenseReadout.hidden = false
-                console.log("you have lowest")
             } else {
                 youHaveTheLowestDefenseReadout.hidden = true
-                console.log("well, you're not lowest")
             }
         }
     </script>

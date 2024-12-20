@@ -35,3 +35,11 @@ def dash_if_zero(number):
 @register.filter(name='multiply') 
 def multiply(value, arg):
     return value * arg
+
+
+@register.filter(name='depluralize') 
+def depluralize(value, arg):
+    if arg == 1 and value[-1] == "s":
+        return value[:-1]
+    else:
+        return value

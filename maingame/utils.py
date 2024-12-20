@@ -1,20 +1,36 @@
+import math
 from random import randint, choice
 import random
 
-from maingame.models import Unit, Dominion, Discovery, Building, Event, Round, Faction, Resource, Spell, UserSettings
+from django.urls import reverse_lazy
+
+from maingame.formatters import get_goblin_ruler
+from maingame.models import Battle, Unit, Dominion, Discovery, Building, Event, Round, Faction, Resource, Spell, UserSettings
 from django.contrib.auth.models import User
 from django.db.models import Q
 
 
+def get_random_resource(dominion: Dominion):
+    resources = []
+
+    for resource in Resource.objects.filter(~Q(name="gold"), ruler=dominion):
+        resources.append(resource)
+
+    return choice(resources)
+
+
 def create_faction_perk_dict(dominion: Dominion, faction: Faction):
+    dominion.perk_dict["book_of_grudges"] = {}
+
     if faction.name == "dwarf":
+        # dominion.perk_dict["book_of_grudges"] = {}
         dominion.perk_dict["grudge_page_multiplier"] = 1.5
-        dominion.perk_dict["grudge_page_keep_multiplier"] = 0.05
+        # dominion.perk_dict["grudge_page_keep_multiplier"] = 0.05
     elif faction.name == "blessed order":
         dominion.perk_dict["sinners_per_hundred_acres_per_tick"] = 1
         dominion.perk_dict["inquisition_rate"] = 0
         dominion.perk_dict["inquisition_ticks_left"] = 0
-        dominion.perk_dict["martyr_cost"] = 1000
+        dominion.perk_dict["martyr_cost"] = 500
     elif faction.name == "sludgeling":
         dominion.perk_dict["free_experiments"] = 10
         dominion.perk_dict["latest_experiment_id"] = 0
@@ -41,6 +57,14 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
         dominion.perk_dict["max_custom_units"] = 3
         dominion.perk_dict["experiments_done"] = 0
         dominion.perk_dict["recycling_refund"] = 0.8
+    elif faction.name == "goblin":
+        dominion.perk_dict["rats_per_acre_per_tick"] = 0.3333
+        dominion.perk_dict["goblin_ruler"] = get_goblin_ruler()
+        dominion.perk_dict["rulers_favorite_resource"] = get_random_resource(dominion).name
+    elif faction.name == "biclops":
+        dominion.perk_dict["partner_patience"] = 36
+        # dominion.perk_dict["partner_unit_training_0random_1offense_2defense"] = 0
+        dominion.perk_dict["partner_attack_on_sight"] = False
 
     dominion.save()
 
@@ -132,12 +156,11 @@ def initialize_dominion(user: User, faction: Faction, display_name):
 
     if dominion.faction_name == "blessed order":
         create_resource_for_dominion("sinners", dominion)
+    elif dominion.faction_name == "goblin":
+        create_resource_for_dominion("rats", dominion)
 
     for spell in Spell.objects.filter(ruler=None, is_starter=True):
-        dominions_spell = spell
-        dominions_spell.pk = None
-        dominions_spell.ruler = dominion
-        dominions_spell.save()
+        give_dominion_spell(dominion, spell)
 
     dominion.primary_resource_name = faction.primary_resource_name
     dominion.primary_resource_per_acre = faction.primary_resource_per_acre
@@ -173,7 +196,6 @@ def initialize_dominion(user: User, faction: Faction, display_name):
         message_override=f"{user_settings.display_name} has created a {faction} dominion named {dominion}"
     )
 
-    dominion.perk_dict["book_of_grudges"] = {}
     dominion.save()
 
     create_faction_perk_dict(dominion, faction)
@@ -361,11 +383,15 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             dominion.has_tick_units = True
         case "Fireballs":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Fireball"))
+        case "Gingerbrute Men":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Gingerbrute Man"))
         case "Grudgestoker":
             grudgestoker = give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Grudgestoker"))
             grudgestoker.quantity_at_home = 1
             grudgestoker.save()
             dominion.has_tick_units = True
+        case "Never Forget":
+            dominion.perk_dict["grudge_page_keep_multiplier"] = 0.2
         case "Miners":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Miner"))
             dominion.perk_dict["mining_depth"] = 0
@@ -404,6 +430,12 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             create_magnum_goopus(dominion)
         case "Encore":
             create_magnum_goopus(dominion, encore=True)
+        case "Wreckin Ballers":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Wreckin Baller"))
+        case "Charcutiers":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Charcutier"))
+        case "Bestow Biclopean Ambition":
+            give_dominion_spell(dominion, Spell.objects.get(ruler=None, name="Bestow Biclopean Ambition"))
 
     if not can_take_multiple_times:
         dominion.available_discoveries.remove(discovery_name)
@@ -426,6 +458,15 @@ def give_dominion_unit(dominion: Dominion, unit: Unit):
     return dominions_unit
 
 
+def give_dominion_spell(dominion: Dominion, spell: Spell):
+    dominions_spell = spell
+    dominions_spell.pk = None
+    dominions_spell.ruler = dominion
+    dominions_spell.save()
+
+    return dominions_spell
+
+
 def give_dominion_building(dominion: Dominion, building: Building):
     dominions_building = building
     dominions_building.pk = None
@@ -446,22 +487,346 @@ def get_acres_conquered(attacker: Dominion, target: Dominion):
     return int(0.06 * target.acres * (target.acres / attacker.acres))
 
 
-def cast_spell(spell: Spell):
+def do_biclops_partner_attack(dominion: Dominion):
+    if "partner_attack_on_sight" not in dominion.perk_dict:
+        return
+    
+    if not dominion.perk_dict["partner_attack_on_sight"]:
+        if dominion.has_units_in_training and dominion.perk_dict["partner_patience"] > -24:
+            return
+        elif dominion.perk_dict["partner_patience"] > 0:
+            return
+        
+    do_forced_attack(dominion, use_always_dies_units=True)
+    
+
+def do_forced_attack(dominion: Dominion, use_always_dies_units=False):
+    if dominion.incoming_acres > 0:
+        return    
+    
+    op_from_offensive_units_at_home = 0
+    offensive_units = []
+
+    for unit in Unit.objects.filter(ruler=dominion):
+        if unit.op > unit.dp:
+            op_from_offensive_units_at_home += unit.quantity_at_home * unit.op
+
+            if "always_dies_on_offense" not in unit.perk_dict:
+                offensive_units.append(unit)
+            elif "always_dies_on_offense" in unit.perk_dict and use_always_dies_units:
+                offensive_units.append(unit)
+
+    def op_dp_ratio(op, dp):
+        if dp == 0:
+            return 999999
+        else:
+            return op/dp
+
+    offensive_units = sorted(offensive_units, key=lambda x: op_dp_ratio(x.op, x.dp), reverse=True)
+
+    for other_dominion in Dominion.objects.all().order_by("-acres"):
+        
+        op_multiplier = dominion.offense_multiplier + get_grudge_bonus(dominion, other_dominion)
+        op_against_this_dominion = op_from_offensive_units_at_home * op_multiplier
+
+        if (other_dominion != dominion and 
+            other_dominion.is_oop and 
+            other_dominion.acres > 0.75 * dominion.acres and 
+            op_against_this_dominion > other_dominion.defense
+        ):
+            # {'16650': {'unit': <Unit: ERIKTEST -- Ironclops (20/12) -- x490>, 'quantity_sent': 10}}
+            units_sent_dict = {}
+            raw_op_sent = 0
+
+            for offensive_unit in offensive_units:
+                this_unit_dict = {"unit": offensive_unit, "quantity_sent": 0}
+                while raw_op_sent * op_multiplier <= other_dominion.defense and this_unit_dict["quantity_sent"] < offensive_unit.quantity_at_home:
+                    this_unit_dict["quantity_sent"] += 1
+                    raw_op_sent += offensive_unit.op
+                
+                if this_unit_dict["quantity_sent"] > 0:
+                    units_sent_dict[str(offensive_unit.id)] = this_unit_dict
+                    
+            do_invasion(units_sent_dict, my_dominion=dominion, target_dominion=other_dominion)
+            break
+
+
+def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominion):
+    round = Round.objects.first()
+    total_units_sent = 0
+
+    for unit_id, unit_dict in units_sent_dict.items():
+        unit = Unit.objects.get(id=unit_id)
+        unit.quantity_at_home -= unit_dict["quantity_sent"]
+        unit.save()
+
+    offense_sent = 0
+    
+    # Calculate OP
+    for unit_details_dict in units_sent_dict.values():
+        unit = unit_details_dict["unit"]
+        quantity_sent = unit_details_dict["quantity_sent"]
+        offense_sent += unit.op * quantity_sent
+
+    offense_sent *= (my_dominion.offense_multiplier + get_grudge_bonus(my_dominion, target_dominion))
+
+    # Determine victor
+    if offense_sent >= target_dominion.defense:
+        my_dominion.highest_raw_op_sent = max(offense_sent, my_dominion.highest_raw_op_sent)
+        my_dominion.save()
+        attacker_victory = True
+        target_dominion.complacency = 0
+        target_dominion.failed_defenses += 1
+        target_dominion.save()
+        my_dominion.successful_invasions += 1
+        my_dominion.determination = 0
+        my_dominion.save()
+
+        # It should be for everyone, but better safe than sorry
+        if "book_of_grudges" in target_dominion.perk_dict:
+            pages_to_gain = 50
+
+            for _ in range(round.ticks_passed):
+                pages_to_gain *= 1.002
+
+            if "grudge_page_multiplier" in target_dominion.perk_dict:
+                pages_to_gain *= target_dominion.perk_dict["grudge_page_multiplier"]
+            
+            pages_to_gain = int(pages_to_gain)
+
+            if str(my_dominion.id) in target_dominion.perk_dict["book_of_grudges"]:
+                target_dominion.perk_dict["book_of_grudges"][str(my_dominion.id)]["pages"] += pages_to_gain
+            else:
+                target_dominion.perk_dict["book_of_grudges"][str(my_dominion.id)] = {}
+                target_dominion.perk_dict["book_of_grudges"][str(my_dominion.id)]["pages"] = pages_to_gain
+                target_dominion.perk_dict["book_of_grudges"][str(my_dominion.id)]["animosity"] = 0
+
+        if "free_experiments" in target_dominion.perk_dict:
+            target_dominion.perk_dict["free_experiments"] += 5
+    else:
+        return 0, "Only successful invasions allowed (for now?)"
+
+    battle_units_sent_dict = {}
+    battle_units_defending_dict = {}
+
+    for unit_id, data in units_sent_dict.items():
+        battle_units_sent_dict[unit_id] = data["quantity_sent"]
+
+    for unit in Unit.objects.filter(ruler=target_dominion):
+        if unit.quantity_at_home > 0:
+            battle_units_defending_dict[str(unit.id)] = unit.quantity_at_home
+    
+    battle = Battle.objects.create(
+        attacker=my_dominion,
+        defender=target_dominion,
+        winner=my_dominion if attacker_victory else target_dominion,
+        op=offense_sent,
+        dp=target_dominion.defense,
+        units_sent_dict=battle_units_sent_dict,
+        units_defending_dict=battle_units_defending_dict,
+    )
+
+    event = Event.objects.create(
+        reference_id=battle.id, 
+        reference_type="battle", 
+        category="Invasion",
+    )
+    event.notified_dominions.add(my_dominion)
+    event.notified_dominions.add(target_dominion)
+    target_dominion.has_unread_events = True
+    target_dominion.save()
+
+    # Handle biclops patience
+    if "partner_patience" in my_dominion.perk_dict:
+        my_dominion.perk_dict["partner_patience"] = int(24 * my_dominion.acres / (target_dominion.acres))
+        my_dominion.save()
+
+    # Handle goblin Wreckin Ballers
+    if "Wreckin Ballers" in my_dominion.learned_discoveries:
+        for unit_details_dict in units_sent_dict.values():
+            unit = unit_details_dict["unit"]
+            quantity_sent = unit_details_dict["quantity_sent"]
+
+            # RIght now it assumes a value of 1. Please don't make me figure out how to handle something else.
+            if "random_allies_killed_on_invasion" in unit.perk_dict:
+                # When in doubt, they kill themselves, just to help avoid exceptions
+                victim = unit
+                victim_count = 0
+
+                for _ in range(quantity_sent):
+                    roll = randint(1, total_units_sent - victim_count)
+
+                    for victim_details_dict in units_sent_dict.values():
+                        if roll <= victim_details_dict["quantity_sent"]:
+                            victim = victim_details_dict
+                            break
+                        else:
+                            roll -= victim_details_dict["quantity_sent"]
+
+                    victim_count += 1
+                    victim["quantity_sent"] -= 1
+
+    # Determine casualty rates and handle victory triggers
+    if attacker_victory:
+        offensive_survival = 0.9
+        defensive_survival = 0.95
+        acres_conquered = get_acres_conquered(my_dominion, target_dominion)
+
+        target_dominion.acres -= acres_conquered
+        target_dominion.save()
+
+        my_dominion.incoming_acres_dict["12"] += acres_conquered * 2
+        my_dominion.save()
+        
+        battle.acres_conquered = acres_conquered
+        battle.save()
+
+        # Attackers erase their grudges for a dominion once they hit them
+        if "book_of_grudges" in my_dominion.perk_dict and str(target_dominion.id) in my_dominion.perk_dict["book_of_grudges"]:
+            if "grudge_page_keep_multiplier" in my_dominion.perk_dict:
+                pages = my_dominion.perk_dict["book_of_grudges"][str(target_dominion.id)]["pages"]
+                multiplier = my_dominion.perk_dict["grudge_page_keep_multiplier"]
+                my_dominion.perk_dict["book_of_grudges"][str(target_dominion.id)]["pages"] = max(1, int(pages * multiplier))
+                my_dominion.perk_dict["book_of_grudges"][str(target_dominion.id)]["animosity"] *= 0
+            else:
+                del my_dominion.perk_dict["book_of_grudges"][str(target_dominion.id)]
+
+            my_dominion.save()
+    else:
+        offensive_survival = 0.85
+
+        # If you're not close, then no casualties
+        if offense_sent < target_dominion.defense / 2:
+            defensive_survival = 1
+        else:
+            defensive_survival = 0.98
+
+    total_casualties = 0
+    defensive_casualties = 0
+    offensive_casualties = 0
+
+    # Apply offensive casualties and return the survivors home
+    for unit_details_dict in units_sent_dict.values():
+        unit = unit_details_dict["unit"]
+        quantity_sent = unit_details_dict["quantity_sent"]
+
+        if "immortal" in unit.perk_dict:
+            survivors = quantity_sent
+            deaths = 0
+        else:
+            survivors = math.ceil(quantity_sent * offensive_survival)
+            deaths = quantity_sent - survivors
+
+            if "casualty_multiplier" in unit.perk_dict:
+                bonus_death_multiplier = unit.perk_dict["casualty_multiplier"] - 1
+                survivors -= int(deaths * bonus_death_multiplier)
+
+        if "always_dies_on_offense" in unit.perk_dict:
+            survivors = 0
+        elif "faith_per_power_died" in my_dominion.perk_dict:
+            faith = Resource.objects.get(ruler=my_dominion, name="faith")
+            faith.quantity += deaths * unit.op * my_dominion.perk_dict["faith_per_power_died"]
+            faith.save()
+
+        casualties = quantity_sent - survivors
+
+        if "mana" not in unit.upkeep_dict and "mana" not in unit.cost_dict and "always_dies_on_offense" not in unit.perk_dict:
+            offensive_casualties += casualties
+
+        if "returns_in_ticks" in unit.perk_dict:
+            unit.returning_dict[str(unit.perk_dict["returns_in_ticks"])] += survivors
+        else:
+            unit.returning_dict["12"] += survivors
+        unit.save()
+
+    # Apply defensive casualties
+    for unit in Unit.objects.filter(ruler=target_dominion):
+        if "immortal" in unit.perk_dict or unit.dp == 0:
+            survivors = unit.quantity_at_home
+            deaths = 0
+        else:
+            deaths = int((1 - defensive_survival) * unit.quantity_at_home)
+
+            if "casualty_multiplier" in unit.perk_dict:
+                deaths = int(unit.perk_dict["casualty_multiplier"] * deaths)
+
+            survivors = unit.quantity_at_home - deaths
+
+        casualties = unit.quantity_at_home - survivors
+
+        if "faith_per_power_died" in target_dominion.perk_dict:
+            faith = Resource.objects.get(ruler=target_dominion, name="faith")
+            faith.quantity += deaths * unit.dp * target_dominion.perk_dict["faith_per_power_died"]
+            faith.save()
+
+        if "mana" not in unit.upkeep_dict and "mana" not in unit.cost_dict and "always_dies_on_offense" not in unit.perk_dict:
+            defensive_casualties += casualties
+
+        unit.quantity_at_home = survivors
+        unit.save()
+
+    total_casualties = offensive_casualties + defensive_casualties
+
+    # Handle martyrs
+    if target_dominion.faction_name == "blessed order":
+        faith = Resource.objects.get(ruler=target_dominion, name="faith")
+        martyrs_affordable = int(faith.quantity / target_dominion.perk_dict["martyr_cost"])
+        martyrs_gained = min(martyrs_affordable, defensive_casualties)
+        faith.quantity -= target_dominion.perk_dict["martyr_cost"] * martyrs_gained
+        faith.save()
+        martyrs = Unit.objects.get(ruler=target_dominion, name="Blessed Martyr")
+        martyrs.quantity_at_home += martyrs_gained
+        martyrs.save()
+
+    # Handle corpses
+    if attacker_victory and Resource.objects.filter(ruler=my_dominion, name="corpses").exists():
+        my_bodies = Resource.objects.get(ruler=my_dominion, name="corpses")
+        my_bodies.quantity += total_casualties
+        my_bodies.save()
+        battle.battle_report_notes.append(f"{my_dominion} gained {total_casualties} corpses.")
+        battle.save()
+    elif not attacker_victory and Resource.objects.filter(ruler=target_dominion, name="corpses").exists():
+        targets_bodies = Resource.objects.get(ruler=target_dominion, name="corpses")
+        targets_bodies.quantity += total_casualties
+        targets_bodies.save()
+        battle.battle_report_notes.append(f"{target_dominion} gained {total_casualties} corpses.")
+        battle.save()
+
+    # Handle goblin leadership change
+    if attacker_victory and "goblin_ruler" in target_dominion.perk_dict:
+        target_dominion.perk_dict["goblin_ruler"] = get_goblin_ruler()
+        target_dominion.perk_dict["rulers_favorite_resource"] = get_random_resource(target_dominion).name
+        target_dominion.save()
+
+    return battle.id, "-- Congratulations, your invasion didn't crash! --"
+    # messages.success(request, f"-- Congratulations, your invasion didn't crash! --")
+
+
+def cast_spell(spell: Spell, target=None):
     dominion = spell.ruler
     mana = Resource.objects.get(ruler=dominion, name="mana")
 
     if mana.quantity < spell.mana_cost:
         return
+    elif spell.cooldown_remaining > 0:
+        return
     
     mana.quantity -= spell.mana_cost
     mana.save()
 
+    spell.cooldown_remaining = spell.cooldown
+    spell.save()
+
     match spell.name:
+        case "Bestow Biclopean Ambition":
+            if target:
+                target.perk_dict["biclopean_ambition_ticks_remaining"] = 11
+                target.save()
         case "Power Overwhelming":
             for unit in Unit.objects.filter(ruler=dominion):
                 if unit.is_trainable and unit.op > unit.dp and "always_dies_on_offense" not in unit.perk_dict:
                     try:
-                        overwhelming_unit = Unit.objects.get(ruler=dominion, name=f"Overwhelming {unit.name}")
+                        overwhelming_unit = Unit.objects.get(ruler=dominion, name=f"Overwhelming {unit.name}", op=(2 * unit.op), dp=unit.dp)
                     except:
                         overwhelming_unit = Unit.objects.get(id=unit.id)  # If I set it to 'unit' then it fucks up
                         overwhelming_unit.pk = None

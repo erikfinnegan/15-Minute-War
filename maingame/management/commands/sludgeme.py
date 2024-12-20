@@ -59,6 +59,7 @@ class Command(BaseCommand):
         testdominion = initialize_dominion(user=testuser, faction=Faction.objects.get(name=my_faction_name), display_name="ERIKTEST")
         testdominion.protection_ticks_remaining = 0
         testdominion.discovery_points = 5000
+        testdominion.perk_dict["free_experiments"] = 1000
         testdominion.save()
 
         buildings_each = int(100 / Building.objects.filter(ruler=testdominion).count())

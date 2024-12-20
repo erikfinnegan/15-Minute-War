@@ -1,0 +1,25 @@
+{% load humanize %}
+
+<div class="current-incoming w-6 h-8 u-center">
+    <div class="u-center normal">
+        <span class="u-center">{{ normal }}</span>
+    </div>
+    
+    <div class="u-center mouseover u-absolute">
+        <span class="u-center">{{ mouseover }}</span>
+    </div>
+</div>
+
+<style>
+    .current-incoming:hover div.normal span {
+        display: none;
+    }
+
+    .current-incoming:hover div.mouseover span {
+        display: block;
+    }
+
+    .mouseover span {
+        display: none;
+    }
+</style>

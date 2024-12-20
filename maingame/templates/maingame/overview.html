@@ -26,18 +26,32 @@
         </details>
     </div>
     <div>
+        {% if dominion.faction_name == "goblin" %}
+        <h6>All hail {{ dominion.perk_dict.goblin_ruler }} who loves {{ dominion.perk_dict.rulers_favorite_resource }} and rules over</h6>
+        {% endif %}
+        
         <h6>{{ dominion.name }}</h6>
         <h6>{{ dominion.acres }} acres</h6>
-        {% if dominion == active_dominion or round.has_started and dominion.protection_ticks_remaining == 0 %}
+        {% if dominion == active_dominion or round.has_started and dominion.is_oop %}
         <h6>{{ dominion.defense|intcomma }} defense</h6>
+        <h6>({{ dominion.raw_defense|intcomma }} defense without complacency)</h6>
         {% else %}
         <h6>Defense hidden while under magical protection</h6>
         {% endif %}
-        <h6>{{ dominion.successful_invasions }} successful invasions, {{ dominion.failed_defenses }} failed defenses
+        <h6>{{ dominion.successful_invasions }} successful invasions, {{ dominion.failed_defenses }} failed defenses</h6>
+
+        {% if dominion.faction_name == "biclops" and dominion.perk_dict.partner_patience > 0 %}
+        <h6>Ruled by Right {{ dominion.rulers_display_name }} and Left {{ dominion.rulers_display_name }}</h6>
+        <h6>(one of whom will only be patient for {{ dominion.perk_dict.partner_patience }} more ticks)</h6>
+        {% elif dominion.faction_name == "biclops" and dominion.perk_dict.partner_patience == 0 %}
+        <h6>Ruled by Right {{ dominion.rulers_display_name }} and Left {{ dominion.rulers_display_name }}</h6>
+        <h6>(one of whom has lost patience with the other)</h6>
+        {% else %}
         <h6>Ruled by {{ dominion.rulers_display_name }}</h6>
+        {% endif %}
     </div>
 
-    {% if dominion == active_dominion or round.has_started and dominion.protection_ticks_remaining == 0 %}
+    {% if dominion == active_dominion or round.has_started and dominion.is_oop %}
     <div>
         <table class="table striped small max-w-sm">
             <thead>
@@ -215,7 +229,7 @@
     </div>
 
     {% comment %} Units in training {% endcomment %}
-    {% if dominion == active_dominion or round.has_started and dominion.protection_ticks_remaining == 0 %}
+    {% if dominion == active_dominion or round.has_started and dominion.is_oop %}
     <div class="u-flex u-flex-column max-w-md card card_colors p-1">
         <div>
             <h6 class="u-center">Units in training</h6>
