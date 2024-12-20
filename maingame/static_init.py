@@ -793,7 +793,7 @@ def initialize_dwarf_discoveries():
 
     Discovery.objects.create(
         name="Always Be Digging",
-        description="All dwarves love digging, but some truly can't help it. Once the round starts, expand your dominion vertically by one acre every hour.",
+        description="All dwarves love digging, but some truly can't help it. Once the round starts, expand your dominion vertically by one acre every hour for every 400 acres you have.",
         required_faction_name="dwarf",
     )
 

@@ -521,7 +521,7 @@ class Dominion(models.Model):
             self.perk_dict["free_experiments"] += 1
 
         if "Always Be Digging" in self.learned_discoveries and Round.objects.first().ticks_passed % 4 == 0:
-            self.acres += 1
+            self.acres += int(self.acres / 400)
 
         if "partner_patience" in self.perk_dict and self.is_oop:
             self.perk_dict["partner_patience"] -= 1
