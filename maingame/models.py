@@ -897,7 +897,10 @@ class Round(models.Model):
     
     @property
     def percent_chance_for_round_end(self):
-        return 1
+        if self.ticks_passed > self.ticks_to_end:
+            return 1
+        else:
+            return 0
         # ticks_past_end = self.ticks_passed - self.ticks_to_end
 
         # if ticks_past_end < 1:

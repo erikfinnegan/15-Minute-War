@@ -595,6 +595,7 @@ def submit_spell(request, spell_id):
     target_dominion = None
     spell = Spell.objects.get(id=spell_id)
     mana = Resource.objects.get(ruler=dominion, name="mana")
+    round = Round.objects.first()
 
     try:
         dominion_id = request.POST["target_dominion_id"]

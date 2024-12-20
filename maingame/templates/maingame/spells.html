@@ -31,7 +31,7 @@
             {% csrf_token %}
             {% if spell.is_targeted %}
                 <div class="u-flex u-flex-row u-center py-2">
-                    <select class="max-w-xs" name="target_dominion_id" oninput="updateTargetDefense(); updateOffenseToSend();" {% if mana_quantity < spell.mana_cost or spell.cooldown_remaining > 0 %}disabled{% endif %}>
+                    <select class="max-w-xs" name="target_dominion_id" oninput="updateTargetDefense(); updateOffenseToSend();" {% if mana_quantity < spell.mana_cost or spell.cooldown_remaining > 0 or not active_round.has_started %}disabled{% endif %}>
                         <option value="0">Select a target</option>
                         {% for dominion in dominions %}
                         {% if dominion != active_dominion and dominion.is_oop and not dominion.is_abandoned %}
@@ -42,7 +42,7 @@
                 </div>
             {% endif %}
 
-            <button class="px-1 py-0 h-4 header_colors u-center" type="submit" {% if mana_quantity < spell.mana_cost or spell.cooldown_remaining > 0 %}disabled{% endif %}>
+            <button class="px-1 py-0 h-4 header_colors u-center" type="submit" {% if mana_quantity < spell.mana_cost or spell.cooldown_remaining > 0 or not active_round.has_started and spell.is_targeted %}disabled{% endif %}>
                 <span class="font-bold">Cast: {{ spell.mana_cost|intcomma }} mana</span>
             </button>
         </form>
