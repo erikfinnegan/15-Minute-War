@@ -395,6 +395,8 @@ def unlock_discovery(dominion: Dominion, discovery_name):
         case "Miners":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Miner"))
             dominion.perk_dict["mining_depth"] = 0
+        case "Doom Prospectors":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Doom Prospector"))
         case "Mithril":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Steelbreaker"))
             give_dominion_building(dominion, Building.objects.get(ruler=None, name="mithril mine"))
