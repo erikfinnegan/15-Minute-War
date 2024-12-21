@@ -119,7 +119,7 @@
         </a>
         {% endif %}
 
-        {% if active_dominion.ticks_til_training_time != 12 and active_user_settings.tutorial_step >= 5 %}
+        {% if active_dominion.ticks_til_training_time != 12 and active_dominion.protection_ticks_remaining > 12 and active_user_settings.tutorial_step >= 5 %}
         <a href="{% url 'protection_tick' active_dominion.ticks_til_training_time %}">
             <button class="h-4 py-0">+{{ active_dominion.ticks_til_training_time }} ticks</button>
         </a>
