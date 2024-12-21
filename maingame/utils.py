@@ -563,7 +563,7 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
         unit.save()
 
     offense_sent = 0
-    
+
     # Calculate OP
     for unit_details_dict in units_sent_dict.values():
         unit = unit_details_dict["unit"]
@@ -709,7 +709,8 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
 
     # Apply offensive casualties and return the survivors home
     for unit_details_dict in units_sent_dict.values():
-        unit = unit_details_dict["unit"]
+        # unit = unit_details_dict["unit"]
+        unit = Unit.objects.get(ruler=my_dominion, name=unit_details_dict["unit"].name)
         quantity_sent = unit_details_dict["quantity_sent"]
 
         if "immortal" in unit.perk_dict:
@@ -801,7 +802,6 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
         target_dominion.save()
 
     return battle.id, "-- Congratulations, your invasion didn't crash! --"
-    # messages.success(request, f"-- Congratulations, your invasion didn't crash! --")
 
 
 def cast_spell(spell: Spell, target=None):
