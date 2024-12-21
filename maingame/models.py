@@ -176,7 +176,7 @@ class Dominion(models.Model):
 
     @property
     def ticks_til_training_time(self):
-        return self.protection_ticks_remaining - 12
+        return max(0, self.protection_ticks_remaining - 12)
     
     @property
     def resources(self):
