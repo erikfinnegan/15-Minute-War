@@ -533,6 +533,7 @@ class Dominion(models.Model):
                 del self.perk_dict["biclopean_ambition_ticks_remaining"]
                 
     def do_tick(self):
+        do_tick_units(self)
         self.do_resource_production()
         self.advance_land_returning()
         self.do_perks()
@@ -550,8 +551,6 @@ class Dominion(models.Model):
         if self.is_oop:
             self.complacency += 1
             self.determination += 1
-
-        do_tick_units(self)
 
         self.save()
 
