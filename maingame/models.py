@@ -520,7 +520,7 @@ class Dominion(models.Model):
         if "Inspiration" in self.learned_discoveries and Round.objects.first().ticks_passed % 4 == 0 and "free_experiments" in self.perk_dict:
             self.perk_dict["free_experiments"] += 1
 
-        if "Always Be Digging" in self.learned_discoveries and Round.objects.first().ticks_passed % 4 == 0:
+        if "Always Be Digging" in self.learned_discoveries and Round.objects.first().ticks_passed % 4 == 0 and Round.objects.first().ticks_passed > 0:
             self.acres += int(self.acres / 400)
 
         if "partner_patience" in self.perk_dict and self.is_oop:
