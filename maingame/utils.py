@@ -559,6 +559,7 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
 
     for unit_id, unit_dict in units_sent_dict.items():
         unit = Unit.objects.get(id=unit_id)
+        total_units_sent += unit_dict["quantity_sent"]
         unit.quantity_at_home -= unit_dict["quantity_sent"]
         unit.save()
 
