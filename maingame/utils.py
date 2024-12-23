@@ -526,15 +526,17 @@ def do_forced_attack(dominion: Dominion, use_always_dies_units=False):
 
     offensive_units = sorted(offensive_units, key=lambda x: op_dp_ratio(x.op, x.dp), reverse=True)
 
+    hasnt_attacked_yet = True
+
     for other_dominion in Dominion.objects.all().order_by("-acres"):
-        
         op_multiplier = dominion.offense_multiplier + get_grudge_bonus(dominion, other_dominion)
         op_against_this_dominion = op_from_offensive_units_at_home * op_multiplier
 
         if (other_dominion != dominion and 
             other_dominion.is_oop and 
             other_dominion.acres > 0.75 * dominion.acres and 
-            op_against_this_dominion > other_dominion.defense
+            op_against_this_dominion > other_dominion.defense and
+            hasnt_attacked_yet
         ):
             # {'16650': {'unit': <Unit: ERIKTEST -- Ironclops (20/12) -- x490>, 'quantity_sent': 10}}
             units_sent_dict = {}
@@ -550,7 +552,7 @@ def do_forced_attack(dominion: Dominion, use_always_dies_units=False):
                     units_sent_dict[str(offensive_unit.id)] = this_unit_dict
                     
             do_invasion(units_sent_dict, my_dominion=dominion, target_dominion=other_dominion)
-            break
+            hasnt_attacked_yet = False
 
 
 def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominion):
