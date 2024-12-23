@@ -1950,10 +1950,10 @@ def submit_invasion(request):
 
     if target_dominion.protection_ticks_remaining > 0 or my_dominion.protection_ticks_remaining > 0 or not round.has_started or round.has_ended or target_dominion.is_abandoned:
         messages.error(request, f"Illegal invasion")
-        return redirect("overview", dominion_id=dominion_id)
+        return redirect("world")
     elif int(request.POST["dpLeftHidden"]) < my_dominion.acres * 5:
         messages.error(request, f"You must leave at least {my_dominion.acres * 5} defense at home")
-        return redirect("world", dominion_id=dominion_id)
+        return redirect("world")
 
     total_units_sent = 0
     units_sent_dict = {}
