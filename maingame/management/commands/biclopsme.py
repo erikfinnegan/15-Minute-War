@@ -46,6 +46,10 @@ class Command(BaseCommand):
                     user_settings.display_name = user.username
 
                 user_settings.save()
+
+        for unit in Unit.objects.all():
+            unit.quantity_at_home = 100
+            unit.save()
         
         invade_me_test = Dominion.objects.get(name="p-nofaction")
         invade_me_test.name = "Invade me"

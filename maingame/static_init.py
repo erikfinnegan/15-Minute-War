@@ -468,6 +468,7 @@ def initialize_blessed_order_units():
         upkeep_dict={
             "mana": 0.3,
         },
+        perk_dict={"casualty_multiplier": 0.5},
     )
 
     Unit.objects.create(
