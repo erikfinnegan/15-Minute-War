@@ -577,7 +577,7 @@ def initialize_goblin_units():
             "gold": 1,
             "food": 0.3,
         },
-        perk_dict={"random_allies_killed_on_invasion": 1},
+        perk_dict={"random_allies_killed_on_invasion": 0.5},
     )
 
     Unit.objects.create(

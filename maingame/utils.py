@@ -13,8 +13,9 @@ from django.db.models import Q
 def get_random_resource(dominion: Dominion):
     resources = []
 
-    for resource in Resource.objects.filter(~Q(name="gold"), ruler=dominion):
-        resources.append(resource)
+    for resource in Resource.objects.filter(ruler=dominion):
+        if resource.name not in ["gold", "corpses"]:
+            resources.append(resource)
 
     return choice(resources)
 
@@ -652,13 +653,13 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
             unit = unit_details_dict["unit"]
             quantity_sent = unit_details_dict["quantity_sent"]
 
-            # RIght now it assumes a value of 1. Please don't make me figure out how to handle something else.
+            # RIght now it assumes a value of 0.5. Please don't make me figure out how to handle something greater than 1.
             if "random_allies_killed_on_invasion" in unit.perk_dict:
                 # When in doubt, they kill themselves, just to help avoid exceptions
                 victim = unit
                 victim_count = 0
 
-                for _ in range(quantity_sent):
+                for _ in range(int(quantity_sent / 2)):
                     roll = randint(1, total_units_sent - victim_count)
 
                     for victim_details_dict in units_sent_dict.values():
