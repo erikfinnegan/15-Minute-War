@@ -605,7 +605,7 @@ class Building(models.Model):
 
     def __str__(self):
         if self.ruler:
-            return f"{self.ruler}'s {self.name}"
+            return f"{self.ruler}'s {self.name} - upg x{self.upgrades}"
         else:
             return f"🟩Base --- {self.name}"
         
