@@ -2,12 +2,9 @@ import math
 from random import randint, choice
 import random
 
-from django.urls import reverse_lazy
-
 from maingame.formatters import get_goblin_ruler
 from maingame.models import Battle, Unit, Dominion, Discovery, Building, Event, Round, Faction, Resource, Spell, UserSettings
 from django.contrib.auth.models import User
-from django.db.models import Q
 
 
 def get_random_resource(dominion: Dominion):
@@ -677,7 +674,6 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
         offensive_survival = 0.9
         defensive_survival = 0.95
         acres_conquered = get_acres_conquered(my_dominion, target_dominion)
-
         target_dominion.acres -= acres_conquered
         target_dominion.save()
 
