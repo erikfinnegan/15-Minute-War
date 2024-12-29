@@ -25,23 +25,29 @@ class Command(BaseCommand):
         # print(pages)
 
 
-        # total = 0
-        # shortest = 99999999999999999
-        # longest = 0
-        # attempts = 100
+        total = 0
+        shortest = 99999999999999999
+        longest = 0
+        passed_target = 0
+        attempts = 10000
+        target = 700
 
-        # for _ in range(attempts):
-        #     keep_going = True
-        #     ticks_it_lasted = 0
+        for _ in range(attempts):
+            keep_going = True
+            ticks_it_lasted = 0
 
-        #     while keep_going:
-        #         ticks_it_lasted += 1
-        #         keep_going = randint(1, 100) <= 99
+            while keep_going:
+                ticks_it_lasted += 1
+                keep_going = randint(1, 100) <= 99
 
-        #     total += ticks_it_lasted
-        #     longest = max(longest, ticks_it_lasted)
-        #     shortest = min(shortest, ticks_it_lasted)
+            total += ticks_it_lasted
+            longest = max(longest, ticks_it_lasted)
+            shortest = min(shortest, ticks_it_lasted)
 
-        # print("average", total/attempts)
-        # print("shortest", shortest)
-        # print("longest", longest)
+            if ticks_it_lasted >= target:
+                passed_target += 1
+
+        print("average", total/attempts)
+        print("shortest", shortest)
+        print("longest", longest)
+        print("pct passed target", passed_target/attempts)

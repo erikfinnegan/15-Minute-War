@@ -619,7 +619,7 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
         battle_units_sent_dict[unit_id] = data["quantity_sent"]
 
     for unit in Unit.objects.filter(ruler=target_dominion):
-        if unit.quantity_at_home > 0:
+        if unit.quantity_at_home > 0 and unit.dp > 0:
             battle_units_defending_dict[str(unit.id)] = unit.quantity_at_home
     
     battle = Battle.objects.create(
