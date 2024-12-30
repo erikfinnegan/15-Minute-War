@@ -112,6 +112,14 @@
         </form>
     </div>
 
+    <div class="u-flex u-flex-column mt-2 u-none-md">
+        {% for unit in units %}
+        {% if unit.has_perks %}
+        <span><b>{{ unit.name }}:</b> {{ unit.perk_text }}</span>
+        {% endif %}
+        {% endfor %}
+    </div>
+
     <div class="u-none">
         <form action="{% url 'submit_training' %}" method="post" class="max-w-xs">
             {% csrf_token %}

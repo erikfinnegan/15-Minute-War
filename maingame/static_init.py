@@ -206,7 +206,7 @@ def initialize_generic_units():
         op=0,
         dp=30,
         cost_dict={
-            "ore": 14000,
+            "ore": 15000,
         },
     )
 
@@ -221,7 +221,7 @@ def initialize_generic_units():
         upkeep_dict={
             "mana": 0.3,
         },
-        perk_dict={"casualty_multiplier": 0.5},
+        perk_dict={"casualty_multiplier": 0.75},
     )
 
     Unit.objects.create(
@@ -249,11 +249,11 @@ def initialize_generic_units():
     Unit.objects.create(
         name="Gingerbrute Man",
         op=6,
-        dp=2,
+        dp=5,
         cost_dict={
             "food": 3600,
         },
-        perk_dict={"returns_in_ticks": 4, "casualty_multiplier": 2}
+        perk_dict={"returns_in_ticks": 4, "casualty_multiplier": 1.5}
     )
 
 

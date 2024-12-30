@@ -720,6 +720,10 @@ class Unit(models.Model):
                 perk_text += f"Takes three times as many casualties. "
             elif multiplier == 0.5:
                 perk_text += f"Takes half as many casualties. "
+            elif multiplier == 0.75:
+                perk_text += "Takes 25% fewer casualties. "
+            elif multiplier == 1.5:
+                perk_text += "Takes 50% more casualties. "
             else:
                 perk_text += f"Takes {multiplier}x as many casualties. "
 

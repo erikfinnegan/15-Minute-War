@@ -28,11 +28,12 @@ class Command(BaseCommand):
 
         for user in User.objects.all():
             if user.username != "test" and user.username != "dontdominionme":
-                dominion = initialize_dominion(user=user, faction=Faction.objects.get(name="dwarf"), display_name=f"p-{user.username}")
+                dominion = initialize_dominion(user=user, faction=Faction.objects.get(name="biclops"), display_name=f"p-{user.username}")
                 dominion.protection_ticks_remaining = 0
+                dominion.perk_dict["partner_attack_on_sight"] = True
                 dominion.save()
                 farm = Building.objects.get(ruler=dominion, name="farm")
-                farm.quantity = 10
+                farm.quantity = 50
                 farm.save()
 
             if not UserSettings.objects.filter(associated_user=user).exists():
@@ -48,7 +49,7 @@ class Command(BaseCommand):
                 user_settings.save()
 
         for unit in Unit.objects.all():
-            unit.quantity_at_home = 100
+            unit.quantity_at_home = 1000
             unit.save()
         
         invade_me_test = Dominion.objects.get(name="p-nofaction")
@@ -64,8 +65,9 @@ class Command(BaseCommand):
         testuser = User.objects.get(username="test")
         testdominion = initialize_dominion(user=testuser, faction=Faction.objects.get(name=my_faction_name), display_name="ERIKTEST")
         testdominion.protection_ticks_remaining = 0
-        testdominion.discovery_points = 5000
+        testdominion.discovery_points = 1000
         testdominion.perk_dict["partner_patience"] = 1
+        testdominion.perk_dict["partner_attack_on_sight"] = True
         testdominion.save()
 
         buildings_each = int(100 / Building.objects.filter(ruler=testdominion).count())
@@ -74,7 +76,7 @@ class Command(BaseCommand):
             building.save()
 
         for unit in Unit.objects.filter(ruler=testdominion):
-            unit.quantity_at_home = 500
+            unit.quantity_at_home = 5000
             unit.save()
 
         for resource in Resource.objects.filter(ruler=testdominion):
@@ -83,7 +85,8 @@ class Command(BaseCommand):
 
         admindominion = Dominion.objects.get(name="p-admin")
         admindominion.protection_ticks_remaining = 0
-        admindominion.discovery_points = 5000
+        admindominion.discovery_points = 9000
+        admindominion.perk_dict["partner_attack_on_sight"] = True
         admindominion.save()
 
         for unit in Unit.objects.filter(ruler=admindominion):

@@ -30,10 +30,11 @@ def do_global_tick():
 
         if Round.objects.first().allow_ticks:
             for dominion in Dominion.objects.all():
-                # print(f"Starting {dominion.name}", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
                 if dominion.is_oop:
                     dominion.do_tick()
 
+            # This has to be a separate loop or else multiple auto attacks against the same target get fucked up
+            for dominion in Dominion.objects.all():
                 if dominion.faction_name == "biclops": 
                     do_biclops_partner_attack(dominion)
 
