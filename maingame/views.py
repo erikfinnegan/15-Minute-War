@@ -131,8 +131,52 @@ def discoveries(request):
         else:
             depth = f"{cm} centimeters"
 
+    future_discoveries = []
+
+    for discovery in Discovery.objects.all():
+        if discovery.name not in dominion.available_discoveries and discovery.name not in dominion.learned_discoveries:
+            if not discovery.required_faction_name or discovery.required_faction_name == dominion.faction_name:
+                and_requirements_met = True
+                or_requirements_met = False
+                and_requirement_left = ""
+                or_requirements_left = []
+                
+                if discovery.required_discoveries:                    
+                    for requirement_name in discovery.required_discoveries:
+                        if requirement_name not in dominion.learned_discoveries and requirement_name not in dominion.available_discoveries:
+                            and_requirements_met = False
+                        elif requirement_name in dominion.available_discoveries:
+                            and_requirement_left = requirement_name
+
+                if discovery.required_discoveries_or:
+                    for requirement_name in discovery.required_discoveries_or:
+                        if requirement_name in dominion.learned_discoveries:
+                            or_requirements_met = True
+                        elif requirement_name in dominion.available_discoveries:
+                            or_requirements_met = True
+                            or_requirements_left.append(requirement_name)
+                            
+                else:
+                    or_requirements_met = True
+
+                if and_requirements_met and or_requirements_met:
+                    requirement_string = and_requirement_left
+
+                    if len(or_requirements_left) == 1:
+                        requirement_string = or_requirements_left[0]
+                    elif len(or_requirements_left) > 1:
+                        requirement_string = f"one of {', '.join(or_requirements_left)}"
+
+                    future_discoveries.append(
+                        {
+                            "discovery": discovery,
+                            "requirement_string": requirement_string,
+                        }
+                    )
+
     context = {
         "available_discoveries": available_discoveries,
+        "future_discoveries": future_discoveries,
         "depth": depth,
     }
     

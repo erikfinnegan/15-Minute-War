@@ -67,50 +67,59 @@
     <div class="u-flex u-flex-wrap u-gap-2">
         {% for discovery in available_discoveries %}
         {% if active_user_settings.tutorial_step >= 9 or discovery.name == "Palisades" or discovery.name == "Battering Rams" or discovery.name == "Prosperity" %}
+
         <div class="card card_colors p-1 w-100p max-w-xs">
             <h6>{{ discovery.name }}</h6>
-            <p>{{ discovery.description }}</p>
+            <p class="text-xs">{{ discovery.description }}</p>
             {% if discovery.associated_unit_name %}
         
-            <table class="table striped card_colors">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Pwr</th>
-                        <th class="w-16">Cost</th>
-                        <th>Upkeep</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <div class="modal card_colors w-32 h-24 u-center u-align-middle my-auto" id="test-modal">
-                        <div class="modal-header u-flex u-flex-column u-justify-space-between">
-                            <p>{{ discovery.associated_unit.perk_text }}</p>
-                        </div>
-                    </div>
-                    <tr>
-                        {% include "maingame/unit_name_row.html" with unit=discovery.associated_unit %}
-                        <td class="u-align-middle">{{ discovery.associated_unit.op|intcomma }} / {{ discovery.associated_unit.dp|intcomma }}</td>
-                        <td class="u-align-middle">
-                            <div class="u-flex u-flex-column">
-                                {% for resource, amount in discovery.associated_unit.cost_dict.items %}
-                                <span>{{ amount|intcomma }} {{ resource|depluralize:amount }}</span>
-                                {% endfor %}
-                            </div>
-                        </td>
-                        <td class="u-align-middle">
-                            <div class="u-flex u-flex-column">
-                                {% for resource, amount in discovery.associated_unit.upkeep_dict.items %}
-                                <span>{{ amount|intcomma }} {{ resource|depluralize:amount }}</span>
-                                {% endfor %}
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <details class="px-1 py-0 accordion u-none-md">
+                <summary class="accordion__summary text-xs">Unit info</summary>
+                {% include "maingame/discovery_unit_card.html" with unit=discovery.associated_unit %}
+                {% if discovery.associated_unit.has_perks %}
+                <span class="u-none-md">{{ discovery.associated_unit.perk_text }}</span>
+                {% endif %}
+            </details>
+
+            <div class="u-none u-block-md">
+                {% include "maingame/discovery_unit_card.html" with unit=discovery.associated_unit %}
+                {% if discovery.associated_unit.has_perks %}
+                <span class="u-none-md">{{ discovery.associated_unit.perk_text }}</span>
+                {% endif %}
+            </div>
 
             {% endif %}
         </div>
         {% endif %}
+        {% endfor %}
+
+
+
+
+
+        {% for discovery_dict in future_discoveries %}
+        <div class="card base_colors p-1 w-100p max-w-xs">
+            <h6>{{ discovery_dict.discovery.name }} (requires {{ discovery_dict.requirement_string }})</h6>
+            <p class="text-xs">{{ discovery_dict.discovery.description }}</p>
+
+            {% if discovery_dict.discovery.associated_unit_name %}
+            <details class="px-1 py-0 accordion u-none-md">
+                <summary class="accordion__summary text-xs">Unit info</summary>
+                {% include "maingame/discovery_unit_card.html" with unit=discovery_dict.discovery.associated_unit %}
+                {% if discovery_dict.discovery.associated_unit.has_perks %}
+                <span class="u-none-md">{{ discovery_dict.discovery.associated_unit.perk_text }}</span>
+                {% endif %}
+            </details>
+
+            <div class="u-none u-block-md">
+                {% include "maingame/discovery_unit_card.html" with unit=discovery_dict.discovery.associated_unit %}
+                {% if discovery_dict.discovery.associated_unit.has_perks %}
+                <span class="u-none-md">{{ discovery_dict.discovery.associated_unit.perk_text }}</span>
+                {% endif %}
+            </div>
+            {% endif %}
+
+        </div>
         {% endfor %}
     </div>
 </div>
