@@ -36,7 +36,7 @@
         </p>
         {% endif %}
     </details>
-    <div class="">
+    {% comment %} <div class="">
         <table class="table striped max-w-md">
             <thead>
                 <tr>
@@ -57,9 +57,9 @@
                 {% endfor %}
             </tbody>
         </table>
-    </div>
+    </div> {% endcomment %}
 
-    <div class="u-none">
+    <div class="">
         <form action="{% url 'trade' %}" method="post">
             {% csrf_token %}
             <div class="u-flex u-flex-column u-gap-2">
@@ -146,7 +146,7 @@
             inputResourceName = resourceInfoDict[inputResource].name
             outputResourceName = resourceInfoDict[outputResource].name
             const credit = tradePrices[inputResourceName] * amount
-            const outputAmount = Math.floor((credit / tradePrices[outputResourceName]) * 0.9)
+            const outputAmount = Math.floor((credit / tradePrices[outputResourceName]) * 0.5)
             document.getElementById("boughtResourceAmount").innerHTML = outputAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
 
@@ -159,7 +159,7 @@
             document.getElementById("soldResource").innerHTML = inputResource
             document.getElementById("boughtResource").innerHTML = outputResource
             const inputPrice = tradePrices[inputResource]
-            const outputPrice = tradePrices[outputResource] / 0.9
+            const outputPrice = tradePrices[outputResource] / 0.5
 
             decToFrac = dec =>
                 [...Array(100).keys()].flatMap(

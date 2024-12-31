@@ -61,3 +61,12 @@ def get_goblin_title():
 
 def get_goblin_ruler():
     return f"{get_goblin_title()} {get_goblin_name()}"
+
+
+def shorten_number(num):
+    if num < 100000: # 100k
+        return f"{num:2,}"
+    elif num < 1000000: # 1m
+        return f"{int(num/1000)}k"
+    else:
+        return f"{round(num/1000000, 2)}m"

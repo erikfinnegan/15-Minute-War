@@ -6,6 +6,9 @@
 {% block content %}
 <div>
     <h6>{{ battle.event_text }}</h6>
+    {% if battle.stolen_artifact %}
+    <h6>{{ battle.attacker }} stole the {{ battle.stolen_artifact.name }}!</h6>
+    {% endif %}
 
     <div class="u-flex u-flex-row u-gap-4">
         <div class="u-flex u-flex-column">

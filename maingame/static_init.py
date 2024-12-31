@@ -1,4 +1,4 @@
-from maingame.models import Faction, Deity, Dominion, Building, Unit, Discovery, Round, Battle, Event, Resource, Spell, UserSettings
+from maingame.models import Faction, Deity, Dominion, Building, Unit, Discovery, Round, Battle, Event, Resource, Spell, Artifact
 from maingame.utils import update_trade_prices
 
 
@@ -243,6 +243,7 @@ def initialize_generic_units():
         cost_dict={
             "mana": 750,
         },
+        is_trainable=False,
         perk_dict={"always_dies_on_offense": True}
     )
 
@@ -254,6 +255,16 @@ def initialize_generic_units():
             "food": 3600,
         },
         perk_dict={"returns_in_ticks": 4, "casualty_multiplier": 1.5}
+    )
+
+    Unit.objects.create(
+        name="Imp",
+        op=3,
+        dp=2,
+        upkeep_dict={
+            "mana": 1,
+        },
+        is_trainable=False,
     )
 
 
@@ -959,9 +970,56 @@ def initialize_discoveries():
     initialize_biclops_discoveries()
 
 
+def initialize_artifacts():
+    Artifact.objects.create(
+        name="The Eternal Egg of the Flame Princess",
+        description="Generates one fireball per tick for every 500 acres of the dominion that possesses it."
+    )
+
+    Artifact.objects.create(
+        name="The Infernal Contract",
+        description="Generates one imp per tick for every 500 acres of the dominion that possesses it."
+    )
+
+    Artifact.objects.create(
+        name="The Hoarder's Boon",
+        description="Generates an amount of your lowest resource as if you had 5% land dedicated to the building that generates it."
+    )
+
+    Artifact.objects.create(
+        name="The Stable of the North Wind",
+        description="Your units and land return in 10 ticks, unless they'd return faster."
+    )
+
+    Artifact.objects.create(
+        name="Death's True Name",
+        description="You suffer no casualties on defense."
+    )
+
+    Artifact.objects.create(
+        name="A Ladder Made Entirely of Top Rungs",
+        description="Each tick you gain one page of grudges against the largest player (unless it's you)."
+    )
+
+    Artifact.objects.create(
+        name="The Barbarian's Horn",
+        description="Your complacency gives you an equivalent bonus to offense."
+    )
+
+    Artifact.objects.create(
+        name="The Three-Faced Coin",
+        description="Your gold gains 0.8% interest per tick."
+    )
+
+    Artifact.objects.create(
+        name="The Cause of Nine Deaths",
+        description="You gain discoveries 25% faster."
+    )
+
+
 def initialize_trade_prices():
     round = Round.objects.first()
-    round.resource_bank_dict["gold"] = 0
+    # round.resource_bank_dict["gold"] = 0
 
     for building in Building.objects.all():
         if building.amount_produced > 0 and building.resource_produced_name not in ["corpses", "mithril", "faith"]:
@@ -995,8 +1053,10 @@ def initialize_game_pieces():
     Unit.objects.all().delete()
     Spell.objects.all().delete()
     Faction.objects.all().delete()
+    Artifact.objects.all().delete()
     Dominion.objects.all().delete()
     Deity.objects.all().delete()
+    
     Round.objects.create()
 
     print()
@@ -1020,4 +1080,5 @@ def initialize_game_pieces():
     initialize_units()
     initialize_spells()
     initialize_trade_prices()
+    initialize_artifacts()
     update_trade_prices()

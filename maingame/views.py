@@ -13,7 +13,7 @@ from django.db.models import Q
 from maingame.formatters import create_or_add_to_key, get_goblin_ruler, get_sludgeling_name
 from maingame.models import Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings, Theme
 from maingame.tick_processors import do_global_tick
-from maingame.utils import abandon_dominion, delete_dominion, do_invasion, get_acres_conquered, get_grudge_bonus, get_random_resource, initialize_dominion, round_x_to_nearest_y, unlock_discovery, cast_spell, update_available_discoveries
+from maingame.utils import abandon_dominion, delete_dominion, do_invasion, do_quest, get_acres_conquered, get_grudge_bonus, get_random_resource, initialize_dominion, round_x_to_nearest_y, unlock_discovery, cast_spell, update_available_discoveries
 
 
 def index(request):
@@ -432,13 +432,13 @@ def resources(request):
         if not resource.name == "corpses":
             dominion_resource_total_dict[resource.name] = resource.quantity
 
-            resources_dict[resource.name] = {
-                "name": resource.name,
-                "produced": dominion.get_production(resource.name),
-                "consumed": dominion.get_consumption(resource.name),
-            }
+            # resources_dict[resource.name] = {
+            #     "name": resource.name,
+            #     "produced": dominion.get_production(resource.name),
+            #     "consumed": dominion.get_consumption(resource.name),
+            # }
 
-            resources_dict[resource.name]["net"] = resources_dict[resource.name]["produced"] - resources_dict[resource.name]["consumed"]
+            # resources_dict[resource.name]["net"] = resources_dict[resource.name]["produced"] - resources_dict[resource.name]["consumed"]
 
     trade_price_dict = round.trade_price_dict
     trade_price_data = {}
@@ -447,14 +447,14 @@ def resources(request):
     for resource_name, price in trade_price_dict.items():
         trade_price_data[resource_name] = {
             "name": resource_name,
-            "price": int(price * 10),
+            "price": price,
             "difference": int((price / round.base_price_dict[resource_name]) * 100)
         }
 
         if Resource.objects.filter(ruler=dominion, name=resource_name).exists():
             my_tradeable_price_data[resource_name] = {
             "name": resource_name,
-            "price": int(price * 10),
+            "price": price,
             "difference": int((price / round.base_price_dict[resource_name]) * 100)
         }
 
@@ -1976,11 +1976,14 @@ def submit_invasion(request):
     except:
         return redirect("register")
     
-    if Round.objects.first().has_ended:
+    round = Round.objects.first()
+    dominion_id = request.POST["target_dominion_id"]
+    
+    if round.has_ended:
         messages.error(request, f"The round has already ended")
         return redirect("world")
     
-    if Round.objects.first().is_ticking:
+    if round.is_ticking:
         messages.error(request, f"The tick is being processed, try again shortly.")
         return redirect("world")
     
@@ -1988,17 +1991,10 @@ def submit_invasion(request):
         messages.error(request, f"You can't send another invasion while you have units returning")
         return redirect("world")
     
-    dominion_id = request.POST["target_dominion_id"]
-    target_dominion = Dominion.objects.get(id=dominion_id)
-    round = Round.objects.first()
-
-    if target_dominion.protection_ticks_remaining > 0 or my_dominion.protection_ticks_remaining > 0 or not round.has_started or round.has_ended or target_dominion.is_abandoned:
-        messages.error(request, f"Illegal invasion")
+    if dominion_id == "0":
+        messages.error(request, f"No target selected")
         return redirect("world")
-    elif int(request.POST["dpLeftHidden"]) < my_dominion.acres * 5:
-        messages.error(request, f"You must leave at least {my_dominion.acres * 5} defense at home")
-        return redirect("world")
-
+    
     total_units_sent = 0
     units_sent_dict = {}
 
@@ -2015,6 +2011,9 @@ def submit_invasion(request):
                     "unit": unit,
                     "quantity_sent": amount,
                 }
+            elif dominion_id == "quest" and "always_dies_on_offense" in unit.perk_dict:
+                messages.error(request, f"You can't send units that always die on offense on quests.")
+                return redirect("world", dominion_id=dominion_id)
             else:
                 messages.error(request, f"You can't send more units than you have at home.")
                 return redirect("world", dominion_id=dominion_id)
@@ -2022,11 +2021,25 @@ def submit_invasion(request):
     if total_units_sent < 1:
         messages.error(request, f"Zero units sent")
         return redirect("world")
-    
-    battle_id, message = do_invasion(units_sent_dict, my_dominion, target_dominion)
-
-    if battle_id == 0:
-        messages.error(request, message)
+    elif int(request.POST["dpLeftHidden"]) < my_dominion.acres * 5:
+        messages.error(request, f"You must leave at least {my_dominion.acres * 5} defense at home")
         return redirect("world")
 
-    return redirect("battle_report", battle_id=battle_id)
+    if dominion_id == "quest":
+        message = do_quest(units_sent_dict, my_dominion)
+        messages.success(request, message)
+        return redirect("world")
+    else:
+        target_dominion = Dominion.objects.get(id=dominion_id)
+        
+        if target_dominion.protection_ticks_remaining > 0 or my_dominion.protection_ticks_remaining > 0 or not round.has_started or round.has_ended or target_dominion.is_abandoned:
+            messages.error(request, f"Illegal invasion")
+            return redirect("world")
+
+        battle_id, message = do_invasion(units_sent_dict, my_dominion, target_dominion)
+
+        if battle_id == 0:
+            messages.error(request, message)
+            return redirect("world")
+
+        return redirect("battle_report", battle_id=battle_id)

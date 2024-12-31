@@ -3,7 +3,7 @@ from random import randint, choice
 import random
 
 from maingame.formatters import get_goblin_ruler
-from maingame.models import Battle, Unit, Dominion, Discovery, Building, Event, Round, Faction, Resource, Spell, UserSettings
+from maingame.models import Artifact, Battle, Unit, Dominion, Discovery, Building, Event, Round, Faction, Resource, Spell, UserSettings
 from django.contrib.auth.models import User
 
 
@@ -225,6 +225,9 @@ def delete_dominion(dominion: Dominion):
 
 
 def get_trade_value(resource_name):
+    building = Building.objects.get(resource_produced_name=resource_name, ruler=None)
+    return 1000 / building.amount_produced
+
     this_round = Round.objects.first()
     total_production = 0
 
@@ -380,7 +383,9 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             archmage.save()
             dominion.has_tick_units = True
         case "Fireballs":
-            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Fireball"))
+            fireballs = give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Fireball"))
+            fireballs.is_trainable = True
+            fireballs.save()
         case "Gingerbrute Men":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Gingerbrute Man"))
         case "Grudgestoker":
@@ -447,13 +452,16 @@ def unlock_discovery(dominion: Dominion, discovery_name):
 
 
 def give_dominion_unit(dominion: Dominion, unit: Unit):
-    dominions_unit = unit
-    dominions_unit.pk = None
-    dominions_unit.ruler = dominion
-    dominions_unit.save()
+    try:
+        dominions_unit = Unit.objects.get(ruler=dominion, name=unit.name)
+    except:
+        dominions_unit = unit
+        dominions_unit.pk = None
+        dominions_unit.ruler = dominion
+        dominions_unit.save()
 
-    for resource in unit.cost_dict:
-        create_resource_for_dominion(resource, dominion)
+        for resource in unit.cost_dict:
+            create_resource_for_dominion(resource, dominion)
 
     return dominions_unit
 
@@ -608,6 +616,21 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
             target_dominion.perk_dict["free_experiments"] += 5
     else:
         return 0, "Only successful invasions allowed (for now?)"
+    
+    stolen_artifact = None
+
+    # Handle stealing artifacts (every 1% by which OP exceeds DP gives 1% chance to steal)
+    if attacker_victory and Artifact.objects.filter(ruler=target_dominion).count() > 0:
+        percent_chance = ((offense_sent / target_dominion.defense) - 1) * 100
+
+        if percent_chance >= randint(1, 100):
+            defenders_artifacts = []
+
+            for artifact in Artifact.objects.filter(ruler=target_dominion):
+                defenders_artifacts.append(artifact)
+
+            stolen_artifact = random.choice(defenders_artifacts)
+            assign_artifact(stolen_artifact, my_dominion)
 
     battle_units_sent_dict = {}
     battle_units_defending_dict = {}
@@ -622,6 +645,7 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
     battle = Battle.objects.create(
         attacker=my_dominion,
         defender=target_dominion,
+        stolen_artifact=stolen_artifact,
         winner=my_dominion if attacker_victory else target_dominion,
         op=offense_sent,
         dp=target_dominion.defense,
@@ -634,10 +658,22 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
         reference_type="battle", 
         category="Invasion",
     )
+
     event.notified_dominions.add(my_dominion)
     event.notified_dominions.add(target_dominion)
     target_dominion.has_unread_events = True
     target_dominion.save()
+
+    if stolen_artifact:
+        artifact_event = Event.objects.create(
+            reference_id=stolen_artifact.id, 
+            reference_type="artifact", 
+            category="Artifact Stolen",
+            message_override=f"{my_dominion} stole the {stolen_artifact.name} from {target_dominion}"
+        )
+        artifact_event.notified_dominions.add(my_dominion)
+        artifact_event.notified_dominions.add(target_dominion)
+        artifact_event.save()
 
     # Handle biclops patience
     if "partner_patience" in my_dominion.perk_dict:
@@ -673,11 +709,21 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
     if attacker_victory:
         offensive_survival = 0.9
         defensive_survival = 0.95
+
+        if Artifact.objects.filter(name="Death's True Name", ruler=target_dominion).exists():
+            defensive_survival = 1
+
         acres_conquered = get_acres_conquered(my_dominion, target_dominion)
         target_dominion.acres -= acres_conquered
         target_dominion.save()
 
-        my_dominion.incoming_acres_dict["12"] += acres_conquered * 2
+        ticks_for_land = "12"
+
+        if Artifact.objects.filter(name="The Stable of the North Wind", ruler=my_dominion).exists():
+            ticks_for_land = "10"
+        
+        my_dominion.incoming_acres_dict[ticks_for_land] += acres_conquered * 2
+
         my_dominion.save()
         
         battle.acres_conquered = acres_conquered
@@ -736,10 +782,18 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
         if "mana" not in unit.upkeep_dict and "mana" not in unit.cost_dict and "always_dies_on_offense" not in unit.perk_dict:
             offensive_casualties += casualties
 
+        possible_return_ticks = [12]
+
         if "returns_in_ticks" in unit.perk_dict:
-            unit.returning_dict[str(unit.perk_dict["returns_in_ticks"])] += survivors
-        else:
-            unit.returning_dict["12"] += survivors
+            # unit.returning_dict[str(unit.perk_dict["returns_in_ticks"])] += survivors
+            possible_return_ticks.append(unit.perk_dict["returns_in_ticks"])
+        
+        if Artifact.objects.filter(name="The Stable of the North Wind", ruler=my_dominion).exists():
+            possible_return_ticks.append(10)
+        
+        possible_return_ticks.sort()
+
+        unit.returning_dict[str(possible_return_ticks[0])] += survivors
         unit.save()
 
     # Apply defensive casualties
@@ -802,6 +856,138 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
         target_dominion.save()
 
     return battle.id, "-- Congratulations, your invasion didn't crash! --"
+
+
+def do_quest(units_sent_dict, my_dominion: Dominion):
+    total_units_sent = 0
+
+    for unit_id, unit_dict in units_sent_dict.items():
+        unit = Unit.objects.get(id=unit_id)
+        total_units_sent += unit_dict["quantity_sent"]
+        unit.quantity_at_home -= unit_dict["quantity_sent"]
+        unit.save()
+
+    offense_sent = 0
+
+    # Calculate OP
+    for unit_details_dict in units_sent_dict.values():
+        unit = unit_details_dict["unit"]
+        quantity_sent = unit_details_dict["quantity_sent"]
+        offense_sent += unit.op * quantity_sent
+
+    offense_sent *= my_dominion.offense_multiplier
+
+    my_dominion.op_quested += offense_sent
+    my_dominion.save()
+
+    # battle_units_sent_dict = {}
+    # battle_units_defending_dict = {}
+
+    # for unit_id, data in units_sent_dict.items():
+    #     battle_units_sent_dict[unit_id] = data["quantity_sent"]
+
+    # for unit in Unit.objects.filter(ruler=target_dominion):
+    #     if unit.quantity_at_home > 0 and unit.dp > 0:
+    #         battle_units_defending_dict[str(unit.id)] = unit.quantity_at_home
+    
+    # battle = Battle.objects.create(
+    #     attacker=my_dominion,
+    #     defender=target_dominion,
+    #     winner=my_dominion if attacker_victory else target_dominion,
+    #     op=offense_sent,
+    #     dp=target_dominion.defense,
+    #     units_sent_dict=battle_units_sent_dict,
+    #     units_defending_dict=battle_units_defending_dict,
+    # )
+
+    event = Event.objects.create(
+        reference_type="quest", 
+        category="Quest",
+    )
+    
+    event.notified_dominions.add(my_dominion)
+
+    # Handle goblin Wreckin Ballers
+    if "Wreckin Ballers" in my_dominion.learned_discoveries:
+        for unit_details_dict in units_sent_dict.values():
+            unit = unit_details_dict["unit"]
+            quantity_sent = unit_details_dict["quantity_sent"]
+
+            # RIght now it assumes a value of 0.5. Please don't make me figure out how to handle something greater than 1.
+            if "random_allies_killed_on_invasion" in unit.perk_dict:
+                # When in doubt, they kill themselves, just to help avoid exceptions
+                victim = unit
+                victim_count = 0
+
+                for _ in range(int(quantity_sent / 2)):
+                    roll = randint(1, total_units_sent - victim_count)
+
+                    for victim_details_dict in units_sent_dict.values():
+                        if roll <= victim_details_dict["quantity_sent"]:
+                            victim = victim_details_dict
+                            break
+                        else:
+                            roll -= victim_details_dict["quantity_sent"]
+
+                    victim_count += 1
+                    victim["quantity_sent"] -= 1
+
+    # Apply offensive casualties and return the survivors home
+    for unit_details_dict in units_sent_dict.values():
+        unit = Unit.objects.get(ruler=my_dominion, name=unit_details_dict["unit"].name)
+        quantity_sent = unit_details_dict["quantity_sent"]
+        unit.returning_dict["12"] += quantity_sent
+        unit.save()
+
+    # 10% chance for an artifact if you're highest quester
+    base_artifact_chance = 1000
+    your_quest_ratio = my_dominion.op_quested / get_highest_op_quested()
+    your_artifact_chance = max(100, base_artifact_chance * your_quest_ratio)
+    roll = randint(1, 10000)
+    print("your_artifact_chance", your_artifact_chance)
+    print("roll", roll)
+    
+    if your_artifact_chance >= roll and Artifact.objects.filter(ruler=None).count() > 0:
+        give_random_unowned_artifact_to_dominion(my_dominion)
+        return "You embark upon a quest and find a magical artifact!"
+
+    return "You embark upon a quest"
+
+
+def give_random_unowned_artifact_to_dominion(dominion: Dominion):
+    unowned_artifacts = []
+
+    for artifact in Artifact.objects.filter(ruler=None):
+        if dominion.faction_name == "Blessed Order" and artifact.name == "Death's True Name":
+            pass
+        else:
+            unowned_artifacts.append(artifact)
+
+    given_artifact = random.choice(unowned_artifacts)
+    assign_artifact(given_artifact, dominion)
+
+
+def assign_artifact(artifact: Artifact, new_owner: Dominion):
+    if new_owner.faction_name == "Blessed Order" and artifact.name == "Death's True Name":
+        pass
+    else:
+        artifact.ruler = new_owner
+
+    if artifact.name == "The Eternal Egg of the Flame Princess":
+        give_dominion_unit(new_owner, Unit.objects.get(ruler=None, name="Fireball"))
+    elif artifact.name == "The Infernal Contract":
+        give_dominion_unit(new_owner, Unit.objects.get(ruler=None, name="Imp"))
+
+    artifact.save()
+
+
+def get_highest_op_quested():
+    highest_op_quested = 1
+    
+    for dominion in Dominion.objects.all():
+        highest_op_quested = max(highest_op_quested, dominion.op_quested)
+
+    return highest_op_quested
 
 
 def cast_spell(spell: Spell, target=None):

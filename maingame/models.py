@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from maingame.formatters import format_minutes
+from maingame.formatters import format_minutes, shorten_number
 
 
 class Deity(models.Model):
@@ -134,6 +134,7 @@ class Dominion(models.Model):
     successful_invasions = models.IntegerField(default=0)
     failed_defenses = models.IntegerField(default=0)
     highest_raw_op_sent = models.IntegerField(default=0, null=True, blank=True)
+    op_quested = models.IntegerField(default=0)
 
     primary_resource_name = models.CharField(max_length=50, null=True, blank=True)
     primary_resource_per_acre = models.IntegerField(default=0)
@@ -188,6 +189,10 @@ class Dominion(models.Model):
             return False
         elif self.perk_dict.get("inquisition_ticks_left") and self.perk_dict.get("inquisition_ticks_left") > 0:
             return False
+        elif self.has_units_returning:
+            return False
+        elif self.incoming_acres > 0:
+            return False
         
         return True
 
@@ -206,7 +211,12 @@ class Dominion(models.Model):
 
     @property
     def offense_multiplier(self):
-        return 1 + (self.determination_bonus_percent / 100)
+        multiplier = 1 + (self.determination_bonus_percent / 100)
+
+        if Artifact.objects.filter(name="The Barbarian's Horn", ruler=self).exists():
+            multiplier += self.complacency_penalty_percent / 100
+
+        return multiplier
     
     @property
     def raw_defense(self):
@@ -229,36 +239,31 @@ class Dominion(models.Model):
     
     @property
     def defense_short(self):
-        defense = self.defense
-
-        if defense < 100000: # 100k
-            return f"{defense:2,}"
-        elif defense < 1000000: # 1m
-            return f"{int(defense/1000)}k"
-        else:
-            return f"{round(defense/1000000, 2)}m"
+        return shorten_number(self.defense)
         
     @property
     def defense_raw_short(self):
-        defense = self.raw_defense
-
-        if defense < 100000: # 100k
-            return f"{defense:2,}"
-        elif defense < 1000000: # 1m
-            return f"{int(defense/1000)}k"
-        else:
-            return f"{round(defense/1000000, 2)}m"
+        return shorten_number(self.raw_defense)
         
     @property
     def highest_op_short(self):
-        defense = self.highest_raw_op_sent
+        return shorten_number(self.highest_raw_op_sent)
+    
+    @property
+    def op_quested_short(self):
+        return shorten_number(self.op_quested)
+    
+    @property
+    def artifact_count(self):
+        return Artifact.objects.filter(ruler=self).count()
 
-        if defense < 100000: # 100k
-            return f"{defense:2,}"
-        elif defense < 1000000: # 1m
-            return f"{int(defense/1000)}k"
-        else:
-            return f"{round(defense/1000000, 2)}m"
+    @property
+    def has_artifacts(self):
+        return Artifact.objects.filter(ruler=self).count() > 0
+
+    @property
+    def artifacts_owned(self):
+        return Artifact.objects.filter(ruler=self)
 
     @property
     def juicy_target_threshold(self):
@@ -442,6 +447,9 @@ class Dominion(models.Model):
             resource.quantity += self.get_production(resource.name)
             resource.quantity -= self.get_consumption(resource.name)
 
+            if resource.name == "gold" and Artifact.objects.filter(name="The Three-Faced Coin", ruler=self).exists():
+                resource.quantity *= 1.008
+
             self.is_starving = False
 
             if resource.quantity < 0:
@@ -531,14 +539,67 @@ class Dominion(models.Model):
 
             if self.perk_dict["biclopean_ambition_ticks_remaining"] == 0:
                 del self.perk_dict["biclopean_ambition_ticks_remaining"]
+
+    def do_artifacts(self):
+        if Artifact.objects.filter(name="The Eternal Egg of the Flame Princess", ruler=self).exists():
+            fireballs = Unit.objects.get(ruler=self, name="Fireball")
+            fireballs.quantity_at_home += int(self.acres/500)
+
+            if self.acres % 100 >= random.randint(1,100):
+                fireballs.quantity_at_home += 1
+
+            fireballs.save()
+
+        if Artifact.objects.filter(name="The Infernal Contract", ruler=self).exists():
+            imps = Unit.objects.get(ruler=self, name="Imp")
+            imps.quantity_at_home += int(self.acres/500)
+
+            if self.acres % 100 >= random.randint(1,100):
+                imps.quantity_at_home += 1
+
+            imps.save()
+
+        if Artifact.objects.filter(name="The Hoarder's Boon", ruler=self).exists():
+            acres_allocated = int(self.acres * 0.05)
+            resource_gained = Resource.objects.get(ruler=self, name="food")
+            lowest_resource_amount = 99999999999
+
+            for resource in Resource.objects.filter(ruler=self):
+                if resource.quantity < lowest_resource_amount and resource.name not in ["corpses", "faith", "rats", "sinners", "gold"]: 
+                    resource_gained = resource
+                    lowest_resource_amount = resource.quantity
+
+            building = Building.objects.get(resource_produced_name=resource_gained.name, ruler=self)
+
+            resource_gained.quantity += building.amount_produced * acres_allocated
+            resource_gained.save()
+
+        if Artifact.objects.filter(name="A Ladder Made Entirely of Top Rungs", ruler=self).exists():
+            largest_dominion = Dominion.objects.all().order_by("-acres").first()
+            largest_size = largest_dominion.acres
+            largest_dominions = Dominion.objects.filter(acres=largest_size)
+
+            if largest_dominions.count() == 1 and largest_dominions.first() != self:
                 
+                if str(largest_dominion.id) in self.perk_dict["book_of_grudges"]:
+                    self.perk_dict["book_of_grudges"][str(largest_dominion.id)]["pages"] += 1
+                else:
+                    self.perk_dict["book_of_grudges"][str(largest_dominion.id)] = {}
+                    self.perk_dict["book_of_grudges"][str(largest_dominion.id)]["pages"] = 1
+                    self.perk_dict["book_of_grudges"][str(largest_dominion.id)]["animosity"] = 0
+
+
     def do_tick(self):
         do_tick_units(self)
         self.do_resource_production()
         self.advance_land_returning()
         self.do_perks()
+        self.do_artifacts()
         
         self.discovery_points += 1
+
+        if Artifact.objects.filter(name="The Cause of Nine Deaths", ruler=self).exists() and Round.objects.first().ticks_passed % 4 == 0:
+            self.discovery_points += 1
 
         for unit in Unit.objects.filter(ruler=self):
             unit.advance_training_and_returning()
@@ -803,10 +864,23 @@ class Unit(models.Model):
         return total
 
 
+class Artifact(models.Model):
+    name = models.CharField(max_length=50, null=True, blank=True)
+    ruler = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, blank=True)
+    description = models.CharField(max_length=500, null=True, blank=True)
+
+    def __str__(self):
+        if self.ruler:
+            return f"{self.name} ({self.ruler})"
+        
+        return f"{self.name}"
+
+
 class Battle(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     attacker = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, related_name="battles_attacked")
     defender = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, related_name="battles_defended")
+    stolen_artifact = models.ForeignKey(Artifact, on_delete=models.PROTECT, null=True)
     winner = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, related_name="battles_won")
     units_sent_dict = models.JSONField(default=dict, null=True, blank=True)
     units_defending_dict = models.JSONField(default=dict, null=True, blank=True)
@@ -822,7 +896,8 @@ class Battle(models.Model):
     @property
     def event_text(self):
         if self.winner == self.attacker:
-            return f"{self.winner} invaded {self.defender} and conquered {self.acres_conquered:2,} acres, plus {self.acres_conquered:2,} more from surrounding areas"
+            event_text = f"{self.winner} invaded {self.defender} and conquered {self.acres_conquered:2,} acres, plus {self.acres_conquered:2,} more from surrounding areas"
+            return event_text
         else:
             return f"{self.winner} repelled an attack from {self.attacker}"
         
