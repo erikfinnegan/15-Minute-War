@@ -245,15 +245,23 @@
                     <span> DP</span>
                 </div>
             </div>
+
             <div class="u-center u-flex u-gap-1" id="dpLeftText">
                 <span>You'll have</span>
                 <span id="dpLeft">{{ active_dominion.defense }}</span>
                 <span>defense after attacking</span>
             </div>
+
+            <div id="stealChanceSection" class="u-center u-none u-gap-1">
+                <span id="stealChance">0</span>
+                <span>% chance to steal an artifact%</span>
+            </div>
+
             <div class="u-center u-flex u-flex-column">
                 <span id="largerEnemyHasLowerDefense" hidden>✅ an enemy larger than you has lower defense</span>
                 <span id="youHaveTheLowestDefense" hidden>❌ you'll have the lowest DP in the game</span>
             </div>
+
             <input type="number" id="dpLeftHidden" name="dpLeftHidden" hidden value="{{ active_dominion.defense }}" />
         </div>
         <div style="display: none;">
@@ -316,6 +324,7 @@
         function updateOffenseToSend() {
             const offense_multiplier_dict = JSON.parse('{{ offense_multiplier_dict|escapejs }}');
             const baseOffenseMultiplier = JSON.parse('{{ base_offense_multiplier|escapejs }}');
+            const artifactCountDict = JSON.parse('{{ artifact_count_dict|escapejs }}');
             const targetId = document.getElementById("target_select_dropdown").value;
             const invadeButton = document.getElementById("invadeButton")
 
@@ -327,6 +336,8 @@
             dpHere = parseInt(dpHere.replace(',', ''));
             let readoutSection = document.getElementById("readoutSection");
             let nonQuestReadoutSection = document.getElementById("nonQuestReadoutPart");
+            let stealChanceSection = document.getElementById("stealChanceSection");
+            let stealChance = document.getElementById("stealChance");
             let invadeButtonText = document.getElementById("invadeButtonText");
             let unitInputs = document.getElementsByClassName("unitInput")
 
@@ -356,6 +367,8 @@
             dpLeftReadoutHidden.value = dpLeft
 
             if (targetId == 0) {
+                stealChanceSection.classList.add("u-none")
+                stealChanceSection.classList.remove("u-flex")
                 readoutSection.classList.remove("u-none")
                 readoutSection.classList.add("u-flex")
                 nonQuestReadoutSection.classList.add("u-none")
@@ -365,6 +378,8 @@
                 invadeButtonText.classList.remove("text-red-400")
                 invadeButton.disabled = true
             } else if (targetId == "quest") {
+                stealChanceSection.classList.add("u-none")
+                stealChanceSection.classList.remove("u-flex")
                 readoutSection.classList.remove("u-none")
                 readoutSection.classList.add("u-flex")
                 nonQuestReadoutSection.classList.add("u-none")
@@ -374,6 +389,8 @@
                 invadeButtonText.classList.remove("text-red-400")
                 invadeButton.disabled = false
             } else if (totalOp >= dpHere) {
+                stealChanceSection.classList.add("u-none")
+                stealChanceSection.classList.remove("u-flex")
                 nonQuestReadoutSection.classList.remove("u-none")
                 nonQuestReadoutSection.classList.add("u-flex")
                 readoutSection.classList.remove("text-red-400")
@@ -382,7 +399,17 @@
                 readoutSection.classList.add("u-flex")
                 invadeButtonText.classList.remove("text-red-400")
                 invadeButton.disabled = false
+
+                if (artifactCountDict[targetId] > 0) {
+                    stealChanceSection.classList.remove("u-none")
+                    stealChanceSection.classList.add("u-flex")
+                    // percent_chance = ((offense_sent / target_dominion.defense) - 1) * 100
+                    percentChance = Math.floor(((totalOp / dpHere) - 1) * 100)
+                    stealChance.innerHTML = Math.min(100, percentChance)
+                }
             } else {
+                stealChanceSection.classList.add("u-none")
+                stealChanceSection.classList.remove("u-flex")
                 nonQuestReadoutSection.classList.remove("u-none")
                 nonQuestReadoutSection.classList.add("u-flex")
                 readoutSection.classList.remove("u-none")

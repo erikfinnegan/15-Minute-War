@@ -904,6 +904,7 @@ def world(request):
     offense_multiplier_dict = {}
     current_defense_dict = {}
     land_conquered_dict = {}
+    artifact_count_dict = {}
     lowest_defense_larger_than_you = 99999999999
     lowest_defense_in_game = 99999999999
 
@@ -919,6 +920,7 @@ def world(request):
             current_defense_dict[str(dominion.id)] = dominion.defense
 
         land_conquered_dict[str(dominion.id)] = get_acres_conquered(my_dominion, dominion)
+        artifact_count_dict[str(dominion.id)] = dominion.artifact_count
 
         if dominion.acres >= my_dominion.acres and dominion.is_oop:
             lowest_defense_larger_than_you = min(dominion.defense, lowest_defense_larger_than_you)
@@ -934,6 +936,7 @@ def world(request):
         "offense_multiplier_dict": json.dumps(offense_multiplier_dict),
         "current_defense_dict": json.dumps(current_defense_dict),
         "land_conquered_dict": json.dumps(land_conquered_dict),
+        "artifact_count_dict": json.dumps(artifact_count_dict),
         "raw_defense": my_dominion.raw_defense,
         "defense_multiplier": my_dominion.defense_multiplier,
         "lowest_defense_larger_than_you": lowest_defense_larger_than_you,
