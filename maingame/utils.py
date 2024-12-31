@@ -903,6 +903,7 @@ def do_quest(units_sent_dict, my_dominion: Dominion):
     event = Event.objects.create(
         reference_type="quest", 
         category="Quest",
+        message_override=f"{my_dominion} went on a quest with {int(offense_sent):2,} OP"
     )
     
     event.notified_dominions.add(my_dominion)
@@ -944,12 +945,18 @@ def do_quest(units_sent_dict, my_dominion: Dominion):
     your_quest_ratio = my_dominion.op_quested / get_highest_op_quested()
     your_artifact_chance = max(100, base_artifact_chance * your_quest_ratio)
     roll = randint(1, 10000)
-    print("your_artifact_chance", your_artifact_chance)
-    print("roll", roll)
     
     if your_artifact_chance >= roll and Artifact.objects.filter(ruler=None).count() > 0:
-        give_random_unowned_artifact_to_dominion(my_dominion)
-        return "You embark upon a quest and find a magical artifact!"
+        artifact = give_random_unowned_artifact_to_dominion(my_dominion)
+        artifact_event = Event.objects.create(
+            reference_id=artifact.id, 
+            reference_type="artifact", 
+            category="Artifact Discovered",
+            message_override=f"{my_dominion} found {artifact.name}"
+        )
+        artifact_event.notified_dominions.add(my_dominion)
+        artifact_event.save()
+        return f"You embark upon a quest and find {artifact.name}!"
 
     return "You embark upon a quest"
 
@@ -965,6 +972,8 @@ def give_random_unowned_artifact_to_dominion(dominion: Dominion):
 
     given_artifact = random.choice(unowned_artifacts)
     assign_artifact(given_artifact, dominion)
+
+    return given_artifact
 
 
 def assign_artifact(artifact: Artifact, new_owner: Dominion):

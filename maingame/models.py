@@ -922,7 +922,9 @@ class Event(models.Model):
             return self.message_override
         elif self.reference_type == "abandon":
             return self.message_override
-        elif self.message_override:
+        elif self.reference_type == "artifact":
+            return self.message_override
+        elif self.reference_type == "quest":
             return self.message_override
         
         return "Unknown event type"
