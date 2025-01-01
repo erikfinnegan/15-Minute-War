@@ -141,12 +141,12 @@ def discoveries(request):
                 
                 if discovery.required_discoveries:                    
                     for requirement_name in discovery.required_discoveries:
-                        if requirement_name not in dominion.learned_discoveries and requirement_name not in dominion.available_discoveries:
+                        if requirement_name not in dominion.learned_discoveries:
                             and_requirements_left.append(requirement_name)
 
                 if discovery.required_discoveries_or:
                     for requirement_name in discovery.required_discoveries_or:
-                        if requirement_name not in dominion.learned_discoveries and requirement_name not in dominion.available_discoveries:
+                        if requirement_name not in dominion.learned_discoveries:
                             or_requirements_left.append(requirement_name)
 
                 requirement_string = ""
