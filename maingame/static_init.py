@@ -816,6 +816,7 @@ def initialize_dwarf_discoveries():
     Discovery.objects.create(
         name="The Deep Angels",
         description="Praise the depths and honor the deep angels beneath. They shall bless their apostles with mithril and their enemies with a merciful death.",
+        required_faction_name="dwarf",
         required_perk_dict={"mining_depth": 500000},
         required_discoveries=["Mithril"],
     )

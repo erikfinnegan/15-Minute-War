@@ -137,15 +137,19 @@ def discoveries(request):
         if discovery.name not in dominion.available_discoveries and discovery.name not in dominion.learned_discoveries:
             if not discovery.required_faction_name or discovery.required_faction_name == dominion.faction_name:
                 and_requirements_met = True
-                or_requirements_met = False
+                # or_requirements_met = False erikdebug
+                or_requirements_met = True 
                 and_requirement_left = ""
+                and_requirements_left = []
                 or_requirements_left = []
                 
                 if discovery.required_discoveries:                    
                     for requirement_name in discovery.required_discoveries:
                         if requirement_name not in dominion.learned_discoveries and requirement_name not in dominion.available_discoveries:
-                            and_requirements_met = False
+                            # and_requirements_met = False erikdebug
+                            pass
                         elif requirement_name in dominion.available_discoveries:
+                            and_requirements_left.append(requirement_name)
                             and_requirement_left = requirement_name
 
                 if discovery.required_discoveries_or:
@@ -159,20 +163,27 @@ def discoveries(request):
                 else:
                     or_requirements_met = True
 
-                if and_requirements_met and or_requirements_met:
-                    requirement_string = and_requirement_left
+                # if and_requirements_met and or_requirements_met:
+                    # requirement_string = and_requirement_left erikdebug
 
-                    if len(or_requirements_left) == 1:
-                        requirement_string = or_requirements_left[0]
-                    elif len(or_requirements_left) > 1:
-                        requirement_string = f"one of {', '.join(or_requirements_left)}"
+                requirement_string = ""
 
-                    future_discoveries.append(
-                        {
-                            "discovery": discovery,
-                            "requirement_string": requirement_string,
-                        }
-                    )
+                if len(or_requirements_left) == 1:
+                    requirement_string = or_requirements_left[0]
+                elif len(or_requirements_left) > 1:
+                    requirement_string = f"one of {', '.join(or_requirements_left)}"
+
+                if len(and_requirements_left) == 1:
+                    requirement_string = and_requirements_left[0]
+                elif len(and_requirements_left) > 1:
+                    requirement_string = f"{', '.join(and_requirements_left)}"
+
+                future_discoveries.append(
+                    {
+                        "discovery": discovery,
+                        "requirement_string": requirement_string,
+                    }
+                )
 
     context = {
         "available_discoveries": available_discoveries,
