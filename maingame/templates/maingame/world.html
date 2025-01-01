@@ -325,6 +325,7 @@
             const offense_multiplier_dict = JSON.parse('{{ offense_multiplier_dict|escapejs }}');
             const baseOffenseMultiplier = JSON.parse('{{ base_offense_multiplier|escapejs }}');
             const artifactCountDict = JSON.parse('{{ artifact_count_dict|escapejs }}');
+            const stealChanceMultiplier = {{ active_dominion.artifact_steal_chance_multiplier }}
             const targetId = document.getElementById("target_select_dropdown").value;
             const invadeButton = document.getElementById("invadeButton")
 
@@ -400,11 +401,12 @@
                 invadeButtonText.classList.remove("text-red-400")
                 invadeButton.disabled = false
 
+                console.log("stealChanceMultiplier", stealChanceMultiplier)
                 if (artifactCountDict[targetId] > 0) {
                     stealChanceSection.classList.remove("u-none")
                     stealChanceSection.classList.add("u-flex")
                     // percent_chance = ((offense_sent / target_dominion.defense) - 1) * 100
-                    percentChance = Math.floor(((totalOp / dpHere) - 1) * 100)
+                    percentChance = Math.floor(((totalOp / dpHere) - 1) * 100 * stealChanceMultiplier)
                     stealChance.innerHTML = Math.min(100, percentChance)
                 }
             } else {

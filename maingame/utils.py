@@ -367,6 +367,14 @@ def unlock_discovery(dominion: Dominion, discovery_name):
         case "Prosperity":
             dominion.primary_resource_per_acre += 1
             can_take_multiple_times = True
+        case "Raiders":
+            if "percent_bonus_to_steal" in dominion.perk_dict:
+                dominion.perk_dict["percent_bonus_to_steal"] += 10
+            else:
+                dominion.perk_dict["percent_bonus_to_steal"] = 10
+            
+            dominion.save()
+            can_take_multiple_times = True
         case "Battering Rams":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Battering Ram"))
         case "Palisades":
@@ -564,6 +572,7 @@ def do_forced_attack(dominion: Dominion, use_always_dies_units=False):
 def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominion):
     round = Round.objects.first()
     total_units_sent = 0
+    defense_snapshot = target_dominion.defense
 
     for unit_id, unit_dict in units_sent_dict.items():
         unit = Unit.objects.get(id=unit_id)
@@ -621,7 +630,8 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
 
     # Handle stealing artifacts (every 1% by which OP exceeds DP gives 1% chance to steal)
     if attacker_victory and Artifact.objects.filter(ruler=target_dominion).count() > 0:
-        percent_chance = ((offense_sent / target_dominion.defense) - 1) * 100
+        percent_chance = ((offense_sent / defense_snapshot) - 1) * 100
+        percent_chance *= my_dominion.artifact_steal_chance_multiplier
 
         if percent_chance >= randint(1, 100):
             defenders_artifacts = []
@@ -648,7 +658,7 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
         stolen_artifact=stolen_artifact,
         winner=my_dominion if attacker_victory else target_dominion,
         op=offense_sent,
-        dp=target_dominion.defense,
+        dp=defense_snapshot,
         units_sent_dict=battle_units_sent_dict,
         units_defending_dict=battle_units_defending_dict,
     )

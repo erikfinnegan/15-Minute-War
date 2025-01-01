@@ -266,6 +266,13 @@ class Dominion(models.Model):
         return Artifact.objects.filter(ruler=self)
 
     @property
+    def artifact_steal_chance_multiplier(self):
+        if "percent_bonus_to_steal" in self.perk_dict:
+            return 1 + (self.perk_dict["percent_bonus_to_steal"] / 100)
+        else:
+            return 1
+
+    @property
     def juicy_target_threshold(self):
         return self.defense * UserSettings.objects.get(associated_user=self.associated_user).juicy_target_threshold
 
