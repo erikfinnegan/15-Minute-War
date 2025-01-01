@@ -267,6 +267,19 @@ def initialize_generic_units():
         is_trainable=False,
     )
 
+    Unit.objects.create(
+        name="Mercenary",
+        op=6,
+        dp=6,
+        cost_dict={
+            "gold": 1699,
+        },
+        upkeep_dict={
+            "gold": 3,
+            "food": 1,
+        },
+    )
+
 
 def initialize_dwarf_units():
     dwarf = Faction.objects.get(name="dwarf")
@@ -761,6 +774,12 @@ def initialize_generic_discoveries():
         name="Gingerbrute Men",
         description="Run, run, as fast as you can.",
         associated_unit_name="Gingerbrute Man",
+    )
+
+    Discovery.objects.create(
+        name="Mercenaries",
+        description="Got some gold burning a hole in your pocket? Hire mercenaries to burn a hole in your enemies!",
+        associated_unit_name="Mercenary",
     )
 
 

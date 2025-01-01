@@ -396,6 +396,8 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             fireballs.save()
         case "Gingerbrute Men":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Gingerbrute Man"))
+        case "Mercenaries":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Mercenary"))
         case "Grudgestoker":
             grudgestoker = give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Grudgestoker"))
             grudgestoker.quantity_at_home = 1
