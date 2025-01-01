@@ -984,6 +984,13 @@ def initialize_biclops_discoveries():
         required_faction_name="biclops",
     )
 
+    Discovery.objects.create(
+        name="Triclops",
+        description="""Rumor has it that every biclops has an invisible third eye that can see the future. When you attack, there is a 5% chance your
+        troops will predict a counterattack and instantly return to defensive positions.""",
+        required_faction_name="biclops",
+    )
+
 
 def initialize_discoveries():
     initialize_generic_discoveries()

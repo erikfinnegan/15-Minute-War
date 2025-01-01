@@ -451,6 +451,8 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Charcutier"))
         case "Bestow Biclopean Ambition":
             give_dominion_spell(dominion, Spell.objects.get(ruler=None, name="Bestow Biclopean Ambition"))
+        case "Triclops":
+            dominion.perk_dict["percent_chance_of_instant_return"] = 5
 
     if not can_take_multiple_times:
         dominion.available_discoveries.remove(discovery_name)
@@ -794,6 +796,7 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
         if "mana" not in unit.upkeep_dict and "mana" not in unit.cost_dict and "always_dies_on_offense" not in unit.perk_dict:
             offensive_casualties += casualties
 
+        # Handle units returning
         possible_return_ticks = [12]
 
         if "returns_in_ticks" in unit.perk_dict:
@@ -804,8 +807,19 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
             possible_return_ticks.append(10)
         
         possible_return_ticks.sort()
+        do_instant_return = False
 
-        unit.returning_dict[str(possible_return_ticks[0])] += survivors
+        if "percent_chance_of_instant_return" in my_dominion.perk_dict:
+            percent_chance_of_instant_return = my_dominion.perk_dict["percent_chance_of_instant_return"]
+            
+            if percent_chance_of_instant_return >= randint(1, 100):
+                do_instant_return = True
+
+        if do_instant_return:
+            unit.quantity_at_home += survivors
+        else:
+            unit.returning_dict[str(possible_return_ticks[0])] += survivors
+
         unit.save()
 
     # Apply defensive casualties
