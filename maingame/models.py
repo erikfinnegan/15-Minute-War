@@ -816,9 +816,9 @@ class Unit(models.Model):
         if "random_allies_killed_on_invasion" in self.perk_dict:
             random_allies_killed = self.perk_dict["random_allies_killed_on_invasion"]
             if random_allies_killed == 0.5:
-                perk_text += f"When invading, half of these each kill one randomly selected own unit on the same invasion. "
+                perk_text += f"When invading (or questing), half of these each kill one randomly selected own unit on the same invasion. "
             else:
-                perk_text += f"When invading, each kills {random_allies_killed} randomly selected own unit{'s' if random_allies_killed > 1 else ''} on the same invasion. "
+                perk_text += f"When invading (or questing), each kills {random_allies_killed} randomly selected own unit{'s' if random_allies_killed > 1 else ''} on the same invasion. "
             
 
         if "food_from_rat" in self.perk_dict:
