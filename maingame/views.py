@@ -178,6 +178,10 @@ def discoveries(request):
                 elif len(and_requirements_left) > 1:
                     requirement_string = f"{', '.join(and_requirements_left)}"
 
+                if "mining_depth" in discovery.required_perk_dict:
+                    required_depth = discovery.required_perk_dict["mining_depth"]
+                    requirement_string += f"mining depth {int(required_depth / 1000)} km"
+
                 future_discoveries.append(
                     {
                         "discovery": discovery,
