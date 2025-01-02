@@ -51,6 +51,9 @@
                     <th>Produced</th>
                     <th>Spent</th>
                     <th>Net</th>
+                    {% if active_dominion.faction_name == "goblin" and not active_dominion.is_oop %}
+                    <th>Restart</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -60,6 +63,13 @@
                     <td class="u-align-middle text-green-400 {% if key == active_dominion.perk_dict.rulers_favorite_resource %}font-bold{% endif %}">{{ value.produced|intcomma }}</td>
                     <td class="u-align-middle text-red-400">{{ value.consumed|intcomma }}</td>
                     <td class="u-align-middle {% if value.net < 0 %}text-red-400{% else %}text-green-400{% endif %} {% if key == active_dominion.perk_dict.rulers_favorite_resource %}font-bold{% endif %}">{{ value.net|intcomma }}</td>
+                    {% if active_dominion.faction_name == "goblin" and not active_dominion.is_oop and not value.name == "gold" %}
+                    <td>
+                        <form>
+                            <button class="u-center header_colors py-0" formaction="{% url 'goblin_restart' value.name %}">Restart</button>
+                        </form>
+                    </td>
+                    {% endif %}
                 </tr>
                 {% endfor %}
             </tbody>
