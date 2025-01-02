@@ -156,13 +156,13 @@ class Command(BaseCommand):
 
 
         gold = 0
-        control = 0
+        gold_without = 0
+        income = 25000 * 5
 
         for _ in range (96):
-            control += 15000
-            gold += 15000
+            gold += income
             gold *= 1.008
+            gold_without += income
 
-        print(int(control))
+        print(gold_without)
         print(int(gold))
-        print(gold/control)

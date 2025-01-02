@@ -231,6 +231,9 @@ class Dominion(models.Model):
     def defense_multiplier(self):
         multiplier = 1 - (self.complacency_penalty_percent / 100)
 
+        # if Artifact.objects.filter(name="The Three-Faced Coin", ruler=self).exists():
+        #     multiplier -= Resource.objects.get(ruler=self, name="gold").quantity - self.get_production("gold")
+
         return multiplier
 
     @property
@@ -454,8 +457,8 @@ class Dominion(models.Model):
             resource.quantity += self.get_production(resource.name)
             resource.quantity -= self.get_consumption(resource.name)
 
-            if resource.name == "gold" and Artifact.objects.filter(name="The Three-Faced Coin", ruler=self).exists():
-                resource.quantity *= 1.008
+            # if resource.name == "gold" and Artifact.objects.filter(name="The Three-Faced Coin", ruler=self).exists():
+            #     resource.quantity *= 1.008
 
             self.is_starving = False
 
@@ -595,7 +598,6 @@ class Dominion(models.Model):
                     self.perk_dict["book_of_grudges"][str(largest_dominion.id)]["pages"] = 1
                     self.perk_dict["book_of_grudges"][str(largest_dominion.id)]["animosity"] = 0
 
-
     def do_tick(self):
         do_tick_units(self)
         self.do_resource_production()
@@ -621,26 +623,6 @@ class Dominion(models.Model):
             self.determination += 1
 
         self.save()
-
-
-class Resource(models.Model):
-    name = models.CharField(max_length=50, null=True, blank=True)
-    ruler = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, blank=True)
-    quantity = models.IntegerField(default=0)
-    
-    def __str__(self):
-        if self.ruler:
-            return f"{self.ruler}'s {self.name} {self.name}"
-            
-        return f"{self.name} {self.name}"
-    
-    @property
-    def production(self):
-        return self.ruler.get_production(self.name)
-    
-    @property
-    def net_production(self):
-        return self.ruler.get_production(self.name) - self.ruler.get_consumption(self.name)
 
 
 class Faction(models.Model):
@@ -695,6 +677,39 @@ class Building(models.Model):
 
         return " ".join(perks)
     
+
+class Resource(models.Model):
+    name = models.CharField(max_length=50, null=True, blank=True)
+    ruler = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, blank=True)
+    quantity = models.IntegerField(default=0)
+    
+    def __str__(self):
+        if self.ruler:
+            return f"{self.ruler}'s {self.name} {self.name}"
+            
+        return f"{self.name} {self.name}"
+    
+    @property
+    def production(self):
+        return self.ruler.get_production(self.name)
+    
+    @property
+    def net_production(self):
+        return self.ruler.get_production(self.name) - self.ruler.get_consumption(self.name)
+    
+    @property
+    def should_show_in_header(self):
+        try:
+            building = Building.objects.get(ruler=self.ruler, resource_produced_name=self.name)
+
+            if building.percent_of_land == 0 and self.quantity == 0:
+                return False
+        except:
+            if self.quantity == 0:
+                return False
+        
+        return True
+
 
 class Unit(models.Model):
     ruler = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, blank=True)

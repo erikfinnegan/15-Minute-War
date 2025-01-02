@@ -65,11 +65,14 @@
         </div>
         
         {% endif %}
+
         {% for resource in active_dominion.resources %}
+        {% if resource.should_show_in_header %}
         <div class="u-flex u-flex-column tooltip tooltip--bottom" data-tooltip="{{ resource.net_production|intcomma }} / tick">
             <span class="font-bold">{{ resource.name|title }}:</span>
             <span>{{ resource.quantity|intcomma }}</span>
         </div>
+        {% endif %}
         {% endfor %}
     </div>
     {% comment %} DESKTOP HEADER {% endcomment %}

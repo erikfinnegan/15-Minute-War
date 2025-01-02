@@ -115,9 +115,11 @@ def initialize_factions():
         building_primary_resource_name="gold",
         building_secondary_resource_name="wood",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"],
-        description="""Dwarves keep a book of grudges, chronicling any slight against them, no matter how minor. When a dominion invades a dwarf, 100 pages of 
-        grudges are added about that dominion. Every tick, those grudges simmer and the dwarf's offense bonus against that dominion increases by 0.003% per page,
-        accumulating until the dwarf invades that player successfully. 0.003% may not sound like much, but it adds up quickly."""
+        description="""Dwarves keep the most meticulous grudges, gaining 50% more pages than anyone else. They also unlock unique abilities to expand
+        their grudges and even retain a bit of them instead of forgiving and forgetting like less stalwart folk."""
+        # description="""Dwarves keep a book of grudges, chronicling any slight against them, no matter how minor. When a dominion invades a dwarf, 100 pages of 
+        # grudges are added about that dominion. Every tick, those grudges simmer and the dwarf's offense bonus against that dominion increases by 0.003% per page,
+        # accumulating until the dwarf invades that player successfully. 0.003% may not sound like much, but it adds up quickly."""
     )
 
     Faction.objects.create(
@@ -260,7 +262,7 @@ def initialize_generic_units():
     Unit.objects.create(
         name="Imp",
         op=3,
-        dp=2,
+        dp=1,
         upkeep_dict={
             "mana": 1,
         },
@@ -1038,10 +1040,10 @@ def initialize_artifacts():
         description="Your complacency gives you an equivalent bonus to offense."
     )
 
-    Artifact.objects.create(
-        name="The Three-Faced Coin",
-        description="Your gold gains 0.8% interest per tick."
-    )
+    # Artifact.objects.create(
+    #     name="The Three-Faced Coin",
+    #     description="Your gold gains 0.8% interest per tick."
+    # )
 
     Artifact.objects.create(
         name="The Cause of Nine Deaths",
