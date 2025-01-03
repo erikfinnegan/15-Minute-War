@@ -47,6 +47,7 @@ class UserSettings(models.Model):
     theme_model = models.ForeignKey(Theme, on_delete=models.PROTECT, null=True, blank=True)
     use_am_pm = models.BooleanField(default=True)
     is_tutorial = models.BooleanField(default=True)
+    hide_zero_resources = models.BooleanField(default=False)
     tutorial_stage = models.IntegerField(default=0)
     juicy_target_threshold = models.FloatField(default=0)
 
@@ -453,14 +454,14 @@ class Dominion(models.Model):
         return consumption
     
     def do_resource_production(self):
+        self.is_starving = False
+        
         for resource in Resource.objects.filter(ruler=self):
             resource.quantity += self.get_production(resource.name)
             resource.quantity -= self.get_consumption(resource.name)
 
             # if resource.name == "gold" and Artifact.objects.filter(name="The Three-Faced Coin", ruler=self).exists():
             #     resource.quantity *= 1.008
-
-            self.is_starving = False
 
             if resource.quantity < 0:
                 self.is_starving = True
@@ -699,6 +700,11 @@ class Resource(models.Model):
     
     @property
     def should_show_in_header(self):
+        user_settings = UserSettings.objects.get(associated_user=self.ruler.associated_user)
+        
+        if self.ruler.is_starving or not user_settings.hide_zero_resources:
+            return True
+
         try:
             building = Building.objects.get(ruler=self.ruler, resource_produced_name=self.name)
 

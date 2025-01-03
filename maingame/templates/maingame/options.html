@@ -214,6 +214,16 @@
 
         <div class="form-ext-control pl-0 w-24">
             <label class="form-ext-toggle__label u-flex u-flex-row u-gap-2">
+                <span>Hide resources when you have zero (except when starving)</span>
+                <div class="form-ext-toggle">
+                    <input name="hide_zero_resources" type="checkbox" class="form-ext-input" {% if active_user_settings.hide_zero_resources %}checked{% endif %} />
+                    <div class="form-ext-toggle__toggler"><i></i></div>
+                </div>
+            </label>
+        </div>
+
+        <div class="form-ext-control pl-0 w-24">
+            <label class="form-ext-toggle__label u-flex u-flex-row u-gap-2">
                 <span>Tutorial mode</span>
                 <div class="form-ext-toggle">
                     <input name="tutorial_mode" type="checkbox" class="form-ext-input" {% if active_user_settings.is_tutorial %}checked{% endif %} />

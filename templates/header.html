@@ -48,12 +48,6 @@
     {% comment %} DESKTOP HEADER {% endcomment %}
     <div class="u-none u-flex-md u-flex-wrap {% if active_dominion.resource_types >= 9 %}u-gap-4{% else %}u-gap-6{% endif %}">
         {% if active_dominion %}
-        {% comment %} <div class="u-align-center">
-            {% include "maingame/current_incoming.html" with current=active_dominion.acres incoming=active_dominion.incoming_acres %}
-        </div>
-
-        <span class="font-bold u-center">{{ active_dominion.defense_short }} DP</span> {% endcomment %}
-        
         <div class="u-flex u-flex-column">
             {% if active_dominion.ticks_til_all_units_return > 0 %}
             <span>Units home in</span>
@@ -77,7 +71,7 @@
     </div>
     {% comment %} DESKTOP HEADER {% endcomment %}
 
-    <table class="header_colors w-100p u-none-md{% if active_dominion.is_starving %} text-red-400{% endif %}">
+    <table class="header_colors w-100p u-none-md">
         {% for key, value in active_dominion.header_rows.items %}
         <tr>
             {% for resource_readout in value %}
@@ -140,6 +134,14 @@
                 <button class="h-4 py-0">Really restart</button>
             </a>
         </details>
+    </div>
+</div>
+{% endif %}
+
+{% if active_dominion.is_starving %}
+<div class="mt-2 u-center">
+    <div class="card bg-red-600 text-white u-center">
+        <h6 class="u-center p-2">Your units are leaving because their upkeep needs are not being met!</h6>
     </div>
 </div>
 {% endif %}

@@ -1006,6 +1006,7 @@ def submit_options(request):
     user_settings.use_am_pm = "use_am_pm" in request.POST
     user_settings.timezone = request.POST["timezone"]
     user_settings.is_tutorial = "tutorial_mode" in request.POST
+    user_settings.hide_zero_resources = "hide_zero_resources" in request.POST
     selected_theme = Theme.objects.get(id=request.POST["theme"])
     user_settings.juicy_target_threshold = request.POST["juicy_target_threshold"]
 
