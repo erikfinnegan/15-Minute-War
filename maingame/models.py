@@ -655,7 +655,7 @@ class Building(models.Model):
 
     def __str__(self):
         if self.ruler:
-            return f"{self.ruler}'s {self.name} - upg x{self.upgrades}"
+            return f"{self.ruler.associated_user}'s {self.name} - upg x{self.upgrades}"
         else:
             return f"🟩Base --- {self.name}"
         
@@ -726,7 +726,7 @@ class Unit(models.Model):
     faction = models.ForeignKey(Faction, on_delete=models.PROTECT, null=True, blank=True)
 
     def __str__(self):
-        base_name = f"{self.name} ({self.op}/{self.dp}) -- x{self.quantity_at_home}"
+        base_name = f"{self.ruler.associated_user} ({self.op}/{self.dp}) -- x{self.quantity_at_home}"
 
         if self.ruler:
             return f"{self.ruler.name} -- {base_name}"
