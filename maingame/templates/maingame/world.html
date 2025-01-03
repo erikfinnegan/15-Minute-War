@@ -254,7 +254,12 @@
 
             <div id="stealChanceSection" class="u-center u-none u-gap-1">
                 <span id="stealChance">0</span>
-                <span>% chance to steal an artifact%</span>
+                <span>% chance to steal an artifact</span>
+            </div>
+
+            <div id="questChanceSection" class="u-center u-none u-gap-1">
+                <span id="questChance">0</span>
+                <span>% chance to find an artifact</span>
             </div>
 
             <div class="u-center u-flex u-flex-column">
@@ -293,6 +298,8 @@
         const minimumDefenseLeft = JSON.parse('{{ minimum_defense_left|escapejs }}');
         const lowestDefenseLargerThanYou = JSON.parse('{{ lowest_defense_larger_than_you|escapejs }}');
         const lowestDefenseInTheGame = JSON.parse('{{ lowest_defense_in_game|escapejs }}');
+        const myOpQuested = JSON.parse('{{ active_dominion.op_quested|escapejs }}');
+        const highestOpQuested = JSON.parse('{{ highest_op_quested|escapejs }}');
 
         function updateTargetDefense() {
             const currentDefenseDict = JSON.parse('{{ current_defense_dict|escapejs }}');
@@ -339,6 +346,8 @@
             let nonQuestReadoutSection = document.getElementById("nonQuestReadoutPart");
             let stealChanceSection = document.getElementById("stealChanceSection");
             let stealChance = document.getElementById("stealChance");
+            let questChanceSection = document.getElementById("questChanceSection");
+            let questChance = document.getElementById("questChance");
             let invadeButtonText = document.getElementById("invadeButtonText");
             let unitInputs = document.getElementsByClassName("unitInput")
 
@@ -362,6 +371,8 @@
 
             totalOp = Math.floor(totalOp * offense_multiplier)
             opReadout.innerHTML = totalOp
+            const newOpQuested = myOpQuested + totalOp
+            const questOpRatio = newOpQuested / highestOpQuested
             
             const dpLeft = Math.floor((rawDefense - dpSent) * defenseMultiplier)
             dpLeftReadout.innerHTML = dpLeft
@@ -370,6 +381,8 @@
             if (targetId == 0) {
                 stealChanceSection.classList.add("u-none")
                 stealChanceSection.classList.remove("u-flex")
+                questChanceSection.classList.add("u-none")
+                questChanceSection.classList.remove("u-flex")
                 readoutSection.classList.remove("u-none")
                 readoutSection.classList.add("u-flex")
                 nonQuestReadoutSection.classList.add("u-none")
@@ -381,6 +394,8 @@
             } else if (targetId == "quest") {
                 stealChanceSection.classList.add("u-none")
                 stealChanceSection.classList.remove("u-flex")
+                questChanceSection.classList.remove("u-none")
+                questChanceSection.classList.add("u-flex")
                 readoutSection.classList.remove("u-none")
                 readoutSection.classList.add("u-flex")
                 nonQuestReadoutSection.classList.add("u-none")
@@ -389,9 +404,15 @@
                 readoutSection.classList.add("text-green-400")
                 invadeButtonText.classList.remove("text-red-400")
                 invadeButton.disabled = false
+                let questChanceNumber = Math.min(10, 10 * questOpRatio)
+                questChanceNumber = Math.max(1, questChanceNumber)
+                questChanceNumber = Math.round(questChanceNumber * 10) / 10
+                questChance.innerHTML = questChanceNumber
             } else if (totalOp >= dpHere) {
                 stealChanceSection.classList.add("u-none")
                 stealChanceSection.classList.remove("u-flex")
+                questChanceSection.classList.add("u-none")
+                questChanceSection.classList.remove("u-flex")
                 nonQuestReadoutSection.classList.remove("u-none")
                 nonQuestReadoutSection.classList.add("u-flex")
                 readoutSection.classList.remove("text-red-400")
@@ -412,6 +433,8 @@
             } else {
                 stealChanceSection.classList.add("u-none")
                 stealChanceSection.classList.remove("u-flex")
+                questChanceSection.classList.add("u-none")
+                questChanceSection.classList.remove("u-flex")
                 nonQuestReadoutSection.classList.remove("u-none")
                 nonQuestReadoutSection.classList.add("u-flex")
                 readoutSection.classList.remove("u-none")
