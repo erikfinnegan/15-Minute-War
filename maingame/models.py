@@ -685,9 +685,9 @@ class Resource(models.Model):
     
     def __str__(self):
         if self.ruler:
-            return f"{self.ruler}'s {self.name} {self.name}"
+            return f"{self.ruler.associated_user}'s {self.name}"
             
-        return f"{self.name} {self.name}"
+        return f"{self.name}"
     
     @property
     def production(self):
