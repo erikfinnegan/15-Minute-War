@@ -901,6 +901,8 @@ def do_quest(units_sent_dict, my_dominion: Dominion):
         quantity_sent = unit_details_dict["quantity_sent"]
         offense_sent += unit.op * quantity_sent
 
+    my_dominion.highest_raw_op_sent = max(offense_sent, my_dominion.highest_raw_op_sent)
+
     offense_sent *= my_dominion.offense_multiplier
 
     my_dominion.op_quested += offense_sent
