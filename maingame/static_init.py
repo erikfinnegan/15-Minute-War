@@ -132,7 +132,7 @@ def initialize_factions():
         description="""The brothers of the Blessed Order generate faith, which is used to restore the vengeful spirits of warriors who fall defending
         their people. When they're invaded, any accumulated faith is spent to turn defensive casualties into blessed martyrs at the cost of 1,000 faith
         per martyr. However, one sinner appears per tick for each 100 acres and each drains 1 faith per tick until the order places their offense
-        # on hold for 24 ticks to begin an inquisition to root them out."""
+        on hold for 24 ticks to begin an inquisition to root them out."""
     )
 
     Faction.objects.create(
