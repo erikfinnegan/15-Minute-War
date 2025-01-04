@@ -189,7 +189,7 @@
                 <option value="quest">Quest</option>
                 {% for dominion in dominions %}
                 {% if dominion != active_dominion and dominion.is_oop and not dominion.is_abandoned %}
-                <option value="{{ dominion.id }}">{{ dominion.name }} ({{ dominion.acres|intcomma }} acres) {{ dominion.defense_short }} DP</option>
+                <option value="{{ dominion.id }}">{{ dominion.name }} ({{ dominion.acres|intcomma }} acres, {{ dominion.acres|percent_of:active_dominion.acres }}%) {{ dominion.defense_short }} DP</option>
                 {% endif %}
                 {% endfor %}
             </select>

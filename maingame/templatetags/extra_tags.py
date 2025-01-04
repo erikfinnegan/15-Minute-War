@@ -43,3 +43,7 @@ def depluralize(value, arg):
         return value[:-1]
     else:
         return value
+
+@register.filter(name='percent_of') 
+def percent_of(value, arg):
+    return int((value / arg) * 100)
