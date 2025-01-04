@@ -620,7 +620,7 @@ class Dominion(models.Model):
                 spell.save()
         
         if self.is_oop:
-            self.complacency += 1
+            self.complacency += 1 + self.artifact_count
             self.determination += 1
 
         self.save()
