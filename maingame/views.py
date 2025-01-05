@@ -827,7 +827,7 @@ def news(request):
     
     displayed_events = []
     
-    for event in Event.objects.all().order_by('-id')[:20]:
+    for event in Event.objects.all().order_by('-id')[:50]:
         displayed_events.append({
             "event": event,
             "involves_dominion": event.notified_dominions.filter(id=dominion.id).count() > 0,
