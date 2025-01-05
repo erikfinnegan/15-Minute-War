@@ -209,6 +209,7 @@
         </form>
     </div>
 
+    {% comment %} Units returning {% endcomment %}
     <div class="mt-8 u-flex u-flex-column max-w-md card card_colors p-1">
         <div class="">
             <h6 class="u-center">Units returning</h6>
@@ -259,6 +260,7 @@
         </div>
     </div>
 
+    {% comment %} Incoming acres {% endcomment %}
     <div class="mt-4 u-flex u-flex-column max-w-md card card_colors p-1">
         <div>
             <h6 class="u-center">Incoming acres</h6>
@@ -307,6 +309,7 @@
         </div>
     </div>
 
+    {% comment %} Units in training {% endcomment %}
     <div class="mt-4 u-flex u-flex-column max-w-md card card_colors p-1">
         <div>
             <h6 class="u-center">Units in training</h6>
@@ -357,6 +360,7 @@
         </div>
     </div>
 
+    {% comment %} Release units {% endcomment %}
     <form action="{% url 'submit_release' %}" method="post" class="max-w-md card bg-red-800 text-light p-1 mt-8">
         {% csrf_token %}
         <div class="w-100p u-center u-flex u-flex-column">

@@ -230,6 +230,9 @@
                             class="w-12 w-16-md ml-auto-md mr-2-md unitInput"
                             oninput="updateOffenseToSend()"
                         >
+                        <button type="button" class="header_colors u-center" onclick="sendMax('{{ unit.id }}', '{{ unit.quantity_at_home }}')">
+                            Max
+                        </button>
                     </td>
                 </tr>
                 {% endif %}
@@ -301,6 +304,17 @@
         const lowestDefenseInTheGame = JSON.parse('{{ lowest_defense_in_game|escapejs }}');
         const myOpQuested = JSON.parse('{{ active_dominion.op_quested|escapejs }}');
         const highestOpQuested = JSON.parse('{{ highest_op_quested|escapejs }}');
+
+        function sendMax(unit_id, quantity_at_home) {
+            let thisInput = document.getElementById("send_" + unit_id);
+            if (thisInput.value == quantity_at_home) {
+                thisInput.value = ""
+            } else {
+                thisInput.value = quantity_at_home;
+            }
+
+            updateOffenseToSend()
+        }
 
         function updateTargetDefense() {
             const currentDefenseDict = JSON.parse('{{ current_defense_dict|escapejs }}');
@@ -427,7 +441,6 @@
                 if (artifactCountDict[targetId] > 0) {
                     stealChanceSection.classList.remove("u-none")
                     stealChanceSection.classList.add("u-flex")
-                    // percent_chance = ((offense_sent / target_dominion.defense) - 1) * 100
                     percentChance = Math.floor(((totalOp / dpHere) - 1) * 100 * stealChanceMultiplier)
                     stealChance.innerHTML = Math.min(100, percentChance)
                 }
