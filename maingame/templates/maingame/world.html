@@ -158,8 +158,9 @@
         <div class="u-flex u-flex-column">
         {% for dominion in dominions %}
             {% if dominion.has_artifacts %}
-                <div>
+                <div class="u-flex u-flex-column">
                     <span class="font-bold">{{ dominion.name }}</span>
+                    <span>{{ dominion.associated_user }}, {{ dominion.faction_name }}</span>
                     <div>
                         {% for artifact in dominion.artifacts_owned %}
                             <div class="u-flex u-flex-column">
