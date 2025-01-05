@@ -11,21 +11,20 @@
 
 {% block content %}
 
-<div class="u-flex u-flex-column u-gap-4">
-    <div>
-        <details class="accordion card card_colors max-w-md">
-            <summary class="accordion__summary">Details</summary>
-            <p>
-                This shows just about everything about this dominion at a glance. If you and this dominion are both out of protection, it also has
-                the interface for invading them. In order to invade someone, you need to send an amount of offense that matches or exceeds their defense.
-            </p>
-            <p>
-                Some units have special perks. These are marked by differently-colored text and the description can be seen by mousing over the name (desktop)
-                or tapping on the name (mobile).
-            </p>
-        </details>
-    </div>
-    <div>
+<div class="page-container u-flex u-flex-column u-gap-4">
+    <details class="accordion card card_colors max-w-md">
+        <summary class="accordion__summary">Details</summary>
+        <p>
+            This shows just about everything about this dominion at a glance. If you and this dominion are both out of protection, it also has
+            the interface for invading them. In order to invade someone, you need to send an amount of offense that matches or exceeds their defense.
+        </p>
+        <p>
+            Some units have special perks. These are marked by differently-colored text and the description can be seen by mousing over the name (desktop)
+            or tapping on the name (mobile).
+        </p>
+    </details>
+
+    <div class="top-info">
         {% if dominion.faction_name == "goblin" %}
         <h6>All hail {{ dominion.perk_dict.goblin_ruler }} who loves {{ dominion.perk_dict.rulers_favorite_resource }} and rules over</h6>
         {% endif %}
@@ -49,10 +48,19 @@
         {% else %}
         <h6>Ruled by {{ dominion.rulers_display_name }}</h6>
         {% endif %}
+
+        <div class="u-flex u-flex-column">
+            {% for artifact in dominion.artifacts_owned %}
+                <div class="u-flex u-flex-column">
+                    <em>{{ artifact.name }}</em>
+                    <span class="text-sm">{{ artifact.description }}</span>
+                </div>
+            {% endfor %}
+        </div>
     </div>
 
     {% if dominion == active_dominion or round.has_started and dominion.is_oop %}
-    <div>
+    <div class="unit-table">
         <table class="table striped small max-w-sm">
             <thead>
                 <tr>
