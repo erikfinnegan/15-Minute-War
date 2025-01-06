@@ -11,7 +11,7 @@ def get_random_resource(dominion: Dominion):
     resources = []
 
     for resource in Resource.objects.filter(ruler=dominion):
-        if resource.name not in ["gold", "corpses"]:
+        if resource.name not in ["gold", "corpses", "rats"]:
             resources.append(resource)
 
     return choice(resources)
