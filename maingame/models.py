@@ -732,10 +732,10 @@ class Unit(models.Model):
     faction = models.ForeignKey(Faction, on_delete=models.PROTECT, null=True, blank=True)
 
     def __str__(self):
-        base_name = f"{self.ruler.associated_user} ({self.op}/{self.dp}) -- x{self.quantity_at_home}"
+        base_name = f"{self.name} ({self.op}/{self.dp}) -- x{self.quantity_at_home}"
 
         if self.ruler:
-            return f"{self.ruler.name} -- {base_name}"
+            return f"{self.ruler.rulers_display_name} -- {base_name}"
         
         return f"🟩Base --- {base_name}"
     
