@@ -581,8 +581,6 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
     for unit_id, unit_dict in units_sent_dict.items():
         unit = Unit.objects.get(id=unit_id)
         total_units_sent += unit_dict["quantity_sent"]
-        unit.quantity_at_home -= unit_dict["quantity_sent"]
-        unit.save()
 
     offense_sent = 0
 
@@ -596,6 +594,12 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
 
     # Determine victor
     if offense_sent >= target_dominion.defense:
+        for unit_id, unit_dict in units_sent_dict.items():
+            unit = Unit.objects.get(id=unit_id)
+            total_units_sent += unit_dict["quantity_sent"]
+            unit.quantity_at_home -= unit_dict["quantity_sent"]
+            unit.save()
+        
         my_dominion.highest_raw_op_sent = max(offense_sent, my_dominion.highest_raw_op_sent)
         my_dominion.save()
         attacker_victory = True
