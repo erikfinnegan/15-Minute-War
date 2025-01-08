@@ -687,7 +687,7 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
             reference_id=stolen_artifact.id, 
             reference_type="artifact", 
             category="Artifact Stolen",
-            message_override=f"{my_dominion} stole the {stolen_artifact.name} from {target_dominion}"
+            message_override=f"{my_dominion} stole {stolen_artifact.name} from {target_dominion}"
         )
         artifact_event.notified_dominions.add(my_dominion)
         artifact_event.notified_dominions.add(target_dominion)
