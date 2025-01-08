@@ -252,7 +252,7 @@ def initialize_generic_units():
     Unit.objects.create(
         name="Gingerbrute Man",
         op=6,
-        dp=5,
+        dp=4,
         cost_dict={
             "food": 3600,
         },
@@ -566,7 +566,7 @@ def initialize_goblin_units():
         op=0,
         dp=1,
         cost_dict={
-            "food": 100,
+            "food": 50,
             "rats": 1,
         },
         upkeep_dict={
