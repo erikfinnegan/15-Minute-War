@@ -14,7 +14,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         my_faction_name = "goblin"
 
-        my_starting_resource_quantity = 1234567
+        my_starting_resource_quantity = 123456700
 
         print("Generating stuff...")
 

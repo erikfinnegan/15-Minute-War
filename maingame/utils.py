@@ -707,7 +707,7 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
             # RIght now it assumes a value of 0.5. Please don't make me figure out how to handle something greater than 1.
             if "random_allies_killed_on_invasion" in unit.perk_dict:
                 # When in doubt, they kill themselves, just to help avoid exceptions
-                victim = unit
+                victim = unit_details_dict
                 victim_count = 0
 
                 for _ in range(int(quantity_sent / 2)):
