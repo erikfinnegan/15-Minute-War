@@ -120,16 +120,8 @@ def discoveries(request):
     depth = ""
 
     if "mining_depth" in dominion.perk_dict:
-        cm = dominion.perk_dict["mining_depth"]
-        m = cm / 100
-        km = m / 1000
-
-        if km >= 1:
-            depth = f"{round(km, 1):2,} kilometers"
-        elif m >= 1:
-            depth = f"{round(m, 1):2,} meters"
-        else:
-            depth = f"{cm} centimeters"
+        mining_depth = dominion.perk_dict["mining_depth"]
+        depth = f"{mining_depth:2,} torchbrights"
 
     future_discoveries = []
 
@@ -163,7 +155,7 @@ def discoveries(request):
 
                 if "mining_depth" in discovery.required_perk_dict:
                     required_depth = discovery.required_perk_dict["mining_depth"]
-                    requirement_string += f"mining depth {int(required_depth / 1000)} km"
+                    requirement_string += f"mining depth {int(required_depth):2,} torchbrights"
 
                 future_discoveries.append(
                     {

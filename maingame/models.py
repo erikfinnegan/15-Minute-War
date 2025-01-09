@@ -820,7 +820,7 @@ class Unit(models.Model):
             perk_text += "Converts one Stoneshield to a Deep Apostle every tick. "
 
         if "cm_dug_per_tick" in self.perk_dict:
-            perk_text += "Digs 1cm per tick. "
+            perk_text += "Digs 1 torchbright per tick. "
 
         if "returns_in_ticks" in self.perk_dict:
             ticks_to_return = self.perk_dict["returns_in_ticks"]
