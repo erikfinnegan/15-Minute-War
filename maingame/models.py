@@ -39,7 +39,7 @@ class Theme(models.Model):
     
     @property
     def used_by(self):
-        users_using = UserSettings.objects.filter(theme=self.name)
+        users_using = UserSettings.objects.filter(theme_model=self)
         return users_using
 
 
