@@ -205,10 +205,10 @@ class Dominion(models.Model):
     
     @property
     def determination_bonus_percent(self):
-        return 0
-        # bonus = self.determination * 0.33
+        # return 0
+        bonus = self.determination * 0.5
 
-        # return bonus
+        return bonus
 
     @property
     def offense_multiplier(self):
@@ -257,6 +257,10 @@ class Dominion(models.Model):
     def op_quested_short(self):
         return shorten_number(self.op_quested)
     
+    @property
+    def op_quested_per_acre(self):
+        return int(self.op_quested / self.acres)
+
     @property
     def artifact_count(self):
         return Artifact.objects.filter(ruler=self).count()
@@ -554,18 +558,18 @@ class Dominion(models.Model):
     def do_artifacts(self):
         if Artifact.objects.filter(name="The Eternal Egg of the Flame Princess", ruler=self).exists():
             fireballs = Unit.objects.get(ruler=self, name="Fireball")
-            fireballs.quantity_at_home += int(self.acres/500)
+            fireballs.quantity_at_home += int(self.acres/250)
 
-            if self.acres % 100 >= random.randint(1,100):
+            if self.acres % 250 >= random.randint(1,250):
                 fireballs.quantity_at_home += 1
 
             fireballs.save()
 
         if Artifact.objects.filter(name="The Infernal Contract", ruler=self).exists():
             imps = Unit.objects.get(ruler=self, name="Imp")
-            imps.quantity_at_home += int(self.acres/500)
+            imps.quantity_at_home += int(self.acres/250)
 
-            if self.acres % 100 >= random.randint(1,100):
+            if self.acres % 250 >= random.randint(1,250):
                 imps.quantity_at_home += 1
 
             imps.save()
@@ -585,22 +589,21 @@ class Dominion(models.Model):
             resource_gained.quantity += building.amount_produced * acres_allocated
             resource_gained.save()
 
-        if Artifact.objects.filter(name="A Ladder Made Entirely of Top Rungs", ruler=self).exists():
-            largest_dominion = Dominion.objects.all().order_by("-acres").first()
-            largest_size = largest_dominion.acres
-            largest_dominions = Dominion.objects.filter(acres=largest_size)
+        # if Artifact.objects.filter(name="A Ladder Made Entirely of Top Rungs", ruler=self).exists():
+        #     largest_dominion = Dominion.objects.all().order_by("-acres").first()
+        #     largest_size = largest_dominion.acres
+        #     largest_dominions = Dominion.objects.filter(acres=largest_size)
 
-            if largest_dominions.count() == 1 and largest_dominions.first() != self:
+        #     if largest_dominions.count() == 1 and largest_dominions.first() != self:
                 
-                if str(largest_dominion.id) in self.perk_dict["book_of_grudges"]:
-                    self.perk_dict["book_of_grudges"][str(largest_dominion.id)]["pages"] += 1
-                else:
-                    self.perk_dict["book_of_grudges"][str(largest_dominion.id)] = {}
-                    self.perk_dict["book_of_grudges"][str(largest_dominion.id)]["pages"] = 1
-                    self.perk_dict["book_of_grudges"][str(largest_dominion.id)]["animosity"] = 0
+        #         if str(largest_dominion.id) in self.perk_dict["book_of_grudges"]:
+        #             self.perk_dict["book_of_grudges"][str(largest_dominion.id)]["pages"] += 1
+        #         else:
+        #             self.perk_dict["book_of_grudges"][str(largest_dominion.id)] = {}
+        #             self.perk_dict["book_of_grudges"][str(largest_dominion.id)]["pages"] = 1
+        #             self.perk_dict["book_of_grudges"][str(largest_dominion.id)]["animosity"] = 0
 
     def do_tick(self):
-        do_tick_units(self)
         self.do_resource_production()
         self.advance_land_returning()
         self.do_perks()
@@ -613,6 +616,8 @@ class Dominion(models.Model):
 
         for unit in Unit.objects.filter(ruler=self):
             unit.advance_training_and_returning()
+
+        do_tick_units(self)
 
         for spell in Spell.objects.filter(ruler=self):
             if spell.cooldown_remaining > 0:
@@ -840,11 +845,14 @@ class Unit(models.Model):
                 perk_text += f"When invading (or questing), half of these each kill one randomly selected own unit on the same invasion. "
             else:
                 perk_text += f"When invading (or questing), each kills {random_allies_killed} randomly selected own unit{'s' if random_allies_killed > 1 else ''} on the same invasion. "
-            
 
         if "food_from_rat" in self.perk_dict:
             food_from_rat = self.perk_dict["food_from_rat"]
             perk_text += f"Each carves up one rat per tick into {food_from_rat} food. "
+
+        if "rats_trained_per_tick" in self.perk_dict:
+            rats_trained_per_tick = self.perk_dict["rats_trained_per_tick"]
+            perk_text += f"Attempts to train {rats_trained_per_tick} Trained Rat per tick, paying costs as normal. "
 
         return perk_text
     
@@ -1115,3 +1123,23 @@ def do_tick_units(dominion: Dominion):
                     unit.save()
                     rats.quantity += quantity_becomes_rats
                     rats.save()
+                case "rats_trained_per_tick":
+                    print("train rats")
+                    try:
+                        trained_rats = Unit.objects.get(ruler=unit.ruler, name="Trained Rat")
+                        rats = Resource.objects.get(ruler=unit.ruler, name="rats")
+                        food = Resource.objects.get(ruler=unit.ruler, name="food")
+                        max_trainable = min(
+                            unit.quantity_at_home * unit.perk_dict["rats_trained_per_tick"], 
+                            int(food.quantity / trained_rats.cost_dict["food"]), 
+                            int(rats.quantity / trained_rats.cost_dict["rats"])
+                        )
+                        print("max_trainable", max_trainable)
+                        rats.quantity -= max_trainable * trained_rats.cost_dict["rats"]
+                        rats.save()
+                        food.quantity -= max_trainable * trained_rats.cost_dict["food"]
+                        food.save()
+                        trained_rats.training_dict["12"] += max_trainable
+                        trained_rats.save()
+                    except:
+                        pass

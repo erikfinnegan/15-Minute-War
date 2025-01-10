@@ -18,11 +18,11 @@ def get_random_resource(dominion: Dominion):
 
 
 def create_faction_perk_dict(dominion: Dominion, faction: Faction):
-    dominion.perk_dict["book_of_grudges"] = {}
+    # dominion.perk_dict["book_of_grudges"] = {}
 
     if faction.name == "dwarf":
-        # dominion.perk_dict["book_of_grudges"] = {}
-        dominion.perk_dict["grudge_page_multiplier"] = 1.5
+        dominion.perk_dict["book_of_grudges"] = {}
+        # dominion.perk_dict["grudge_page_multiplier"] = 1.5
         # dominion.perk_dict["grudge_page_keep_multiplier"] = 0.05
     elif faction.name == "blessed order":
         dominion.perk_dict["sinners_per_hundred_acres_per_tick"] = 1
@@ -449,6 +449,8 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Wreckin Baller"))
         case "Charcutiers":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Charcutier"))
+        case "Rat Trainers":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Rat Trainer"))
         case "Bestow Biclopean Ambition":
             give_dominion_spell(dominion, Spell.objects.get(ruler=None, name="Bestow Biclopean Ambition"))
         case "Triclops":
@@ -729,7 +731,8 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
         defensive_survival = 0.95
 
         if Artifact.objects.filter(name="Death's True Name", ruler=target_dominion).exists():
-            defensive_survival = 1
+            defensive_survival_bonus = (1 - defensive_survival) / 2
+            defensive_survival += defensive_survival_bonus
 
         acres_conquered = get_acres_conquered(my_dominion, target_dominion)
         target_dominion.acres -= acres_conquered
@@ -972,12 +975,13 @@ def do_quest(units_sent_dict, my_dominion: Dominion):
         unit.returning_dict["12"] += quantity_sent
         unit.save()
 
-    # 10% chance for an artifact if you're highest quester
-    base_artifact_chance = 1000
-    your_quest_ratio = my_dominion.op_quested / get_highest_op_quested()
+    # chance for an artifact if you're highest quester
+    artifact_chance_percent = 20
+    base_artifact_chance = artifact_chance_percent * 100
+    your_quest_ratio = (my_dominion.op_quested_per_acre) / get_highest_op_quested()
     your_artifact_chance = max(100, base_artifact_chance * your_quest_ratio)
     roll = randint(1, 10000)
-    
+
     if your_artifact_chance >= roll and Artifact.objects.filter(ruler=None).count() > 0:
         artifact = give_random_unowned_artifact_to_dominion(my_dominion)
         artifact_event = Event.objects.create(
@@ -988,6 +992,8 @@ def do_quest(units_sent_dict, my_dominion: Dominion):
         )
         artifact_event.notified_dominions.add(my_dominion)
         artifact_event.save()
+        my_dominion.op_quested = 0
+        my_dominion.save()
         return f"You embark upon a quest and find {artifact.name}!"
 
     return "You embark upon a quest"
@@ -1023,10 +1029,10 @@ def assign_artifact(artifact: Artifact, new_owner: Dominion):
 
 
 def get_highest_op_quested():
-    highest_op_quested = 1
+    highest_op_quested = 0.0001
     
     for dominion in Dominion.objects.all():
-        highest_op_quested = max(highest_op_quested, dominion.op_quested)
+        highest_op_quested = max(highest_op_quested, dominion.op_quested_per_acre)
 
     return highest_op_quested
 

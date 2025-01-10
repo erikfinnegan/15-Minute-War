@@ -623,6 +623,21 @@ def initialize_goblin_units():
         perk_dict={"food_per_tick": 15},
     )
 
+    Unit.objects.create(
+        name="Rat Trainer",
+        op=0,
+        dp=2,
+        cost_dict={
+            "gold": 650,
+            "food": 450,
+        },
+        upkeep_dict={
+            "gold": 1,
+            "food": 0.3,
+        },
+        perk_dict={"rats_trained_per_tick": 1},
+    )
+
 
 def initialize_biclops_units():
     biclops = Faction.objects.get(name="biclops")
@@ -823,12 +838,12 @@ def initialize_dwarf_discoveries():
         required_discoveries=["Mithril"],
     )
 
-    Discovery.objects.create(
-        name="Doom Prospectors",
-        description='The dwarf language lacks a distinction between "seeking" and "prospecting". Doom Prospectors are dwarves whose grudges against themselves have grown too heavy to bear and prospect for glorious death in battle.',
-        required_faction_name="dwarf",
-        associated_unit_name="Doom Prospector",
-    )
+    # Discovery.objects.create(
+    #     name="Doom Prospectors",
+    #     description='The dwarf language lacks a distinction between "seeking" and "prospecting". Doom Prospectors are dwarves whose grudges against themselves have grown too heavy to bear and prospect for glorious death in battle.',
+    #     required_faction_name="dwarf",
+    #     associated_unit_name="Doom Prospector",
+    # )
 
     Discovery.objects.create(
         name="Always Be Digging",
@@ -978,6 +993,13 @@ def initialize_goblin_discoveries():
         associated_unit_name="Charcutier",
     )
 
+    Discovery.objects.create(
+        name="Rat Trainers",
+        description="Some goblins attempt the Sisyphean task of maintaining a standing army of trained rats.",
+        required_faction_name="goblin",
+        associated_unit_name="Rat Trainer",
+    )
+
 
 def initialize_biclops_discoveries():
     Discovery.objects.create(
@@ -1007,12 +1029,12 @@ def initialize_discoveries():
 def initialize_artifacts():
     Artifact.objects.create(
         name="The Eternal Egg of the Flame Princess",
-        description="Generates one fireball per tick for every 500 acres of the dominion that possesses it."
+        description="Generates one fireball per tick for every 250 acres of the dominion that possesses it."
     )
 
     Artifact.objects.create(
         name="The Infernal Contract",
-        description="Generates one imp per tick for every 500 acres of the dominion that possesses it."
+        description="Generates one imp per tick for every 250 acres of the dominion that possesses it."
     )
 
     Artifact.objects.create(
@@ -1027,13 +1049,13 @@ def initialize_artifacts():
 
     Artifact.objects.create(
         name="Death's True Name",
-        description="You suffer no casualties on defense."
+        description="You suffer half casualties on defense."
     )
 
-    Artifact.objects.create(
-        name="A Ladder Made Entirely of Top Rungs",
-        description="Each tick you gain one page of grudges against the largest player (unless it's you)."
-    )
+    # Artifact.objects.create(
+    #     name="A Ladder Made Entirely of Top Rungs",
+    #     description="Each tick you gain one page of grudges against the largest player (unless it's you)."
+    # )
 
     Artifact.objects.create(
         name="The Barbarian's Horn",
