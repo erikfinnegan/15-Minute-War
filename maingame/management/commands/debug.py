@@ -154,24 +154,9 @@ class Command(BaseCommand):
         # print()
 
 
-        gold = 0
-        rats = 0
-        stabbers = 0
-        trained_rats = 0
+        bonus = 2000
 
-        for _ in range(96):
-            gold += 25000
-            gold -= stabbers
-            rats += 166
-            
-            new_stabbers = int(gold / 700)
-            stabbers += new_stabbers
-            gold -= new_stabbers * 700
+        for x in range(12):
+            bonus *= 1.002
 
-            # attrition = int(trained_rats * 0.02)
-            # rats += attrition
-            # trained_rats -= attrition
-            trained_rats += rats
-
-        print("rat dp", rats)
-        print("stab dp", stabbers * 3)
+        print(int(bonus))

@@ -699,7 +699,6 @@ def initialize_biclops_units():
             "food": 4,
             "wood": 4,
         },
-        faction=biclops,
         perk_dict={"casualty_multiplier": 0.5, "op_bonus_percent_for_stealing_artifacts": 20},
     )
 
