@@ -573,7 +573,7 @@ def initialize_goblin_units():
             "food": 0.1,
         },
         faction=goblin,
-        perk_dict={"percent_becomes_rats": 2},
+        perk_dict={"percent_attrition": 2},
     )
 
     Unit.objects.create(
@@ -1011,8 +1011,8 @@ def initialize_biclops_discoveries():
 
     Discovery.objects.create(
         name="Triclops",
-        description="""Rumor has it that every biclops has an invisible third eye that can see the future. When you attack, there is a 5% chance your
-        troops will predict a counterattack and instantly return to defensive positions.""",
+        description="""Rumor has it that every biclops has an invisible third eye that can see the future. When you attack, there is a 10% chance your
+        troops will predict a counterattack and instantly return to defensive positions. Your land will still return at the normal rate.""",
         required_faction_name="biclops",
     )
 

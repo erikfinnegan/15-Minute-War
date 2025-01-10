@@ -154,15 +154,24 @@ class Command(BaseCommand):
         # print()
 
 
-
         gold = 0
-        gold_without = 0
-        income = 25000 * 5
+        rats = 0
+        stabbers = 0
+        trained_rats = 0
 
-        for _ in range (96):
-            gold += income
-            gold *= 1.008
-            gold_without += income
+        for _ in range(96):
+            gold += 25000
+            gold -= stabbers
+            rats += 166
+            
+            new_stabbers = int(gold / 700)
+            stabbers += new_stabbers
+            gold -= new_stabbers * 700
 
-        print(gold_without)
-        print(int(gold))
+            # attrition = int(trained_rats * 0.02)
+            # rats += attrition
+            # trained_rats -= attrition
+            trained_rats += rats
+
+        print("rat dp", rats)
+        print("stab dp", stabbers * 3)

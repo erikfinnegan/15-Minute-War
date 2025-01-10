@@ -145,6 +145,12 @@
                             </div>
                         </div>
                     </div>
+                    <div class="u-flex u-flex-column">
+                        <span>Used by:</span>
+                        {% for user in theme.used_by %}
+                            <span>{{ user }}</span>
+                        {% endfor %}
+                    </div>
                 </div>
                 {% endfor %}
             </div>

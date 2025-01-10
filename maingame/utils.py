@@ -454,7 +454,7 @@ def unlock_discovery(dominion: Dominion, discovery_name):
         case "Bestow Biclopean Ambition":
             give_dominion_spell(dominion, Spell.objects.get(ruler=None, name="Bestow Biclopean Ambition"))
         case "Triclops":
-            dominion.perk_dict["percent_chance_of_instant_return"] = 5
+            dominion.perk_dict["percent_chance_of_instant_return"] = 10
 
     if not can_take_multiple_times:
         dominion.available_discoveries.remove(discovery_name)
@@ -579,6 +579,7 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
     round = Round.objects.first()
     total_units_sent = 0
     defense_snapshot = target_dominion.defense
+    slowest_unit_return_ticks = 1
 
     for unit_id, unit_dict in units_sent_dict.items():
         unit = Unit.objects.get(id=unit_id)
@@ -586,11 +587,16 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
 
     offense_sent = 0
 
-    # Calculate OP
+    # Calculate OP and calculate fastest return
     for unit_details_dict in units_sent_dict.values():
         unit = unit_details_dict["unit"]
         quantity_sent = unit_details_dict["quantity_sent"]
         offense_sent += unit.op * quantity_sent
+
+        if "returns_in_ticks" in unit.perk_dict:
+            slowest_unit_return_ticks = max(slowest_unit_return_ticks, unit.perk_dict["returns_in_ticks"])
+        else:
+            slowest_unit_return_ticks = 12
 
     offense_sent *= (my_dominion.offense_multiplier + get_grudge_bonus(my_dominion, target_dominion))
 
@@ -612,12 +618,12 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
         my_dominion.determination = 0
         my_dominion.save()
 
-        # It should be for everyone, but better safe than sorry
+        # Handle grudges
         if "book_of_grudges" in target_dominion.perk_dict:
             pages_to_gain = 50
 
             for _ in range(round.ticks_passed):
-                pages_to_gain *= 1.002
+                pages_to_gain *= 1.0015
 
             if "grudge_page_multiplier" in target_dominion.perk_dict:
                 pages_to_gain *= target_dominion.perk_dict["grudge_page_multiplier"]
@@ -706,7 +712,7 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
             unit = unit_details_dict["unit"]
             quantity_sent = unit_details_dict["quantity_sent"]
 
-            # RIght now it assumes a value of 0.5. Please don't make me figure out how to handle something greater than 1.
+            # Right now it assumes a value of 0.5. Please don't make me figure out how to handle something greater than 1.
             if "random_allies_killed_on_invasion" in unit.perk_dict:
                 # When in doubt, they kill themselves, just to help avoid exceptions
                 victim = unit_details_dict
@@ -738,10 +744,10 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
         target_dominion.acres -= acres_conquered
         target_dominion.save()
 
-        ticks_for_land = "12"
+        ticks_for_land = str(slowest_unit_return_ticks)
 
         if Artifact.objects.filter(name="The Stable of the North Wind", ruler=my_dominion).exists():
-            ticks_for_land = "10"
+            ticks_for_land = str(min(10, slowest_unit_return_ticks))
         
         my_dominion.incoming_acres_dict[ticks_for_land] += acres_conquered * 2
 

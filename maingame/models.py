@@ -36,6 +36,11 @@ class Theme(models.Model):
 
     def __str__(self):
         return f"{self.name} -- id: {self.id}"
+    
+    @property
+    def used_by(self):
+        users_using = UserSettings.objects.filter(theme=self.name)
+        return users_using
 
 
 class UserSettings(models.Model):
@@ -835,9 +840,9 @@ class Unit(models.Model):
             attrition_percent = self.perk_dict["percent_attrition"]
             perk_text += f"{attrition_percent}% of these die every tick, rounding up. "
         
-        if "percent_becomes_rats" in self.perk_dict:
-            becomes_rats_percent = self.perk_dict["percent_becomes_rats"]
-            perk_text += f"{becomes_rats_percent}% of these return to normal rats every tick, rounding up. "
+        # if "percent_becomes_rats" in self.perk_dict:
+        #     becomes_rats_percent = self.perk_dict["percent_becomes_rats"]
+        #     perk_text += f"{becomes_rats_percent}% of these return to normal rats every tick, rounding up. "
 
         if "random_allies_killed_on_invasion" in self.perk_dict:
             random_allies_killed = self.perk_dict["random_allies_killed_on_invasion"]
@@ -1114,17 +1119,16 @@ def do_tick_units(dominion: Dominion):
 
                     if unit.quantity_total_and_paid == 0 and "Overwhelming" in unit.name:
                         unit.delete()
-                case "percent_becomes_rats":
-                    attrition_multiplier = value / 100
-                    rats = Resource.objects.get(ruler=unit.ruler, name="rats")
-                    quantity_becomes_rats = math.ceil(unit.quantity_at_home * attrition_multiplier)
+                # case "percent_becomes_rats":
+                #     attrition_multiplier = value / 100
+                #     rats = Resource.objects.get(ruler=unit.ruler, name="rats")
+                #     quantity_becomes_rats = math.ceil(unit.quantity_at_home * attrition_multiplier)
 
-                    unit.quantity_at_home -= quantity_becomes_rats
-                    unit.save()
-                    rats.quantity += quantity_becomes_rats
-                    rats.save()
+                #     unit.quantity_at_home -= quantity_becomes_rats
+                #     unit.save()
+                #     rats.quantity += quantity_becomes_rats
+                #     rats.save()
                 case "rats_trained_per_tick":
-                    print("train rats")
                     try:
                         trained_rats = Unit.objects.get(ruler=unit.ruler, name="Trained Rat")
                         rats = Resource.objects.get(ruler=unit.ruler, name="rats")
@@ -1134,7 +1138,6 @@ def do_tick_units(dominion: Dominion):
                             int(food.quantity / trained_rats.cost_dict["food"]), 
                             int(rats.quantity / trained_rats.cost_dict["rats"])
                         )
-                        print("max_trainable", max_trainable)
                         rats.quantity -= max_trainable * trained_rats.cost_dict["rats"]
                         rats.save()
                         food.quantity -= max_trainable * trained_rats.cost_dict["food"]
