@@ -42,11 +42,9 @@
                     <th class="u-align-middle">Land</th>
                     <th class="u-align-middle">Defense</th>
                     <th class="u-align-middle">Bonuses</th>
-                    {% if "book_of_grudges" in active_dominion.perk_dict %}
-                    <th class="u-align-middle">Your grudge</th>
-                    {% endif %}
+                    <th class="u-align-middle">Your perks</th>
                     <th class="u-align-middle">Highest OP</th>
-                    <th class="u-align-middle">Grudge against you</th>
+                    <th class="u-align-middle">Their perks</th>
                     <th class="u-align-middle">OP quested</th>
                     <th class="u-align-middle" style="white-space: nowrap;">W/L</th>
                 </tr>
@@ -98,7 +96,7 @@
                         </div>
                     </td>
 
-                    {% comment %} Grudges {% endcomment %}
+                    {% comment %} Your faction {% endcomment %}
                     {% if "book_of_grudges" in active_dominion.perk_dict %}
                         {% if dominion.strid in active_dominion.perk_dict.book_of_grudges %}
                             <td class="u-align-middle">
@@ -114,12 +112,28 @@
                         {% else %}
                             <td class="u-align-middle">None</td>
                         {% endif %}
+                    {% elif "infiltration_dict" in active_dominion.perk_dict %}
+                        {% if dominion.strid in active_dominion.perk_dict.infiltration_dict %}
+                            <td class="u-align-middle">
+                                <div class="u-flex u-flex-column u-center w-16">
+                                    <span>
+                                        -{{ active_dominion.perk_dict.infiltration_dict|getattr:dominion.strid|intcomma }} DP
+                                    </span>
+                                </div>
+                            </td>
+                        {% elif dominion == active_dominion %}
+                            <td class="u-align-middle">-</td>
+                        {% else %}
+                            <td class="u-align-middle">None</td>
+                        {% endif %}
+                    {% else %}
+                        <td class="u-align-middle">-</td>
                     {% endif %}
 
                     {% comment %} Highest OP {% endcomment %}
                     <td class="u-align-middle">{{ dominion.highest_op_short }}</td>
 
-                    {% comment %} Grudges against you {% endcomment %}
+                    {% comment %} Their faction {% endcomment %}
                     {% if "book_of_grudges" in dominion.perk_dict %}
                         {% if active_dominion.strid in dominion.perk_dict.book_of_grudges %}
                             <td class="u-align-middle">
@@ -135,6 +149,8 @@
                         {% else %}
                             <td class="u-align-middle">None</td>
                         {% endif %}
+                    {% else %}
+                        <td class="u-align-middle">-</td>
                     {% endif %}
 
                     {% comment %} OP quested {% endcomment %}
@@ -158,6 +174,7 @@
         </table>
     </div>
 
+    {% comment %} Artifact list {% endcomment %}
     <details class="accordion card card_colors max-w-md">
         <summary class="accordion__summary">Artifacts</summary>
         <div class="u-flex u-flex-column">
@@ -180,6 +197,96 @@
         </div>
     </details>
 
+
+    {% comment %} GSF infiltration {% endcomment %}
+    {% if active_dominion.faction_name == "gnomish special forces" %}
+    <div class="max-w-md">
+        <div class="form-ext-control pl-0 w-24 u-center">
+            <label class="form-ext-toggle__label u-flex u-flex-row u-gap-2">
+                <span>Infiltration</span>
+                <div class="form-ext-toggle">
+                    <input name="show_infiltration" id="showInfiltrationToggle" type="checkbox" class="form-ext-input" onclick="toggleInfiltrate()" />
+                    <div class="form-ext-toggle__toggler"><i></i></div>
+                </div>
+            </label>
+        </div>
+    </div>
+    {% endif %}
+
+    <form action="{% url 'submit_infiltration' %}" method="post" class="max-w-md u-overflow-x-scroll u-overflow-x-auto-md u-none" id="infiltrationForm">
+        {% csrf_token %}
+        <div class="u-flex u-flex-row u-center py-2">
+            <select class="max-w-xs" name="target_dominion_id" id="infiltration_target_select_dropdown" oninput="updateInfiltrateOffense();">
+                <option value="0">Select a target to infiltrate</option>
+                {% for dominion in dominions %}
+                {% if dominion != active_dominion and dominion.is_oop and not dominion.is_abandoned %}
+                <option value="{{ dominion.id }}">{{ dominion.name }} ({{ dominion.acres|intcomma }} acres, {{ dominion.acres|percent_of:active_dominion.acres }}%) {{ dominion.defense_short }} DP</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <span class="u-center">Infiltrations reduce DP against your next attack.</span>
+        </div>
+        <table class="table striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>At home</th>
+                    <th class="w-16">Send</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for unit in my_units %}
+                {% if unit.op > 0 and "invasion_plan_power" in unit.perk_dict %}
+                <tr>
+                    {% include "maingame/unit_name_row.html" %}
+                    <td class="u-align-middle">{{ unit.quantity_at_home|intcomma }}</td>
+                    <td class="u-align-middle u-flex-md u-flex-row-md">
+                        <input 
+                            name="infiltrate_{{ unit.id }}" 
+                            id="infiltrate_{{ unit.id }}" 
+                            type="number" 
+                            min="0"
+                            max="{{ unit.quantity_at_home }}" 
+                            class="w-12 w-16-md ml-auto-md mr-2-md infiltration_unitInput"
+                            oninput="updateInfiltrateOffense()"
+                        >
+                        <button type="button" class="header_colors u-center" onclick="infiltrateMax('{{ unit.id }}', '{{ unit.quantity_at_home }}')">
+                            Max
+                        </button>
+                    </td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+        <div>
+            <div id="infiltration_readoutSection" class="u-center u-gap-1">
+                <span>Reduce DP against your next attack by</span>
+                <span id="opToInfiltrate">0</span>
+            </div>
+
+            <div class="u-center u-flex u-gap-1" id="infiltration_dpLeftText">
+                <span>You'll have</span>
+                <span id="infiltration_dpLeft">{{ active_dominion.defense }}</span>
+                <span>defense after infiltrating</span>
+            </div>
+
+            <input type="number" id="infiltration_dpLeftHidden" name="infiltration_dpLeftHidden" hidden value="{{ active_dominion.defense }}" />
+        </div>
+        <div style="display: none;">
+            <input type="submit" name="prevent-enter-submit" onclick="return false;">
+        </div>
+
+        <button class="btn-danger mt-1 w-24 h-6 p-0 u-center" type="submit" id="infiltrateButton" disabled>
+            <span id="infiltrateButtonText" class="font-bold" disabled>Submit</span>
+        </button>
+    </form>
+
+
+    {% comment %} Invasion form {% endcomment %}
     {% if not active_dominion.can_attack %}
     <div class="max-w-md">
         <div class="u-flex u-flex-column u-gap-1 u-center">
@@ -187,7 +294,7 @@
         </div>
     </div>
     {% elif active_dominion.can_attack and round.has_started and not round.has_ended %}
-    <form action="{% url 'submit_invasion' %}" method="post" class="max-w-md u-overflow-x-scroll u-overflow-x-auto-md">
+    <form action="{% url 'submit_invasion' %}" method="post" class="max-w-md u-overflow-x-scroll u-overflow-x-auto-md" id="invasionForm">
         {% csrf_token %}
         <div class="u-flex u-flex-row u-center py-2">
             <select class="max-w-xs" name="target_dominion_id" id="target_select_dropdown" oninput="updateTargetDefense(); updateOffenseToSend();">

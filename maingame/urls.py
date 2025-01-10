@@ -44,4 +44,5 @@ urlpatterns = [
     path("terminate_experiment", views.terminate_experiment, name="terminate_experiment"),
     path("other_head", views.other_head, name="other_head"),
     path("submit_other_head", views.submit_other_head, name="submit_other_head"),
+    path("submit_infiltration", views.submit_infiltration, name="submit_infiltration"),
 ]

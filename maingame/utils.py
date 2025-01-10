@@ -63,6 +63,8 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
         dominion.perk_dict["partner_patience"] = 36
         # dominion.perk_dict["partner_unit_training_0random_1offense_2defense"] = 0
         dominion.perk_dict["partner_attack_on_sight"] = False
+    elif faction.name == "gnomish special forces":
+        dominion.perk_dict["infiltration_dict"] = {}
 
     dominion.save()
 
@@ -455,6 +457,8 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             give_dominion_spell(dominion, Spell.objects.get(ruler=None, name="Bestow Biclopean Ambition"))
         case "Triclops":
             dominion.perk_dict["percent_chance_of_instant_return"] = 10
+        case "Safecrackers":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Safecracker"))
 
     if not can_take_multiple_times:
         dominion.available_discoveries.remove(discovery_name)
@@ -579,26 +583,32 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
     round = Round.objects.first()
     total_units_sent = 0
     defense_snapshot = target_dominion.defense
-    slowest_unit_return_ticks = 1
 
     for unit_id, unit_dict in units_sent_dict.items():
         unit = Unit.objects.get(id=unit_id)
         total_units_sent += unit_dict["quantity_sent"]
 
+    # Calculate OP, land return speed, and others
     offense_sent = 0
+    bonus_steal_offense_sent = 0
+    slowest_unit_return_ticks = 1
 
-    # Calculate OP and calculate fastest return
     for unit_details_dict in units_sent_dict.values():
         unit = unit_details_dict["unit"]
         quantity_sent = unit_details_dict["quantity_sent"]
         offense_sent += unit.op * quantity_sent
+
+        if "op_bonus_percent_for_stealing_artifacts" in unit.perk_dict:
+            bonus_steal_offense_sent += (unit.perk_dict["op_bonus_percent_for_stealing_artifacts"] / 100) * unit.op
 
         if "returns_in_ticks" in unit.perk_dict:
             slowest_unit_return_ticks = max(slowest_unit_return_ticks, unit.perk_dict["returns_in_ticks"])
         else:
             slowest_unit_return_ticks = 12
 
+    steal_offense_sent = offense_sent + bonus_steal_offense_sent
     offense_sent *= (my_dominion.offense_multiplier + get_grudge_bonus(my_dominion, target_dominion))
+    steal_offense_sent *= (my_dominion.offense_multiplier + get_grudge_bonus(my_dominion, target_dominion))
 
     # Determine victor
     if offense_sent >= target_dominion.defense:
@@ -644,12 +654,29 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
     
     stolen_artifact = None
 
-    # Handle stealing artifacts (every 1% by which OP exceeds DP gives 1% chance to steal)
-    if attacker_victory and Artifact.objects.filter(ruler=target_dominion).count() > 0:
-        percent_chance = ((offense_sent / defense_snapshot) - 1) * 100
-        percent_chance *= my_dominion.artifact_steal_chance_multiplier
+    # Handle stealing artifacts
+    defender_artifact_count = Artifact.objects.filter(ruler=target_dominion).count()
 
-        if percent_chance >= randint(1, 100):
+    if attacker_victory and defender_artifact_count > 0:
+        print("defense_snapshot", defense_snapshot)
+        print("offense_sent", offense_sent)
+        print("steal_offense_sent", steal_offense_sent)
+
+        percent_chance = ((steal_offense_sent / defense_snapshot) - 1) * 100
+        percent_chance *= my_dominion.artifact_steal_chance_multiplier
+        
+        # 1.5% chance to steal per 1% OP exceeds DP
+        percent_chance *= 1.5
+
+        print("percent_chance", percent_chance)
+
+        do_steal_artifact = False
+
+        for _ in range(defender_artifact_count):
+            if percent_chance >= randint(1, 100):
+                do_steal_artifact = True
+
+        if do_steal_artifact:
             defenders_artifacts = []
 
             for artifact in Artifact.objects.filter(ruler=target_dominion):

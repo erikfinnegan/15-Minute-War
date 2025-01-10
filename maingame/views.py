@@ -917,6 +917,7 @@ def world(request):
     current_defense_dict = {}
     land_conquered_dict = {}
     artifact_count_dict = {}
+    bonus_steal_op_dict = {}
     lowest_defense_larger_than_you = 99999999999
     lowest_defense_in_game = 99999999999
 
@@ -940,6 +941,10 @@ def world(request):
         if dominion.is_oop:
             lowest_defense_in_game = min(dominion.defense, lowest_defense_in_game)
 
+    for unit in my_units:
+        if "op_bonus_percent_for_stealing_artifacts" in unit.perk_dict:
+            bonus_steal_op_dict[str(unit.id)] = unit.perk_dict["op_bonus_percent_for_stealing_artifacts"]
+
     context = {
         "dominions": dominions,
         "minimum_defense_left": my_dominion.acres * 5,
@@ -949,6 +954,7 @@ def world(request):
         "current_defense_dict": json.dumps(current_defense_dict),
         "land_conquered_dict": json.dumps(land_conquered_dict),
         "artifact_count_dict": json.dumps(artifact_count_dict),
+        "bonus_steal_op_dict": json.dumps(bonus_steal_op_dict),
         "raw_defense": my_dominion.raw_defense,
         "defense_multiplier": my_dominion.defense_multiplier,
         "lowest_defense_larger_than_you": lowest_defense_larger_than_you,
@@ -1683,6 +1689,66 @@ def submit_other_head(request):
 
 
 @login_required
+def submit_infiltration(request):
+    try:
+        my_dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    round = Round.objects.first()
+    dominion_id = request.POST["target_dominion_id"]
+    
+    if round.has_ended:
+        messages.error(request, f"The round has already ended")
+        return redirect("world")
+    
+    if round.is_ticking:
+        messages.error(request, f"The tick is being processed, try again shortly.")
+        return redirect("world")
+    
+    if dominion_id == "0":
+        messages.error(request, f"No target selected")
+        return redirect("world")
+    
+    if "infiltration_dict" not in my_dominion.perk_dict:
+        messages.error(request, f"You can't infiltrate")
+        return redirect("world")
+    
+    dominion = Dominion.objects.get(id=dominion_id)
+
+    # Create a dict of the units sent
+    for key, string_amount in request.POST.items():
+        # key is like "send_123" where 123 is the ID of the Unit
+        if "infiltrate_" in key and string_amount != "":
+            unit = Unit.objects.get(id=key[11:])
+            amount = int(string_amount)
+
+            if "invasion_plan_power" not in unit.perk_dict:
+                messages.error(request, f"You can't send those units to infiltrate.")
+                return redirect("world")
+            elif amount > unit.quantity_at_home:
+                messages.error(request, f"You can't send more units than you have at home.")
+                return redirect("world")
+            else:
+                op_infiltrated = amount * unit.perk_dict["invasion_plan_power"]
+
+                if str(dominion.id) in my_dominion.perk_dict["infiltration_dict"]:
+                    my_dominion.perk_dict["infiltration_dict"][dominion.strid] += op_infiltrated
+                else:
+                    my_dominion.perk_dict["infiltration_dict"][dominion.strid] = op_infiltrated
+
+                my_dominion.save()
+
+                unit.quantity_at_home -= amount
+                unit.returning_dict["12"] += amount
+                unit.save()
+
+                messages.success(request, f"Successfully infiltrated {dominion.name} for {op_infiltrated} bonus OP.")
+    
+    return redirect("world")
+
+
+@login_required
 def submit_invasion(request):
     try:
         my_dominion = Dominion.objects.get(associated_user=request.user)
@@ -1700,8 +1766,8 @@ def submit_invasion(request):
         messages.error(request, f"The tick is being processed, try again shortly.")
         return redirect("world")
     
-    if my_dominion.has_units_returning:
-        messages.error(request, f"You can't send another invasion while you have units returning")
+    if not my_dominion.can_attack:
+        messages.error(request, f"You can't attack right now")
         return redirect("world")
     
     if dominion_id == "0":

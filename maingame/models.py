@@ -195,8 +195,8 @@ class Dominion(models.Model):
             return False
         elif self.perk_dict.get("inquisition_ticks_left") and self.perk_dict.get("inquisition_ticks_left") > 0:
             return False
-        elif self.has_units_returning:
-            return False
+        # elif self.has_units_returning:
+        #     return False
         elif self.incoming_acres > 0:
             return False
         
@@ -858,6 +858,14 @@ class Unit(models.Model):
         if "rats_trained_per_tick" in self.perk_dict:
             rats_trained_per_tick = self.perk_dict["rats_trained_per_tick"]
             perk_text += f"Attempts to train {rats_trained_per_tick} Trained Rat per tick, paying costs as normal. "
+        
+        if "op_bonus_percent_for_stealing_artifacts" in self.perk_dict:
+            op_bonus_percent_for_stealing_artifacts = self.perk_dict["op_bonus_percent_for_stealing_artifacts"]
+            perk_text += f"Offense counts as {op_bonus_percent_for_stealing_artifacts}% higher when calculating artifact steal chance. "
+
+        if "invasion_plan_power" in self.perk_dict:
+            invasion_plan_power = self.perk_dict["invasion_plan_power"]
+            perk_text += f"Can be sent to plan invasions, reducing the target's defense against your next attack by {invasion_plan_power}. "
 
         return perk_text
     

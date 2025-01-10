@@ -48,6 +48,7 @@
 
     function updateOffenseToSend() {
         const offense_multiplier_dict = JSON.parse('{{ offense_multiplier_dict|escapejs }}');
+        const bonus_steal_op_dict = JSON.parse('{{ bonus_steal_op_dict|escapejs }}');
         const baseOffenseMultiplier = JSON.parse('{{ base_offense_multiplier|escapejs }}');
         const artifactCountDict = JSON.parse('{{ artifact_count_dict|escapejs }}');
         const stealChanceMultiplier = {{ active_dominion.artifact_steal_chance_multiplier }}
@@ -70,6 +71,7 @@
         let unitInputs = document.getElementsByClassName("unitInput")
 
         let totalOp = 0
+        let bonusStealOp = 0
         let dpSent = 0
 
         for (const [key, value] of Object.entries(unitInputs)) {
@@ -80,7 +82,13 @@
             dp = parseInt(dp.replace(/,/g, ''))
             totalOp = totalOp + value.value * op
             dpSent = dpSent + value.value * dp
+
+            if (bonus_steal_op_dict[unitId]) {
+                bonusStealOp = bonusStealOp + ((bonus_steal_op_dict[unitId] / 100) * value.value * op)
+            }
         }
+
+        const totalStealOp = totalOp + bonusStealOp
 
         let offense_multiplier = baseOffenseMultiplier
         if (targetId != 0 && targetId != "quest") {
@@ -144,7 +152,7 @@
             if (artifactCountDict[targetId] > 0) {
                 stealChanceSection.classList.remove("u-none")
                 stealChanceSection.classList.add("u-flex")
-                percentChance = Math.floor(((totalOp / dpHere) - 1) * 100 * stealChanceMultiplier)
+                percentChance = Math.floor(((totalStealOp / dpHere) - 1) * 100 * stealChanceMultiplier * 1.5)
                 stealChance.innerHTML = Math.min(100, percentChance)
             }
         } else {
@@ -210,6 +218,109 @@
         }
 
         if (defenseLeft < lowestDefenseInTheGame) {
+            youHaveTheLowestDefenseReadout.hidden = false
+        } else {
+            youHaveTheLowestDefenseReadout.hidden = true
+        }
+    }
+
+    function infiltrateMax(unit_id, quantity_at_home) {
+        let thisInput = document.getElementById("infiltrate_" + unit_id);
+        if (thisInput.value == quantity_at_home) {
+            thisInput.value = ""
+        } else {
+            thisInput.value = quantity_at_home;
+        }
+
+        updateInfiltrateOffense()
+    }
+
+    function toggleInfiltrate() {
+        console.log("toggleInfiltrate go!")
+        const invasionForm = document.getElementById("invasionForm");
+        const infiltrationForm = document.getElementById("infiltrationForm");
+        const showInfiltrationToggle = document.getElementById("showInfiltrationToggle");
+        const infiltrateButton = document.getElementById("infiltrateButton")
+        let infiltrateButtonText = document.getElementById("infiltrateButtonText");
+
+        console.log("showInfiltrationToggle", showInfiltrationToggle.checked)
+        
+        if (showInfiltrationToggle.checked == true) {
+            invasionForm.classList.add("u-none")
+            infiltrationForm.classList.remove("u-none")
+        } else {
+            invasionForm.classList.remove("u-none")
+            infiltrationForm.classList.add("u-none")
+        }
+    }
+
+    function updateInfiltrateOffense() {
+        console.log("------------------- updateInfiltrateOffense go!")
+        let opToInfiltrateReadout = document.getElementById("opToInfiltrate");
+        let dpLeftReadout = document.getElementById("infiltration_dpLeft");
+        let dpLeftReadoutHidden = document.getElementById("infiltration_dpLeftHidden");
+        let dpLeftText = document.getElementById("infiltration_dpLeftText");
+        const targetId = document.getElementById("infiltration_target_select_dropdown").value;
+        let unitInputs = document.getElementsByClassName("infiltration_unitInput")
+
+        let totalOp = 0
+        let dpSent = 0
+
+        for (const [key, value] of Object.entries(unitInputs)) {
+            //unitId = value.id.substr(5)
+            //let op = document.getElementById("infiltration_power_" + unitId).innerHTML.split("/")[0]
+            //let dp = document.getElementById("infiltration_power_" + unitId).innerHTML.split("/")[1]
+            const op = 4
+            const dp = 5
+            totalOp = totalOp + value.value * op
+            dpSent = dpSent + value.value * dp
+        }
+
+        opToInfiltrateReadout.innerHTML = totalOp
+
+        const dpLeft = Math.floor((rawDefense - dpSent) * defenseMultiplier)
+        dpLeftReadout.innerHTML = dpLeft
+        dpLeftReadoutHidden.value = dpLeft
+
+        if (targetId == 0) {
+            //readoutSection.classList.remove("u-none")
+            //readoutSection.classList.add("u-flex")
+            //nonQuestReadoutSection.classList.add("u-none")
+            //nonQuestReadoutSection.classList.remove("u-flex")
+            //readoutSection.classList.remove("text-red-400")
+            //readoutSection.classList.add("text-green-400")
+            infiltrateButtonText.classList.remove("text-red-400")
+            infiltrateButton.disabled = true
+        } else if (totalOp > 0) {
+            //nonQuestReadoutSection.classList.remove("u-none")
+            //nonQuestReadoutSection.classList.add("u-flex")
+            //readoutSection.classList.remove("text-red-400")
+            //readoutSection.classList.remove("u-none")
+            //readoutSection.classList.add("text-green-400")
+            //readoutSection.classList.add("u-flex")
+            infiltrateButtonText.classList.remove("text-red-400")
+            infiltrateButton.disabled = false
+        } else {
+            infiltrateButtonText.classList.remove("text-red-400")
+            infiltrateButton.disabled = true
+        }
+
+        if (dpLeft < minimumDefenseLeft) {
+            dpLeftText.classList.add("text-red-400")
+        } else {
+            dpLeftText.classList.remove("text-red-400")
+        }
+
+        let largerEnemyHasLowerDefenseReadout = document.getElementById("largerEnemyHasLowerDefense");
+        let youHaveTheLowestDefenseReadout = document.getElementById("youHaveTheLowestDefense");
+
+        if (dpLeft > lowestDefenseLargerThanYou) {
+            largerEnemyHasLowerDefenseReadout.hidden = false
+        } else {
+            largerEnemyHasLowerDefenseReadout.hidden = true
+        }
+
+        if (dpLeft < lowestDefenseInTheGame) {
             youHaveTheLowestDefenseReadout.hidden = false
         } else {
             youHaveTheLowestDefenseReadout.hidden = true

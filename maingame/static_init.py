@@ -176,6 +176,17 @@ def initialize_factions():
         over 75% of your size who you can beat using only units with OP > DP). If they get TOO impatient, they'll ignore this restriction."""
     )
 
+    Faction.objects.create(
+        name="gnomish special forces",
+        primary_resource_name="gold",
+        primary_resource_per_acre="50",
+        building_primary_resource_name="gold",
+        building_secondary_resource_name="wood",
+        starting_buildings=["farm", "lumberyard", "school", "tower", "quarry",],
+        description="""The GSF are as tricky as they are small. What they lack in power they make up for with their devious schemes, strategically undermining
+        the defenses of their targets before striking a decisive blow."""
+    )
+
 
 def initialize_generic_units():
     Unit.objects.create(
@@ -189,6 +200,7 @@ def initialize_generic_units():
         upkeep_dict={
             "wood": 4,
         },
+        perk_dict={"op_bonus_percent_for_stealing_artifacts": 10},
     )
 
     Unit.objects.create(
@@ -235,7 +247,7 @@ def initialize_generic_units():
             "food": 1,
         },
         is_trainable=False,
-        perk_dict={"surplus_research_consumed_to_add_one_op_and_dp": 1300}
+        perk_dict={"surplus_research_consumed_to_add_one_op_and_dp": 1400}
     )
 
     Unit.objects.create(
@@ -644,11 +656,11 @@ def initialize_biclops_units():
 
     Unit.objects.create(
         name="Smasher",
-        op=8,
-        dp=16,
+        op=10,
+        dp=20,
         cost_dict={
-            "gold": 2400,
-            "wood": 2200,
+            "gold": 3000,
+            "wood": 2400,
         },
         upkeep_dict={
             "gold": 12,
@@ -659,11 +671,11 @@ def initialize_biclops_units():
 
     Unit.objects.create(
         name="Ironclops",
-        op=20,
-        dp=12,
+        op=24,
+        dp=14,
         cost_dict={
-            "gold": 2600,
-            "ore": 6400,
+            "gold": 3200,
+            "ore": 6500,
         },
         upkeep_dict={
             "gold": 12,
@@ -671,6 +683,61 @@ def initialize_biclops_units():
         },
         faction=biclops,
         perk_dict={"casualty_multiplier": 0.5},
+    )
+
+    Unit.objects.create(
+        name="Safecracker",
+        op=39,
+        dp=14,
+        cost_dict={
+            "gold": 3200,
+            "wood": 5000,
+            "ore": 10500,
+        },
+        upkeep_dict={
+            "gold": 12,
+            "food": 4,
+            "wood": 4,
+        },
+        faction=biclops,
+        perk_dict={"casualty_multiplier": 0.5, "op_bonus_percent_for_stealing_artifacts": 20},
+    )
+
+
+def initialize_gnomish_special_forces_units():
+    gnomish_special_forces = Faction.objects.get(name="gnomish special forces")
+
+    Unit.objects.create(
+        name="Trencher",
+        op=2,
+        dp=4,
+        cost_dict={
+            "gold": 550,
+            "ore": 300,
+        },
+        upkeep_dict={
+            "gold": 3,
+            "food": 1,
+        },
+        faction=gnomish_special_forces
+    )
+
+    Unit.objects.create(
+        name="Greencap",
+        # If you change OP or DP, you gotta update world_js.html updateInfiltrateOffense() because they're hardcoded like a fucking idiot
+        op=6,
+        dp=5,
+        cost_dict={
+            "gold": 2000,
+            "ore": 300,
+            "research": 1300,
+        },
+        upkeep_dict={
+            "gold": 3,
+            "food": 1,
+        },
+        faction=gnomish_special_forces,
+        perk_dict={"invasion_plan_power": 4},
     )
 
 
@@ -681,6 +748,7 @@ def initialize_units():
     initialize_sludgeling_units()
     initialize_goblin_units()
     initialize_biclops_units()
+    initialize_gnomish_special_forces_units()
 
     for unit in Unit.objects.all():
         give_unit_timer_template(unit)
@@ -721,9 +789,9 @@ def initialize_spells():
         name="Bestow Biclopean Ambition",
         description="""For the next 11 ticks, the target dominion will attack anyone within 75% of their size if they can do so successfully using
         only units with OP > DP and without the "always dies on offense" perk.""",
-        mana_cost_per_acre=150,
+        mana_cost_per_acre=50,
         is_targeted=True,
-        cooldown=0,
+        cooldown=48,
     )
 
 
@@ -1004,7 +1072,7 @@ def initialize_goblin_discoveries():
 def initialize_biclops_discoveries():
     Discovery.objects.create(
         name="Bestow Biclopean Ambition",
-        description="""Share the gift of desperate, biclopean ambition with another dominion. Unlocks a spell with an 84-tick cooldown that gives 
+        description="""Share the gift of desperate, biclopean ambition with another dominion. Unlocks a spell with a 48-tick cooldown that gives 
         the target dominion 11 ticks of an impatient second head hungry for invasion, except it won't use units that always die on offense.""",
         required_faction_name="biclops",
     )
@@ -1014,6 +1082,14 @@ def initialize_biclops_discoveries():
         description="""Rumor has it that every biclops has an invisible third eye that can see the future. When you attack, there is a 10% chance your
         troops will predict a counterattack and instantly return to defensive positions. Your land will still return at the normal rate.""",
         required_faction_name="biclops",
+    )
+
+    Discovery.objects.create(
+        name="Safecrackers",
+        description="""Somehow, most guards seem to always be looking the other way when biclopean cat burglars come "prowling". """,
+        associated_unit_name="Safecracker",
+        required_faction_name="biclops",
+        required_discoveries=["Battering Rams"],
     )
 
 
