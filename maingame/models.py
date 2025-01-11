@@ -204,14 +204,14 @@ class Dominion(models.Model):
 
     @property
     def complacency_penalty_percent(self):
-        penalty = self.complacency * 0.5
+        penalty = self.complacency * 0.33
 
         return penalty
     
     @property
     def determination_bonus_percent(self):
         # return 0
-        bonus = self.determination * 0.5
+        bonus = self.determination * 0.33
 
         return bonus
 
@@ -446,6 +446,9 @@ class Dominion(models.Model):
         return int(production)
     
     def get_consumption(self, resource_name):
+        if resource_name == "food" and Artifact.objects.filter(ruler=self, name="The Victor's Feast").exists():
+            return 0
+
         consumption = 0
 
         for unit in Unit.objects.filter(ruler=self):

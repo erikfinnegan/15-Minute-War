@@ -85,4 +85,13 @@ class Command(BaseCommand):
             unit.quantity_at_home = 100000
             unit.save()
 
+        for dom in Dominion.objects.all():
+            if dom != testdominion:
+                testdominion.perk_dict["book_of_grudges"][dom.strid] = {
+                    "pages": 100,
+                    "animosity": 100,
+                }
+        
+        testdominion.save()
+
         print("Done generating stuff.")

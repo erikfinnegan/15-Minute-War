@@ -154,9 +154,8 @@ class Command(BaseCommand):
         # print()
 
 
-        bonus = 2000
-
-        for x in range(12):
-            bonus *= 1.002
-
-        print(int(bonus))
+        for unit in Unit.objects.filter(ruler=None):
+            if "food" in unit.upkeep_dict:
+                bigstat = max(unit.op, unit.dp)
+                foodupkeep = unit.upkeep_dict["food"]
+                print(f"{bigstat} --- {foodupkeep} --- {unit.name}")

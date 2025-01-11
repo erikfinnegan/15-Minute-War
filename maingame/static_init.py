@@ -115,11 +115,11 @@ def initialize_factions():
         building_primary_resource_name="gold",
         building_secondary_resource_name="wood",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"],
-        description="""Dwarves keep the most meticulous grudges, gaining 50% more pages than anyone else. They also unlock unique abilities to expand
-        their grudges and even retain a bit of them instead of forgiving and forgetting like less stalwart folk."""
-        # description="""Dwarves keep a book of grudges, chronicling any slight against them, no matter how minor. When a dominion invades a dwarf, 100 pages of 
-        # grudges are added about that dominion. Every tick, those grudges simmer and the dwarf's offense bonus against that dominion increases by 0.003% per page,
-        # accumulating until the dwarf invades that player successfully. 0.003% may not sound like much, but it adds up quickly."""
+        # description="""Dwarves keep the most meticulous grudges, gaining 50% more pages than anyone else. They also unlock unique abilities to expand
+        # their grudges and even retain a bit of them instead of forgiving and forgetting like less stalwart folk."""
+        description="""Dwarves keep a book of grudges, chronicling any slight against them, no matter how minor. When a dominion invades a dwarf, pages of 
+        grudges are added about that dominion. Every tick, those grudges simmer and the dwarf's offense bonus against that dominion increases by 0.003% per page,
+        accumulating until the dwarf invades that player successfully. 0.003% may not sound like much, but it adds up quickly."""
     )
 
     Faction.objects.create(
@@ -956,7 +956,7 @@ def initialize_blessed_order_discoveries():
 
     Discovery.objects.create(
         name="Heresy",
-        description="Triples the number of sinners generated.",
+        description="Doubles the number of sinners generated.",
         required_faction_name="blessed order",
         required_discoveries_or=["Grim Sacrament", "Penitent Engines"],
     )
@@ -1196,6 +1196,11 @@ def initialize_artifacts():
     Artifact.objects.create(
         name="The Cause of Nine Deaths",
         description="You gain discoveries 25% faster."
+    )
+
+    Artifact.objects.create(
+        name="The Victor's Feast",
+        description="You have no food upkeep."
     )
 
 

@@ -23,7 +23,6 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
     if faction.name == "dwarf":
         dominion.perk_dict["book_of_grudges"] = {}
         # dominion.perk_dict["grudge_page_multiplier"] = 1.5
-        # dominion.perk_dict["grudge_page_keep_multiplier"] = 0.05
     elif faction.name == "blessed order":
         dominion.perk_dict["sinners_per_hundred_acres_per_tick"] = 1
         dominion.perk_dict["inquisition_rate"] = 0
@@ -425,7 +424,7 @@ def unlock_discovery(dominion: Dominion, discovery_name):
         case "Penitent Engines":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Penitent Engine"))
         case "Heresy":
-            dominion.perk_dict["sinners_per_hundred_acres_per_tick"] *= 3
+            dominion.perk_dict["sinners_per_hundred_acres_per_tick"] *= 2
         case "Grim Sacrament":
             dominion.perk_dict["inquisition_makes_corpses"] = True
             create_resource_for_dominion("corpses", dominion)
@@ -637,12 +636,12 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
         my_dominion.determination = 0
         my_dominion.save()
 
-        # Handle grudges
+        # Defender might gain grudges
         if "book_of_grudges" in target_dominion.perk_dict:
             pages_to_gain = 50
 
             for _ in range(round.ticks_passed):
-                pages_to_gain *= 1.0015
+                pages_to_gain *= 1.002
 
             if "grudge_page_multiplier" in target_dominion.perk_dict:
                 pages_to_gain *= target_dominion.perk_dict["grudge_page_multiplier"]
@@ -792,7 +791,7 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
         battle.acres_conquered = acres_conquered
         battle.save()
 
-        # Attackers erase their grudges for a dominion once they hit them
+        # Attackers erase their grudges for a dominion once they hit them amd halve the others
         if "book_of_grudges" in my_dominion.perk_dict and str(target_dominion.id) in my_dominion.perk_dict["book_of_grudges"]:
             if "grudge_page_keep_multiplier" in my_dominion.perk_dict:
                 pages = my_dominion.perk_dict["book_of_grudges"][str(target_dominion.id)]["pages"]
@@ -801,6 +800,9 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
                 my_dominion.perk_dict["book_of_grudges"][str(target_dominion.id)]["animosity"] *= 0
             else:
                 del my_dominion.perk_dict["book_of_grudges"][str(target_dominion.id)]
+
+            for grudge_dict in my_dominion.perk_dict["book_of_grudges"].values():
+                grudge_dict["animosity"] /= 2
 
             my_dominion.save()
     else:
