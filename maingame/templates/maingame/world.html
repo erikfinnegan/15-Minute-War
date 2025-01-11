@@ -222,7 +222,7 @@
 
 
     {% comment %} GSF infiltration {% endcomment %}
-    {% if active_dominion.faction_name == "gnomish special forces" %}
+    {% if active_dominion.faction_name == "gnomish special forces" and active_dominion.is_oop and round.has_started %}
     <div class="max-w-md">
         <div class="form-ext-control pl-0 w-24 u-center">
             <label class="form-ext-toggle__label u-flex u-flex-row u-gap-2">
