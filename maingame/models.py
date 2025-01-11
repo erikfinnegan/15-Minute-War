@@ -803,6 +803,9 @@ class Unit(models.Model):
         if "always_dies_on_offense" in self.perk_dict:
             perk_text += "Always dies when sent on an invasion. "
 
+        if "always_dies_on_defense" in self.perk_dict:
+            perk_text += "Always dies when successfully invaded. "
+
         if "immortal" in self.perk_dict:
             perk_text += "Does not die in combat. "
 

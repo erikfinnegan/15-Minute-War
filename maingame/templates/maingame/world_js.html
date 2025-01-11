@@ -236,15 +236,12 @@
     }
 
     function toggleInfiltrate() {
-        console.log("toggleInfiltrate go!")
         const invasionForm = document.getElementById("invasionForm");
         const infiltrationForm = document.getElementById("infiltrationForm");
         const showInfiltrationToggle = document.getElementById("showInfiltrationToggle");
         const infiltrateButton = document.getElementById("infiltrateButton")
         let infiltrateButtonText = document.getElementById("infiltrateButtonText");
 
-        console.log("showInfiltrationToggle", showInfiltrationToggle.checked)
-        
         if (showInfiltrationToggle.checked == true) {
             invasionForm.classList.add("u-none")
             infiltrationForm.classList.remove("u-none")
@@ -255,7 +252,6 @@
     }
 
     function updateInfiltrateOffense() {
-        console.log("------------------- updateInfiltrateOffense go!")
         let opToInfiltrateReadout = document.getElementById("opToInfiltrate");
         let dpLeftReadout = document.getElementById("infiltration_dpLeft");
         let dpLeftReadoutHidden = document.getElementById("infiltration_dpLeftHidden");
@@ -267,9 +263,7 @@
         let dpSent = 0
 
         for (const [key, value] of Object.entries(unitInputs)) {
-            //unitId = value.id.substr(5)
-            //let op = document.getElementById("infiltration_power_" + unitId).innerHTML.split("/")[0]
-            //let dp = document.getElementById("infiltration_power_" + unitId).innerHTML.split("/")[1]
+            // "op" is actually the "invasion_plan_power" perk value for Greencaps
             const op = 4
             const dp = 5
             totalOp = totalOp + value.value * op
@@ -283,25 +277,13 @@
         dpLeftReadoutHidden.value = dpLeft
 
         if (targetId == 0) {
-            //readoutSection.classList.remove("u-none")
-            //readoutSection.classList.add("u-flex")
-            //nonQuestReadoutSection.classList.add("u-none")
-            //nonQuestReadoutSection.classList.remove("u-flex")
-            //readoutSection.classList.remove("text-red-400")
-            //readoutSection.classList.add("text-green-400")
-            infiltrateButtonText.classList.remove("text-red-400")
+            infiltrateButtonText.classList.add("text-red-400")
             infiltrateButton.disabled = true
         } else if (totalOp > 0) {
-            //nonQuestReadoutSection.classList.remove("u-none")
-            //nonQuestReadoutSection.classList.add("u-flex")
-            //readoutSection.classList.remove("text-red-400")
-            //readoutSection.classList.remove("u-none")
-            //readoutSection.classList.add("text-green-400")
-            //readoutSection.classList.add("u-flex")
             infiltrateButtonText.classList.remove("text-red-400")
             infiltrateButton.disabled = false
         } else {
-            infiltrateButtonText.classList.remove("text-red-400")
+            infiltrateButtonText.classList.add("text-red-400")
             infiltrateButton.disabled = true
         }
 
@@ -311,8 +293,8 @@
             dpLeftText.classList.remove("text-red-400")
         }
 
-        let largerEnemyHasLowerDefenseReadout = document.getElementById("largerEnemyHasLowerDefense");
-        let youHaveTheLowestDefenseReadout = document.getElementById("youHaveTheLowestDefense");
+        let largerEnemyHasLowerDefenseReadout = document.getElementById("infiltrateLargerEnemyHasLowerDefense");
+        let youHaveTheLowestDefenseReadout = document.getElementById("infiltrateYouHaveTheLowestDefense");
 
         if (dpLeft > lowestDefenseLargerThanYou) {
             largerEnemyHasLowerDefenseReadout.hidden = false

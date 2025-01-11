@@ -397,20 +397,20 @@ def initialize_dwarf_units():
         perk_dict={"casualty_multiplier": 0.5},
     )
 
-    Unit.objects.create(
-        name="Doom Prospector",
-        op=14,
-        dp=0,
-        cost_dict={
-            "gold": 1200,
-            "ore": 800,
-        },
-        upkeep_dict={
-            "gold": 3,
-            "food": 1,
-        },
-        perk_dict={"casualty_multiplier": 3},
-    )
+    # Unit.objects.create(
+    #     name="Doom Prospector",
+    #     op=14,
+    #     dp=0,
+    #     cost_dict={
+    #         "gold": 1200,
+    #         "ore": 800,
+    #     },
+    #     upkeep_dict={
+    #         "gold": 3,
+    #         "food": 1,
+    #     },
+    #     perk_dict={"casualty_multiplier": 3},
+    # )
 
 
 def initialize_blessed_order_units():
@@ -674,7 +674,7 @@ def initialize_biclops_units():
         op=24,
         dp=14,
         cost_dict={
-            "gold": 3200,
+            "gold": 3400,
             "ore": 6500,
         },
         upkeep_dict={
@@ -690,9 +690,9 @@ def initialize_biclops_units():
         op=39,
         dp=14,
         cost_dict={
-            "gold": 3200,
-            "wood": 5000,
-            "ore": 10500,
+            "gold": 3400+0,
+            "wood": 0+5000,
+            "ore": 6500+4000,
         },
         upkeep_dict={
             "gold": 12,
@@ -727,9 +727,9 @@ def initialize_gnomish_special_forces_units():
         op=6,
         dp=5,
         cost_dict={
-            "gold": 2000,
+            "gold": 2300,
             "ore": 300,
-            "research": 1300,
+            "research": 1800,
         },
         upkeep_dict={
             "gold": 3,
@@ -737,6 +737,33 @@ def initialize_gnomish_special_forces_units():
         },
         faction=gnomish_special_forces,
         perk_dict={"invasion_plan_power": 4},
+    )
+
+    Unit.objects.create(
+        name="Juggernaut Tank",
+        op=24,
+        dp=30,
+        cost_dict={
+            "ore": 10000,
+            "wood": 4000,
+        },
+        upkeep_dict={
+            "gold": 6,
+            "food": 2,
+            "wood": 5,
+        },
+        perk_dict={"casualty_multiplier": 0.5},
+    )
+
+    Unit.objects.create(
+        name="Inferno Mine",
+        op=0,
+        dp=9,
+        cost_dict={
+            "mana": 300,
+            "ore": 300,
+        },
+        perk_dict={"always_dies_on_defense": True},
     )
 
 
@@ -1092,6 +1119,29 @@ def initialize_biclops_discoveries():
     )
 
 
+def initialize_gnomish_special_forces_discoveries():
+    Discovery.objects.create(
+        name="Juggernaut Tanks",
+        description="""Powerful armored vehicles to support gnomish military effortd.""",
+        associated_unit_name="Juggernaut Tank",
+        required_faction_name="gnomish special forces",
+    )
+
+    Discovery.objects.create(
+        name="Inferno Mines",
+        description="""Many have wished for a safe method to leverage fireballs on defense. So far, only the GSF have found a way.""",
+        associated_unit_name="Inferno Mine",
+        required_faction_name="gnomish special forces",
+        required_discoveries=["Fireballs"],
+    )
+
+    Discovery.objects.create(
+        name="Rapid Deployment",
+        description="""Careful planning and clever strategy keeps the GSF ahead of their enemies at all times. Units are trained in 6 ticks.""",
+        required_faction_name="gnomish special forces",
+    )
+
+
 def initialize_discoveries():
     initialize_generic_discoveries()
     initialize_dwarf_discoveries()
@@ -1099,6 +1149,7 @@ def initialize_discoveries():
     initialize_sludgeling_discoveries()
     initialize_goblin_discoveries()
     initialize_biclops_discoveries()
+    initialize_gnomish_special_forces_discoveries()
 
 
 def initialize_artifacts():

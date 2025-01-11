@@ -459,6 +459,12 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             dominion.perk_dict["percent_chance_of_instant_return"] = 10
         case "Safecrackers":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Safecracker"))
+        case "Juggernaut Tanks":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Juggernaut Tank"))
+        case "Inferno Mines":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Inferno Mine"))
+        case "Rapid Deployment":
+            dominion.perk_dict["unit_training_time"] = "6"
 
     if not can_take_multiple_times:
         dominion.available_discoveries.remove(discovery_name)
@@ -867,6 +873,8 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
         if "immortal" in unit.perk_dict or unit.dp == 0:
             survivors = unit.quantity_at_home
             deaths = 0
+        elif "always_dies_on_defense" in unit.perk_dict:
+            survivors = 0
         else:
             deaths = int((1 - defensive_survival) * unit.quantity_at_home)
 
@@ -882,7 +890,7 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
             faith.quantity += deaths * unit.dp * target_dominion.perk_dict["faith_per_power_died"]
             faith.save()
 
-        if "mana" not in unit.upkeep_dict and "mana" not in unit.cost_dict and "always_dies_on_offense" not in unit.perk_dict:
+        if "mana" not in unit.upkeep_dict and "mana" not in unit.cost_dict and "always_dies_on_defense" not in unit.perk_dict:
             defensive_casualties += casualties
 
         unit.quantity_at_home = survivors

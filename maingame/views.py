@@ -359,7 +359,15 @@ def submit_training(request):
             if "train_" in key and string_amount != "":
                 unit = Unit.objects.get(ruler=dominion, id=key[6:])
                 amount = int(string_amount)
-                unit.training_dict["12"] += amount
+
+                if "unit_training_time" in dominion.perk_dict:
+                    unit_training_time = dominion.perk_dict["unit_training_time"]
+                    print("unit_training_time", unit_training_time)
+                    unit.training_dict[unit_training_time] += amount
+                else:
+                    print("else")
+                    unit.training_dict["12"] += amount
+
                 unit.save()
 
         messages.success(request, f"Training of {total_trained} units successful")
