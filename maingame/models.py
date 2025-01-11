@@ -868,7 +868,7 @@ class Unit(models.Model):
 
         if "invasion_plan_power" in self.perk_dict:
             invasion_plan_power = self.perk_dict["invasion_plan_power"]
-            perk_text += f"Can be sent to plan invasions, reducing the target's defense against your next attack by {invasion_plan_power}. "
+            perk_text += f"Can be sent to infiltrate a target, increasing your offense on your next attack against them by {invasion_plan_power}. "
 
         return perk_text
     

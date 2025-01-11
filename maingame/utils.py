@@ -599,6 +599,9 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
     bonus_steal_offense_sent = 0
     slowest_unit_return_ticks = 1
 
+    if "infiltration_dict" in my_dominion.perk_dict and target_dominion.strid in my_dominion.perk_dict["infiltration_dict"]:
+        offense_sent += my_dominion.perk_dict["infiltration_dict"][target_dominion.strid]
+
     for unit_details_dict in units_sent_dict.values():
         unit = unit_details_dict["unit"]
         quantity_sent = unit_details_dict["quantity_sent"]

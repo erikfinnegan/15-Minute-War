@@ -578,7 +578,7 @@ def initialize_goblin_units():
         op=0,
         dp=1,
         cost_dict={
-            "food": 50,
+            "food": 100,
             "rats": 1,
         },
         upkeep_dict={

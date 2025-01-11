@@ -82,8 +82,8 @@
                             </span>
                             {% endif %}
                             
-                            {% if dominion.has_units_returning %}
-                            <small>Units return in {{ dominion.ticks_til_soonest_return }} ticks</small>
+                            {% if dominion.incoming_acres > 0 %}
+                            <small>Army returns in {{ dominion.ticks_til_all_acres_return }} ticks</small>
                             {% endif %}
                         </div>
                     </td>
@@ -91,8 +91,8 @@
                     {% comment %} Complacency/Determination {% endcomment %}
                     <td class="u-align-middle">
                         <div class="u-flex u-flex-column">
-                            <span>+{{ dominion.determination_bonus_percent|floatformat:0 }}% OP</span>
-                            <span>-{{ dominion.complacency_penalty_percent|floatformat:0 }}% DP</span>
+                            <span style="white-space:nowrap">+{{ dominion.determination_bonus_percent|floatformat:0 }}% OP</span>
+                            <span style="white-space:nowrap">-{{ dominion.complacency_penalty_percent|floatformat:0 }}% DP</span>
                         </div>
                     </td>
 
@@ -117,12 +117,18 @@
                             <td class="u-align-middle">
                                 <div class="u-flex u-flex-column u-center w-16">
                                     <span>
-                                        -{{ active_dominion.perk_dict.infiltration_dict|getattr:dominion.strid|intcomma }} DP
+                                        +{{ active_dominion.perk_dict.infiltration_dict|getattr:dominion.strid|intcomma }} OP
                                     </span>
                                 </div>
                             </td>
                         {% elif dominion == active_dominion %}
-                            <td class="u-align-middle">-</td>
+                            <td class="u-align-middle">
+                                {% if dominion.ticks_til_all_units_return > 0 %}
+                                    <small>Infiltrators return in {{ dominion.ticks_til_all_units_return }} ticks</small>
+                                {% else %}
+                                    <span>-</span>
+                                {% endif %}
+                            </td>
                         {% else %}
                             <td class="u-align-middle">None</td>
                         {% endif %}
@@ -142,6 +148,23 @@
                                         {{ dominion.perk_dict.book_of_grudges|getattr:active_dominion.strid|getattr:"pages" }} page{% if dominion.perk_dict.book_of_grudges|getattr:active_dominion.strid|getattr:"pages" > 1 %}s{% endif %}
                                     </span>
                                     <span>+{{ dominion.perk_dict.book_of_grudges|getattr:active_dominion.strid|getattr:"animosity"|floatformat:"1" }}% OP</span>
+                                </div>
+                            </td>
+                        {% elif dominion == active_dominion %}
+                            <td class="u-align-middle">-</td>
+                        {% else %}
+                            <td class="u-align-middle">None</td>
+                        {% endif %}
+                    {% elif "infiltration_dict" in dominion.perk_dict %}
+                        {% if active_dominion.strid in dominion.perk_dict.infiltration_dict %}
+                            <td class="u-align-middle">
+                                <div class="u-flex u-flex-column u-center w-16">
+                                    <span>
+                                        +{{ dominion.perk_dict.infiltration_dict|getattr:active_dominion.strid|intcomma }} OP
+                                    </span>
+                                    {% if dominion.ticks_til_all_units_return > 0 %}
+                                        <small>Infiltrators return in {{ dominion.ticks_til_all_units_return }} ticks</small>
+                                    {% endif %}
                                 </div>
                             </td>
                         {% elif dominion == active_dominion %}

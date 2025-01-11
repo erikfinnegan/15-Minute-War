@@ -49,12 +49,15 @@
     <div class="u-none u-flex-md u-flex-wrap {% if active_dominion.resource_types >= 9 %}u-gap-4{% else %}u-gap-6{% endif %}">
         {% if active_dominion %}
         <div class="u-flex u-flex-column">
-            {% if active_dominion.ticks_til_all_units_return > 0 %}
-            <span>Units home in</span>
-            <span>{{ active_dominion.ticks_til_all_units_return }} ticks</span>
+            {% if active_dominion.ticks_til_all_acres_return > 0 %}
+                <span>Army home in</span>
+                <span>{{ active_dominion.ticks_til_all_acres_return }} ticks</span>
+            {% elif active_dominion.ticks_til_all_units_return > 0 %}
+                <small>All units home in {{ active_dominion.ticks_til_all_units_return }} ticks</small>
+                <small>(but you can attack)</small>
             {% else %}
-            <span>All units</span>
-            <span>are home</span>
+                <span>All units</span>
+                <span>are home</span>
             {% endif %}
         </div>
         

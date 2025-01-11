@@ -48,6 +48,7 @@
 
     function updateOffenseToSend() {
         const offense_multiplier_dict = JSON.parse('{{ offense_multiplier_dict|escapejs }}');
+        const offense_bonus_dict = JSON.parse('{{ offense_bonus_dict|escapejs }}');
         const bonus_steal_op_dict = JSON.parse('{{ bonus_steal_op_dict|escapejs }}');
         const baseOffenseMultiplier = JSON.parse('{{ base_offense_multiplier|escapejs }}');
         const artifactCountDict = JSON.parse('{{ artifact_count_dict|escapejs }}');
@@ -70,7 +71,7 @@
         let invadeButtonText = document.getElementById("invadeButtonText");
         let unitInputs = document.getElementsByClassName("unitInput")
 
-        let totalOp = 0
+        let totalOp = offense_bonus_dict[targetId]
         let bonusStealOp = 0
         let dpSent = 0
 

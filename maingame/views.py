@@ -922,6 +922,7 @@ def world(request):
                 my_dominion.perk_dict["book_of_grudges"][str(dominion.id)]["animosity"] = 0
 
     offense_multiplier_dict = {}
+    offense_bonus_dict = {}
     current_defense_dict = {}
     land_conquered_dict = {}
     artifact_count_dict = {}
@@ -934,6 +935,11 @@ def world(request):
             offense_multiplier_dict[str(dominion.id)] = my_dominion.offense_multiplier + get_grudge_bonus(my_dominion, dominion)
         else:
             offense_multiplier_dict[str(dominion.id)] = my_dominion.offense_multiplier
+
+        if "infiltration_dict" in my_dominion.perk_dict and dominion.strid in my_dominion.perk_dict["infiltration_dict"]:
+            offense_bonus_dict[dominion.strid] = my_dominion.perk_dict["infiltration_dict"][dominion.strid]
+        else:
+            offense_bonus_dict[dominion.strid] = 0
 
         if dominion.protection_ticks_remaining > 0:
             current_defense_dict[str(dominion.id)] = False
@@ -959,6 +965,7 @@ def world(request):
         "my_units": my_units,
         "base_offense_multiplier": my_dominion.offense_multiplier,
         "offense_multiplier_dict": json.dumps(offense_multiplier_dict),
+        "offense_bonus_dict": json.dumps(offense_bonus_dict),
         "current_defense_dict": json.dumps(current_defense_dict),
         "land_conquered_dict": json.dumps(land_conquered_dict),
         "artifact_count_dict": json.dumps(artifact_count_dict),
