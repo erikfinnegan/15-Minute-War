@@ -1028,6 +1028,9 @@ def do_quest(units_sent_dict, my_dominion: Dominion):
     your_artifact_chance = max(100, base_artifact_chance * your_quest_ratio)
     roll = randint(1, 10000)
 
+    my_dominion.incoming_acres_dict["12"] += 1
+    my_dominion.save()
+
     if your_artifact_chance >= roll and Artifact.objects.filter(ruler=None).count() > 0:
         artifact = give_random_unowned_artifact_to_dominion(my_dominion)
         artifact_event = Event.objects.create(
