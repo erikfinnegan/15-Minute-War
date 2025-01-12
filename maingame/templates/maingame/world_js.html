@@ -71,9 +71,13 @@
         let invadeButtonText = document.getElementById("invadeButtonText");
         let unitInputs = document.getElementsByClassName("unitInput")
 
-        let totalOp = offense_bonus_dict[targetId]
+        let totalOp = 0
         let bonusStealOp = 0
         let dpSent = 0
+
+        if (offense_bonus_dict[targetId]) {
+            totalOp = offense_bonus_dict[targetId]
+        }
 
         for (const [key, value] of Object.entries(unitInputs)) {
             unitId = value.id.substr(5)
@@ -95,7 +99,6 @@
         if (targetId != 0 && targetId != "quest") {
             offense_multiplier = offense_multiplier_dict[targetId]
         }
-
         totalOp = Math.floor(totalOp * offense_multiplier)
         opReadout.innerHTML = totalOp
         const newOpQuested = myOpQuested + totalOp
