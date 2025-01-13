@@ -140,7 +140,9 @@
                     <td class="u-align-middle">{{ dominion.highest_op_short }}</td>
 
                     {% comment %} Their faction {% endcomment %}
-                    {% if "book_of_grudges" in dominion.perk_dict %}
+                    {% if dominion == active_dominion %}
+                        <td class="u-align-middle">-</td>
+                    {% elif "book_of_grudges" in dominion.perk_dict %}
                         {% if active_dominion.strid in dominion.perk_dict.book_of_grudges %}
                             <td class="u-align-middle">
                                 <div class="u-flex u-flex-column u-center w-16">
@@ -156,22 +158,23 @@
                             <td class="u-align-middle">None</td>
                         {% endif %}
                     {% elif "infiltration_dict" in dominion.perk_dict %}
-                        {% if active_dominion.strid in dominion.perk_dict.infiltration_dict %}
-                            <td class="u-align-middle">
-                                <div class="u-flex u-flex-column u-center w-16">
+                        <td class="u-align-middle">
+                            <div class="u-flex u-flex-column u-center w-16">
+                                {% if active_dominion.strid in dominion.perk_dict.infiltration_dict %}
                                     <span>
                                         +{{ dominion.perk_dict.infiltration_dict|getattr:active_dominion.strid|intcomma }} OP
                                     </span>
-                                    {% if dominion.ticks_til_all_units_return > 0 %}
-                                        <small>Infiltrators return in {{ dominion.ticks_til_all_units_return }} ticks</small>
-                                    {% endif %}
-                                </div>
-                            </td>
-                        {% elif dominion == active_dominion %}
-                            <td class="u-align-middle">-</td>
-                        {% else %}
-                            <td class="u-align-middle">None</td>
-                        {% endif %}
+                                {% elif dominion == active_dominion %}
+                                    <span>-</span>
+                                {% else %}
+                                    <span>None</span>
+                                {% endif %}
+
+                                {% if dominion.ticks_til_all_units_return > 0 %}
+                                    <small>Infiltrators return in {{ dominion.ticks_til_all_units_return }} ticks</small>
+                                {% endif %}
+                            </div>
+                        </td>
                     {% else %}
                         <td class="u-align-middle">-</td>
                     {% endif %}
