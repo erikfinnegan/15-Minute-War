@@ -153,9 +153,24 @@ class Command(BaseCommand):
         #     print(output)
         # print()
 
+        player_wins = 0
+        enemy_wins = 0
+        attempts = 100000
 
-        for unit in Unit.objects.filter(ruler=None):
-            if "food" in unit.upkeep_dict:
-                bigstat = max(unit.op, unit.dp)
-                foodupkeep = unit.upkeep_dict["food"]
-                print(f"{bigstat} --- {foodupkeep} --- {unit.name}")
+        for _ in range(attempts):
+            player_rolls = []
+            enemy_roll = randint(1,6) + randint(1,6) + 2
+
+            for _ in range(2):
+                player_rolls.append(randint(1,6) + randint(1,6) + 1)
+            
+            player_rolls.sort(reverse=True)
+            player_roll = player_rolls[0]
+            
+            if player_roll > enemy_roll:
+                player_wins += 1
+            elif enemy_roll > player_roll:
+                enemy_wins += 1
+
+        print("player wins", (player_wins/attempts))
+        print("enemy wins", (enemy_wins/attempts))

@@ -934,6 +934,12 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
         target_dominion.perk_dict["rulers_favorite_resource"] = get_random_resource(target_dominion).name
         target_dominion.save()
 
+    # Handle clearing infiltration
+    if attacker_victory and "infiltration_dict" in my_dominion.perk_dict:
+        if target_dominion.strid in my_dominion.perk_dict["infiltration_dict"]:
+            del my_dominion.perk_dict["infiltration_dict"][target_dominion.strid]
+            my_dominion.save()
+
     return battle.id, "-- Congratulations, your invasion didn't crash! --"
 
 
