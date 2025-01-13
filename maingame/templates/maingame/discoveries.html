@@ -25,7 +25,7 @@
     <p>Ticks to next discovery: {{ active_dominion.ticks_to_next_discovery }}</p>
     <p>Discoveries available: {{ active_dominion.discoveries_to_make }}</p>
     {% if active_dominion.faction_name == "dwarf" and "mining_depth" in active_dominion.perk_dict %}
-        <div class="font-bold 
+        <div class="font-bold max-w-md
             {% if active_dominion.perk_dict.mining_depth >= 400000 and 'The Deep Angels' not in active_dominion.learned_discoveries %}
             p-1 bg-gray-900 text-red-400
             {% elif active_dominion.perk_dict.mining_depth >= 200000 and 'The Deep Angels' not in active_dominion.learned_discoveries %}
