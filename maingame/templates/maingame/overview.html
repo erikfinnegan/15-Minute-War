@@ -59,6 +59,7 @@
         </div>
     </div>
 
+    {% comment %} Units {% endcomment %}
     {% if dominion == active_dominion or round.has_started and dominion.is_oop %}
     <div class="unit-table">
         <table class="table striped small max-w-sm">
@@ -90,6 +91,7 @@
     <h6>Units will be displayed here once this dominion is out of protection and the round has started.</h6>
     {% endif %}
 
+    {% comment %} Resource production {% endcomment %}
     <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
         <table class="table striped max-w-md">
             <thead>
@@ -115,6 +117,7 @@
         </table>
     </div>
     
+    {% comment %} Buildings {% endcomment %}
     <div>
         <table class="table striped small max-w-xs">
             <thead>
@@ -293,6 +296,7 @@
 
     {% comment %} This dominion's grudges {% endcomment %}
     <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
+        <h6>This dominion's perk bonuses:</h6>
         <table class="table striped card_colors max-w-md u-overflow-x-scroll u-overflow-x-hidden-md">
             <thead>
                 <tr>
@@ -300,7 +304,7 @@
                     <th class="u-align-middle">Player</th>
                     <th class="u-align-middle">Land</th>
                     <th class="u-align-middle">Faction</th>
-                    <th class="u-align-middle">Book of Grudges</th>
+                    <th class="u-align-middle">Their perks</th>
                 </tr>
             </thead>
             <tbody>
@@ -308,22 +312,29 @@
                 <tr class="{% if other_dominion == active_dominion %}font-bold{% endif %}">
                     <th class="u-align-middle">{{ other_dominion.name }}</td>
                     <td class="u-align-middle">{{ other_dominion.rulers_display_name }}</td>
-                    <td class="u-align-middle tooltip tooltip--right" data-tooltip="{{ other_dominion.acres_with_incoming }}">
+                    <td class="u-align-middle">
                         {{ other_dominion.acres }}{% if other_dominion.incoming_acres > 0 %} ({{ other_dominion.incoming_acres }}){% endif %}
                     </td>
 
                     <td class="u-align-middle">{{ other_dominion.faction_name|title }}</td>
 
-                    {% if other_dominion.strid in dominion.perk_dict.book_of_grudges %}
                     <td class="u-align-middle">
+
+                    {% if other_dominion.strid in dominion.perk_dict.book_of_grudges %}
                         <div class="u-flex u-flex-column u-center">
                             <span>{{ dominion.perk_dict.book_of_grudges|getattr:other_dominion.strid|getattr:"pages" }} pages</span>
                             <span>+{{ dominion.perk_dict.book_of_grudges|getattr:other_dominion.strid|getattr:"animosity"|floatformat:"1" }}% OP</span>
                         </div>
-                    </td>
+                    {% elif other_dominion.strid in dominion.perk_dict.infiltration_dict %}
+                        <div class="u-flex u-flex-column u-center w-16">
+                            <span>
+                                +{{ dominion.perk_dict.infiltration_dict|getattr:other_dominion.strid|intcomma }} OP
+                            </span>
+                        </div>
                     {% else %}
-                    <td class="u-align-middle">None</td>
+                        <span>None</span>
                     {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -360,6 +371,7 @@
         <p>Complacency: {{ dominion.complacency }} ticks (-{{ dominion.complacency_penalty_percent|floatformat:0 }}% defense)</p>
     </div>
 
+    {% comment %} This dominion's wins/losses {% endcomment %}
     <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
         <table class="table card_colors max-w-md">
             <thead>
@@ -395,6 +407,7 @@
         </table>
     </div>
 
+    {% comment %} Abandon {% endcomment %}
     {% if dominion == active_dominion %}
     <div>
         <form action="{% url 'abandon' %}" method="post" class="u-flex u-flex-column u-gap-4">
