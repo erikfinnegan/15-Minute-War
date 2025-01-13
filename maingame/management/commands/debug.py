@@ -153,24 +153,13 @@ class Command(BaseCommand):
         #     print(output)
         # print()
 
-        player_wins = 0
-        enemy_wins = 0
-        attempts = 100000
+        money = 20000
 
-        for _ in range(attempts):
-            player_rolls = []
-            enemy_roll = randint(1,6) + randint(1,6) + 2
+        for _ in range(25):
+            money *= 1.05
 
-            for _ in range(2):
-                player_rolls.append(randint(1,6) + randint(1,6) + 1)
-            
-            player_rolls.sort(reverse=True)
-            player_roll = player_rolls[0]
-            
-            if player_roll > enemy_roll:
-                player_wins += 1
-            elif enemy_roll > player_roll:
-                enemy_wins += 1
+            for _ in range(24):
+                money += 900
 
-        print("player wins", (player_wins/attempts))
-        print("enemy wins", (enemy_wins/attempts))
+        print(money)
+

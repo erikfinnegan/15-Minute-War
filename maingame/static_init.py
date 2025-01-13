@@ -1122,7 +1122,7 @@ def initialize_biclops_discoveries():
 def initialize_gnomish_special_forces_discoveries():
     Discovery.objects.create(
         name="Juggernaut Tanks",
-        description="""Powerful armored vehicles to support gnomish military effortd.""",
+        description="""Powerful armored vehicles to support gnomish military efforts.""",
         associated_unit_name="Juggernaut Tank",
         required_faction_name="gnomish special forces",
     )
