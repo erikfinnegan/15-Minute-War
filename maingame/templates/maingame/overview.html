@@ -294,53 +294,10 @@
     <h6>Units in training will be displayed here once this dominion is out of protection and the round has started.</h6>
     {% endif %}
 
-    {% comment %} This dominion's grudges {% endcomment %}
-    <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
-        <h6>This dominion's perk bonuses:</h6>
-        <table class="table striped card_colors max-w-md u-overflow-x-scroll u-overflow-x-hidden-md">
-            <thead>
-                <tr>
-                    <th class="u-align-middle">Name</th>
-                    <th class="u-align-middle">Player</th>
-                    <th class="u-align-middle">Land</th>
-                    <th class="u-align-middle">Faction</th>
-                    <th class="u-align-middle">Their perks</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for other_dominion in other_dominions %}
-                <tr class="{% if other_dominion == active_dominion %}font-bold{% endif %}">
-                    <th class="u-align-middle">{{ other_dominion.name }}</td>
-                    <td class="u-align-middle">{{ other_dominion.rulers_display_name }}</td>
-                    <td class="u-align-middle">
-                        {{ other_dominion.acres }}{% if other_dominion.incoming_acres > 0 %} ({{ other_dominion.incoming_acres }}){% endif %}
-                    </td>
+    {% comment %} This dominion's world view {% endcomment %}
+    {% include "maingame/dominion_list.html" with this_dominion=dominion all_dominions=other_dominions %}
 
-                    <td class="u-align-middle">{{ other_dominion.faction_name|title }}</td>
-
-                    <td class="u-align-middle">
-
-                    {% if other_dominion.strid in dominion.perk_dict.book_of_grudges %}
-                        <div class="u-flex u-flex-column u-center">
-                            <span>{{ dominion.perk_dict.book_of_grudges|getattr:other_dominion.strid|getattr:"pages" }} pages</span>
-                            <span>+{{ dominion.perk_dict.book_of_grudges|getattr:other_dominion.strid|getattr:"animosity"|floatformat:"1" }}% OP</span>
-                        </div>
-                    {% elif other_dominion.strid in dominion.perk_dict.infiltration_dict %}
-                        <div class="u-flex u-flex-column u-center w-16">
-                            <span>
-                                +{{ dominion.perk_dict.infiltration_dict|getattr:other_dominion.strid|intcomma }} OP
-                            </span>
-                        </div>
-                    {% else %}
-                        <span>None</span>
-                    {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
+    {% comment %} Spells {% endcomment %}
     <div class="max-w-xs">
         <details class="accordion">
             <summary class="accordion__summary header_colors u-round-xs"><span class="u-center">Spells</span></summary>

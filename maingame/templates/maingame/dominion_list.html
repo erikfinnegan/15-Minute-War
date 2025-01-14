@@ -1,0 +1,181 @@
+{% load humanize %}
+{% load extra_tags %}
+
+<div class="u-overflow-x-scroll u-overflow-x-auto-md pr-2 max-w-md">
+    <table class="table striped max-w-md">
+        <thead>
+            <tr class="header_colors">
+                <th class="u-align-middle">
+                    <div class="u-flex u-flex-column">
+                        <span>Dominion</span>
+                        <small>Click for overview</small>
+                    </div>
+                </th>
+                <th class="u-align-middle">Land</th>
+                <th class="u-align-middle">Defense</th>
+                <th class="u-align-middle">Bonuses</th>
+                {% if my_view %}
+                    <th class="u-align-middle">Your perks</th>
+                {% else %}
+                    <th class="u-align-middle">This dominion's perks</th>
+                {% endif %}
+                <th class="u-align-middle">Highest OP</th>
+                {% if my_view %}
+                    <th class="u-align-middle">Their perks</th>
+                {% else %}
+                    <th class="u-align-middle">Perks against them</th>
+                {% endif %}
+                <th class="u-align-middle">OP quested</th>
+                <th class="u-align-middle" style="white-space: nowrap;">W/L</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for dominion in all_dominions %}
+            <tr class="{% if dominion == this_dominion %}font-bold{% endif %}">
+
+                {% comment %} Dominion {% endcomment %}
+                <td class="u-align-middle">
+                    <div class="u-flex u-flex-column">
+                        <a class="font-bold" href="{% url 'overview' dominion.id %}">{{ dominion.name }}</a>
+                        <a href="{% url 'overview' dominion.id %}"><small class="{% if dominion == this_dominion %}font-bold{% endif %}">{{ dominion.rulers_display_name }}</small></a>
+                        <a href="{% url 'overview' dominion.id %}"><small class="{% if dominion == this_dominion %}font-bold{% endif %}">{{ dominion.faction_name|title }}</small></a>
+                    </div>
+                </td>
+
+                {% comment %} Land {% endcomment %}
+                <td class="u-align-middle">
+                    {% include "maingame/current_incoming.html" with current=dominion.acres incoming=dominion.incoming_acres %}
+                </td>
+
+                {% comment %} Defense {% endcomment %}
+                <td class="u-align-middle">
+                    <div class="u-flex u-flex-column">
+                        {% if dominion.defense < this_dominion.juicy_target_threshold and dominion.is_oop and round.has_started %}
+                        <span class="tag tag--danger py-0 mx-auto text-md">{{ dominion.defense_short }}</span>
+                        {% else %}
+                        <span class="u-center {% if dominion.protection_ticks_remaining > 0 or not round.has_started %}text-teal-400{% endif %}">
+                            {% if dominion.is_oop and round.has_started %}
+                            {{ dominion.defense_short }}
+                            {% else %}
+                            Magical protection
+                            {% endif %}
+                        </span>
+                        {% endif %}
+                        
+                        {% if dominion.incoming_acres > 0 %}
+                        <small>Army returns in {{ dominion.ticks_til_all_acres_return }} ticks</small>
+                        {% endif %}
+                    </div>
+                </td>
+
+                {% comment %} Complacency/Determination {% endcomment %}
+                <td class="u-align-middle">
+                    <div class="u-flex u-flex-column">
+                        <span style="white-space:nowrap">+{{ dominion.determination_bonus_percent|floatformat:0 }}% OP</span>
+                        <span style="white-space:nowrap">-{{ dominion.complacency_penalty_percent|floatformat:0 }}% DP</span>
+                    </div>
+                </td>
+
+                {% comment %} Your faction {% endcomment %}
+                {% if "book_of_grudges" in this_dominion.perk_dict %}
+                    {% if dominion.strid in this_dominion.perk_dict.book_of_grudges %}
+                        <td class="u-align-middle">
+                            <div class="u-flex u-flex-column u-center w-16">
+                                <span>
+                                    {{ this_dominion.perk_dict.book_of_grudges|getattr:dominion.strid|getattr:"pages" }} page{% if this_dominion.perk_dict.book_of_grudges|getattr:dominion.strid|getattr:"pages" > 1 %}s{% endif %}
+                                </span>
+                                <span>+{{ this_dominion.perk_dict.book_of_grudges|getattr:dominion.strid|getattr:"animosity"|floatformat:"1" }}% OP</span>
+                            </div>
+                        </td>
+                    {% elif dominion == this_dominion %}
+                        <td class="u-align-middle">-</td>
+                    {% else %}
+                        <td class="u-align-middle">None</td>
+                    {% endif %}
+                {% elif "infiltration_dict" in this_dominion.perk_dict %}
+                    {% if dominion.strid in this_dominion.perk_dict.infiltration_dict %}
+                        <td class="u-align-middle">
+                            <div class="u-flex u-flex-column u-center w-16">
+                                <span>
+                                    +{{ this_dominion.perk_dict.infiltration_dict|getattr:dominion.strid|intcomma }} OP
+                                </span>
+                            </div>
+                        </td>
+                    {% elif dominion == this_dominion %}
+                        <td class="u-align-middle">
+                            {% if dominion.ticks_til_all_units_return > 0 %}
+                                <small>Infiltrators return in {{ dominion.ticks_til_all_units_return }} ticks</small>
+                            {% else %}
+                                <span>-</span>
+                            {% endif %}
+                        </td>
+                    {% else %}
+                        <td class="u-align-middle">None</td>
+                    {% endif %}
+                {% else %}
+                    <td class="u-align-middle">-</td>
+                {% endif %}
+
+                {% comment %} Highest OP {% endcomment %}
+                <td class="u-align-middle">{{ dominion.highest_op_short }}</td>
+
+                {% comment %} Their faction {% endcomment %}
+                {% if dominion == this_dominion %}
+                    <td class="u-align-middle">-</td>
+                {% elif "book_of_grudges" in dominion.perk_dict %}
+                    {% if this_dominion.strid in dominion.perk_dict.book_of_grudges %}
+                        <td class="u-align-middle">
+                            <div class="u-flex u-flex-column u-center w-16">
+                                <span>
+                                    {{ dominion.perk_dict.book_of_grudges|getattr:this_dominion.strid|getattr:"pages" }} page{% if dominion.perk_dict.book_of_grudges|getattr:this_dominion.strid|getattr:"pages" > 1 %}s{% endif %}
+                                </span>
+                                <span>+{{ dominion.perk_dict.book_of_grudges|getattr:this_dominion.strid|getattr:"animosity"|floatformat:"1" }}% OP</span>
+                            </div>
+                        </td>
+                    {% elif dominion == this_dominion %}
+                        <td class="u-align-middle">-</td>
+                    {% else %}
+                        <td class="u-align-middle">None</td>
+                    {% endif %}
+                {% elif "infiltration_dict" in dominion.perk_dict %}
+                    <td class="u-align-middle">
+                        <div class="u-flex u-flex-column u-center w-16">
+                            {% if this_dominion.strid in dominion.perk_dict.infiltration_dict %}
+                                <span>
+                                    +{{ dominion.perk_dict.infiltration_dict|getattr:this_dominion.strid|intcomma }} OP
+                                </span>
+                            {% elif dominion == this_dominion %}
+                                <span>-</span>
+                            {% else %}
+                                <span>None</span>
+                            {% endif %}
+
+                            {% if dominion.ticks_til_all_units_return > 0 %}
+                                <small>Infiltrators return in {{ dominion.ticks_til_all_units_return }} ticks</small>
+                            {% endif %}
+                        </div>
+                    </td>
+                {% else %}
+                    <td class="u-align-middle">-</td>
+                {% endif %}
+
+                {% comment %} OP quested {% endcomment %}
+                <td class="u-align-middle">
+                    <div class="u-flex u-flex-column">
+                        <span>
+                            {{ dominion.op_quested_short }}
+                        </span>
+                        {% if dominion.has_artifacts %}
+                            <span class="text-xs">{{ dominion.artifact_count }} {{ "artifacts"|depluralize:dominion.artifact_count }}</span>
+                        {% endif %}
+                    </div>
+                </td>
+
+                {% comment %} W/L {% endcomment %}
+                <td class="u-align-middle" style="white-space:nowrap">{{ dominion.successful_invasions }}-{{ dominion.failed_defenses }}</td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
