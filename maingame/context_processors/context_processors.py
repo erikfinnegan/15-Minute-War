@@ -1,4 +1,4 @@
-from maingame.models import Dominion, Round, UserSettings
+from maingame.models import Dominion, Round, UserSettings, Artifact
 
 
 def dominion_context_processor(request):
@@ -18,4 +18,5 @@ def dominion_context_processor(request):
         "active_dominion": active_dominion,
         "active_user_settings": active_user_settings,
         "round": Round.objects.first(),
+        "undiscovered_artifact_count": Artifact.objects.filter(ruler=None).count(),
     }

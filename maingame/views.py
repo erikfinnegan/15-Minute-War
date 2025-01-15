@@ -975,7 +975,6 @@ def world(request):
         "lowest_defense_larger_than_you": lowest_defense_larger_than_you,
         "lowest_defense_in_game": lowest_defense_in_game,
         "highest_op_quested": get_highest_op_quested(),
-        "undiscovered_artifact_count": Artifact.objects.filter(ruler=None).count(),
     }
 
     return render(request, "maingame/world.html", context)

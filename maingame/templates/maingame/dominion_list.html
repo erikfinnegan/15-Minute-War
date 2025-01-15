@@ -25,7 +25,10 @@
                 {% else %}
                     <th class="u-align-middle">Perks against them</th>
                 {% endif %}
+                
+                {% if undiscovered_artifact_count > 0 %}
                 <th class="u-align-middle">OP quested</th>
+                {% endif %}
                 <th class="u-align-middle" style="white-space: nowrap;">W/L</th>
             </tr>
         </thead>
@@ -160,6 +163,7 @@
                 {% endif %}
 
                 {% comment %} OP quested {% endcomment %}
+                {% if undiscovered_artifact_count > 0 %}
                 <td class="u-align-middle">
                     <div class="u-flex u-flex-column">
                         <span>
@@ -170,6 +174,7 @@
                         {% endif %}
                     </div>
                 </td>
+                {% endif %}
 
                 {% comment %} W/L {% endcomment %}
                 <td class="u-align-middle" style="white-space:nowrap">{{ dominion.successful_invasions }}-{{ dominion.failed_defenses }}</td>
