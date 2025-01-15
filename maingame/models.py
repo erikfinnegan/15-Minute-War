@@ -342,6 +342,20 @@ class Dominion(models.Model):
         return latest_return
 
     @property
+    def ticks_til_infiltrators_return(self):
+        try:
+            greencaps = Unit.objects.get(ruler=self, name="Greencap")
+            latest_return = 0
+
+            for ticks, value in greencaps.returning_dict.items():
+                if value > 0:
+                    latest_return = max(latest_return, int(ticks))
+
+            return latest_return
+        except:
+            return 0
+
+    @property
     def building_primary_cost(self):
         return 1000
     

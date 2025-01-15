@@ -103,8 +103,8 @@
                         </td>
                     {% elif dominion == this_dominion %}
                         <td class="u-align-middle">
-                            {% if dominion.ticks_til_all_units_return > 0 %}
-                                <small>Infiltrators return in {{ dominion.ticks_til_all_units_return }} ticks</small>
+                            {% if dominion.ticks_til_infiltrators_return > 0 %}
+                                <small>Infiltrators return in {{ dominion.ticks_til_infiltrators_return }} ticks</small>
                             {% else %}
                                 <span>-</span>
                             {% endif %}
