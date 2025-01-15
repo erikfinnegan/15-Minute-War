@@ -33,7 +33,13 @@
 
     {% comment %} Artifact list {% endcomment %}
     <details class="accordion card card_colors max-w-md">
-        <summary class="accordion__summary">Artifacts</summary>
+        <summary class="accordion__summary">
+        {% if undiscovered_artifact_count > 0 %}
+        Artifacts
+        {% else %}
+        All artifacts have been found!
+        {% endif %}
+        </summary>
         <div class="u-flex u-flex-column">
         {% for dominion in dominions %}
             {% if dominion.has_artifacts %}
@@ -55,7 +61,7 @@
     </details>
 
 
-    {% comment %} GSF infiltration {% endcomment %}
+    {% comment %} GSF infiltration toggle {% endcomment %}
     {% if active_dominion.faction_name == "gnomish special forces" and active_dominion.is_oop and round.has_started %}
     <div class="max-w-md">
         <div class="form-ext-control pl-0 w-24 u-center">
@@ -70,6 +76,8 @@
     </div>
     {% endif %}
 
+
+    {% comment %} GSF infiltration form {% endcomment %}
     <form action="{% url 'submit_infiltration' %}" method="post" class="max-w-md u-overflow-x-scroll u-overflow-x-auto-md u-none" id="infiltrationForm">
         {% csrf_token %}
         <div class="u-flex u-flex-row u-center py-2">
@@ -161,8 +169,12 @@
             {% csrf_token %}
             <div class="u-flex u-flex-row u-center py-2">
                 <select class="max-w-xs" name="target_dominion_id" id="target_select_dropdown" oninput="updateTargetDefense(); updateOffenseToSend();">
+                    {% if undiscovered_artifact_count > 0 %}
                     <option value="0">Select a target to plan an invasion or quest</option>
                     <option value="quest">Quest</option>
+                    {% else %}
+                    <option value="0">Select a target to plan an invasion</option>
+                    {% endif %}
                     {% for dominion in dominions %}
                     {% if dominion != active_dominion and dominion.is_oop and not dominion.is_abandoned %}
                     <option value="{{ dominion.id }}">{{ dominion.name }} ({{ dominion.acres|intcomma }} acres, {{ dominion.acres|percent_of:active_dominion.acres }}%) {{ dominion.defense_short }} DP</option>

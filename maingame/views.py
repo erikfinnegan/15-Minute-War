@@ -11,7 +11,7 @@ from django.contrib import messages
 from django.db.models import Q
 
 from maingame.formatters import create_or_add_to_key, get_goblin_ruler, get_sludgeling_name
-from maingame.models import Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings, Theme
+from maingame.models import Artifact, Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings, Theme
 from maingame.tick_processors import do_global_tick
 from maingame.utils import abandon_dominion, delete_dominion, do_invasion, do_quest, get_acres_conquered, get_grudge_bonus, get_highest_op_quested, get_random_resource, initialize_dominion, round_x_to_nearest_y, unlock_discovery, cast_spell, update_available_discoveries
 
@@ -975,6 +975,7 @@ def world(request):
         "lowest_defense_larger_than_you": lowest_defense_larger_than_you,
         "lowest_defense_in_game": lowest_defense_in_game,
         "highest_op_quested": get_highest_op_quested(),
+        "undiscovered_artifact_count": Artifact.objects.filter(ruler=None).count(),
     }
 
     return render(request, "maingame/world.html", context)
