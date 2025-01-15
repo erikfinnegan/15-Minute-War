@@ -157,11 +157,22 @@
             invadeButtonText.classList.remove("text-red-400")
             invadeButton.disabled = false
 
-            if (artifactCountDict[targetId] > 0) {
+            const artifactCount = artifactCountDict[targetId]
+
+            if (artifactCount > 0) {
                 stealChanceSection.classList.remove("u-none")
                 stealChanceSection.classList.add("u-flex")
-                percentChance = Math.floor(((totalStealOp / dpHere) - 1) * 100 * stealChanceMultiplier * 1.5)
-                stealChance.innerHTML = Math.min(100, percentChance)
+                const percentChancePerArtifact = ((totalStealOp / dpHere) - 1) * stealChanceMultiplier * 1.5
+                const failToStealChancePerArtifact = Math.max(0, 1 - percentChancePerArtifact)
+                let failToStealChance = 1
+
+                for (let x = 0; x < artifactCount; x++) {
+                    failToStealChance = failToStealChance * failToStealChancePerArtifact
+                }
+
+                failToStealChance = Math.floor(failToStealChance * 100)
+                const artifactStealChance = 100 - failToStealChance
+                stealChance.innerHTML = Math.min(100, artifactStealChance)
             }
         } else {
             stealChanceSection.classList.add("u-none")
