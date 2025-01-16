@@ -60,7 +60,7 @@
                         {% else %}
                         <span class="u-center {% if dominion.protection_ticks_remaining > 0 or not round.has_started %}text-teal-400{% endif %}">
                             {% if dominion.is_oop and round.has_started %}
-                            {{ dominion.defense_short }}
+                            {% include "maingame/mouseover_change.html" with normal=dominion.defense_short mouseover=dominion.defense_raw_short %}
                             {% else %}
                             Magical protection
                             {% endif %}
