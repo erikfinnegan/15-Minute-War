@@ -210,6 +210,10 @@ def abandon_dominion(dominion: Dominion):
         message_override=f"{dominion} has been abandoned by {dominion.rulers_display_name}"
     )
 
+    for artifact in Artifact.objects.filter(ruler=dominion):
+        artifact.ruler = None
+        artifact.save()
+
     dominion.is_abandoned = True
     dominion.associated_user = None
     dominion.save()
