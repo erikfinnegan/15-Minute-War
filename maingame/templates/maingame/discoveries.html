@@ -75,14 +75,14 @@
         
             <details class="px-1 py-0 accordion u-none-md">
                 <summary class="accordion__summary text-xs">Unit info</summary>
-                {% include "maingame/discovery_unit_card.html" with unit=discovery.associated_unit %}
+                {% include "maingame/components/discovery_unit_card.html" with unit=discovery.associated_unit %}
                 {% if discovery.associated_unit.has_perks %}
                 <span class="u-none-md">{{ discovery.associated_unit.perk_text }}</span>
                 {% endif %}
             </details>
 
             <div class="u-none u-block-md">
-                {% include "maingame/discovery_unit_card.html" with unit=discovery.associated_unit %}
+                {% include "maingame/components/discovery_unit_card.html" with unit=discovery.associated_unit %}
                 {% if discovery.associated_unit.has_perks %}
                 <span class="u-none-md">{{ discovery.associated_unit.perk_text }}</span>
                 {% endif %}
@@ -105,14 +105,14 @@
             {% if discovery_dict.discovery.associated_unit_name %}
             <details class="px-1 py-0 accordion u-none-md">
                 <summary class="accordion__summary text-xs">Unit info</summary>
-                {% include "maingame/discovery_unit_card.html" with unit=discovery_dict.discovery.associated_unit %}
+                {% include "maingame/components/discovery_unit_card.html" with unit=discovery_dict.discovery.associated_unit %}
                 {% if discovery_dict.discovery.associated_unit.has_perks %}
                 <span class="u-none-md">{{ discovery_dict.discovery.associated_unit.perk_text }}</span>
                 {% endif %}
             </details>
 
             <div class="u-none u-block-md">
-                {% include "maingame/discovery_unit_card.html" with unit=discovery_dict.discovery.associated_unit %}
+                {% include "maingame/components/discovery_unit_card.html" with unit=discovery_dict.discovery.associated_unit %}
                 {% if discovery_dict.discovery.associated_unit.has_perks %}
                 <span class="u-none-md">{{ discovery_dict.discovery.associated_unit.perk_text }}</span>
                 {% endif %}

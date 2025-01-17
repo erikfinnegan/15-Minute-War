@@ -49,7 +49,7 @@
 
                 {% comment %} Land {% endcomment %}
                 <td class="u-align-middle">
-                    {% include "maingame/current_incoming.html" with current=dominion.acres incoming=dominion.incoming_acres %}
+                    {% include "maingame/components/current_incoming.html" with current=dominion.acres incoming=dominion.incoming_acres %}
                 </td>
 
                 {% comment %} Defense {% endcomment %}
@@ -57,12 +57,12 @@
                     <div class="u-flex u-flex-column">
                         {% if dominion.defense < this_dominion.juicy_target_threshold and dominion.is_oop and round.has_started %}
                         <span class="tag tag--danger py-0 mx-auto text-md">
-                            {% include "maingame/mouseover_change.html" with normal=dominion.defense_short mouseover=dominion.defense_raw_short %}
+                            {% include "maingame/components/mouseover_change.html" with normal=dominion.defense_short mouseover=dominion.defense_raw_short %}
                         </span>
                         {% else %}
                         <span class="u-center {% if dominion.protection_ticks_remaining > 0 or not round.has_started %}text-teal-400{% endif %}">
                             {% if dominion.is_oop and round.has_started %}
-                            {% include "maingame/mouseover_change.html" with normal=dominion.defense_short mouseover=dominion.defense_raw_short %}
+                            {% include "maingame/components/mouseover_change.html" with normal=dominion.defense_short mouseover=dominion.defense_raw_short %}
                             {% else %}
                             Magical protection
                             {% endif %}

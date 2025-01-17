@@ -58,7 +58,7 @@
                     </div>
                 </div>
                 <tr>
-                    {% include "maingame/unit_name_row.html" with unit=latest_experiment_unit %}
+                    {% include "maingame/components/unit_name_row.html" with unit=latest_experiment_unit %}
                     <td class="u-align-middle">{{ latest_experiment_unit.op|intcomma }} / {{ latest_experiment_unit.dp|intcomma }}</td>
                     <td class="u-align-middle">
                         <div class="u-flex u-flex-column">

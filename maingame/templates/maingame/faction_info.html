@@ -22,7 +22,7 @@
                 </tr>
                 {% for unit in faction_dict.units %}
                 <tr>
-                    {% include "maingame/unit_name_row.html" %}
+                    {% include "maingame/components/unit_name_row.html" %}
                     <td class="u-align-middle" style="white-space:nowrap">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
                     <td class="u-align-middle">
                         <div class="u-flex u-flex-column">

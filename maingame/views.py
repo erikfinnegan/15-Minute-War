@@ -1139,7 +1139,7 @@ def church_affairs(request):
         "sinners": sinners,
     }
     
-    return render(request, "maingame/church_affairs.html", context)
+    return render(request, "maingame/faction_pages/church_affairs.html", context)
 
 
 @login_required
@@ -1197,7 +1197,7 @@ def experimentation(request):
         "has_experimental_units": dominion.perk_dict["custom_units"] > 0,
     }
     
-    return render(request, "maingame/experimentation.html", context)
+    return render(request, "maingame/faction_pages/experimentation.html", context)
 
 
 @login_required
@@ -1674,7 +1674,7 @@ def other_head(request):
         messages.error(request, f"You don't have access to this page")
         return redirect("buildings")
     
-    return render(request, "maingame/other_head.html")
+    return render(request, "maingame/faction_pages/other_head.html")
 
 
 @login_required
