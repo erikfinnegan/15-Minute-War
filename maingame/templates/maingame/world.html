@@ -15,17 +15,11 @@
             <p>
                 These are all the dominions at the moment. When someone makes an invasion, the units they send take 12 ticks to return home, leaving 
                 them more vulnerable to attack in the meantime. The land they conquer also takes 12 ticks to arrive and they can't attack again until
-                it does.
+                it does. On an invasion, the attacker takes 10% casualties and the defender takes 5% casualties.
             </p>
             <p>
-                On an invasion, the attacker takes 10% casualties if they win and 15% casualties if they lose. The defender takes 5% casualties if 
-                they lose, 2% casualties if they win, and no casualties if the offense less than half the defense. Of course, the attacker will likely
-                win because the total offense and defense are both public information.
-            </p>
-            <p>
-                Every tick, a dominion gains -0.5% defense. This resets when that dominion gets invaded. Also gain grudges against anyone who invades
-                them, slowly increasing their offense against their previous attackers until they finally retaliate, at which point their grudge against
-                that particular dominion is cleared.
+                Every tick, a dominion gains -0.33% defense. This resets when that dominion gets invaded. They also gain +0.33 offense, resetting when
+                they successfully make an invasion.
             </p>
     </details>
 

@@ -68,7 +68,7 @@ def initialize_dwarf_units():
         dp=8,
         cost_dict={
             "gold": 2000,
-            "mithril": 2000,
+            "mithril": 2500,
         },
         upkeep_dict={
             "gold": 3,
@@ -83,10 +83,10 @@ def initialize_dwarf_units():
         dp=151,
         cost_dict={
             "mana": 17351,
-            "mithril": 12527,
+            "mithril": 15331,
         },
         upkeep_dict={
-            "mithril": 739,
+            "mithril": 919,
         },
         perk_dict={"immortal": True, "converts_apostles": True},
     )

@@ -99,7 +99,7 @@ def initialize_buildings():
         {
             "name": "mithril mine",
             "resource_produced_name": "mithril",
-            "amount_produced": 30,
+            "amount_produced": 40,
         },
     ]
 

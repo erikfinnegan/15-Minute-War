@@ -56,9 +56,12 @@
                 <td class="u-align-middle">
                     <div class="u-flex u-flex-column">
                         {% if dominion.defense < this_dominion.juicy_target_threshold and dominion.is_oop and round.has_started %}
-                        <span class="tag tag--danger py-0 mx-auto text-md">
+                        {% comment %} <span class="tag tag--danger mx-auto text-md">
                             {% include "maingame/components/mouseover_change.html" with normal=dominion.defense_short mouseover=dominion.defense_raw_short %}
-                        </span>
+                        </span> {% endcomment %}
+                        <div class="bg-red-600 text-white u-round-sm mx-auto p-1">
+                            {% include "maingame/components/mouseover_change.html" with normal=dominion.defense_short mouseover=dominion.defense_raw_short %}
+                        </div>
                         {% else %}
                         <span class="u-center {% if dominion.protection_ticks_remaining > 0 or not round.has_started %}text-teal-400{% endif %}">
                             {% if dominion.is_oop and round.has_started %}
