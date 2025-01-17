@@ -3,7 +3,7 @@ from maingame.models import Dominion, Round
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from maingame.utils import do_biclops_partner_attack, do_forced_attack
+from maingame.utils.invasion import do_biclops_partner_attack, do_forced_attack
 
 def normalize_trade_prices():
     round = Round.objects.first()

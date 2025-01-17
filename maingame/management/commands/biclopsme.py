@@ -2,8 +2,8 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 
 from maingame.models import Dominion, Unit, Faction, Resource, Building, UserSettings, Round
-from maingame.static_init import initialize_game_pieces
-from maingame.utils import initialize_dominion
+from maingame.game_pieces.initialize import initialize_game_pieces
+from maingame.utils.dominion_controls import initialize_dominion
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
