@@ -41,7 +41,11 @@
                 {% comment %} Dominion {% endcomment %}
                 <td class="u-align-middle">
                     <div class="u-flex u-flex-column">
-                        <a class="font-bold" href="{% url 'overview' dominion.id %}">{{ dominion.name }}</a>
+                        <a class="font-bold" href="{% url 'overview' dominion.id %}">
+                            {% if round.percent_chance_for_round_end > 0 and dominion == largest_with_incoming %}<em>{% endif %}
+                            {{ dominion.name }}
+                            {% if round.percent_chance_for_round_end > 0 and dominion == largest_with_incoming %}</em>{% endif %}
+                        </a>
                         <a href="{% url 'overview' dominion.id %}"><small class="{% if dominion == this_dominion %}font-bold{% endif %}">{{ dominion.rulers_display_name }}</small></a>
                         <a href="{% url 'overview' dominion.id %}"><small class="{% if dominion == this_dominion %}font-bold{% endif %}">{{ dominion.faction_name|title }}</small></a>
                     </div>

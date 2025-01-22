@@ -32,7 +32,8 @@ def faction_info(request):
     for faction in Faction.objects.all():
         faction_list.append({
             "faction": faction,
-            "units": Unit.objects.filter(ruler=None, faction=faction)
+            "units": Unit.objects.filter(ruler=None, faction=faction),
+            "discoveries": Discovery.objects.filter(required_faction_name=faction.name)
         })
 
     context = {
@@ -931,6 +932,7 @@ def world(request):
     bonus_steal_op_dict = {}
     lowest_defense_larger_than_you = 99999999999
     lowest_defense_in_game = 99999999999
+    largest_with_incoming = my_dominion
 
     for dominion in dominions:
         if "book_of_grudges" in my_dominion.perk_dict:
@@ -957,6 +959,9 @@ def world(request):
         if dominion.is_oop:
             lowest_defense_in_game = min(dominion.defense, lowest_defense_in_game)
 
+        if dominion.acres_with_incoming > largest_with_incoming.acres:
+            largest_with_incoming = dominion
+
     for unit in my_units:
         if "op_bonus_percent_for_stealing_artifacts" in unit.perk_dict:
             bonus_steal_op_dict[str(unit.id)] = unit.perk_dict["op_bonus_percent_for_stealing_artifacts"]
@@ -977,6 +982,7 @@ def world(request):
         "lowest_defense_larger_than_you": lowest_defense_larger_than_you,
         "lowest_defense_in_game": lowest_defense_in_game,
         "highest_op_quested": get_highest_op_quested(),
+        "largest_with_incoming": largest_with_incoming,
     }
 
     return render(request, "maingame/world.html", context)
