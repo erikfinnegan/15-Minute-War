@@ -68,7 +68,7 @@
         {% for discovery in available_discoveries %}
         {% if active_user_settings.tutorial_step >= 9 or discovery.name == "Palisades" or discovery.name == "Battering Rams" or discovery.name == "Prosperity" %}
 
-        <div class="card card_colors p-1 w-100p max-w-xs">
+        <div class="card card_colors p-1 w-100p max-w-xs u-overflow-x-scroll u-overflow-x-hidden-md">
             <h6>{{ discovery.name }}</h6>
             <p class="text-xs">{{ discovery.description }}</p>
             {% if discovery.associated_unit_name %}
@@ -94,11 +94,8 @@
         {% endfor %}
 
 
-
-
-
         {% for discovery_dict in future_discoveries %}
-        <div class="card base_colors p-1 w-100p max-w-xs">
+        <div class="card base_colors p-1 w-100p max-w-xs u-overflow-x-scroll u-overflow-x-hidden-md">
             <h6>{{ discovery_dict.discovery.name }} (requires {{ discovery_dict.requirement_string }})</h6>
             <p class="text-xs">{{ discovery_dict.discovery.description }}</p>
 
