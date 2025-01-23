@@ -54,7 +54,7 @@
                 <div class="u-flex u-flex-wrap u-gap-2">
                     {% for discovery in faction_dict.discoveries %}
                         <div class="card card_colors p-1 w-100p max-w-xs">
-                            <h6>{{ discovery.name }} (requires {{ discovery_dict.requirement_string }})</h6>
+                            <h6>{{ discovery.name }}</h6>
                             <p class="text-xs">{{ discovery.description }}</p>
 
                             {% if discovery.associated_unit_name %}
