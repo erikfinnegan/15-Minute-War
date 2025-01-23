@@ -965,7 +965,7 @@ class Battle(models.Model):
     @property
     def event_text(self):
         if self.winner == self.attacker:
-            event_text = f"{self.winner} invaded {self.defender} and conquered {self.acres_conquered:2,} acres, plus {self.acres_conquered:2,} more from surrounding areas"
+            event_text = f"{self.winner} ({self.winner.rulers_display_name}) invaded {self.defender} ({self.defender.rulers_display_name}) and conquered {self.acres_conquered:2,} acres, plus {self.acres_conquered:2,} more from surrounding areas"
             return event_text
         else:
             return f"{self.winner} repelled an attack from {self.attacker}"

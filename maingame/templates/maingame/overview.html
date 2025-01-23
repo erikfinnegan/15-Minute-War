@@ -73,11 +73,11 @@
             <tbody>
                 {% for unit in units %}
                     <tr>
-                        {% include "maingame/unit_name_row.html" %}
+                        {% include "maingame/components/unit_name_row.html" %}
                         <td class="u-align-middle" style="white-space:nowrap">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
 
                         <td class="u-align-middle">
-                            {% include "maingame/current_incoming.html" with current=unit.quantity_trained_and_alive incoming=unit.quantity_in_training %}
+                            {% include "maingame/components/current_incoming.html" with current=unit.quantity_trained_and_alive incoming=unit.quantity_in_training %}
                         </td>
                         
                         <td class="u-align-middle">{{ unit.quantity_at_home|intcomma }}</td>
@@ -129,7 +129,7 @@
             <tbody>
                 {% for building in buildings %}
                     <tr>
-                        {% include "maingame/tooltip_td.html" with have_tooltip=True main_text=building.name tooltip_text=building.description %}
+                        {% include "maingame/components/tooltip_td.html" with have_tooltip=True main_text=building.name tooltip_text=building.description %}
                         <td class="u-align-middle">{{ building.percent_of_land }}%</th>
                         <td class="u-align-middle">{{ building.upgrades }}</th>
                     </tr>
@@ -294,7 +294,7 @@
     {% endif %}
 
     {% comment %} This dominion's world view {% endcomment %}
-    {% include "maingame/dominion_list.html" with this_dominion=dominion all_dominions=other_dominions %}
+    {% include "maingame/components/dominion_list.html" with this_dominion=dominion all_dominions=other_dominions %}
 
     {% comment %} Spells {% endcomment %}
     <div class="max-w-xs">

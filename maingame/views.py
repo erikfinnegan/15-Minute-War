@@ -13,7 +13,9 @@ from django.db.models import Q
 from maingame.formatters import create_or_add_to_key, get_goblin_ruler, get_sludgeling_name
 from maingame.models import Artifact, Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings, Theme
 from maingame.tick_processors import do_global_tick
-from maingame.utils import abandon_dominion, delete_dominion, do_invasion, do_quest, get_acres_conquered, get_grudge_bonus, get_highest_op_quested, get_random_resource, initialize_dominion, round_x_to_nearest_y, unlock_discovery, cast_spell, update_available_discoveries
+from maingame.utils.dominion_controls import initialize_dominion, abandon_dominion, delete_dominion
+from maingame.utils.invasion import do_invasion
+from maingame.utils.utils import do_quest, get_acres_conquered, get_grudge_bonus, get_highest_op_quested, get_random_resource, round_x_to_nearest_y, unlock_discovery, cast_spell, update_available_discoveries
 
 
 def index(request):
@@ -30,7 +32,8 @@ def faction_info(request):
     for faction in Faction.objects.all():
         faction_list.append({
             "faction": faction,
-            "units": Unit.objects.filter(ruler=None, faction=faction)
+            "units": Unit.objects.filter(ruler=None, faction=faction),
+            "discoveries": Discovery.objects.filter(required_faction_name=faction.name)
         })
 
     context = {
@@ -929,6 +932,7 @@ def world(request):
     bonus_steal_op_dict = {}
     lowest_defense_larger_than_you = 99999999999
     lowest_defense_in_game = 99999999999
+    largest_with_incoming = my_dominion
 
     for dominion in dominions:
         if "book_of_grudges" in my_dominion.perk_dict:
@@ -955,6 +959,9 @@ def world(request):
         if dominion.is_oop:
             lowest_defense_in_game = min(dominion.defense, lowest_defense_in_game)
 
+        if dominion.acres_with_incoming > largest_with_incoming.acres:
+            largest_with_incoming = dominion
+
     for unit in my_units:
         if "op_bonus_percent_for_stealing_artifacts" in unit.perk_dict:
             bonus_steal_op_dict[str(unit.id)] = unit.perk_dict["op_bonus_percent_for_stealing_artifacts"]
@@ -975,6 +982,7 @@ def world(request):
         "lowest_defense_larger_than_you": lowest_defense_larger_than_you,
         "lowest_defense_in_game": lowest_defense_in_game,
         "highest_op_quested": get_highest_op_quested(),
+        "largest_with_incoming": largest_with_incoming,
     }
 
     return render(request, "maingame/world.html", context)
@@ -1139,7 +1147,7 @@ def church_affairs(request):
         "sinners": sinners,
     }
     
-    return render(request, "maingame/church_affairs.html", context)
+    return render(request, "maingame/faction_pages/church_affairs.html", context)
 
 
 @login_required
@@ -1197,7 +1205,7 @@ def experimentation(request):
         "has_experimental_units": dominion.perk_dict["custom_units"] > 0,
     }
     
-    return render(request, "maingame/experimentation.html", context)
+    return render(request, "maingame/faction_pages/experimentation.html", context)
 
 
 @login_required
@@ -1674,7 +1682,7 @@ def other_head(request):
         messages.error(request, f"You don't have access to this page")
         return redirect("buildings")
     
-    return render(request, "maingame/other_head.html")
+    return render(request, "maingame/faction_pages/other_head.html")
 
 
 @login_required
@@ -1737,6 +1745,7 @@ def submit_infiltration(request):
         if "infiltrate_" in key and string_amount != "":
             unit = Unit.objects.get(id=key[11:])
             amount = int(string_amount)
+            op_infiltrated = amount * unit.perk_dict["invasion_plan_power"]
 
             if "invasion_plan_power" not in unit.perk_dict:
                 messages.error(request, f"You can't send those units to infiltrate.")
@@ -1744,16 +1753,12 @@ def submit_infiltration(request):
             elif amount > unit.quantity_at_home:
                 messages.error(request, f"You can't send more units than you have at home.")
                 return redirect("world")
+            elif str(dominion.id) in my_dominion.perk_dict["infiltration_dict"] and op_infiltrated <= my_dominion.perk_dict["infiltration_dict"][dominion.strid]:
+                messages.error(request, f"You've already infiltrated that target for a greater amount.")
+                return redirect("world")
             else:
-                op_infiltrated = amount * unit.perk_dict["invasion_plan_power"]
-
-                if str(dominion.id) in my_dominion.perk_dict["infiltration_dict"]:
-                    my_dominion.perk_dict["infiltration_dict"][dominion.strid] += op_infiltrated
-                else:
-                    my_dominion.perk_dict["infiltration_dict"][dominion.strid] = op_infiltrated
-
+                my_dominion.perk_dict["infiltration_dict"][dominion.strid] = op_infiltrated
                 my_dominion.save()
-
                 unit.quantity_at_home -= amount
                 unit.returning_dict["12"] += amount
                 unit.save()

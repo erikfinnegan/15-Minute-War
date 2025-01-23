@@ -5,7 +5,7 @@ from maingame.models import UserSettings, Resource, Round, Event, Dominion, Unit
 from django.contrib.auth.models import User
 import os
 
-from maingame.static_init import initialize_blessed_order_discoveries
+from maingame.game_pieces.initialize import initialize_blessed_order_discoveries
 
 class Command(BaseCommand):
     help = "Initiates a battle"

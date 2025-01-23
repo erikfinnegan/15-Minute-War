@@ -87,7 +87,7 @@
         <div class="u-flex u-flex-wrap u-gap-2">
         {% for building in buildings %}
         {% if building.percent_of_land > 0 or building.is_buildable %}
-        {% include "maingame/building_card.html" %}
+        {% include "maingame/components/building_card.html" %}
         {% endif %}
         {% endfor %}
         </div>

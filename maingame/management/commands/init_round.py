@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 
 from maingame.models import Round
-from maingame.static_init import initialize_game_pieces
+from maingame.game_pieces.initialize import initialize_game_pieces
 
 
 class Command(BaseCommand):

@@ -41,7 +41,11 @@
                 {% comment %} Dominion {% endcomment %}
                 <td class="u-align-middle">
                     <div class="u-flex u-flex-column">
-                        <a class="font-bold" href="{% url 'overview' dominion.id %}">{{ dominion.name }}</a>
+                        <a class="font-bold" href="{% url 'overview' dominion.id %}">
+                            {% if round.percent_chance_for_round_end > 0 and dominion == largest_with_incoming %}<em>{% endif %}
+                            {{ dominion.name }}
+                            {% if round.percent_chance_for_round_end > 0 and dominion == largest_with_incoming %}</em>{% endif %}
+                        </a>
                         <a href="{% url 'overview' dominion.id %}"><small class="{% if dominion == this_dominion %}font-bold{% endif %}">{{ dominion.rulers_display_name }}</small></a>
                         <a href="{% url 'overview' dominion.id %}"><small class="{% if dominion == this_dominion %}font-bold{% endif %}">{{ dominion.faction_name|title }}</small></a>
                     </div>
@@ -49,20 +53,23 @@
 
                 {% comment %} Land {% endcomment %}
                 <td class="u-align-middle">
-                    {% include "maingame/current_incoming.html" with current=dominion.acres incoming=dominion.incoming_acres %}
+                    {% include "maingame/components/current_incoming.html" with current=dominion.acres incoming=dominion.incoming_acres %}
                 </td>
 
                 {% comment %} Defense {% endcomment %}
                 <td class="u-align-middle">
                     <div class="u-flex u-flex-column">
                         {% if dominion.defense < this_dominion.juicy_target_threshold and dominion.is_oop and round.has_started %}
-                        <span class="tag tag--danger py-0 mx-auto text-md">
-                            {% include "maingame/mouseover_change.html" with normal=dominion.defense_short mouseover=dominion.defense_raw_short %}
-                        </span>
+                        {% comment %} <span class="tag tag--danger mx-auto text-md">
+                            {% include "maingame/components/mouseover_change.html" with normal=dominion.defense_short mouseover=dominion.defense_raw_short %}
+                        </span> {% endcomment %}
+                        <div class="bg-red-600 text-white u-round-sm mx-auto p-1">
+                            {% include "maingame/components/mouseover_change.html" with normal=dominion.defense_short mouseover=dominion.defense_raw_short %}
+                        </div>
                         {% else %}
                         <span class="u-center {% if dominion.protection_ticks_remaining > 0 or not round.has_started %}text-teal-400{% endif %}">
                             {% if dominion.is_oop and round.has_started %}
-                            {% include "maingame/mouseover_change.html" with normal=dominion.defense_short mouseover=dominion.defense_raw_short %}
+                            {% include "maingame/components/mouseover_change.html" with normal=dominion.defense_short mouseover=dominion.defense_raw_short %}
                             {% else %}
                             Magical protection
                             {% endif %}
