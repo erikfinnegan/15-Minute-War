@@ -25,4 +25,7 @@
         </div>
         {% endif %}
     </div>
+    {% if show_upgrades and building.upgrades > 0 %}
+        <span>{{ building.upgrades }} upgrade{% if building.upgrades > 1 %}s{% endif %}</span>
+    {% endif %}
 </div>

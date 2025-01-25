@@ -153,13 +153,11 @@ class Command(BaseCommand):
         #     print(output)
         # print()
 
-        money = 20000
+        bad = 0
 
-        for _ in range(25):
-            money *= 1.05
+        for _ in range(100000):
+            if randint(1,6) + randint(1,6) + randint(1,6) > randint(1,6):
+                bad += 1
 
-            for _ in range(24):
-                money += 900
-
-        print(money)
+        print(bad/100000)
 
