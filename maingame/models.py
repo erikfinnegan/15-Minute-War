@@ -422,6 +422,13 @@ class Dominion(models.Model):
 
         return sorted_list
 
+    @property
+    def goblin_bonus(self):
+        if self.faction_name != "goblin":
+            return 0
+        else:
+            return 10 + (2 * self.failed_defenses)
+
     def get_production(self, resource_name):
         production = 0
 
@@ -454,7 +461,7 @@ class Dominion(models.Model):
 
         if "rulers_favorite_resource" in self.perk_dict:
             if resource_name == self.perk_dict["rulers_favorite_resource"]:
-                bonus = 1 + ((10 + (2 * self.failed_defenses)) / 100)
+                bonus = 1 + (self.goblin_bonus / 100)
                 production *= bonus
 
         return int(production)
