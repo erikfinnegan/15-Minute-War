@@ -126,7 +126,7 @@
                     {% else %}
                         <td class="u-align-middle">None</td>
                     {% endif %}
-                {% elif "rulers_favorite_resource" in this_dominion.perk_dict %}
+                {% elif "rulers_favorite_resource" in this_dominion.perk_dict and dominion == this_dominion %}
                     <td class="u-align-middle" style="white-space:nowrap">+{{ this_dominion.goblin_bonus }}% {{ this_dominion.perk_dict.rulers_favorite_resource }}</td>
                 {% else %}
                     <td class="u-align-middle">-</td>
