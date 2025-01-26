@@ -127,7 +127,7 @@
                         <td class="u-align-middle">None</td>
                     {% endif %}
                 {% elif "rulers_favorite_resource" in this_dominion.perk_dict %}
-                    <td class="u-align-middle">+{{ this_dominion.goblin_bonus }}% {{ this_dominion.perk_dict.rulers_favorite_resource }}</td>
+                    <td class="u-align-middle" style="white-space:nowrap">+{{ this_dominion.goblin_bonus }}% {{ this_dominion.perk_dict.rulers_favorite_resource }}</td>
                 {% else %}
                     <td class="u-align-middle">-</td>
                 {% endif %}
@@ -172,7 +172,7 @@
                         </div>
                     </td>
                 {% elif "rulers_favorite_resource" in dominion.perk_dict %}
-                    <td class="u-align-middle">+{{ dominion.goblin_bonus }}% {{ dominion.perk_dict.rulers_favorite_resource }}</td>
+                    <td class="u-align-middle" style="white-space:nowrap">+{{ dominion.goblin_bonus }}% {{ dominion.perk_dict.rulers_favorite_resource }}</td>
                 {% else %}
                     <td class="u-align-middle">-</td>
                 {% endif %}
