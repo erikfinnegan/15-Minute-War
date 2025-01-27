@@ -5,6 +5,7 @@ from maingame.formatters import get_goblin_ruler
 from maingame.models import Artifact, Unit, Dominion, Discovery, Building, Event, Round, Faction, Resource, Spell, UserSettings
 from django.contrib.auth.models import User
 
+from maingame.utils.artifacts import give_random_unowned_artifact_to_dominion
 from maingame.utils.give_stuff import create_resource_for_dominion, give_dominion_building, give_dominion_spell, give_dominion_unit
 
 
