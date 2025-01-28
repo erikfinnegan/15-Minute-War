@@ -115,7 +115,9 @@
             let totalPercent = 0
 
             inputs.forEach(input => {
-                totalPercent = totalPercent + parseInt(input.value)
+                if (input.value) {
+                    totalPercent = totalPercent + parseInt(input.value)
+                }
             });
 
             totalPercentReadout.innerHTML = totalPercent
