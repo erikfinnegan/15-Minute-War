@@ -170,7 +170,7 @@
                     failToStealChance = failToStealChance * failToStealChancePerArtifact
                 }
 
-                failToStealChance = Math.floor(failToStealChance * 100)
+                failToStealChance = Math.ceil(failToStealChance * 100)
                 const artifactStealChance = 100 - failToStealChance
                 stealChance.innerHTML = Math.min(100, artifactStealChance)
             }
