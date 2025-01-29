@@ -88,6 +88,8 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
     # Handle stealing artifacts
     defender_artifact_count = Artifact.objects.filter(ruler=target_dominion).count()
 
+    artifact_roll_string = "Defender has no artifacts to roll for."
+
     if attacker_victory and defender_artifact_count > 0:
         amount_over = steal_offense_sent - defense_snapshot
         amount_over_percent = math.ceil((amount_over / defense_snapshot) * 100)
@@ -96,10 +98,14 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
         # 25% over is 50% to steal
         percent_chance = amount_over_percent * 2
 
+        artifact_roll_string = f"{percent_chance}% to steal artifact, need to roll equal or under {percent_chance} on d100 at least once. Rolls:"
+
         do_steal_artifact = False
 
         for _ in range(defender_artifact_count):
-            if percent_chance >= randint(1, 100):
+            roll = randint(1, 100)
+            artifact_roll_string += f"  {roll}"
+            if percent_chance >= roll:
                 do_steal_artifact = True
 
         if do_steal_artifact:
@@ -125,6 +131,7 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
         attacker=my_dominion,
         defender=target_dominion,
         stolen_artifact=stolen_artifact,
+        artifact_roll_string=artifact_roll_string,
         winner=my_dominion if attacker_victory else target_dominion,
         op=offense_sent,
         dp=defense_snapshot,

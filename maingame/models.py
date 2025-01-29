@@ -957,6 +957,7 @@ class Battle(models.Model):
     attacker = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, related_name="battles_attacked")
     defender = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, related_name="battles_defended")
     stolen_artifact = models.ForeignKey(Artifact, on_delete=models.PROTECT, null=True)
+    artifact_roll_string = models.CharField(max_length=500, null=True, blank=True)
     winner = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, related_name="battles_won")
     units_sent_dict = models.JSONField(default=dict, null=True, blank=True)
     units_defending_dict = models.JSONField(default=dict, null=True, blank=True)
