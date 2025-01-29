@@ -162,8 +162,11 @@
             if (artifactCount > 0) {
                 stealChanceSection.classList.remove("u-none")
                 stealChanceSection.classList.add("u-flex")
-                const percentChancePerArtifact = ((totalStealOp / dpHere) - 1) * stealChanceMultiplier * 1.5
-                const failToStealChancePerArtifact = Math.max(0, 1 - percentChancePerArtifact)
+
+                const amountOver = totalStealOp - dpHere
+                const amountOverPercent = Math.max((amountOver / dpHere) * 100)
+                const artifactStealChance = (amountOverPercent / 100) * 2 * stealChanceMultiplier
+                let failToStealChancePerArtifact = 1 - artifactStealChance
                 let failToStealChance = 1
 
                 for (let x = 0; x < artifactCount; x++) {
@@ -171,8 +174,8 @@
                 }
 
                 failToStealChance = Math.ceil(failToStealChance * 100)
-                const artifactStealChance = 100 - failToStealChance
-                stealChance.innerHTML = Math.min(100, artifactStealChance)
+                const finalStealChance = 100 - failToStealChance
+                stealChance.innerHTML = Math.min(100, finalStealChance)
             }
         } else {
             stealChanceSection.classList.add("u-none")
