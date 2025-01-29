@@ -89,13 +89,12 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
     defender_artifact_count = Artifact.objects.filter(ruler=target_dominion).count()
 
     if attacker_victory and defender_artifact_count > 0:
-        percent_chance = ((steal_offense_sent / defense_snapshot) - 1) * 100
-        percent_chance *= my_dominion.artifact_steal_chance_multiplier
-        
-        # 1.5% chance to steal per 1% OP exceeds DP
-        percent_chance *= 1.5
+        amount_over = steal_offense_sent - defense_snapshot
+        amount_over_percent = math.ceil((amount_over / defense_snapshot) * 100)
 
-        print("percent_chance", percent_chance)
+        # 50% over is 100% to steal
+        # 25% over is 50% to steal
+        percent_chance = amount_over_percent * 2
 
         do_steal_artifact = False
 
