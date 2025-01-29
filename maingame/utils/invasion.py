@@ -94,9 +94,9 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
         amount_over = steal_offense_sent - defense_snapshot
         amount_over_percent = math.ceil((amount_over / defense_snapshot) * 100)
 
-        # 50% over is 100% to steal
-        # 25% over is 50% to steal
-        percent_chance = amount_over_percent * 2
+        # 67% over is 100% to steal
+        # Make sure this matches world_js.html
+        percent_chance = amount_over_percent * 1.5
 
         artifact_roll_string = f"{percent_chance}% to steal artifact, need to roll equal or under {percent_chance} on d100 at least once. Rolls:"
 

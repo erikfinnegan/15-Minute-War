@@ -165,7 +165,7 @@
 
                 const amountOver = totalStealOp - dpHere
                 const amountOverPercent = Math.max((amountOver / dpHere) * 100)
-                const artifactStealChance = (amountOverPercent / 100) * 2 * stealChanceMultiplier
+                const artifactStealChance = (amountOverPercent / 100) * 1.5 * stealChanceMultiplier // Make sure this matches invasion.py
                 let failToStealChancePerArtifact = 1 - artifactStealChance
                 let failToStealChance = 1
 
