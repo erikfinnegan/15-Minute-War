@@ -30,7 +30,7 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
         offense_sent += unit.op * quantity_sent
 
         if "op_bonus_percent_for_stealing_artifacts" in unit.perk_dict:
-            bonus_steal_offense_sent += (unit.perk_dict["op_bonus_percent_for_stealing_artifacts"] / 100) * unit.op
+            bonus_steal_offense_sent += (unit.perk_dict["op_bonus_percent_for_stealing_artifacts"] / 100) * unit.op * quantity_sent
 
         if "returns_in_ticks" in unit.perk_dict:
             slowest_unit_return_ticks = max(slowest_unit_return_ticks, unit.perk_dict["returns_in_ticks"])
