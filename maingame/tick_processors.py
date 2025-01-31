@@ -30,12 +30,12 @@ def do_global_tick():
 
         if Round.objects.first().allow_ticks:
             for dominion in Dominion.objects.all():
-                if dominion.is_oop:
+                if dominion.is_oop and not dominion.is_abandoned:
                     dominion.do_tick()
 
             # This has to be a separate loop or else multiple auto attacks against the same target get fucked up
             for dominion in Dominion.objects.all():
-                if dominion.faction_name == "biclops": 
+                if dominion.faction_name == "biclops" and not dominion.is_abandoned: 
                     do_biclops_partner_attack(dominion)
 
                 if "biclopean_ambition_ticks_remaining" in dominion.perk_dict:
