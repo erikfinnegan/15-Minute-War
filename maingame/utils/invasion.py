@@ -407,7 +407,7 @@ def do_forced_attack(dominion: Dominion, use_always_dies_units=False):
 
     hasnt_attacked_yet = True
 
-    for other_dominion in Dominion.objects.all().order_by("-acres"):
+    for other_dominion in Dominion.objects.filter(is_abandoned=False).order_by("-acres"):
         op_multiplier = dominion.offense_multiplier + get_grudge_bonus(dominion, other_dominion)
         op_against_this_dominion = op_from_offensive_units_at_home * op_multiplier
 
