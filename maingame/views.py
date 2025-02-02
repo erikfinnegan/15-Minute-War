@@ -895,15 +895,15 @@ def overview(request, dominion_id):
     resources_dict = {}
 
     for resource in Resource.objects.filter(ruler=dominion):
-        if not resource.name == "corpses":
-            resources_dict[resource.name] = {
-                "name": resource.name,
-                "quantity": resource.quantity,
-                "produced": dominion.get_production(resource.name),
-                "consumed": dominion.get_consumption(resource.name),
-            }
+        # if not resource.name == "corpses":
+        resources_dict[resource.name] = {
+            "name": resource.name,
+            "quantity": resource.quantity,
+            "produced": dominion.get_production(resource.name),
+            "consumed": dominion.get_consumption(resource.name),
+        }
 
-            resources_dict[resource.name]["net"] = resources_dict[resource.name]["produced"] - resources_dict[resource.name]["consumed"]
+        resources_dict[resource.name]["net"] = resources_dict[resource.name]["produced"] - resources_dict[resource.name]["consumed"]
 
         dominion.save()
 
