@@ -359,5 +359,5 @@ def initialize_game_pieces():
     initialize_units()
     initialize_spells()
     # initialize_trade_prices()
-    initialize_artifacts()
+    # initialize_artifacts()
     # update_trade_prices()

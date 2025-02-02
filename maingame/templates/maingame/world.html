@@ -26,7 +26,7 @@
     {% include "maingame/components/dominion_list.html" with this_dominion=active_dominion all_dominions=dominions my_view=True %}
 
     {% comment %} Artifact list {% endcomment %}
-    <details class="accordion card card_colors max-w-md">
+    {% comment %} <details class="accordion card card_colors max-w-md">
         <summary class="accordion__summary">
         {% if undiscovered_artifact_count > 0 %}
         Artifacts
@@ -52,7 +52,7 @@
             {% endif %}
         {% endfor %}
         </div>
-    </details>
+    </details> {% endcomment %}
 
 
     {% comment %} GSF infiltration toggle {% endcomment %}
