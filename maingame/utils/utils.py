@@ -264,7 +264,15 @@ def round_x_to_nearest_y(x, round_to_nearest):
 
 
 def get_acres_conquered(attacker: Dominion, target: Dominion):
-    return int(0.06 * target.acres * (target.acres / attacker.acres))
+    base = 0.06 * target.acres
+    land_ratio = target.acres / attacker.acres
+    multiplier = land_ratio
+    
+    if land_ratio > 1:
+        bonus_percent = land_ratio - 1
+        multiplier = 1 + (0.8 * bonus_percent)
+
+    return int(base * multiplier)
 
 
 def do_quest(units_sent_dict, my_dominion: Dominion):
