@@ -26,11 +26,11 @@
                     <th class="u-align-middle">Perks against them</th>
                 {% endif %}
                 
-                {% if undiscovered_artifact_count > 0 %}
+                {% comment %} {% if undiscovered_artifact_count > 0 %}
                 <th class="u-align-middle">OP quested</th>
                 {% else %}
                 <th class="u-align-middle">Artifacts</th>
-                {% endif %}
+                {% endif %} {% endcomment %}
                 <th class="u-align-middle" style="white-space: nowrap;">W/L</th>
             </tr>
         </thead>
@@ -179,7 +179,7 @@
 
                 {% comment %} OP quested {% endcomment %}
                 
-                <td class="u-align-middle">
+                {% comment %} <td class="u-align-middle">
                     <div class="u-flex u-flex-column">
                         {% if undiscovered_artifact_count > 0 %}
                         <span>
@@ -190,7 +190,7 @@
                             <span class="text-xs">{{ dominion.artifact_count }} {{ "artifacts"|depluralize:dominion.artifact_count }}</span>
                         {% endif %}
                     </div>
-                </td>
+                </td> {% endcomment %}
 
                 {% comment %} W/L {% endcomment %}
                 <td class="u-align-middle" style="white-space:nowrap">{{ dominion.successful_invasions }}-{{ dominion.failed_defenses }}</td>
