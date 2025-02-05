@@ -18,7 +18,9 @@
     </details>
 
     {% for building in buildings %}
-    {% include "maingame/components/building_card.html" with show_upgrades=True %}
+        {% if building.is_upgradable %}
+            {% include "maingame/components/building_card.html" with show_upgrades=True %}
+        {% endif %}
     {% endfor %}
 </div>
 

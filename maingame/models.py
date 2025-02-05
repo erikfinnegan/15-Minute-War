@@ -461,6 +461,14 @@ class Dominion(models.Model):
 
         if "rulers_favorite_resource" in self.perk_dict:
             if resource_name == self.perk_dict["rulers_favorite_resource"]:
+                favorite_building = Building.objects.get(ruler=self, name="ruler's favorite")
+
+                try:
+                    actual_building = Building.objects.get(ruler=self, resource_produced_name=resource_name)
+                    production += actual_building.amount_produced * (favorite_building.percent_of_land/100) * self.acres
+                except:
+                    pass
+
                 bonus = 1 + (self.goblin_bonus / 100)
                 production *= bonus
 
@@ -686,6 +694,7 @@ class Building(models.Model):
     defense_multiplier = models.IntegerField(default=0)
     upgrades = models.IntegerField(default=0)
     is_buildable = models.BooleanField(default=True)
+    is_upgradable = models.BooleanField(default=True)
     construction_dict = models.JSONField(default=dict, blank=True, null=True)
 
     def __str__(self):
@@ -706,9 +715,13 @@ class Building(models.Model):
     @property
     def description(self):
         perks = []
+
         if self.amount_produced > 0:
             resource_produced = Resource.objects.get(ruler=self.ruler, name=self.resource_produced_name)
             perks.append(f"Produces {self.amount_produced} {resource_produced.name} per tick.")
+
+        if self.name == "ruler's favorite":
+            perks.append("Counts as whichever building produces the ruler's favorite resource.")
 
         return " ".join(perks)
     

@@ -101,6 +101,10 @@ def initialize_buildings():
             "resource_produced_name": "mithril",
             "amount_produced": 40,
         },
+        {
+            "name": "ruler's favorite",
+            "is_upgradable": False,
+        },
     ]
 
     for building_template in building_templates:
@@ -161,7 +165,7 @@ def initialize_factions():
         primary_resource_per_acre="50",
         building_primary_resource_name="gold",
         building_secondary_resource_name="wood",
-        starting_buildings=["farm", "lumberyard", "school", "tower", "quarry",],
+        starting_buildings=["farm", "lumberyard", "school", "tower", "quarry", "ruler's favorite",],
         description="""Goblins are nasty little creatures. Whether they like it or not (though they definitely do), they produce 1 rat for every 3 acres.
         Each is ruled by an ambitious little wretch who favors one resource above all others, getting a 10% bonus to production. Every time goblins are 
         invaded, they eat their leader and replace them with a new one who favors a new resource and increases the production bonus by 2%. Leaders will 
