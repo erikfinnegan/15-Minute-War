@@ -114,10 +114,10 @@ def initialize_generic_discoveries():
         description="Increases gold per acre by 1. Can be taken multiple times.",
     )
 
-    Discovery.objects.create(
-        name="Raiders",
-        description="Increases chance of stealing an artifact by 10%. Can be taken multiple times, stacking additively.",
-    )
+    # Discovery.objects.create(
+    #     name="Raiders",
+    #     description="Increases chance of stealing an artifact by 10%. Can be taken multiple times, stacking additively.",
+    # )
 
     Discovery.objects.create(
         name="Battering Rams",
