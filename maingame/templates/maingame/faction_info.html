@@ -8,11 +8,34 @@
 {% endblock %}
 
 {% block content %}
+<script>
+    var delayInMilliseconds = 3000;
+
+    setTimeout(function() {
+        let orderName = document.getElementById("order-name");
+        orderName.innerHTML = "Fallen Order"
+    }, delayInMilliseconds);
+
+    setTimeout(function() {
+        let orderName = document.getElementById("order-name");
+        orderName.innerHTML = "Blessed Order"
+    }, delayInMilliseconds + 500);
+
+    setTimeout(function() {
+        let orderName = document.getElementById("order-name");
+        orderName.innerHTML = "Fallen Order"
+    }, delayInMilliseconds * 3);
+
+    setTimeout(function() {
+        let orderName = document.getElementById("order-name");
+        orderName.innerHTML = "Blessed Order"
+    }, delayInMilliseconds * 3 + 500);
+</script>
 <div>
     <div class="u-flex u-flex-wrap u-gap-4">
         {% for faction_dict in factions %}
         <div class="card card_colors p-1 max-w-xs p-2">
-            <h6>{{ faction_dict.faction.name|title }}</h6>
+            <h6 {% if faction_dict.faction.name == 'blessed order' %}id="order-name"{% endif %}>{{ faction_dict.faction.name|title }}</h6>
             <table class="table striped card_colors">
                 <tr>
                     <th>Name</th>
