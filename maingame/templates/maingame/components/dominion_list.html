@@ -128,6 +128,8 @@
                     {% endif %}
                 {% elif "rulers_favorite_resource" in this_dominion.perk_dict and dominion == this_dominion %}
                     <td class="u-align-middle" style="white-space:nowrap">+{{ this_dominion.goblin_bonus }}% {{ this_dominion.perk_dict.rulers_favorite_resource }}</td>
+                {% elif "inquisition_ticks_left" in this_dominion.perk_dict and this_dominion.perk_dict.inquisition_ticks_left > 0 and dominion == this_dominion %}
+                     <td class="u-align-middle">Can't attack for {{ this_dominion.perk_dict.inquisition_ticks_left }} {{ "ticks"|depluralize:this_dominion.perk_dict.inquisition_ticks_left }}</td>
                 {% else %}
                     <td class="u-align-middle">-</td>
                 {% endif %}
@@ -173,6 +175,8 @@
                     </td>
                 {% elif "rulers_favorite_resource" in dominion.perk_dict %}
                     <td class="u-align-middle" style="white-space:nowrap">+{{ dominion.goblin_bonus }}% {{ dominion.perk_dict.rulers_favorite_resource }}</td>
+                {% elif "inquisition_ticks_left" in dominion.perk_dict and dominion.perk_dict.inquisition_ticks_left > 0 %}
+                     <td class="u-align-middle">Can't attack for {{ dominion.perk_dict.inquisition_ticks_left }} {{ "ticks"|depluralize:dominion.perk_dict.inquisition_ticks_left }}</td>
                 {% else %}
                     <td class="u-align-middle">-</td>
                 {% endif %}

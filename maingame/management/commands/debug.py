@@ -153,11 +153,15 @@ class Command(BaseCommand):
         #     print(output)
         # print()
 
-        bad = 0
+        brothers = 10000
+        sinners = 240
+        sinners_per_tick = 24
+        ticks = 0
 
-        for _ in range(100000):
-            if randint(1,6) + randint(1,6) + randint(1,6) > randint(1,6):
-                bad += 1
+        while brothers > 0:
+            ticks += 1
+            brothers -= sinners / 10
+            sinners += sinners_per_tick
 
-        print(bad/100000)
+        print(ticks)
 

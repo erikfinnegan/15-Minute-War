@@ -125,36 +125,36 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
     stolen_artifact = None
 
     # Handle stealing artifacts
-    defender_artifact_count = Artifact.objects.filter(ruler=target_dominion).count()
+    # defender_artifact_count = Artifact.objects.filter(ruler=target_dominion).count()
 
-    artifact_roll_string = "Defender has no artifacts to roll for."
+    # artifact_roll_string = "Defender has no artifacts to roll for."
 
-    if attacker_victory and defender_artifact_count > 0:
-        amount_over = steal_offense_sent - defense_snapshot
-        amount_over_percent = math.ceil((amount_over / defense_snapshot) * 100)
+    # if attacker_victory and defender_artifact_count > 0:
+        # amount_over = steal_offense_sent - defense_snapshot
+        # amount_over_percent = math.ceil((amount_over / defense_snapshot) * 100)
 
-        # 67% over is 100% to steal
-        # Make sure this matches world_js.html
-        percent_chance = amount_over_percent * 1.5
+        # # 67% over is 100% to steal
+        # # Make sure this matches world_js.html
+        # percent_chance = amount_over_percent * 1.5
 
-        artifact_roll_string = f"{percent_chance}% to steal artifact, need to roll equal or under {percent_chance} on d100 at least once. Rolls:"
+        # artifact_roll_string = f"{percent_chance}% to steal artifact, need to roll equal or under {percent_chance} on d100 at least once. Rolls:"
 
-        do_steal_artifact = False
+        # do_steal_artifact = False
 
-        for _ in range(defender_artifact_count):
-            roll = randint(1, 100)
-            artifact_roll_string += f"  {roll}"
-            if percent_chance >= roll:
-                do_steal_artifact = True
+        # for _ in range(defender_artifact_count):
+        #     roll = randint(1, 100)
+        #     artifact_roll_string += f"  {roll}"
+        #     if percent_chance >= roll:
+        #         do_steal_artifact = True
 
-        if do_steal_artifact:
-            defenders_artifacts = []
+        # if do_steal_artifact:
+        #     defenders_artifacts = []
 
-            for artifact in Artifact.objects.filter(ruler=target_dominion):
-                defenders_artifacts.append(artifact)
+        #     for artifact in Artifact.objects.filter(ruler=target_dominion):
+        #         defenders_artifacts.append(artifact)
 
-            stolen_artifact = random.choice(defenders_artifacts)
-            assign_artifact(stolen_artifact, my_dominion)
+        #     stolen_artifact = random.choice(defenders_artifacts)
+        #     assign_artifact(stolen_artifact, my_dominion)
 
     battle_units_sent_dict = {}
     battle_units_defending_dict = {}
@@ -170,7 +170,7 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
         attacker=my_dominion,
         defender=target_dominion,
         stolen_artifact=stolen_artifact,
-        artifact_roll_string=artifact_roll_string,
+        # artifact_roll_string=artifact_roll_string,
         winner=my_dominion if attacker_victory else target_dominion,
         op=offense_sent,
         dp=defense_snapshot,
@@ -189,16 +189,16 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
     target_dominion.has_unread_events = True
     target_dominion.save()
 
-    if stolen_artifact:
-        artifact_event = Event.objects.create(
-            reference_id=stolen_artifact.id, 
-            reference_type="artifact", 
-            category="Artifact Stolen",
-            message_override=f"{my_dominion} stole {stolen_artifact.name} from {target_dominion}"
-        )
-        artifact_event.notified_dominions.add(my_dominion)
-        artifact_event.notified_dominions.add(target_dominion)
-        artifact_event.save()
+    # if stolen_artifact:
+    #     artifact_event = Event.objects.create(
+    #         reference_id=stolen_artifact.id, 
+    #         reference_type="artifact", 
+    #         category="Artifact Stolen",
+    #         message_override=f"{my_dominion} stole {stolen_artifact.name} from {target_dominion}"
+    #     )
+    #     artifact_event.notified_dominions.add(my_dominion)
+    #     artifact_event.notified_dominions.add(target_dominion)
+    #     artifact_event.save()
 
     # Handle biclops patience
     if "partner_patience" in my_dominion.perk_dict:
@@ -245,8 +245,8 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
 
         ticks_for_land = str(slowest_unit_return_ticks)
 
-        if Artifact.objects.filter(name="The Stable of the North Wind", ruler=my_dominion).exists():
-            ticks_for_land = str(min(10, slowest_unit_return_ticks))
+        # if Artifact.objects.filter(name="The Stable of the North Wind", ruler=my_dominion).exists():
+        #     ticks_for_land = str(min(10, slowest_unit_return_ticks))
         
         my_dominion.incoming_acres_dict[ticks_for_land] += acres_conquered * 2
 
@@ -318,8 +318,8 @@ def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominio
             # unit.returning_dict[str(unit.perk_dict["returns_in_ticks"])] += survivors
             possible_return_ticks.append(unit.perk_dict["returns_in_ticks"])
         
-        if Artifact.objects.filter(name="The Stable of the North Wind", ruler=my_dominion).exists():
-            possible_return_ticks.append(10)
+        # if Artifact.objects.filter(name="The Stable of the North Wind", ruler=my_dominion).exists():
+        #     possible_return_ticks.append(10)
         
         possible_return_ticks.sort()
         do_instant_return = False
@@ -459,12 +459,19 @@ def do_forced_attack(dominion: Dominion, use_always_dies_units=False):
             # {'16650': {'unit': <Unit: ERIKTEST -- Ironclops (20/12) -- x490>, 'quantity_sent': 10}}
             units_sent_dict = {}
             raw_op_sent = 0
+            raw_dp_at_home = dominion.raw_defense
+            own_dp_multiplier = dominion.defense_multiplier
 
             for offensive_unit in offensive_units:
                 this_unit_dict = {"unit": offensive_unit, "quantity_sent": 0}
-                while raw_op_sent * op_multiplier <= other_dominion.defense and this_unit_dict["quantity_sent"] < offensive_unit.quantity_at_home:
+                while (
+                    raw_op_sent * op_multiplier <= other_dominion.defense and
+                    this_unit_dict["quantity_sent"] < offensive_unit.quantity_at_home and
+                    raw_dp_at_home * own_dp_multiplier >= dominion.acres * 5
+                ):
                     this_unit_dict["quantity_sent"] += 1
                     raw_op_sent += offensive_unit.op
+                    raw_dp_at_home -= offensive_unit.dp
                 
                 if this_unit_dict["quantity_sent"] > 0:
                     units_sent_dict[str(offensive_unit.id)] = this_unit_dict

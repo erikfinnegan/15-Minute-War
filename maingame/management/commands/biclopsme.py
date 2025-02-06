@@ -28,7 +28,7 @@ class Command(BaseCommand):
 
         for user in User.objects.all():
             if user.username != "test" and user.username != "dontdominionme":
-                dominion = initialize_dominion(user=user, faction=Faction.objects.get(name="biclops"), display_name=f"p-{user.username}")
+                dominion = initialize_dominion(user=user, faction=Faction.objects.get(name="dwarf"), display_name=f"p-{user.username}")
                 dominion.protection_ticks_remaining = 0
                 dominion.perk_dict["partner_attack_on_sight"] = True
                 dominion.save()

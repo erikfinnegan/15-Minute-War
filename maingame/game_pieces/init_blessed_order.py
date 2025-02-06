@@ -37,6 +37,7 @@ def initialize_blessed_order_units():
     )
 
     Unit.objects.create(
+        # Cost is determined by dominion_controls.py 
         name="Blessed Martyr",
         op=5,
         dp=0,
@@ -82,20 +83,20 @@ def initialize_blessed_order_units():
         perk_dict={"casualty_multiplier": 2},
     )
 
-    Unit.objects.create(
-        name="Wight",
-        op=12,
-        dp=10,
-        cost_dict={
-            "faith": 2000,
-            "mana": 1000,
-            "corpses": 1,
-        },
-        upkeep_dict={
-            "mana": 0.3,
-        },
-        perk_dict={"casualty_multiplier": 0.5},
-    )
+    # Unit.objects.create(
+    #     name="Wight",
+    #     op=12,
+    #     dp=10,
+    #     cost_dict={
+    #         "faith": 2000,
+    #         "mana": 1000,
+    #         "corpses": 1,
+    #     },
+    #     upkeep_dict={
+    #         "mana": 0.3,
+    #     },
+    #     perk_dict={"casualty_multiplier": 0.5},
+    # )
 
     Unit.objects.create(
         name="Cathedral Titan",
@@ -133,8 +134,8 @@ def initialize_blessed_order_discoveries():
     )
 
     Discovery.objects.create(
-        name="Heresy",
-        description="Doubles the number of sinners generated.",
+        name="Scrutiny",
+        description="Doubles the number of sinners found per tick.",
         required_faction_name="blessed order",
         required_discoveries_or=["Grim Sacrament", "Penitent Engines"],
     )
@@ -145,13 +146,13 @@ def initialize_blessed_order_discoveries():
         required_faction_name="blessed order",
     )
 
-    Discovery.objects.create(
-        name="Wights",
-        description="Imbuing a dead body with a spirit other than its own creates a being of terrible power.",
-        required_faction_name="blessed order",
-        associated_unit_name="Wight",
-        required_discoveries=["Heresy", "Grim Sacrament", "Zombies"],
-    )
+    # Discovery.objects.create(
+    #     name="Wights",
+    #     description="Imbuing a dead body with a spirit other than its own creates a being of terrible power.",
+    #     required_faction_name="blessed order",
+    #     associated_unit_name="Wight",
+    #     required_discoveries=["Heresy", "Grim Sacrament", "Zombies"],
+    # )
 
     Discovery.objects.create(
         name="Penitent Engines",
