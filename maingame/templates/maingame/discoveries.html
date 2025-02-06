@@ -47,6 +47,32 @@
         </div>
     {% endif %}
 
+    {% if active_dominion.faction_name == "blessed order" and "corruption" in active_dominion.perk_dict %}
+        <div class="font-bold max-w-md
+            {% if 'Heresy' in active_dominion.learned_discoveries %}
+            px-1 pt-2 pb-1 bg-gray-900 text-purple-200
+            {% elif active_dominion.perk_dict.corruption >= 200000 and 'Heresy' not in active_dominion.learned_discoveries %}
+            p-1 bg-gray-900 text-purple-500
+            {% elif active_dominion.perk_dict.corruption >= 100000 and 'Heresy' not in active_dominion.learned_discoveries %}
+            p-1 bg-gray-800 text-purple-300
+            {% elif 'Heresy' not in active_dominion.perk_dict %}
+            p-1 bg-gray-800 text-white
+            {% endif %}"
+        >
+            {% if "Heresy" in active_dominion.learned_discoveries %}
+                <h6><em>Welcome, child.</em></h6>
+            {% else %}
+                <p>Your sinners have whispered {{ active_dominion.perk_dict.corruption|intcomma }} blasphemies.</p>
+                {% if active_dominion.perk_dict.corruption >= 100000 and "Heresy" not in active_dominion.learned_discoveries %}
+                <p>Their ideology is creeping deeper every day.</p>
+                {% endif %}
+                {% if active_dominion.perk_dict.corruption >= 200000 and "Heresy" not in active_dominion.learned_discoveries %}
+                <p><em>Is it not time to abandon your false gods?</em></p>
+                {% endif %}
+            {% endif %}
+        </div>
+    {% endif %}
+
     <form action="{% url 'submit_discovery' %}" method="post" class="">
         {% csrf_token %}
         <div class="u-center u-flex u-gap-4 mt-2" style="width: fit-content">

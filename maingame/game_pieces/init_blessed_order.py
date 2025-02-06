@@ -182,3 +182,10 @@ def initialize_blessed_order_discoveries():
         associated_unit_name="Cremain Knight",
         required_discoveries=["Funerals", "Fireballs"],
     )
+
+    Discovery.objects.create(
+        name="Heresy",
+        description='Come, child. Reject the false teachings of these so-called "brothers" and embrace your true family.',
+        required_faction_name="blessed order",
+        required_perk_dict={"corruption": 250000},
+    )

@@ -193,7 +193,7 @@ class Dominion(models.Model):
     def can_attack(self):
         if self.protection_ticks_remaining > 0:
             return False
-        elif self.perk_dict.get("inquisition_ticks_left") and self.perk_dict.get("inquisition_ticks_left") > 0:
+        elif self.perk_dict.get("order_cant_attack_ticks_left") and self.perk_dict.get("order_cant_attack_ticks_left") > 0:
             return False
         # elif self.has_units_returning:
         #     return False
@@ -443,7 +443,7 @@ class Dominion(models.Model):
                 production += unit.perk_dict[f"{resource_name}_per_tick"] * unit.quantity_at_home
 
         if resource_name == "sinners" and "sinners_per_hundred_acres_per_tick" in self.perk_dict:
-            if "inquisition_ticks_left" in self.perk_dict and self.perk_dict["inquisition_ticks_left"] > 0:
+            if "order_cant_attack_ticks_left" in self.perk_dict and self.perk_dict["order_cant_attack_ticks_left"] > 0:
                 return 0
             
             if self.protection_ticks_remaining > 0:
@@ -548,14 +548,14 @@ class Dominion(models.Model):
             miners = Unit.objects.get(ruler=self, name="Miner")
             self.perk_dict["mining_depth"] += miners.quantity_at_home * miners.perk_dict["cm_dug_per_tick"]
 
-        if "inquisition_ticks_left" in self.perk_dict and self.perk_dict["inquisition_ticks_left"] > 0:
+        if "order_cant_attack_ticks_left" in self.perk_dict and self.perk_dict["order_cant_attack_ticks_left"] > 0:
             sinners = Resource.objects.get(ruler=self, name="sinners")
-            self.perk_dict["inquisition_ticks_left"] -= 1
+            self.perk_dict["order_cant_attack_ticks_left"] -= 1
 
-            if self.perk_dict["inquisition_ticks_left"] == 0:
+            if self.perk_dict["order_cant_attack_ticks_left"] == 0:
                 self.perk_dict["inquisition_rate"] = 0
 
-            sinners_killed = sinners.quantity if self.perk_dict["inquisition_ticks_left"] == 0 else min(self.perk_dict["inquisition_rate"], sinners.quantity)
+            sinners_killed = sinners.quantity if self.perk_dict["order_cant_attack_ticks_left"] == 0 else min(self.perk_dict["inquisition_rate"], sinners.quantity)
             sinners.quantity -= sinners_killed
 
             if "inquisition_makes_corpses" in self.perk_dict:
@@ -564,6 +564,9 @@ class Dominion(models.Model):
                 corpses.save()
 
             sinners.save()
+
+        if "corruption" in self.perk_dict:
+            self.perk_dict["corruption"] += Resource.objects.get(ruler=self, name="sinners").quantity
 
         if "The Deep Angels" in self.learned_discoveries:
             deep_angels = Unit.objects.get(ruler=self, name="Deep Angel")

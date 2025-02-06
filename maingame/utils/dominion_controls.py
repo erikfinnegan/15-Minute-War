@@ -13,8 +13,9 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
     elif faction.name == "blessed order":
         dominion.perk_dict["sinners_per_hundred_acres_per_tick"] = 1
         dominion.perk_dict["inquisition_rate"] = 0
-        dominion.perk_dict["inquisition_ticks_left"] = 0
+        dominion.perk_dict["order_cant_attack_ticks_left"] = 0
         dominion.perk_dict["martyr_cost"] = 500
+        dominion.perk_dict["corruption"] = 0
     elif faction.name == "sludgeling":
         dominion.perk_dict["free_experiments"] = 10
         dominion.perk_dict["latest_experiment_id"] = 0

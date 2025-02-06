@@ -1150,7 +1150,7 @@ def church_affairs(request):
     sinners = Resource.objects.get(ruler=dominion, name="sinners").quantity
 
     context = {
-        "inquisition_ticks_left": dominion.perk_dict["inquisition_ticks_left"],
+        "order_cant_attack_ticks_left": dominion.perk_dict["order_cant_attack_ticks_left"],
         "sinners_per_tick": sinners_per_tick,
         "sinners": sinners,
     }
@@ -1174,7 +1174,7 @@ def submit_inquisition(request):
         return redirect("church_affairs")
     
     dominion.perk_dict["inquisition_rate"] = math.ceil(Resource.objects.get(ruler=dominion, name="sinners").quantity / 24)
-    dominion.perk_dict["inquisition_ticks_left"] = 24
+    dominion.perk_dict["order_cant_attack_ticks_left"] = 24
     dominion.save()
 
     messages.success(request, "The inquisition has begun.")
