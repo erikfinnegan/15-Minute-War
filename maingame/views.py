@@ -259,39 +259,24 @@ def submit_building(request):
                     messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
                     return redirect("buildings")
 
-    # for key, string_percent in request.POST.items():
-    #     # key is like "build_123" where 123 is the ID of the Building
-    #     if "build_" in key and string_percent != "":
-    #         building = Building.objects.get(id=key[6:])
-    #         print(building.name)
-    #         total_new_percent += int(string_percent)
-
-    #         if user_settings.tutorial_step == 1:
-    #             if building.name == "farm" and int(string_percent) != 5:
-    #                 messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
-    #                 return redirect("buildings")
-    #             elif building.name == "quarry" and int(string_percent) != 45:
-    #                 messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
-    #                 return redirect("buildings")
-    #             elif building.name == "lumberyard" and int(string_percent) != 11:
-    #                 messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
-    #                 return redirect("buildings")
-    #             elif building.name == "school" and int(string_percent) != 39:
-    #                 messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
-    #                 return redirect("buildings")
-    #             elif building.name == "tower" and int(string_percent) != 0:
-    #                 messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
-    #                 return redirect("buildings")
-
     if total_new_percent != 100:
         messages.error(request, f"Building allocation must add up to exactly 100%")
         return redirect("buildings")
-
-    for key, string_percent in request.POST.items():
-        if "build_" in key and string_percent != "":
-            building = Building.objects.get(id=key[6:])
+    
+    for building in Building.objects.filter(ruler=dominion):
+        if request.POST.get(f"build_{building.id}") != "":
+            string_percent = request.POST.get(f"build_{building.id}")
             building.percent_of_land = int(string_percent)
-            building.save()
+        else:
+            building.percent_of_land = 0
+
+        building.save()
+
+    # for key, string_percent in request.POST.items():
+    #     if "build_" in key and string_percent != "":
+    #         building = Building.objects.get(id=key[6:])
+    #         building.percent_of_land = int(string_percent)
+    #         building.save()
 
     messages.success(request, f"Building allocation successful")
     
