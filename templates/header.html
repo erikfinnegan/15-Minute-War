@@ -9,7 +9,7 @@
 </style>
 
 <div class="u-flex u-flex-row u-gap-1 u-items-center header_colors header-height h-12">
-    <div class="header_colors px-1 u-none-md" onclick="toggleMenu()">
+    <div class="header_colors px-1 md:u-none" onclick="toggleMenu()">
             <i class="fa fa-bars text-xl"></i>
     </div>
 
@@ -46,7 +46,7 @@
     </script>
 
     {% comment %} DESKTOP HEADER {% endcomment %}
-    <div class="u-none u-flex-md u-flex-wrap {% if active_dominion.resource_types >= 9 %}u-gap-4{% else %}u-gap-6{% endif %}">
+    <div class="u-none md:u-flex u-flex-wrap {% if active_dominion.resource_types >= 9 %}u-gap-4{% else %}u-gap-6{% endif %}">
         {% if active_dominion %}
         <div class="u-flex u-flex-column">
             {% if active_dominion.ticks_til_all_acres_return > 0 %}
@@ -74,7 +74,7 @@
     </div>
     {% comment %} DESKTOP HEADER {% endcomment %}
 
-    <table class="header_colors w-100p u-none-md">
+    <table class="header_colors w-100p md:u-none">
         {% for key, value in active_dominion.header_rows.items %}
         <tr>
             {% for resource_readout in value %}
@@ -102,7 +102,7 @@
 </div>
 
 {% if active_dominion.protection_ticks_remaining > 0 or not round.has_started and active_dominion %}
-<div class="u-flex u-flex-column u-flex-row-md u-gap-4 header_colors p-1">
+<div class="u-flex u-flex-column md:u-flex-row u-gap-4 header_colors p-1">
     {% if active_user_settings.tutorial_step >= 2 %}
     <span>{{ active_dominion.protection_ticks_remaining }} protection ticks left</span>
     {% endif %}

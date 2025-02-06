@@ -72,7 +72,7 @@
 
 
     {% comment %} GSF infiltration form {% endcomment %}
-    <form action="{% url 'submit_infiltration' %}" method="post" class="max-w-md u-overflow-x-scroll u-overflow-x-auto-md u-none" id="infiltrationForm">
+    <form action="{% url 'submit_infiltration' %}" method="post" class="max-w-md u-overflow-x-scroll md:u-overflow-x-auto u-none" id="infiltrationForm">
         {% csrf_token %}
         <div class="u-flex u-flex-row u-center py-2">
             <select class="max-w-xs" name="target_dominion_id" id="infiltration_target_select_dropdown" oninput="updateInfiltrateOffense();">
@@ -102,14 +102,14 @@
                 <tr>
                     {% include "maingame/components/unit_name_row.html" %}
                     <td class="u-align-middle">{{ unit.quantity_at_home|intcomma }}</td>
-                    <td class="u-align-middle u-flex-md u-flex-row-md">
+                    <td class="u-align-middle md:u-flex md:u-flex-row">
                         <input 
                             name="infiltrate_{{ unit.id }}" 
                             id="infiltrate_{{ unit.id }}" 
                             type="number" 
                             min="0"
                             max="{{ unit.quantity_at_home }}" 
-                            class="w-12 w-16-md ml-auto-md mr-2-md infiltration_unitInput"
+                            class="w-12 md:w-16 md:ml-auto md:mr-2 infiltration_unitInput"
                             oninput="updateInfiltrateOffense()"
                         >
                         <button type="button" class="header_colors u-center" onclick="infiltrateMax('{{ unit.id }}', '{{ unit.quantity_at_home }}')">
@@ -159,7 +159,7 @@
             </div>
         </div>
         {% elif active_dominion.can_attack and round.has_started and not round.has_ended %}
-        <form action="{% url 'submit_invasion' %}" method="post" class="max-w-md u-overflow-x-scroll u-overflow-x-auto-md">
+        <form action="{% url 'submit_invasion' %}" method="post" class="max-w-md u-overflow-x-scroll md:u-overflow-x-auto">
             {% csrf_token %}
             <div class="u-flex u-flex-row u-center py-2">
                 <select class="max-w-xs" name="target_dominion_id" id="target_select_dropdown" oninput="updateTargetDefense(); updateOffenseToSend();">
@@ -201,14 +201,14 @@
                         {% include "maingame/components/unit_name_row.html" %}
                         <td class="u-align-middle" id="power_{{ unit.id }}" style="white-space:nowrap">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
                         <td class="u-align-middle">{{ unit.quantity_at_home|intcomma }}</td>
-                        <td class="u-align-middle u-flex-md u-flex-row-md">
+                        <td class="u-align-middle md:u-flex md:u-flex-row">
                             <input 
                                 name="send_{{ unit.id }}" 
                                 id="send_{{ unit.id }}" 
                                 type="number" 
                                 min="0"
                                 max="{{ unit.quantity_at_home }}" 
-                                class="w-12 w-16-md ml-auto-md mr-2-md unitInput"
+                                class="w-12 md:w-16 md:ml-auto md:mr-2 unitInput"
                                 oninput="updateOffenseToSend()"
                             >
                             <button type="button" class="header_colors u-center" onclick="sendMax('{{ unit.id }}', '{{ unit.quantity_at_home }}')">

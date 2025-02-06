@@ -68,23 +68,23 @@
         {% for discovery in available_discoveries %}
         {% if active_user_settings.tutorial_step >= 9 or discovery.name == "Palisades" or discovery.name == "Battering Rams" or discovery.name == "Prosperity" %}
 
-        <div class="card card_colors p-1 w-100p max-w-xs u-overflow-x-scroll u-overflow-x-hidden-md">
+        <div class="card card_colors p-1 w-100p max-w-xs u-overflow-x-scroll md:u-overflow-x-hidden">
             <h6>{{ discovery.name }}</h6>
             <p class="text-xs">{{ discovery.description }}</p>
             {% if discovery.associated_unit_name %}
         
-            <details class="px-1 py-0 accordion u-none-md">
+            <details class="px-1 py-0 accordion md:u-none">
                 <summary class="accordion__summary text-xs">Unit info</summary>
                 {% include "maingame/components/discovery_unit_card.html" with unit=discovery.associated_unit %}
                 {% if discovery.associated_unit.has_perks %}
-                <span class="u-none-md">{{ discovery.associated_unit.perk_text }}</span>
+                <span class="md:u-none">{{ discovery.associated_unit.perk_text }}</span>
                 {% endif %}
             </details>
 
-            <div class="u-none u-block-md">
+            <div class="u-none md:u-block">
                 {% include "maingame/components/discovery_unit_card.html" with unit=discovery.associated_unit %}
                 {% if discovery.associated_unit.has_perks %}
-                <span class="u-none-md">{{ discovery.associated_unit.perk_text }}</span>
+                <span class="md:u-none">{{ discovery.associated_unit.perk_text }}</span>
                 {% endif %}
             </div>
 
@@ -95,23 +95,23 @@
 
 
         {% for discovery_dict in future_discoveries %}
-        <div class="card base_colors p-1 w-100p max-w-xs u-overflow-x-scroll u-overflow-x-hidden-md">
+        <div class="card base_colors p-1 w-100p max-w-xs u-overflow-x-scroll md:u-overflow-x-hidden">
             <h6>{{ discovery_dict.discovery.name }} (requires {{ discovery_dict.requirement_string }})</h6>
             <p class="text-xs">{{ discovery_dict.discovery.description }}</p>
 
             {% if discovery_dict.discovery.associated_unit_name %}
-            <details class="px-1 py-0 accordion u-none-md">
+            <details class="px-1 py-0 accordion md:u-none">
                 <summary class="accordion__summary text-xs">Unit info</summary>
                 {% include "maingame/components/discovery_unit_card.html" with unit=discovery_dict.discovery.associated_unit %}
                 {% if discovery_dict.discovery.associated_unit.has_perks %}
-                <span class="u-none-md">{{ discovery_dict.discovery.associated_unit.perk_text }}</span>
+                <span class="md:u-none">{{ discovery_dict.discovery.associated_unit.perk_text }}</span>
                 {% endif %}
             </details>
 
-            <div class="u-none u-block-md">
+            <div class="u-none md:u-block">
                 {% include "maingame/components/discovery_unit_card.html" with unit=discovery_dict.discovery.associated_unit %}
                 {% if discovery_dict.discovery.associated_unit.has_perks %}
-                <span class="u-none-md">{{ discovery_dict.discovery.associated_unit.perk_text }}</span>
+                <span class="md:u-none">{{ discovery_dict.discovery.associated_unit.perk_text }}</span>
                 {% endif %}
             </div>
             {% endif %}

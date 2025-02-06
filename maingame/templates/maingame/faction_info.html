@@ -53,23 +53,23 @@
                 </div>
                 <div class="u-flex u-flex-wrap u-gap-2">
                     {% for discovery in faction_dict.discoveries %}
-                        <div class="card card_colors p-1 w-100p max-w-xs u-overflow-x-scroll u-overflow-x-hidden-md">
+                        <div class="card card_colors p-1 w-100p max-w-xs u-overflow-x-scroll md:u-overflow-x-hidden">
                             <h6>{{ discovery.name }}</h6>
                             <p class="text-xs">{{ discovery.description }}</p>
 
                             {% if discovery.associated_unit_name %}
-                            <details class="px-1 py-0 accordion u-none-md">
+                            <details class="px-1 py-0 accordion md:u-none">
                                 <summary class="accordion__summary text-xs">Unit info</summary>
                                 {% include "maingame/components/discovery_unit_card.html" with unit=discovery.associated_unit %}
                                 {% if discovery.associated_unit.has_perks %}
-                                <span class="u-none-md">{{ discovery.associated_unit.perk_text }}</span>
+                                <span class="md:u-none">{{ discovery.associated_unit.perk_text }}</span>
                                 {% endif %}
                             </details>
 
-                            <div class="u-none u-block-md">
+                            <div class="u-none md:u-block">
                                 {% include "maingame/components/discovery_unit_card.html" with unit=discovery.associated_unit %}
                                 {% if discovery.associated_unit.has_perks %}
-                                <span class="u-none-md">{{ discovery.associated_unit.perk_text }}</span>
+                                <span class="md:u-none">{{ discovery.associated_unit.perk_text }}</span>
                                 {% endif %}
                             </div>
                             {% endif %}

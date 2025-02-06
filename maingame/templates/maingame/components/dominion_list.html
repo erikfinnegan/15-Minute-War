@@ -1,7 +1,7 @@
 {% load humanize %}
 {% load extra_tags %}
 
-<div class="u-overflow-x-scroll u-overflow-x-auto-md pr-2 max-w-md">
+<div class="u-overflow-x-scroll md:u-overflow-x-auto pr-2 max-w-md">
     <table class="table striped max-w-md">
         <thead>
             <tr class="header_colors">
@@ -60,7 +60,7 @@
                 <td class="u-align-middle">
                     <div class="u-flex u-flex-column">
                         {% if dominion.defense < this_dominion.juicy_target_threshold and dominion.is_oop and round.has_started %}
-                        {% comment %} <span class="tag tag--danger mx-auto text-md">
+                        {% comment %} <span class="tag tag--danger mx-auto md:text">
                             {% include "maingame/components/mouseover_change.html" with normal=dominion.defense_short mouseover=dominion.defense_raw_short %}
                         </span> {% endcomment %}
                         <div class="bg-red-600 text-white u-round-sm mx-auto p-1">

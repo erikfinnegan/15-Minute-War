@@ -30,7 +30,7 @@
         {% endif %}
     </details>
 
-    <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
+    <div class="u-overflow-x-scroll md:u-overflow-x-hidden">
         <form action="{% url 'submit_training' %}" method="post" class="max-w-md">
             {% csrf_token %}
             <table class="table striped">
@@ -38,9 +38,9 @@
                     <tr>
                         <th>Name</th>
                         <th>Power</th>
-                        <th class="u-none u-block-md">Quantity (Training)</th>
+                        <th class="u-none md:u-block">Quantity (Training)</th>
                         <th>Train</th>
-                        <th class="u-none-md">Quantity (Training)</th>
+                        <th class="md:u-none">Quantity (Training)</th>
                         <th>Cost</th>
                         <th>Upkeep</th>
                     </tr>
@@ -51,12 +51,12 @@
                         {% include "maingame/components/unit_name_row.html" %}
                         <td class="u-align-middle" id="power_{{ unit.id }}" style="white-space:nowrap">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
 
-                        <td class="u-align-middle u-none u-table-cell-md">
+                        <td class="u-align-middle u-none md:u-table-cell">
                             {% include "maingame/components/current_incoming.html" with current=unit.quantity_trained_and_alive incoming=unit.quantity_in_training %}
                         </td>
 
                         <td class="u-align-middle">
-                            <div class="u-flex u-flex-row u-gap-2 w-32-md u-center">
+                            <div class="u-flex u-flex-row u-gap-2 md:w-32 u-center">
                                 {% if unit.is_trainable %}
                                 <input 
                                     name="train_{{ unit.id }}" 
@@ -64,7 +64,7 @@
                                     placeholder="{{ unit.max_affordable }}" 
                                     type="number" 
                                     max="{{ unit.max_affordable }}" 
-                                    class="w-12 w-20-md"
+                                    class="w-12 md:w-20"
                                 >
                                 <button type="button" class="header_colors u-center" onclick="trainMax('{{ unit.id }}', '{{ unit.max_affordable }}')">
                                     Max
@@ -86,7 +86,7 @@
                             </div>
                         </td>
 
-                        <td class="u-align-middle u-none-md">
+                        <td class="u-align-middle md:u-none">
                             {% include "maingame/components/current_incoming.html" with current=unit.quantity_trained_and_alive incoming=unit.quantity_in_training %}
                         </td>
 
@@ -112,7 +112,7 @@
         </form>
     </div>
 
-    <div class="u-flex u-flex-column mt-2 u-none-md">
+    <div class="u-flex u-flex-column mt-2 md:u-none">
         {% for unit in units %}
         {% if unit.has_perks %}
         <span><b>{{ unit.name }}:</b> {{ unit.perk_text }}</span>
@@ -214,7 +214,7 @@
         <div class="">
             <h6 class="u-center">Units returning</h6>
         </div>
-        <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
+        <div class="u-overflow-x-scroll md:u-overflow-x-hidden">
             <table class="table striped card_colors">
                 <thead>
                     <tr>
@@ -265,7 +265,7 @@
         <div>
             <h6 class="u-center">Incoming acres</h6>
         </div>
-        <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
+        <div class="u-overflow-x-scroll md:u-overflow-x-hidden">
             <table class="table striped card_colors">
                 <thead>
                     <tr>
@@ -314,7 +314,7 @@
         <div>
             <h6 class="u-center">Units in training</h6>
         </div>
-        <div class="u-overflow-x-scroll u-overflow-x-hidden-md">
+        <div class="u-overflow-x-scroll md:u-overflow-x-hidden">
             <table class="table striped card_colors">
                 <thead>
                     <tr>
@@ -382,7 +382,7 @@
                     <td class="u-align-middle">
                         {{ unit.quantity_at_home|intcomma }}
                     </td>
-                    <td class="u-align-middle u-flex-md u-flex-row-md">
+                    <td class="u-align-middle md:u-flex md:u-flex-row">
                         {% if unit.is_trainable or "is_releasable" in unit.perk_dict %}
                         <input 
                             name="release_{{ unit.id }}" 
@@ -390,7 +390,7 @@
                             placeholder="{{ unit.quantity_at_home }}" 
                             type="number" 
                             max="{{ unit.quantity_at_home }}" 
-                            class="w-12 w-16-md ml-auto-md mr-2-md"
+                            class="w-12 md:w-16 md:ml-auto md:mr-2"
                         >
                         {% else %}
                         <span>Can't be released</span>

@@ -11,7 +11,7 @@
     <form action="{% url 'submit_options' %}" method="post" class="u-flex u-flex-column u-gap-4">
         {% csrf_token %}
         <span>Your custom theme</span>
-        <div class="u-flex u-flex-wrap u-gap-2 u-gap-8-md">
+        <div class="u-flex u-flex-wrap u-gap-2 md:u-gap-8">
             <div class="u-flex u-flex-column u-gap-1">
                 <div class="u-flex u-flex-row">
                     <input type="color" id="header_background" name="header_background" value="{{ current_theme.header_background }}" class="w-12" oninput="updatePreview()"/>
