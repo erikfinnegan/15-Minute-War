@@ -37,7 +37,7 @@ def give_dominion_building(dominion: Dominion, building: Building):
     return dominions_building
 
 
-def create_resource_for_dominion(resource_identifier, dominion: Dominion):
+def create_resource_for_dominion(resource_identifier, dominion: Dominion) -> Resource:
     resource_name = resource_identifier
 
     resource_name = Resource.objects.get(name=resource_identifier, ruler=None).name
@@ -48,3 +48,7 @@ def create_resource_for_dominion(resource_identifier, dominion: Dominion):
         dominions_resource.pk = None
         dominions_resource.ruler = dominion
         dominions_resource.save()
+
+        return dominions_resource
+    else:
+        return None

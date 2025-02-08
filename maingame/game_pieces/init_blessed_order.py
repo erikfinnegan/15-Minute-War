@@ -73,7 +73,7 @@ def initialize_blessed_order_units():
         cost_dict={
             "gold": 2250,
             "ore": 4600,
-            "sinners": 1,
+            "heretics": 1,
         },
         upkeep_dict={
             "gold": 3,
@@ -81,6 +81,46 @@ def initialize_blessed_order_units():
             "food": 1,
         },
         perk_dict={"casualty_multiplier": 2},
+    )
+
+    Unit.objects.create(
+        name="Harbinger",
+        op=0,
+        dp=5,
+        perk_dict={"sacrifices_brothers_chance_percent": 10, "sacrifices_brothers_amount": 1000,},
+        is_trainable=False,
+    )
+
+    Unit.objects.create(
+        name="Grisly Altar",
+        op=0,
+        dp=0,
+        perk_dict={"blasphemy_per_tick": 300, "zealots_chosen_per_tick": 1},
+        is_trainable=False,
+    )
+
+    Unit.objects.create(
+        name="Chosen One",
+        op=12,
+        dp=6,
+        upkeep_dict={
+            "gold": 3,
+            "food": 1,
+        },
+        perk_dict={"casualty_multiplier": 0.5},
+        is_trainable=False,
+    )
+
+    Unit.objects.create(
+        name="Anointed One",
+        op=16,
+        dp=8,
+        upkeep_dict={
+            "gold": 3,
+            "food": 1,
+        },
+        perk_dict={"casualty_multiplier": 0.25, "returns_in_ticks": 4},
+        is_trainable=False,
     )
 
     # Unit.objects.create(
@@ -134,15 +174,15 @@ def initialize_blessed_order_discoveries():
     )
 
     Discovery.objects.create(
-        name="Scrutiny",
-        description="Doubles the number of sinners found per tick.",
+        name="Zealous Persecution",
+        description="Doubles the number of heretics found per tick and completely eliminates any heretical whispering.",
         required_faction_name="blessed order",
         required_discoveries_or=["Grim Sacrament", "Penitent Engines"],
     )
 
     Discovery.objects.create(
         name="Grim Sacrament",
-        description="Sinners killed by inquisition generate corpses.",
+        description="heretics killed by inquisition generate corpses.",
         required_faction_name="blessed order",
     )
 
@@ -151,12 +191,12 @@ def initialize_blessed_order_discoveries():
     #     description="Imbuing a dead body with a spirit other than its own creates a being of terrible power.",
     #     required_faction_name="blessed order",
     #     associated_unit_name="Wight",
-    #     required_discoveries=["Heresy", "Grim Sacrament", "Zombies"],
+    #     required_discoveries=["Zealous Persecution", "Grim Sacrament", "Zombies"],
     # )
 
     Discovery.objects.create(
         name="Penitent Engines",
-        description="Deadly machines of war piloted by sinners given a chance for redemption through glorious death.",
+        description="Deadly machines of war piloted by heretics given a chance for redemption through glorious death.",
         required_faction_name="blessed order",
         associated_unit_name="Penitent Engine",
     )
@@ -184,8 +224,8 @@ def initialize_blessed_order_discoveries():
     )
 
     Discovery.objects.create(
-        name="Heresy",
-        description='Come, child. Reject the false teachings of these so-called "brothers" and embrace your true family.',
+        name="The Final Heresy",
+        description='Come, child, embrace your TRUE family. Reject your false "brothers" and begin the True Inquisition to purge them and their lies from your land.',
         required_faction_name="blessed order",
         required_perk_dict={"corruption": 250000},
     )

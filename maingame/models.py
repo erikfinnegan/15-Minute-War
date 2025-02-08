@@ -442,19 +442,19 @@ class Dominion(models.Model):
             if f"{resource_name}_per_tick" in unit.perk_dict:
                 production += unit.perk_dict[f"{resource_name}_per_tick"] * unit.quantity_at_home
 
-        if resource_name == "sinners" and "sinners_per_hundred_acres_per_tick" in self.perk_dict:
+        if resource_name == "heretics" and "heretics_per_hundred_acres_per_tick" in self.perk_dict:
             if "order_cant_attack_ticks_left" in self.perk_dict and self.perk_dict["order_cant_attack_ticks_left"] > 0:
                 return 0
             
             if self.protection_ticks_remaining > 0:
                 return 0
             
-            sinners_gained = int((self.acres / 100) * self.perk_dict["sinners_per_hundred_acres_per_tick"])
+            heretics_gained = int((self.acres / 100) * self.perk_dict["heretics_per_hundred_acres_per_tick"])
 
             if random.randint(1,100) <= self.acres % 100:
-                sinners_gained += 1
+                heretics_gained += 1
 
-            production += sinners_gained
+            production += heretics_gained
 
         if resource_name == "rats" and "rats_per_acre_per_tick" in self.perk_dict:
             production += self.acres * self.perk_dict["rats_per_acre_per_tick"]
@@ -487,8 +487,8 @@ class Dominion(models.Model):
 
         if resource_name == "faith":
             try:
-                sinners = Resource.objects.get(ruler=self, name="sinners")
-                consumption += sinners.quantity
+                heretics = Resource.objects.get(ruler=self, name="heretics")
+                consumption += heretics.quantity
             except:
                 pass
 
@@ -549,24 +549,28 @@ class Dominion(models.Model):
             self.perk_dict["mining_depth"] += miners.quantity_at_home * miners.perk_dict["cm_dug_per_tick"]
 
         if "order_cant_attack_ticks_left" in self.perk_dict and self.perk_dict["order_cant_attack_ticks_left"] > 0:
-            sinners = Resource.objects.get(ruler=self, name="sinners")
             self.perk_dict["order_cant_attack_ticks_left"] -= 1
+            
+            # Inquisition kills heretics
+            try:
+                heretics = Resource.objects.get(ruler=self, name="heretics")
+                heretics_killed = heretics.quantity if self.perk_dict["order_cant_attack_ticks_left"] == 0 else min(self.perk_dict["inquisition_rate"], heretics.quantity)
+                heretics.quantity -= heretics_killed
+
+                if "inquisition_makes_corpses" in self.perk_dict:
+                    corpses = Resource.objects.get(ruler=self, name="corpses")
+                    corpses.quantity += heretics_killed
+                    corpses.save()
+
+                heretics.save()
+            except:
+                pass
 
             if self.perk_dict["order_cant_attack_ticks_left"] == 0:
                 self.perk_dict["inquisition_rate"] = 0
 
-            sinners_killed = sinners.quantity if self.perk_dict["order_cant_attack_ticks_left"] == 0 else min(self.perk_dict["inquisition_rate"], sinners.quantity)
-            sinners.quantity -= sinners_killed
-
-            if "inquisition_makes_corpses" in self.perk_dict:
-                corpses = Resource.objects.get(ruler=self, name="corpses")
-                corpses.quantity += sinners_killed
-                corpses.save()
-
-            sinners.save()
-
-        if "corruption" in self.perk_dict:
-            self.perk_dict["corruption"] += Resource.objects.get(ruler=self, name="sinners").quantity
+        if "corruption" in self.perk_dict and Resource.objects.filter(ruler=self, name="heretics").exists():
+            self.perk_dict["corruption"] += Resource.objects.get(ruler=self, name="heretics").quantity
 
         if "The Deep Angels" in self.learned_discoveries:
             deep_angels = Unit.objects.get(ruler=self, name="Deep Angel")
@@ -620,7 +624,7 @@ class Dominion(models.Model):
             lowest_resource_amount = 99999999999
 
             for resource in Resource.objects.filter(ruler=self):
-                if resource.quantity < lowest_resource_amount and resource.name not in ["corpses", "faith", "rats", "sinners", "gold"]: 
+                if resource.quantity < lowest_resource_amount and resource.name not in ["corpses", "faith", "rats", "heretics", "gold"]: 
                     resource_gained = resource
                     lowest_resource_amount = resource.quantity
 
@@ -910,6 +914,19 @@ class Unit(models.Model):
             invasion_plan_power = self.perk_dict["invasion_plan_power"]
             perk_text += f"Can be sent to infiltrate a target, increasing your offense on your next attack against them by {invasion_plan_power}. "
 
+        if "sacrifices_brothers_chance_percent" in self.perk_dict and "sacrifices_brothers_amount" in self.perk_dict:
+            sacrifices_brothers_chance_percent = self.perk_dict["sacrifices_brothers_chance_percent"]
+            sacrifices_brothers_amount = self.perk_dict["sacrifices_brothers_amount"]
+            perk_text += f"{sacrifices_brothers_chance_percent}% chance per tick to sacrifice up to {sacrifices_brothers_amount} Blessed Brothers to create one Grisly Altar. "
+
+        if "zealots_chosen_per_tick" in self.perk_dict:
+            zealots_chosen_per_tick = self.perk_dict["zealots_chosen_per_tick"]
+            perk_text += f"Elevates {zealots_chosen_per_tick} zealot per tick to a Chosen One. "
+
+        if "percent_becomes_500_blasphemy" in self.perk_dict:
+            percent_becomes_500_blasphemy = self.perk_dict["percent_becomes_500_blasphemy"]
+            perk_text += f"{percent_becomes_500_blasphemy}% attrition into 500 blasphemy per tick. "
+
         return perk_text
     
     @property
@@ -1135,6 +1152,8 @@ class Spell(models.Model):
 
 def do_tick_units(dominion: Dominion):
     for unit in Unit.objects.filter(ruler=dominion):
+        update_harbingers = False
+
         for perk, value in unit.perk_dict.items():
             match perk:
                 case "surplus_research_consumed_to_add_one_op_and_dp":
@@ -1198,3 +1217,51 @@ def do_tick_units(dominion: Dominion):
                         trained_rats.save()
                     except:
                         pass
+                case "sacrifices_brothers_amount":
+                    sacrifices_brothers_amount = unit.perk_dict["sacrifices_brothers_amount"]
+                    sacrifices_brothers_chance_percent = unit.perk_dict["sacrifices_brothers_chance_percent"]
+                    
+                    try:
+                        brothers = Unit.objects.get(ruler=dominion, name="Blessed Brother")
+                        grisly_altars = Unit.objects.get(ruler=dominion, name="Grisly Altar")
+                        harbingers = unit
+                        iterations = max(1, int(harbingers.quantity_at_home / 1000))
+
+                        for _ in range(iterations):
+                            if random.randint(1, 100) <= sacrifices_brothers_chance_percent and brothers.quantity_at_home > 0:
+                                brothers.quantity_at_home -= min(brothers.quantity_at_home, sacrifices_brothers_amount)
+                                grisly_altars.quantity_at_home += 1
+                        
+                        grisly_altars.save()
+
+                        if brothers.quantity_at_home <= 0:
+                            brothers.delete()
+                            update_harbingers = True
+                        else:
+                            brothers.save()
+                    except:
+                        pass
+                case "zealots_chosen_per_tick":
+                    grisly_altars = unit
+                    zealots = Unit.objects.get(ruler=dominion, name="Zealot")
+                    chosen_ones = Unit.objects.get(ruler=dominion, name="Chosen One")
+                    conversions = min(grisly_altars.quantity_at_home, zealots.quantity_at_home)
+                    zealots.quantity_at_home -= conversions
+                    chosen_ones.quantity_at_home += conversions
+                    zealots.save()
+                    chosen_ones.save()
+                case "percent_becomes_500_blasphemy":
+                    attrition_multiplier = value / 100
+                    blasphemy = Resource.objects.get(ruler=unit.ruler, name="blasphemy")
+                    quantity_becomes_500_blasphemy_each = math.ceil(unit.quantity_at_home * attrition_multiplier)
+
+                    unit.quantity_at_home -= quantity_becomes_500_blasphemy_each
+                    unit.save()
+                    blasphemy.quantity += quantity_becomes_500_blasphemy_each * 500
+                    blasphemy.save()
+
+        if update_harbingers:
+            del unit.perk_dict["sacrifices_brothers_amount"]
+            del unit.perk_dict["sacrifices_brothers_chance_percent"]
+            unit.perk_dict["percent_becomes_500_blasphemy"] = 2
+            unit.save()

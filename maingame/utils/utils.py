@@ -208,19 +208,27 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Living Saint"))
         case "Penitent Engines":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Penitent Engine"))
-        case "Heresy":
-            dominion.perk_dict["sinners_per_hundred_acres_per_tick"] *= 2
+        case "Zealous Persecution":
+            dominion.perk_dict["heretics_per_hundred_acres_per_tick"] *= 2
+
+            if "The Final Heresy" in dominion.available_discoveries:
+                dominion.available_discoveries.remove("The Final Heresy")
         case "Grim Sacrament":
             dominion.perk_dict["inquisition_makes_corpses"] = True
             create_resource_for_dominion("corpses", dominion)
-        case "Wights":
-            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Wight"))
+        # case "Wights":
+        #     give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Wight"))
         case "Cathedral Titans":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Cathedral Titan"))
         case "Funerals":
             dominion.perk_dict["faith_per_power_died"] = 10
         case "Cremain Knights":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Cremain Knight"))
+        case "The Final Heresy":
+            dominion.perk_dict["fallen_order"] = True
+            if "Zealous Persecution" in dominion.available_discoveries:
+                dominion.available_discoveries.remove("Zealous Persecution")
+            # HOOOO BOY got a lot to do here
         case "More Experiment Slots":
             dominion.perk_dict["max_custom_units"] = 4
         case "Even More Experiment Slots":

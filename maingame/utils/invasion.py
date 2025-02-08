@@ -7,7 +7,6 @@ from maingame.models import Artifact, Battle, Unit, Dominion, Event, Round, Reso
 from maingame.utils.artifacts import assign_artifact
 from maingame.utils.utils import get_acres_conquered, get_grudge_bonus, get_random_resource
 
-
 def get_op(units_sent_dict, attacker: Dominion, defender: Dominion=None):
     total_units_sent = 0
 
@@ -36,12 +35,17 @@ def get_op(units_sent_dict, attacker: Dominion, defender: Dominion=None):
         else:
             slowest_unit_return_ticks = 12
 
+    steal_offense_sent = offense_sent + bonus_steal_offense_sent
+
     grudge_bonus = 0
 
     if "book_of_grudges" in attacker.perk_dict:
         grudge_bonus = get_grudge_bonus(attacker, defender)
 
+    print("attacker.offense_multiplier", attacker.offense_multiplier)
+
     offense_sent *= (attacker.offense_multiplier + grudge_bonus)
+    # steal_offense_sent *= (attacker.offense_multiplier + get_grudge_bonus(attacker, defender))
 
     return int(offense_sent)
 
@@ -446,7 +450,7 @@ def do_forced_attack(dominion: Dominion, use_always_dies_units=False):
 
     hasnt_attacked_yet = True
 
-    for other_dominion in Dominion.objects.filter(is_abandoned=False).order_by("-acres"):
+    for other_dominion in Dominion.objects.filter(is_abandoned=False).order_by("-acres", "?"):
         op_multiplier = dominion.offense_multiplier + get_grudge_bonus(dominion, other_dominion)
         op_against_this_dominion = op_from_offensive_units_at_home * op_multiplier
 

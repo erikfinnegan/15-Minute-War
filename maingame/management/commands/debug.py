@@ -154,14 +154,14 @@ class Command(BaseCommand):
         # print()
 
         brothers = 10000
-        sinners = 240
-        sinners_per_tick = 24
+        heretics = 240
+        heretics_per_tick = 24
         ticks = 0
 
         while brothers > 0:
             ticks += 1
-            brothers -= sinners / 10
-            sinners += sinners_per_tick
+            brothers -= heretics / 10
+            heretics += heretics_per_tick
 
         print(ticks)
 

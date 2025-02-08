@@ -11,7 +11,7 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
         dominion.perk_dict["book_of_grudges"] = {}
         # dominion.perk_dict["grudge_page_multiplier"] = 1.5
     elif faction.name == "blessed order":
-        dominion.perk_dict["sinners_per_hundred_acres_per_tick"] = 1
+        dominion.perk_dict["heretics_per_hundred_acres_per_tick"] = 1
         dominion.perk_dict["inquisition_rate"] = 0
         dominion.perk_dict["order_cant_attack_ticks_left"] = 0
         dominion.perk_dict["martyr_cost"] = 500
@@ -84,7 +84,7 @@ def initialize_dominion(user: User, faction: Faction, display_name):
                 create_resource_for_dominion(perk_name[:-9], dominion)
 
     if dominion.faction_name == "blessed order":
-        create_resource_for_dominion("sinners", dominion)
+        create_resource_for_dominion("heretics", dominion)
     elif dominion.faction_name == "goblin":
         create_resource_for_dominion("rats", dominion)
 

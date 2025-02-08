@@ -30,8 +30,17 @@
     <a href="{% url 'discoveries' %}" class="">Discoveries{% if active_dominion.discovery_points >= 50 %} 💡{% endif %}</a>
     {% endif %}
 
-    {% if active_dominion.faction_name == "blessed order" %}
-        <a href="{% url 'church_affairs' %}" class="">Church Affairs</a>
+    {% if active_dominion.faction_name == "blessed order" or active_dominion.faction_name == "fallen order" %}
+        <a href="{% url 'church_affairs' %}" class="">
+            {% if "fallen_order" in active_dominion.perk_dict %}
+                Unholy Affairs
+                {% if active_dominion.perk_dict.fallen_order == True %}
+                    😈
+                {% endif %}
+            {% else %}
+                Church Affairs
+            {% endif %}
+        </a>
     {% elif active_dominion.faction_name == "sludgeling" %}
         <a href="{% url 'experimentation' %}" class="">Experimentation</a>
     {% elif active_dominion.faction_name == "biclops" %}

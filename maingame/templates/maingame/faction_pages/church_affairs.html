@@ -9,38 +9,79 @@
 <div class="u-flex u-flex-column u-gap-2">
     <details class="accordion card card_colors max-w-md">
         <summary class="accordion__summary">Details</summary>
+        {% if fallen_order %}
         <p>
-            Here is where you can start inquisitions. Inquisitions are how you get rid of sinners at the expense of being unable to
+            Proceed, my child, for there is much yet to be done.
+        </p>
+        {% else %}
+        <p>
+            Here is where you can start inquisitions. Inquisitions are how you get rid of heretics at the expense of being unable to
             attack for 24 ticks (though you could send an attack and then launch an inquisition right after).
         </p>
+        {% endif %}
     </details>
 
-    <div class="u-flex u-flex-row mb-2">
-        <div class="w-12 u-flex">
-            <h6 class="u-center">Sinners:</h6>
+    {% if fallen_order %}
+        <div class="max-w-md">
+            {% if do_true_inquisition %}
+                <form>
+                    <button class="u-center header_colors" formaction="{% url 'submit_true_inquisition' %}">Start the true inquisition</button>
+                </form>
+                <div>
+                    <p>
+                        Your so-called "brothers" will turn against you, but your martyrs will become harbingers and help you purge them once and for all.
+                        and create grisly altars from their remains.
+                        Each such altar will grace a zealot with my gifts every tick, granting them improved stats and survivability as my chosen ones.
+                    </p>
+                    <p>
+                        Your faith will turn to blasphemy and "heretics" will be a concept lost to memory. Grisly altars will provide a recurring source of blasphemy
+                        and once your false family is dead, my harbingers will depart with a final gift of 500 blasphemy as well.
+                    </p>
+                    <p>
+                        At any time thereafter, you'll be able to baptize your chosen ones, anointing them with further power and other perks. Doing so will
+                        disable invasions for 24 ticks, but every 500 blasphemy spent will anoint another of your finest warriors.
+                    </p>
+                </div>
+            {% else %}
+                <form>
+                    <button class="u-center header_colors" formaction="{% url 'submit_unholy_baptism' %}">baptize the chosen</button>
+                </form>
+                <div>
+                    <p>
+                        Baptize my chosen ones, steep them in blasphemy, anoint them for glory. Your opponents will breathe easy for thirteen ticks and tremble for a thousand more.
+                        This will exhaust your supply of blasphemy to anoint one unit per 500 blasphemy spent.
+                    </p>
+                </div>
+            {% endif %}
         </div>
-        <div class="u-flex u-flex-row u-gap-1">
-            <h6 class="u-center">{{ sinners|intcomma }}</h6>
-            <span class="u-center">({% if sinners_per_tick > 0%}+{% endif %}{{ sinners_per_tick|intcomma }} per tick)</span>
+    {% else %}
+        <div class="u-flex u-flex-row mb-2">
+            <div class="w-12 u-flex">
+                <h6 class="u-center">heretics:</h6>
+            </div>
+            <div class="u-flex u-flex-row u-gap-1">
+                <h6 class="u-center">{{ heretics|intcomma }}</h6>
+                <span class="u-center">({% if heretics_per_tick > 0%}+{% endif %}{{ heretics_per_tick|intcomma }} per tick)</span>
+            </div>
         </div>
-    </div>
 
-    {% if order_cant_attack_ticks_left > 0 %}<h6>The inquisition will continue for {{ order_cant_attack_ticks_left }} ticks.</h6>{% endif %}
+        {% if order_cant_attack_ticks_left > 0 %}<h6>The inquisition will continue for {{ order_cant_attack_ticks_left }} ticks.</h6>{% endif %}
 
-    {% if active_dominion.protection_ticks_remaining > 0 %}
-    <span>Note: Sinners are not gained during protection, but can be removed by inquisition</span>
+        {% if active_dominion.protection_ticks_remaining > 0 %}
+        <span>Note: heretics are not gained during protection, but can be removed by inquisition</span>
+        {% endif %}
+
+        <div class="card header_colors px-1 py-2 max-w-xs">
+            <h5 class="u-center">Inquisition</h5>
+            <p>
+                Inquisitions last 24 ticks. While active, you won't be able to invade, but heretics will stop appearing and will be eliminated entirely
+                over the course of that time.
+            </p>
+            <form>
+                <button class="u-center" formaction="{% url 'submit_inquisition' %}">Start inquisition</button>
+            </form>
+        </div>
     {% endif %}
-
-    <div class="card header_colors px-1 py-2 max-w-xs">
-        <h5 class="u-center">Inquisition</h5>
-        <p>
-            Inquisitions last 24 ticks. While active, you won't be able to invade, but sinners will stop appearing and will be eliminated entirely
-            over the course of that time.
-        </p>
-        <form>
-            <button class="u-center" formaction="{% url 'submit_inquisition' %}">Start inquisition</button>
-        </form>
-    </div>
 </div>
 
 {% endblock %}

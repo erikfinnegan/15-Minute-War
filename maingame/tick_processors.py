@@ -34,7 +34,7 @@ def do_global_tick():
                     dominion.do_tick()
 
             # This has to be a separate loop or else multiple auto attacks against the same target get fucked up
-            for dominion in Dominion.objects.all():
+            for dominion in Dominion.objects.all().order_by("?"):
                 if dominion.faction_name == "biclops" and not dominion.is_abandoned: 
                     do_biclops_partner_attack(dominion)
 

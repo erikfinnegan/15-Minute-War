@@ -23,6 +23,24 @@
             </p>
     </details>
 
+    {% comment %} <form
+        hx-get="/eriktest"
+        hx-trigger="input changed delay:500ms"
+        hx-target="#search-results"
+    >
+    <input
+        type="number" 
+        name="q"
+        placeholder="Search..."
+    >
+    <input
+        type="text" 
+        name="r"
+        placeholder="Search..."
+    >
+    </form> {% endcomment %}
+    {% comment %} <div id="search-results"></div> {% endcomment %}
+
     {% include "maingame/components/dominion_list.html" with this_dominion=active_dominion all_dominions=dominions my_view=True %}
 
     {% comment %} Artifact list {% endcomment %}

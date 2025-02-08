@@ -47,7 +47,7 @@
         </div>
     {% endif %}
 
-    {% if active_dominion.faction_name == "blessed order" and "corruption" in active_dominion.perk_dict %}
+    {% if active_dominion.faction_name == "blessed order" or active_dominion.faction_name == "fallen order" and "corruption" in active_dominion.perk_dict %}
         <div class="font-bold max-w-md
             {% if 'Heresy' in active_dominion.learned_discoveries %}
             px-1 pt-2 pb-1 bg-gray-900 text-purple-200
@@ -59,14 +59,14 @@
             p-1 bg-gray-800 text-white
             {% endif %}"
         >
-            {% if "Heresy" in active_dominion.learned_discoveries %}
+            {% if "The Final Heresy" in active_dominion.learned_discoveries %}
                 <h6><em>Welcome, child.</em></h6>
             {% else %}
-                <p>Your sinners have whispered {{ active_dominion.perk_dict.corruption|intcomma }} blasphemies.</p>
-                {% if active_dominion.perk_dict.corruption >= 100000 and "Heresy" not in active_dominion.learned_discoveries %}
+                <p>Your heretics have whispered {{ active_dominion.perk_dict.corruption|intcomma }} heresies.</p>
+                {% if active_dominion.perk_dict.corruption >= 100000 and "The Final Heresy" not in active_dominion.learned_discoveries %}
                 <p>Their ideology is creeping deeper every day.</p>
                 {% endif %}
-                {% if active_dominion.perk_dict.corruption >= 200000 and "Heresy" not in active_dominion.learned_discoveries %}
+                {% if active_dominion.perk_dict.corruption >= 200000 and "The Final Heresy" not in active_dominion.learned_discoveries %}
                 <p><em>Is it not time to abandon your false gods?</em></p>
                 {% endif %}
             {% endif %}
