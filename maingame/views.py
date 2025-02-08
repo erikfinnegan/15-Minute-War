@@ -1911,7 +1911,7 @@ def submit_invasion(request):
             unit = Unit.objects.get(id=key[5:])
             amount = int(string_amount)
 
-            if amount <= unit.quantity_at_home:
+            if 0 < amount <= unit.quantity_at_home:
                 total_units_sent += amount
                 units_sent_dict[str(unit.id)] = {
                     "unit": unit,
@@ -1919,10 +1919,15 @@ def submit_invasion(request):
                 }
             elif dominion_id == "quest" and "always_dies_on_offense" in unit.perk_dict:
                 messages.error(request, f"You can't send units that always die on offense on quests.")
-                return redirect("world", dominion_id=dominion_id)
+                return redirect("world")
+            elif amount == 0:
+                pass
+            elif amount < 0:
+                messages.error(request, f"You can't send negative units.")
+                return redirect("world")
             else:
                 messages.error(request, f"You can't send more units than you have at home.")
-                return redirect("world", dominion_id=dominion_id)
+                return redirect("world")
 
     if total_units_sent < 1:
         messages.error(request, f"Zero units sent")
