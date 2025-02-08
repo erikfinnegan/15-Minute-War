@@ -10,12 +10,14 @@
 
     function sendMax(unit_id, quantity_at_home) {
         let thisInput = document.getElementById("send_" + unit_id);
+
         if (thisInput.value == quantity_at_home) {
             thisInput.value = ""
         } else {
             thisInput.value = quantity_at_home;
         }
 
+        thisInput.dispatchEvent(new Event("input", { bubbles: true }));
         updateOffenseToSend()
     }
 

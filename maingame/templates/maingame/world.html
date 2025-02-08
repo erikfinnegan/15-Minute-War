@@ -149,6 +149,7 @@
         </button>
     </form>
 
+    <div id="search-results">x</div>
 
     {% comment %} Invasion form {% endcomment %}
     <div id="invasionForm">
@@ -159,7 +160,14 @@
             </div>
         </div>
         {% elif active_dominion.can_attack and round.has_started and not round.has_ended %}
-        <form action="{% url 'submit_invasion' %}" method="post" class="max-w-md u-overflow-x-scroll md:u-overflow-x-auto">
+        <form 
+            action="{% url 'submit_invasion' %}" 
+            method="post" 
+            class="max-w-md u-overflow-x-scroll md:u-overflow-x-auto"
+            hx-get="/eriktest"
+            hx-trigger="input changed from:body"
+            hx-target="#search-results"
+        >
             {% csrf_token %}
             <div class="u-flex u-flex-row u-center py-2">
                 <select class="max-w-xs" name="target_dominion_id" id="target_select_dropdown" oninput="updateTargetDefense(); updateOffenseToSend();">
@@ -211,7 +219,11 @@
                                 class="w-12 md:w-16 md:ml-auto md:mr-2 unitInput"
                                 oninput="updateOffenseToSend()"
                             >
-                            <button type="button" class="header_colors u-center" onclick="sendMax('{{ unit.id }}', '{{ unit.quantity_at_home }}')">
+                            <button 
+                                type="button" 
+                                class="header_colors u-center" 
+                                onclick="sendMax('{{ unit.id }}', '{{ unit.quantity_at_home }}')"
+                            >
                                 Max
                             </button>
                         </td>
