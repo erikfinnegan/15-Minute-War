@@ -1852,11 +1852,6 @@ def eriktest(request):
     except:
         return redirect("register")
     
-
-    print()
-    print("request.GET", request.GET)
-    print()
-
     dominion_id = request.GET["target_dominion_id"]
     total_units_sent = 0
     units_sent_dict = {}
@@ -1874,30 +1869,10 @@ def eriktest(request):
                     "unit": unit,
                     "quantity_sent": amount,
                 }
-            elif dominion_id == "quest" and "always_dies_on_offense" in unit.perk_dict:
-                messages.error(request, f"You can't send units that always die on offense on quests.")
-                return redirect("world", dominion_id=dominion_id)
-            else:
-                messages.error(request, f"You can't send more units than you have at home.")
-                return redirect("world", dominion_id=dominion_id)
     
     target_dominion = Dominion.objects.filter(id=dominion_id).first()
     op_sent = get_op(units_sent_dict, my_dominion, target_dominion)
         
-        # if target_dominion.protection_ticks_remaining > 0 or my_dominion.protection_ticks_remaining > 0 or not round.has_started or round.has_ended or target_dominion.is_abandoned:
-        #     messages.error(request, f"Illegal invasion")
-        #     return redirect("world")
-
-        # battle_id, message = do_invasion(units_sent_dict, my_dominion, target_dominion)
-
-        # if battle_id == 0:
-        #     messages.error(request, message)
-        #     return redirect("world")
-
-        # return redirect("battle_report", battle_id=battle_id)
-            
-    print(op_sent)
-    print()
     return HttpResponse(op_sent)
 
 
