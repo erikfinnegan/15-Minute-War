@@ -130,6 +130,18 @@
                     <td class="u-align-middle" style="white-space:nowrap">+{{ this_dominion.goblin_bonus }}% {{ this_dominion.perk_dict.rulers_favorite_resource }}</td>
                 {% elif "order_cant_attack_ticks_left" in this_dominion.perk_dict and this_dominion.perk_dict.order_cant_attack_ticks_left > 0 and dominion == this_dominion %}
                      <td class="u-align-middle">Can't attack for {{ this_dominion.perk_dict.order_cant_attack_ticks_left }} {{ "ticks"|depluralize:this_dominion.perk_dict.order_cant_attack_ticks_left }}</td>
+                {% elif "partner_patience" in this_dominion.perk_dict and dominion == this_dominion %}
+                    <td class="u-align-middle">Current mood:
+                    {% if this_dominion.perk_dict.partner_attack_on_sight == True %}
+                        Aggressive
+                    {% elif this_dominion.perk_dict.partner_patience <= 0 %}
+                        Lashing out
+                    {% elif this_dominion.perk_dict.partner_patience <= 12 %}
+                        On edge
+                    {% else %}
+                        Calm
+                    {% endif %}
+                    </td>
                 {% else %}
                     <td class="u-align-middle">-</td>
                 {% endif %}
@@ -177,6 +189,18 @@
                     <td class="u-align-middle" style="white-space:nowrap">+{{ dominion.goblin_bonus }}% {{ dominion.perk_dict.rulers_favorite_resource }}</td>
                 {% elif "order_cant_attack_ticks_left" in dominion.perk_dict and dominion.perk_dict.order_cant_attack_ticks_left > 0 %}
                      <td class="u-align-middle">Can't attack for {{ dominion.perk_dict.order_cant_attack_ticks_left }} {{ "ticks"|depluralize:dominion.perk_dict.order_cant_attack_ticks_left }}</td>
+                {% elif "partner_patience" in dominion.perk_dict %}
+                    <td class="u-align-middle">Current mood:
+                    {% if dominion.perk_dict.partner_attack_on_sight == True %}
+                        Aggressive
+                    {% elif dominion.perk_dict.partner_patience <= 0 %}
+                        Lashing out
+                    {% elif dominion.perk_dict.partner_patience <= 12 %}
+                        On edge
+                    {% else %}
+                        Calm
+                    {% endif %}
+                    </td>
                 {% else %}
                     <td class="u-align-middle">-</td>
                 {% endif %}
