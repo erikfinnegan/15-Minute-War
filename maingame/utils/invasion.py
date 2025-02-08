@@ -7,6 +7,45 @@ from maingame.models import Artifact, Battle, Unit, Dominion, Event, Round, Reso
 from maingame.utils.artifacts import assign_artifact
 from maingame.utils.utils import get_acres_conquered, get_grudge_bonus, get_random_resource
 
+
+def get_op(units_sent_dict, attacker: Dominion, defender: Dominion=None):
+    total_units_sent = 0
+
+    for unit_id, unit_dict in units_sent_dict.items():
+        unit = Unit.objects.get(id=unit_id)
+        total_units_sent += unit_dict["quantity_sent"]
+
+    # Calculate OP, land return speed, and others
+    offense_sent = 0
+    bonus_steal_offense_sent = 0
+    slowest_unit_return_ticks = 1
+
+    if defender and "infiltration_dict" in attacker.perk_dict and defender.strid in attacker.perk_dict["infiltration_dict"]:
+        offense_sent += attacker.perk_dict["infiltration_dict"][defender.strid]
+
+    for unit_details_dict in units_sent_dict.values():
+        unit = unit_details_dict["unit"]
+        quantity_sent = unit_details_dict["quantity_sent"]
+        offense_sent += unit.op * quantity_sent
+
+        if "op_bonus_percent_for_stealing_artifacts" in unit.perk_dict:
+            bonus_steal_offense_sent += (unit.perk_dict["op_bonus_percent_for_stealing_artifacts"] / 100) * unit.op * quantity_sent
+
+        if "returns_in_ticks" in unit.perk_dict:
+            slowest_unit_return_ticks = max(slowest_unit_return_ticks, unit.perk_dict["returns_in_ticks"])
+        else:
+            slowest_unit_return_ticks = 12
+
+    grudge_bonus = 0
+
+    if "book_of_grudges" in attacker.perk_dict:
+        grudge_bonus = get_grudge_bonus(attacker, defender)
+
+    offense_sent *= (attacker.offense_multiplier + grudge_bonus)
+
+    return int(offense_sent)
+
+
 def do_invasion(units_sent_dict, my_dominion: Dominion, target_dominion: Dominion):
     round = Round.objects.first()
     total_units_sent = 0

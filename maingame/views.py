@@ -4,7 +4,7 @@ from random import randint
 import random
 import zoneinfo
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -14,7 +14,7 @@ from maingame.formatters import create_or_add_to_key, get_goblin_ruler, get_slud
 from maingame.models import Artifact, Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings, Theme
 from maingame.tick_processors import do_global_tick
 from maingame.utils.dominion_controls import initialize_dominion, abandon_dominion, delete_dominion
-from maingame.utils.invasion import do_invasion
+from maingame.utils.invasion import do_invasion, get_op
 from maingame.utils.utils import do_quest, get_acres_conquered, get_grudge_bonus, get_highest_op_quested, get_random_resource, round_x_to_nearest_y, unlock_discovery, cast_spell, update_available_discoveries
 
 
@@ -1774,6 +1774,36 @@ def submit_infiltration(request):
                 messages.success(request, f"Successfully infiltrated {dominion.name} for {op_infiltrated} bonus OP.")
     
     return redirect("world")
+
+
+def eriktest(request):
+    try:
+        my_dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    dominion_id = request.GET["target_dominion_id"]
+    total_units_sent = 0
+    units_sent_dict = {}
+    
+    # Create a dict of the units sent
+    for key, string_amount in request.GET.items():
+        # key is like "send_123" where 123 is the ID of the Unit
+        if "send_" in key and string_amount != "":
+            unit = Unit.objects.get(id=key[5:])
+            amount = int(string_amount)
+
+            if amount <= unit.quantity_at_home:
+                total_units_sent += amount
+                units_sent_dict[str(unit.id)] = {
+                    "unit": unit,
+                    "quantity_sent": amount,
+                }
+    
+    target_dominion = Dominion.objects.filter(id=dominion_id).first()
+    op_sent = get_op(units_sent_dict, my_dominion, target_dominion)
+        
+    return HttpResponse(op_sent)
 
 
 @login_required
