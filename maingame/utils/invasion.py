@@ -124,7 +124,10 @@ def get_op_and_dp_left(units_sent_dict, attacker: Dominion, defender: Dominion=N
         quantity_sent = unit_details_dict["quantity_sent"]
 
         if is_infiltration:
-            offense_sent += unit.perk_dict["invasion_plan_power"] * quantity_sent
+            if "invasion_plan_power" in unit.perk_dict:
+                offense_sent += unit.perk_dict["invasion_plan_power"] * quantity_sent
+            else:
+                offense_sent -= 9999 * quantity_sent
         else:
             offense_sent += unit.op * quantity_sent
 
@@ -322,7 +325,7 @@ def do_gsf_infiltration(units_sent_dict, attacker: Dominion, defender: Dominion)
         if "invasion_plan_power" in unit.perk_dict:
             infiltration_power_sent += unit.perk_dict["invasion_plan_power"] * quantity_sent
         else:
-            return False, "You can't send those units to infiltrate."
+            return False, f"You can't send {unit.name} to infiltrate."
     
     if defender.strid not in attacker.perk_dict["infiltration_dict"] or infiltration_power_sent > attacker.perk_dict["infiltration_dict"][defender.strid]:
         attacker.perk_dict["infiltration_dict"][defender.strid] = infiltration_power_sent

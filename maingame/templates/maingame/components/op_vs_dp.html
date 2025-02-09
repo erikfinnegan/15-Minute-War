@@ -2,7 +2,7 @@
 
 <div>
     <div>
-        <div class="u-center u-gap-1 {% if op >= dp or is_infiltration %}text-green-400{% else %}text-red-400{% endif %}">
+        <div class="u-center u-gap-1 {% if op >= dp or is_infiltration and op > 0 %}text-green-400{% else %}text-red-400{% endif %}">
             {% if is_infiltration %}
                 <span>{{ op|intcomma }} infiltration</span>
             {% else %}
