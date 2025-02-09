@@ -1,0 +1,31 @@
+{% load humanize %}
+
+<div>
+    <div>
+        <div class="u-center u-gap-1 {% if op >= dp or is_infiltration %}text-green-400{% else %}text-red-400{% endif %}">
+            {% if is_infiltration %}
+                <span>{{ op|intcomma }} infiltration</span>
+            {% else %}
+                <span>{{ op|intcomma }} OP vs. {{ dp|intcomma }} DP</span>
+            {% endif %}
+        </div>
+
+        <div class="u-center u-flex u-gap-1" id="dpLeftText">
+            <span>You'll have {{ dp_left|intcomma }} defense after attacking</span>
+        </div>
+
+        <div class="u-center u-flex u-flex-column">
+            {% if larger_enemy_has_lower_defense %}<span>✅ an enemy larger than you has lower defense</span>{% endif %}
+            {% if left_lowest_defense %}<span>❌ you'll have the lowest DP in the game</span>{% endif %}
+        </div>
+
+        <input type="number" id="dpLeftHidden" name="dpLeftHidden" hidden value="{{ active_dominion.defense }}" />
+    </div>
+    <div style="display: none;">
+        <input type="submit" name="prevent-enter-submit" onclick="return false;">
+    </div>
+
+    <button class="btn-danger mt-1 w-24 h-6 p-0 u-center" type="submit" id="invadeButton" {% if invalid_invasion %}disabled{% endif %}>
+        <span id="invadeButtonText" class="font-bold" disabled>Submit</span>
+    </button>
+</div>

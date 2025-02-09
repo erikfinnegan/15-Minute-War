@@ -10,13 +10,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 
-from maingame.formatters import create_or_add_to_key, get_goblin_ruler, get_sludgeling_name
+from maingame.formatters import create_or_add_to_key, get_sludgeling_name
 from maingame.models import Artifact, Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings, Theme
 from maingame.tick_processors import do_global_tick
 from maingame.utils.dominion_controls import initialize_dominion, abandon_dominion, delete_dominion
 from maingame.utils.give_stuff import create_resource_for_dominion, give_dominion_unit
-from maingame.utils.invasion import do_invasion, get_op
-from maingame.utils.utils import do_quest, get_acres_conquered, get_grudge_bonus, get_highest_op_quested, get_random_resource, round_x_to_nearest_y, unlock_discovery, cast_spell, update_available_discoveries
+from maingame.utils.invasion import do_gsf_infiltration, do_invasion, get_op_and_dp_left
+from maingame.utils.utils import do_quest, get_acres_conquered, get_grudge_bonus, get_highest_op_quested, round_x_to_nearest_y, unlock_discovery, cast_spell, update_available_discoveries
 
 
 def index(request):
@@ -1790,69 +1790,17 @@ def submit_other_head(request):
     return redirect("other_head")
 
 
-def submit_infiltration(request):
+def calculate_op(request):
     try:
         my_dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
-    round = Round.objects.first()
-    dominion_id = request.POST["target_dominion_id"]
-    
-    if round.has_ended:
-        messages.error(request, f"The round has already ended")
-        return redirect("world")
-    
-    if round.is_ticking:
-        messages.error(request, f"The tick is being processed, try again shortly.")
-        return redirect("world")
-    
-    if dominion_id == "0":
-        messages.error(request, f"No target selected")
-        return redirect("world")
-    
-    if "infiltration_dict" not in my_dominion.perk_dict:
-        messages.error(request, f"You can't infiltrate")
-        return redirect("world")
-    
-    dominion = Dominion.objects.get(id=dominion_id)
+    dominion_id = request.GET.get("target_dominion_id")
+    is_infiltration = "do_infiltration" in request.GET
 
-    # Create a dict of the units sent
-    for key, string_amount in request.POST.items():
-        # key is like "send_123" where 123 is the ID of the Unit
-        if "infiltrate_" in key and string_amount != "":
-            unit = Unit.objects.get(id=key[11:])
-            amount = int(string_amount)
-            op_infiltrated = amount * unit.perk_dict["invasion_plan_power"]
+    # Not sure how to get the form-wide hx-trigger to fire on repeated use of the checkbox - it only picks up on the first.
 
-            if "invasion_plan_power" not in unit.perk_dict:
-                messages.error(request, f"You can't send those units to infiltrate.")
-                return redirect("world")
-            elif amount > unit.quantity_at_home:
-                messages.error(request, f"You can't send more units than you have at home.")
-                return redirect("world")
-            elif str(dominion.id) in my_dominion.perk_dict["infiltration_dict"] and op_infiltrated <= my_dominion.perk_dict["infiltration_dict"][dominion.strid]:
-                messages.error(request, f"You've already infiltrated that target for a greater amount.")
-                return redirect("world")
-            else:
-                my_dominion.perk_dict["infiltration_dict"][dominion.strid] = op_infiltrated
-                my_dominion.save()
-                unit.quantity_at_home -= amount
-                unit.returning_dict["12"] += amount
-                unit.save()
-
-                messages.success(request, f"Successfully infiltrated {dominion.name} for {op_infiltrated} bonus OP.")
-    
-    return redirect("world")
-
-
-def eriktest(request):
-    try:
-        my_dominion = Dominion.objects.get(associated_user=request.user)
-    except:
-        return redirect("register")
-    
-    dominion_id = request.GET["target_dominion_id"]
     total_units_sent = 0
     units_sent_dict = {}
     
@@ -1871,9 +1819,31 @@ def eriktest(request):
                 }
     
     target_dominion = Dominion.objects.filter(id=dominion_id).first()
-    op_sent = get_op(units_sent_dict, my_dominion, target_dominion)
+    op_sent, dp_left = get_op_and_dp_left(units_sent_dict, my_dominion, target_dominion, is_infiltration)
+
+    larger_enemy_has_lower_defense = False
+    left_lowest_defense = True
+
+    for dominion in Dominion.objects.all():
+        if dominion.defense < dp_left and dominion.acres > my_dominion.acres:
+            larger_enemy_has_lower_defense = True
         
-    return HttpResponse(op_sent)
+        if dominion.defense < dp_left:
+            left_lowest_defense = False
+
+    invalid_invasion = False if is_infiltration else (not target_dominion or op_sent < target_dominion.defense or dp_left < my_dominion.acres * 5)
+
+    context = {
+        "op": op_sent,
+        "dp": target_dominion.defense if target_dominion else 0,
+        "dp_left": dp_left,
+        "invalid_invasion": invalid_invasion,
+        "larger_enemy_has_lower_defense": larger_enemy_has_lower_defense,
+        "left_lowest_defense": left_lowest_defense,
+        "is_infiltration": is_infiltration,
+    }
+        
+    return render(request, "maingame/components/op_vs_dp.html", context)
 
 
 def submit_invasion(request):
@@ -1884,6 +1854,7 @@ def submit_invasion(request):
     
     round = Round.objects.first()
     dominion_id = request.POST["target_dominion_id"]
+    this_is_infiltration = "do_infiltration" in request.POST
     
     if round.has_ended:
         messages.error(request, f"The round has already ended")
@@ -1932,21 +1903,23 @@ def submit_invasion(request):
     if total_units_sent < 1:
         messages.error(request, f"Zero units sent")
         return redirect("world")
-    elif int(request.POST["dpLeftHidden"]) < my_dominion.acres * 5:
-        messages.error(request, f"You must leave at least {my_dominion.acres * 5} defense at home")
+
+    target_dominion = Dominion.objects.get(id=dominion_id)
+    
+    if target_dominion.protection_ticks_remaining > 0 or my_dominion.protection_ticks_remaining > 0 or not round.has_started or round.has_ended or target_dominion.is_abandoned:
+        messages.error(request, f"Illegal invasion")
         return redirect("world")
 
-    if dominion_id == "quest":
-        message = do_quest(units_sent_dict, my_dominion)
-        messages.success(request, message)
+    if this_is_infiltration:
+        success, message = do_gsf_infiltration(units_sent_dict, my_dominion, target_dominion)
+        
+        if success:
+            messages.success(request, message)
+        else:
+            messages.error(request, message)
+
         return redirect("world")
     else:
-        target_dominion = Dominion.objects.get(id=dominion_id)
-        
-        if target_dominion.protection_ticks_remaining > 0 or my_dominion.protection_ticks_remaining > 0 or not round.has_started or round.has_ended or target_dominion.is_abandoned:
-            messages.error(request, f"Illegal invasion")
-            return redirect("world")
-
         battle_id, message = do_invasion(units_sent_dict, my_dominion, target_dominion)
 
         if battle_id == 0:
@@ -1954,3 +1927,5 @@ def submit_invasion(request):
             return redirect("world")
 
         return redirect("battle_report", battle_id=battle_id)
+    
+    return redirect("world")
