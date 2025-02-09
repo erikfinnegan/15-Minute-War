@@ -9,11 +9,11 @@ from maingame.utils.artifacts import give_random_unowned_artifact_to_dominion
 from maingame.utils.give_stuff import create_resource_for_dominion, give_dominion_building, give_dominion_spell, give_dominion_unit
 
 
-def get_random_resource(dominion: Dominion):
+def get_random_resource(dominion: Dominion, excluded_options=["gold", "corpses", "rats"]):
     resources = []
 
     for resource in Resource.objects.filter(ruler=dominion):
-        if resource.name not in ["gold", "corpses", "rats"]:
+        if resource.name not in excluded_options:
             resources.append(resource)
 
     return choice(resources)

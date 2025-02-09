@@ -692,7 +692,8 @@ def do_invasion_old(units_sent_dict, my_dominion: Dominion, target_dominion: Dom
     # Handle goblin leadership change
     if attacker_victory and "goblin_ruler" in target_dominion.perk_dict:
         target_dominion.perk_dict["goblin_ruler"] = get_goblin_ruler()
-        target_dominion.perk_dict["rulers_favorite_resource"] = get_random_resource(target_dominion).name
+        excluded_resources = ["gold", "corpses", "rats", target_dominion.perk_dict["rulers_favorite_resource"]]
+        target_dominion.perk_dict["rulers_favorite_resource"] = get_random_resource(target_dominion, excluded_resources).name
         target_dominion.save()
 
     # Handle clearing infiltration
