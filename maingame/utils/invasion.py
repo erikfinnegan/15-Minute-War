@@ -126,8 +126,6 @@ def get_op_and_dp_left(units_sent_dict, attacker: Dominion, defender: Dominion=N
         if is_infiltration:
             if "invasion_plan_power" in unit.perk_dict:
                 offense_sent += unit.perk_dict["invasion_plan_power"] * quantity_sent
-            else:
-                offense_sent -= 9999 * quantity_sent
         else:
             offense_sent += unit.op * quantity_sent
 

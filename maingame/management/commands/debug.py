@@ -153,15 +153,42 @@ class Command(BaseCommand):
         #     print(output)
         # print()
 
-        brothers = 10000
-        heretics = 240
-        heretics_per_tick = 24
-        ticks = 0
+        def percentize(x):
+            x = x * 100
+            return int(x)
 
-        while brothers > 0:
-            ticks += 1
-            brothers -= heretics / 10
-            heretics += heretics_per_tick
+        die_a = 8
+        die_b = 8
+        die_c = 8
 
-        print(ticks)
+        target_number = 11
+
+        attempts = 100000
+        complications = 0
+        big_complications = 0
+        successes = 0
+
+        for _ in range(attempts):
+            a = randint(1, die_a)
+            b = randint(1, die_b)
+            c = randint(1, die_c)
+
+            if a + b + c >= target_number:
+                successes += 1
+
+            if c > b or c > a:
+                complications += 1
+
+            if c > b and c > a:
+                big_complications += 1
+
+        print()
+        print()
+        print(f"{die_a} {die_b} [{die_c}] -vs- {target_number}")
+        print("Success:", percentize(successes/attempts))
+        print("Complication:", percentize(complications/attempts))
+        print("Big comps::", percentize(big_complications/attempts))
+        print()
+        print()
+
 
