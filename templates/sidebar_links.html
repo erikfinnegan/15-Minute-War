@@ -42,7 +42,12 @@
             {% endif %}
         </a>
     {% elif active_dominion.faction_name == "sludgeling" %}
-        <a href="{% url 'experimentation' %}" class="">Experimentation</a>
+        <a href="{% url 'experimentation' %}" class="">
+            Experimentation
+            {% if active_dominion.perk_dict.masterpieces_to_create > 0 %}
+             ⚠️
+            {% endif %}
+        </a>
     {% elif active_dominion.faction_name == "biclops" %}
         <a href="{% url 'other_head' %}" class="">Other Head</a>
     {% endif %}

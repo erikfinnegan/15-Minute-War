@@ -52,11 +52,6 @@
                 </tr>
             </thead>
             <tbody>
-                <div class="modal card_colors w-32 h-24 u-center u-align-middle my-auto" id="test-modal">
-                    <div class="modal-header u-flex u-flex-column u-justify-space-between">
-                        <p>{{ latest_experiment_unit.perk_text }}</p>
-                    </div>
-                </div>
                 <tr>
                     {% include "maingame/components/unit_name_row.html" with unit=latest_experiment_unit %}
                     <td class="u-align-middle">{{ latest_experiment_unit.op|intcomma }} / {{ latest_experiment_unit.dp|intcomma }}</td>
@@ -76,6 +71,11 @@
                     </td>
                 </tr>
             </tbody>
+            <div class="u-center u-align-middle my-auto md:u-none" id="test-modal">
+                <div class="u-flex u-flex-column u-justify-space-between">
+                    <p>{{ latest_experiment_unit.perk_text }}</p>
+                </div>
+            </div>
         </table>
         <div class="w-100p u-center mb-2">
             <form class="max-w-xs">
@@ -124,6 +124,74 @@
             </button>
         </form>
     </div>
+    {% endif %}
+
+    {% if masterpieces_available > 0 %}
+        <div class="u-overflow-x-scroll md:u-overflow-x-hidden mt-6">
+            <form action="{% url 'submit_masterpiece' %}" method="post" class="max-w-md">
+                {% csrf_token %}
+                <table class="table striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Power</th>
+                            <th>Quantity at home</th>
+                            <th>Combine</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for unit in units %}
+                        <tr>
+                            {% include "maingame/components/unit_name_row.html" %}
+                            <td class="u-align-middle" id="power_{{ unit.id }}" style="white-space:nowrap">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
+
+                            <td class="u-align-middle u-none md:u-table-cell">
+                                {% include "maingame/components/current_incoming.html" with current=unit.quantity_at_home incoming=unit.quantity_in_training_and_returning %}
+                            </td>
+
+                            <td class="u-align-middle">
+                                <div class="u-flex u-flex-row u-gap-2 md:w-32 u-center">
+                                    {% if "sludge" in unit.cost_dict %}
+                                    <input 
+                                        name="combine_{{ unit.id }}" 
+                                        id="combine_{{ unit.id }}" 
+                                        placeholder="{{ unit.quantity_at_home }}" 
+                                        type="number" 
+                                        max="{{ unit.quantity_at_home }}" 
+                                        class="w-12 md:w-20"
+                                    >
+                                    <button type="button" class="header_colors u-center" onclick="combineMax('{{ unit.id }}', '{{ unit.quantity_at_home }}')">
+                                        Max
+                                    </button>
+                                    <script>
+                                        function combineMax(unitId, quantityAtHome) {
+                                            let thisInput = document.getElementById("combine_" + unitId);
+                                            if (thisInput.value == quantityAtHome) {
+                                                thisInput.value = ""
+                                            } else {
+                                                thisInput.value = quantityAtHome;
+                                            }
+                                        }
+                                    </script>
+                                    
+                                    {% else %}
+                                    <span class="u-center">Not a valid component</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <td class="u-align-middle md:u-none">
+                                {% include "maingame/components/current_incoming.html" with current=unit.quantity_trained_and_alive incoming=unit.quantity_in_training %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <button class="header_colors mt-1 w-32 h-6 p-0 u-center" type="submit">
+                    <span class="font-bold">Create your masterpiece</span>
+                </button>
+            </form>
+        </div>
     {% endif %}
 </div>
 

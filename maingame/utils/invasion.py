@@ -4,12 +4,7 @@ import random
 
 from maingame.formatters import get_goblin_ruler
 from maingame.models import Artifact, Battle, Unit, Dominion, Event, Round, Resource
-from maingame.utils.artifacts import assign_artifact
-from maingame.utils.utils import get_acres_conquered, get_grudge_bonus, get_random_resource
-
-
-def get_unit_from_dict(unit_details_dict) -> Unit:
-    return unit_details_dict["unit"]
+from maingame.utils.utils import get_acres_conquered, get_grudge_bonus, get_random_resource, get_unit_from_dict
 
 
 def handle_grudges_from_attack(attacker: Dominion, defender: Dominion=None):
@@ -143,7 +138,7 @@ def get_op_and_dp_left(units_sent_dict, attacker: Dominion, defender: Dominion=N
 
     defense_left = int(raw_defense * attacker.defense_multiplier)
 
-    return offense_sent, defense_left
+    return offense_sent, defense_left, raw_defense
 
 
 def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casualties):
@@ -213,6 +208,7 @@ def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion):
             unit.quantity_at_home += survivors
         else:
             return_ticks = str(unit.perk_dict["returns_in_ticks"]) if "returns_in_ticks" in unit.perk_dict else "12"
+            unit.quantity_at_home -= quantity_sent
             unit.returning_dict[return_ticks] = survivors
 
         unit.save()
@@ -258,7 +254,7 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion):
     raw_op_sent = 0
     defense_snapshot = defender.defense
     slowest_unit_return_ticks = 1
-    offense_sent, dp_left = get_op_and_dp_left(units_sent_dict, attacker, defender=defender)
+    offense_sent, dp_left, _ = get_op_and_dp_left(units_sent_dict, attacker, defender=defender)
     acres_conquered = get_acres_conquered(attacker, defender)
 
     if defender.defense > offense_sent:

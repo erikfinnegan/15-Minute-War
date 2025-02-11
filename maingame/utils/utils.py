@@ -1,12 +1,15 @@
 from random import randint, choice
 import random
 
-from maingame.formatters import get_goblin_ruler
 from maingame.models import Artifact, Unit, Dominion, Discovery, Building, Event, Round, Faction, Resource, Spell, UserSettings
 from django.contrib.auth.models import User
 
 from maingame.utils.artifacts import give_random_unowned_artifact_to_dominion
 from maingame.utils.give_stuff import create_resource_for_dominion, give_dominion_building, give_dominion_spell, give_dominion_unit
+
+
+def get_unit_from_dict(unit_details_dict) -> Unit:
+    return unit_details_dict["unit"]
 
 
 def get_random_resource(dominion: Dominion, excluded_options=["gold", "corpses", "rats"]):
@@ -74,7 +77,7 @@ def get_grudge_bonus(my_dominion: Dominion, other_dominion: Dominion):
         return 0
     
 
-def create_magnum_goopus(dominion: Dominion, encore=False):
+def create_magnum_goopus(dominion: Dominion, units_included_dict, encore=False):
     total_quantity = 0
     total_op = 0
     total_dp = 0
@@ -85,14 +88,17 @@ def create_magnum_goopus(dominion: Dominion, encore=False):
     else:
         perk_dict = {"is_glorious": True}
 
-    for unit in Unit.objects.filter(ruler=dominion):
-        if "sludge" in unit.cost_dict and unit.quantity_at_home > 0:
-            total_quantity += unit.quantity_at_home
-            total_op += unit.quantity_at_home * unit.op
-            total_dp += unit.quantity_at_home * unit.dp
+    for unit_details_dict in units_included_dict.values():
+        unit = get_unit_from_dict(unit_details_dict)
+        quantity_included = unit_details_dict["quantity_sent"]
+
+        if "sludge" in unit.cost_dict and quantity_included <= unit.quantity_at_home:
+            total_quantity += quantity_included
+            total_op += quantity_included * unit.op
+            total_dp += quantity_included * unit.dp
 
             if "food" in unit.upkeep_dict:
-                food_upkeep += unit.quantity_at_home * unit.upkeep_dict["food"]
+                food_upkeep += quantity_included * unit.upkeep_dict["food"]
 
             for perk, value in unit.perk_dict.items():
                 if perk == "casualty_multiplier" and perk in perk_dict:
@@ -100,7 +106,7 @@ def create_magnum_goopus(dominion: Dominion, encore=False):
                 else:
                     perk_dict[perk] = value
             
-            unit.quantity_at_home = 0
+            unit.quantity_at_home -= quantity_included
             unit.save()
 
     encore_suffixes = [" Mk II", " 2: Electric Goopaloo", " Remastered", ": the Remix", " 2", " Jr.", " Magnum Goopier"]
@@ -109,6 +115,9 @@ def create_magnum_goopus(dominion: Dominion, encore=False):
         name = f"Magnum Goopus {random.choice(encore_suffixes)}"
     else:
         name = "Magnum Goopus"
+
+    dominion.perk_dict["masterpieces_to_create"] -= 1
+    dominion.save()
 
     timer_template = {
         "1": 0,
@@ -125,7 +134,7 @@ def create_magnum_goopus(dominion: Dominion, encore=False):
         "12": 0,
     }
 
-    Unit.objects.create(
+    return Unit.objects.create(
         ruler=dominion,
         name=name,
         op=total_op,
@@ -145,14 +154,12 @@ def unlock_discovery(dominion: Dominion, discovery_name):
     if not discovery_name in dominion.available_discoveries:
         return False
     
+    discovery = Discovery.objects.get(name=discovery_name)
     dominion.learned_discoveries.append(discovery_name)
-
-    can_take_multiple_times = False
 
     match discovery_name:
         case "Prosperity":
             dominion.primary_resource_per_acre += 1
-            can_take_multiple_times = True
         case "Raiders":
             if "percent_bonus_to_steal" in dominion.perk_dict:
                 dominion.perk_dict["percent_bonus_to_steal"] += 10
@@ -160,7 +167,6 @@ def unlock_discovery(dominion: Dominion, discovery_name):
                 dominion.perk_dict["percent_bonus_to_steal"] = 10
             
             dominion.save()
-            can_take_multiple_times = True
         case "Battering Rams":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Battering Ram"))
         case "Palisades":
@@ -228,7 +234,6 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             dominion.perk_dict["fallen_order"] = True
             if "Zealous Persecution" in dominion.available_discoveries:
                 dominion.available_discoveries.remove("Zealous Persecution")
-            # HOOOO BOY got a lot to do here
         case "More Experiment Slots":
             dominion.perk_dict["max_custom_units"] = 4
         case "Even More Experiment Slots":
@@ -236,9 +241,11 @@ def unlock_discovery(dominion: Dominion, discovery_name):
         case "Recycling Center":
             dominion.perk_dict["recycling_refund"] = 0.95
         case "Magnum Goopus":
-            create_magnum_goopus(dominion)
+            # create_magnum_goopus(dominion)
+            dominion.perk_dict["masterpieces_to_create"] += 1
         case "Encore":
-            create_magnum_goopus(dominion, encore=True)
+            # create_magnum_goopus(dominion, encore=True)
+            dominion.perk_dict["masterpieces_to_create"] += 1
         case "Wreckin Ballers":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Wreckin Baller"))
         case "Charcutiers":
@@ -258,7 +265,7 @@ def unlock_discovery(dominion: Dominion, discovery_name):
         case "Rapid Deployment":
             dominion.perk_dict["unit_training_time"] = "6"
 
-    if not can_take_multiple_times:
+    if not discovery.repeatable:
         dominion.available_discoveries.remove(discovery_name)
 
     message = update_available_discoveries(dominion)
@@ -401,6 +408,26 @@ def get_highest_op_quested():
         highest_op_quested = max(highest_op_quested, dominion.op_quested_per_acre)
 
     return highest_op_quested
+
+
+def create_unit_dict(request_data, id_prefix):
+    unit_dict = {}
+    total_units = 0
+    # id_prefix is like "send_"
+    for key, string_amount in request_data.items():
+        # key is like "send_123" where 123 is the ID of the Unit
+        if id_prefix in key and string_amount != "":
+            unit = Unit.objects.get(id=key[len(id_prefix):])
+            amount = int(string_amount)
+
+            if amount <= unit.quantity_at_home and amount > 0:
+                total_units += amount
+                unit_dict[str(unit.id)] = {
+                    "unit": unit,
+                    "quantity_sent": amount,
+                }
+
+    return unit_dict, total_units
 
 
 def cast_spell(spell: Spell, target=None):

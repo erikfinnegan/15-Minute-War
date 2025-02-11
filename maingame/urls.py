@@ -12,9 +12,11 @@ urlpatterns = [
     path("news", views.news, name="news"),
     path("upgrades", views.upgrades, name="upgrades"),
     path("upgrade_building/<int:building_id>", views.upgrade_building, name="upgrade_building"),
+    
     path("military/submit", views.submit_training, name="submit_training"),
     path("military/release", views.submit_release, name="submit_release"),
     path("military", views.military, name="military"),
+    
     path("buildings/submit", views.submit_building, name="submit_building"),
     path("buildings", views.buildings, name="buildings"),
     path("resources", views.resources, name="resources"),
@@ -36,14 +38,18 @@ urlpatterns = [
     path("options", views.options, name="options"),
     path("submit_options", views.submit_options, name="submit_options"),
     path("abandon", views.abandon, name="abandon"),
+    
     path("church_affairs", views.church_affairs, name="church_affairs"),
     path("submit_inquisition", views.submit_inquisition, name="submit_inquisition"),
     path("submit_true_inquisition", views.submit_true_inquisition, name="submit_true_inquisition"),
     path("submit_unholy_baptism", views.submit_unholy_baptism, name="submit_unholy_baptism"),
+   
     path("experimentation", views.experimentation, name="experimentation"),
     path("generate_experiment", views.generate_experiment, name="generate_experiment"),
     path("approve_experiment", views.approve_experiment, name="approve_experiment"),
     path("terminate_experiment", views.terminate_experiment, name="terminate_experiment"),
+    path("submit_masterpiece", views.submit_masterpiece, name="submit_masterpiece"),
+   
     path("other_head", views.other_head, name="other_head"),
     path("submit_other_head", views.submit_other_head, name="submit_other_head"),
     path("calculate_op", views.calculate_op, name="calculate_op"),

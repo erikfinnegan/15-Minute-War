@@ -4,19 +4,19 @@ from random import randint
 import random
 import zoneinfo
 
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 
 from maingame.formatters import create_or_add_to_key, get_sludgeling_name
-from maingame.models import Artifact, Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings, Theme
+from maingame.models import Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings, Theme
 from maingame.tick_processors import do_global_tick
 from maingame.utils.dominion_controls import initialize_dominion, abandon_dominion, delete_dominion
 from maingame.utils.give_stuff import create_resource_for_dominion, give_dominion_unit
 from maingame.utils.invasion import do_gsf_infiltration, do_invasion, get_op_and_dp_left
-from maingame.utils.utils import do_quest, get_acres_conquered, get_grudge_bonus, get_highest_op_quested, round_x_to_nearest_y, unlock_discovery, cast_spell, update_available_discoveries
+from maingame.utils.utils import create_magnum_goopus, create_unit_dict, get_acres_conquered, get_grudge_bonus, get_highest_op_quested, round_x_to_nearest_y, unlock_discovery, cast_spell, update_available_discoveries
 
 
 def index(request):
@@ -1263,6 +1263,11 @@ def experimentation(request):
         dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
+    
+    try:
+        masterpieces_available = dominion.perk_dict["masterpieces_to_create"]
+    except:
+        return redirect("world")
 
     if dominion.faction_name != "sludgeling":
         messages.error(request, f"Go swim in a cesspool")
@@ -1287,6 +1292,8 @@ def experimentation(request):
         "latest_experiment_unit": latest_experiment_unit,
         "experimental_units": experimental_units,
         "has_experimental_units": dominion.perk_dict["custom_units"] > 0,
+        "units": dominion.sorted_units,
+        "masterpieces_available": masterpieces_available,
     }
     
     return render(request, "maingame/faction_pages/experimentation.html", context)
@@ -1752,6 +1759,38 @@ def terminate_experiment(request):
     return redirect("experimentation")
 
 
+def submit_masterpiece(request):
+    try:
+        dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    try:
+        masterpieces_available = dominion.perk_dict["masterpieces_to_create"]
+    except:
+        return redirect("world")
+    
+    if masterpieces_available < 1:
+        messages.error(request, f"Don't be greedy")
+        return redirect("experimentation")
+
+    unit_dict, _ = create_unit_dict(request.POST, "combine_")
+
+    is_encore = False
+
+    for unit in Unit.objects.filter(ruler=dominion):
+        if "is_more_glorious" in unit.perk_dict:
+            messages.error(request, f"Don't be greedy")
+            return redirect("experimentation")
+        elif "is_glorious" in unit.perk_dict:
+            is_encore = True
+
+    create_magnum_goopus(dominion, unit_dict, is_encore)
+
+    messages.success(request, f"Behold your masterpiece!")
+    return redirect("military")
+
+
 def other_head(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -1801,25 +1840,27 @@ def calculate_op(request):
 
     # Not sure how to get the form-wide hx-trigger to fire on repeated use of the checkbox - it only picks up on the first.
 
-    total_units_sent = 0
-    units_sent_dict = {}
-    
-    # Create a dict of the units sent
-    for key, string_amount in request.GET.items():
-        # key is like "send_123" where 123 is the ID of the Unit
-        if "send_" in key and string_amount != "":
-            unit = Unit.objects.get(id=key[5:])
-            amount = int(string_amount)
+    units_sent_dict, _ = create_unit_dict(request.GET, "send_")
 
-            if amount <= unit.quantity_at_home:
-                total_units_sent += amount
-                units_sent_dict[str(unit.id)] = {
-                    "unit": unit,
-                    "quantity_sent": amount,
-                }
+    # total_units_sent = 0
+    # units_sent_dict = {}
+    
+    # # Create a dict of the units sent
+    # for key, string_amount in request.GET.items():
+    #     # key is like "send_123" where 123 is the ID of the Unit
+    #     if "send_" in key and string_amount != "":
+    #         unit = Unit.objects.get(id=key[5:])
+    #         amount = int(string_amount)
+
+    #         if amount <= unit.quantity_at_home:
+    #             total_units_sent += amount
+    #             units_sent_dict[str(unit.id)] = {
+    #                 "unit": unit,
+    #                 "quantity_sent": amount,
+    #             }
     
     target_dominion = Dominion.objects.filter(id=dominion_id).first()
-    op_sent, dp_left = get_op_and_dp_left(units_sent_dict, my_dominion, target_dominion, is_infiltration)
+    op_sent, dp_left, raw_dp_left = get_op_and_dp_left(units_sent_dict, my_dominion, target_dominion, is_infiltration)
 
     larger_enemy_has_lower_defense = False
     left_lowest_defense = True
@@ -1837,6 +1878,7 @@ def calculate_op(request):
         "op": op_sent,
         "dp": target_dominion.defense if target_dominion else 0,
         "dp_left": dp_left,
+        "raw_dp_left": raw_dp_left,
         "invalid_invasion": invalid_invasion,
         "larger_enemy_has_lower_defense": larger_enemy_has_lower_defense,
         "left_lowest_defense": left_lowest_defense,
@@ -1872,33 +1914,7 @@ def submit_invasion(request):
         messages.error(request, f"No target selected")
         return redirect("world")
     
-    total_units_sent = 0
-    units_sent_dict = {}
-
-    # Create a dict of the units sent
-    for key, string_amount in request.POST.items():
-        # key is like "send_123" where 123 is the ID of the Unit
-        if "send_" in key and string_amount != "":
-            unit = Unit.objects.get(id=key[5:])
-            amount = int(string_amount)
-
-            if 0 < amount <= unit.quantity_at_home:
-                total_units_sent += amount
-                units_sent_dict[str(unit.id)] = {
-                    "unit": unit,
-                    "quantity_sent": amount,
-                }
-            elif dominion_id == "quest" and "always_dies_on_offense" in unit.perk_dict:
-                messages.error(request, f"You can't send units that always die on offense on quests.")
-                return redirect("world")
-            elif amount == 0:
-                pass
-            elif amount < 0:
-                messages.error(request, f"You can't send negative units.")
-                return redirect("world")
-            else:
-                messages.error(request, f"You can't send more units than you have at home.")
-                return redirect("world")
+    units_sent_dict, total_units_sent = create_unit_dict(request.POST, "send_")
 
     if total_units_sent < 1:
         messages.error(request, f"Zero units sent")

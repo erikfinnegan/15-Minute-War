@@ -317,7 +317,12 @@
                 {% for discovery in learned_discoveries %}
                 <div class="card card_colors p-1 u-flex u-flex-column u-gap-1">
                     <h6>{{ discovery.name }}</h6>
-                    <span>{{ discovery.description }}</span>
+                    <span>
+                        {{ discovery.description }}
+                        {% if discovery.repeatable %}
+                            (Repeatable)
+                        {% endif %}
+                    </span>
                 </div>
                 {% endfor %}
             </div>

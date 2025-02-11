@@ -971,6 +971,10 @@ class Unit(models.Model):
             total += value
 
         return total
+    
+    @property
+    def quantity_in_training_and_returning(self):
+        return self.quantity_in_training + self.quantity_returning
 
 
 class Artifact(models.Model):
@@ -1106,6 +1110,7 @@ class Round(models.Model):
 class Discovery(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
     description = models.CharField(max_length=500, null=True, blank=True)
+    repeatable = models.BooleanField(default=False)
     required_discoveries = models.JSONField(default=list, blank=True)
     required_discoveries_or = models.JSONField(default=list, blank=True)
     required_faction_name = models.CharField(max_length=50, null=True, blank=True)

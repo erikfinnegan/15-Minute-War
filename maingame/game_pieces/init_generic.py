@@ -111,7 +111,8 @@ def initialize_generic_units():
 def initialize_generic_discoveries():
     Discovery.objects.create(
         name="Prosperity",
-        description="Increases gold per acre by 1. Can be taken multiple times.",
+        description="Increases gold per acre by 1.",
+        repeatable=True,
     )
 
     # Discovery.objects.create(
