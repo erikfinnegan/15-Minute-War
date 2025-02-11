@@ -967,7 +967,7 @@ def world(request):
         if dominion.is_oop:
             lowest_defense_in_game = min(dominion.defense, lowest_defense_in_game)
 
-        if dominion.acres_with_incoming > largest_with_incoming.acres:
+        if dominion.acres_with_incoming > largest_with_incoming.acres_with_incoming:
             largest_with_incoming = dominion
 
     for unit in my_units:
