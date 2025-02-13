@@ -11,10 +11,11 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
         dominion.perk_dict["book_of_grudges"] = {}
         # dominion.perk_dict["grudge_page_multiplier"] = 1.5
     elif faction.name == "blessed order":
-        dominion.perk_dict["sinners_per_hundred_acres_per_tick"] = 1
+        dominion.perk_dict["heretics_per_hundred_acres_per_tick"] = 1
         dominion.perk_dict["inquisition_rate"] = 0
-        dominion.perk_dict["inquisition_ticks_left"] = 0
+        dominion.perk_dict["order_cant_attack_ticks_left"] = 0
         dominion.perk_dict["martyr_cost"] = 500
+        dominion.perk_dict["corruption"] = 0
     elif faction.name == "sludgeling":
         dominion.perk_dict["free_experiments"] = 10
         dominion.perk_dict["latest_experiment_id"] = 0
@@ -41,6 +42,7 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
         dominion.perk_dict["max_custom_units"] = 3
         dominion.perk_dict["experiments_done"] = 0
         dominion.perk_dict["recycling_refund"] = 0.8
+        dominion.perk_dict["masterpieces_to_create"] = 0
     elif faction.name == "goblin":
         dominion.perk_dict["rats_per_acre_per_tick"] = 0.3333
         dominion.perk_dict["goblin_ruler"] = get_goblin_ruler()
@@ -49,6 +51,7 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
         dominion.perk_dict["partner_patience"] = 36
         # dominion.perk_dict["partner_unit_training_0random_1offense_2defense"] = 0
         dominion.perk_dict["partner_attack_on_sight"] = False
+        dominion.perk_dict["bonus_determination"] = 0
     elif faction.name == "gnomish special forces":
         dominion.perk_dict["infiltration_dict"] = {}
 
@@ -83,7 +86,7 @@ def initialize_dominion(user: User, faction: Faction, display_name):
                 create_resource_for_dominion(perk_name[:-9], dominion)
 
     if dominion.faction_name == "blessed order":
-        create_resource_for_dominion("sinners", dominion)
+        create_resource_for_dominion("heretics", dominion)
     elif dominion.faction_name == "goblin":
         create_resource_for_dominion("rats", dominion)
 

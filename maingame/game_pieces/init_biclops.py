@@ -36,20 +36,20 @@ def initialize_biclops_units():
     )
 
     Unit.objects.create(
-        name="Safecracker",
+        name="Gatesmasher",
         op=39,
         dp=14,
         cost_dict={
             "gold": 3400+0,
-            "wood": 0+5000,
-            "ore": 6500+4000,
+            "wood": 0+7000,
+            "ore": 6500+1800,
         },
         upkeep_dict={
             "gold": 12,
             "food": 4,
             "wood": 4,
         },
-        perk_dict={"casualty_multiplier": 0.5, "op_bonus_percent_for_stealing_artifacts": 20},
+        perk_dict={"casualty_multiplier": 0.5, "gets_op_bonus_equal_to_percent_of_target_complacency": 33},
     )
 
 
@@ -69,9 +69,16 @@ def initialize_biclops_discoveries():
     )
 
     Discovery.objects.create(
-        name="Safecrackers",
-        description="""Somehow, most guards seem to always be looking the other way when biclopean cat burglars come "prowling". """,
-        associated_unit_name="Safecracker",
+        name="Gatesmashers",
+        description="""Some biclops look at how battering rams are suspended by swinging ropes or chains and think "yeah, I could do better than that".""",
+        associated_unit_name="Gatesmasher",
         required_faction_name="biclops",
         required_discoveries=["Battering Rams"],
+    )
+
+    Discovery.objects.create(
+        name="Growing Determination",
+        description="""Biclops hate not attacking. Increases determination gained by 10% of the base rate.""",
+        required_faction_name="biclops",
+        repeatable=True,
     )

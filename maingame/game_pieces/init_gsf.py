@@ -41,13 +41,13 @@ def initialize_gnomish_special_forces_units():
         op=28,
         dp=36,
         cost_dict={
-            "ore": 11000,
-            "wood": 4400,
+            "ore": 13000,
+            "wood": 5000,
         },
         upkeep_dict={
             "gold": 6,
             "food": 2,
-            "wood": 5,
+            "wood": 4,
         },
         perk_dict={"casualty_multiplier": 0.5},
     )

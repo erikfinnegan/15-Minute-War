@@ -78,7 +78,12 @@
                     {% for discovery in faction_dict.discoveries %}
                         <div class="card card_colors p-1 w-100p max-w-xs u-overflow-x-scroll md:u-overflow-x-hidden">
                             <h6>{{ discovery.name }}</h6>
-                            <p class="text-xs">{{ discovery.description }}</p>
+                            <p class="text-xs">
+                                {{ discovery.description }}
+                                {% if discovery.repeatable %}
+                                    (Repeatable)
+                                {% endif %}
+                            </p>
 
                             {% if discovery.associated_unit_name %}
                             <details class="px-1 py-0 accordion md:u-none">

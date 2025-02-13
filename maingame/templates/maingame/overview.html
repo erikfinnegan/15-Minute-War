@@ -38,14 +38,15 @@
         {% endif %}
         <h6>{{ dominion.successful_invasions }} successful invasions, {{ dominion.failed_defenses }} failed defenses</h6>
 
-        {% if dominion.faction_name == "biclops" and dominion.perk_dict.partner_patience > 0 %}
-        <h6>Ruled by Right {{ dominion.rulers_display_name }} and Left {{ dominion.rulers_display_name }}</h6>
-        <h6>(one of whom will only be patient for {{ dominion.perk_dict.partner_patience }} more ticks)</h6>
-        {% elif dominion.faction_name == "biclops" and dominion.perk_dict.partner_patience == 0 %}
-        <h6>Ruled by Right {{ dominion.rulers_display_name }} and Left {{ dominion.rulers_display_name }}</h6>
-        <h6>(one of whom has lost patience with the other)</h6>
+        {% if dominion.faction_name == "biclops" %}
+            <h6>Ruled by Right {{ dominion.rulers_display_name }} and Left {{ dominion.rulers_display_name }}</h6>
+            {% if dominion.perk_dict.partner_patience > 0 %}
+                <h6>(one of whom will only be patient for {{ dominion.perk_dict.partner_patience }} more ticks)</h6>
+            {% elif dominion.perk_dict.partner_patience <= 0 %}
+                <h6>(one of whom has lost patience with the other)</h6>
+            {% endif %}
         {% else %}
-        <h6>Ruled by {{ dominion.rulers_display_name }}</h6>
+            <h6>Ruled by {{ dominion.rulers_display_name }}</h6>
         {% endif %}
 
         <div class="u-flex u-flex-column">
@@ -316,7 +317,12 @@
                 {% for discovery in learned_discoveries %}
                 <div class="card card_colors p-1 u-flex u-flex-column u-gap-1">
                     <h6>{{ discovery.name }}</h6>
-                    <span>{{ discovery.description }}</span>
+                    <span>
+                        {{ discovery.description }}
+                        {% if discovery.repeatable %}
+                            (Repeatable)
+                        {% endif %}
+                    </span>
                 </div>
                 {% endfor %}
             </div>

@@ -47,6 +47,32 @@
         </div>
     {% endif %}
 
+    {% if active_dominion.faction_name == "blessed order" or active_dominion.faction_name == "fallen order" and "corruption" in active_dominion.perk_dict %}
+        <div class="font-bold max-w-md
+            {% if 'Heresy' in active_dominion.learned_discoveries %}
+            px-1 pt-2 pb-1 bg-gray-900 text-purple-200
+            {% elif active_dominion.perk_dict.corruption >= 200000 and 'Heresy' not in active_dominion.learned_discoveries %}
+            p-1 bg-gray-900 text-purple-500
+            {% elif active_dominion.perk_dict.corruption >= 100000 and 'Heresy' not in active_dominion.learned_discoveries %}
+            p-1 bg-gray-800 text-purple-300
+            {% elif 'Heresy' not in active_dominion.perk_dict %}
+            p-1 bg-gray-800 text-white
+            {% endif %}"
+        >
+            {% if "The Final Heresy" in active_dominion.learned_discoveries %}
+                <h6><em>Welcome, child.</em></h6>
+            {% else %}
+                <p>Your heretics have whispered {{ active_dominion.perk_dict.corruption|intcomma }} heresies.</p>
+                {% if active_dominion.perk_dict.corruption >= 100000 and "The Final Heresy" not in active_dominion.learned_discoveries %}
+                <p>Their ideology is creeping deeper every day.</p>
+                {% endif %}
+                {% if active_dominion.perk_dict.corruption >= 200000 and "The Final Heresy" not in active_dominion.learned_discoveries %}
+                <p><em>Is it not time to abandon your false gods?</em></p>
+                {% endif %}
+            {% endif %}
+        </div>
+    {% endif %}
+
     <form action="{% url 'submit_discovery' %}" method="post" class="">
         {% csrf_token %}
         <div class="u-center u-flex u-gap-4 mt-2" style="width: fit-content">
@@ -66,38 +92,46 @@
 
     <div class="u-flex u-flex-wrap u-gap-2">
         {% for discovery in available_discoveries %}
-        {% if active_user_settings.tutorial_step >= 9 or discovery.name == "Palisades" or discovery.name == "Battering Rams" or discovery.name == "Prosperity" %}
+            {% if active_user_settings.tutorial_step >= 9 or discovery.name == "Palisades" or discovery.name == "Battering Rams" or discovery.name == "Prosperity" %}
+                <div class="card card_colors p-1 w-100p max-w-xs u-overflow-x-scroll md:u-overflow-x-hidden">
+                    <h6>{{ discovery.name }}</h6>
+                    <p class="text-xs">
+                        {{ discovery.description }}
+                        {% if discovery.repeatable %}
+                            (Repeatable)
+                        {% endif %}
+                    </p>
 
-        <div class="card card_colors p-1 w-100p max-w-xs u-overflow-x-scroll md:u-overflow-x-hidden">
-            <h6>{{ discovery.name }}</h6>
-            <p class="text-xs">{{ discovery.description }}</p>
-            {% if discovery.associated_unit_name %}
-        
-            <details class="px-1 py-0 accordion md:u-none">
-                <summary class="accordion__summary text-xs">Unit info</summary>
-                {% include "maingame/components/discovery_unit_card.html" with unit=discovery.associated_unit %}
-                {% if discovery.associated_unit.has_perks %}
-                <span class="md:u-none">{{ discovery.associated_unit.perk_text }}</span>
-                {% endif %}
-            </details>
+                    {% if discovery.associated_unit_name %}
+                        <details class="px-1 py-0 accordion md:u-none">
+                            <summary class="accordion__summary text-xs">Unit info</summary>
+                            {% include "maingame/components/discovery_unit_card.html" with unit=discovery.associated_unit %}
+                            {% if discovery.associated_unit.has_perks %}
+                                <span class="md:u-none">{{ discovery.associated_unit.perk_text }}</span>
+                            {% endif %}
+                        </details>
 
-            <div class="u-none md:u-block">
-                {% include "maingame/components/discovery_unit_card.html" with unit=discovery.associated_unit %}
-                {% if discovery.associated_unit.has_perks %}
-                <span class="md:u-none">{{ discovery.associated_unit.perk_text }}</span>
-                {% endif %}
-            </div>
-
+                        <div class="u-none md:u-block">
+                            {% include "maingame/components/discovery_unit_card.html" with unit=discovery.associated_unit %}
+                            {% if discovery.associated_unit.has_perks %}
+                                <span class="md:u-none">{{ discovery.associated_unit.perk_text }}</span>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
             {% endif %}
-        </div>
-        {% endif %}
         {% endfor %}
 
 
         {% for discovery_dict in future_discoveries %}
         <div class="card base_colors p-1 w-100p max-w-xs u-overflow-x-scroll md:u-overflow-x-hidden">
             <h6>{{ discovery_dict.discovery.name }} (requires {{ discovery_dict.requirement_string }})</h6>
-            <p class="text-xs">{{ discovery_dict.discovery.description }}</p>
+            <p class="text-xs">
+                {{ discovery_dict.discovery.description }}
+                {% if discovery_dict.discovery.repeatable %}
+                    (Repeatable)
+                {% endif %}
+            </p>
 
             {% if discovery_dict.discovery.associated_unit_name %}
             <details class="px-1 py-0 accordion md:u-none">

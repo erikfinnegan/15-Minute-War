@@ -1,7 +1,6 @@
 from random import randint, choice
 import random
 
-from maingame.formatters import get_goblin_ruler
 from maingame.models import Artifact, Unit, Dominion, Discovery, Building, Event, Round, Faction, Resource, Spell, UserSettings
 from django.contrib.auth.models import User
 
@@ -9,11 +8,15 @@ from maingame.utils.artifacts import give_random_unowned_artifact_to_dominion
 from maingame.utils.give_stuff import create_resource_for_dominion, give_dominion_building, give_dominion_spell, give_dominion_unit
 
 
-def get_random_resource(dominion: Dominion):
+def get_unit_from_dict(unit_details_dict) -> Unit:
+    return unit_details_dict["unit"]
+
+
+def get_random_resource(dominion: Dominion, excluded_options=["gold", "corpses", "rats"]):
     resources = []
 
     for resource in Resource.objects.filter(ruler=dominion):
-        if resource.name not in ["gold", "corpses", "rats"]:
+        if resource.name not in excluded_options:
             resources.append(resource)
 
     return choice(resources)
@@ -74,7 +77,7 @@ def get_grudge_bonus(my_dominion: Dominion, other_dominion: Dominion):
         return 0
     
 
-def create_magnum_goopus(dominion: Dominion, encore=False):
+def create_magnum_goopus(dominion: Dominion, units_included_dict, encore=False):
     total_quantity = 0
     total_op = 0
     total_dp = 0
@@ -85,14 +88,17 @@ def create_magnum_goopus(dominion: Dominion, encore=False):
     else:
         perk_dict = {"is_glorious": True}
 
-    for unit in Unit.objects.filter(ruler=dominion):
-        if "sludge" in unit.cost_dict and unit.quantity_at_home > 0:
-            total_quantity += unit.quantity_at_home
-            total_op += unit.quantity_at_home * unit.op
-            total_dp += unit.quantity_at_home * unit.dp
+    for unit_details_dict in units_included_dict.values():
+        unit = get_unit_from_dict(unit_details_dict)
+        quantity_included = unit_details_dict["quantity_sent"]
+
+        if "sludge" in unit.cost_dict and quantity_included <= unit.quantity_at_home:
+            total_quantity += quantity_included
+            total_op += quantity_included * unit.op
+            total_dp += quantity_included * unit.dp
 
             if "food" in unit.upkeep_dict:
-                food_upkeep += unit.quantity_at_home * unit.upkeep_dict["food"]
+                food_upkeep += quantity_included * unit.upkeep_dict["food"]
 
             for perk, value in unit.perk_dict.items():
                 if perk == "casualty_multiplier" and perk in perk_dict:
@@ -100,7 +106,7 @@ def create_magnum_goopus(dominion: Dominion, encore=False):
                 else:
                     perk_dict[perk] = value
             
-            unit.quantity_at_home = 0
+            unit.quantity_at_home -= quantity_included
             unit.save()
 
     encore_suffixes = [" Mk II", " 2: Electric Goopaloo", " Remastered", ": the Remix", " 2", " Jr.", " Magnum Goopier"]
@@ -109,6 +115,9 @@ def create_magnum_goopus(dominion: Dominion, encore=False):
         name = f"Magnum Goopus {random.choice(encore_suffixes)}"
     else:
         name = "Magnum Goopus"
+
+    dominion.perk_dict["masterpieces_to_create"] -= 1
+    dominion.save()
 
     timer_template = {
         "1": 0,
@@ -125,7 +134,7 @@ def create_magnum_goopus(dominion: Dominion, encore=False):
         "12": 0,
     }
 
-    Unit.objects.create(
+    return Unit.objects.create(
         ruler=dominion,
         name=name,
         op=total_op,
@@ -145,22 +154,13 @@ def unlock_discovery(dominion: Dominion, discovery_name):
     if not discovery_name in dominion.available_discoveries:
         return False
     
+    discovery = Discovery.objects.get(name=discovery_name)
     dominion.learned_discoveries.append(discovery_name)
-
-    can_take_multiple_times = False
 
     match discovery_name:
         case "Prosperity":
             dominion.primary_resource_per_acre += 1
-            can_take_multiple_times = True
-        case "Raiders":
-            if "percent_bonus_to_steal" in dominion.perk_dict:
-                dominion.perk_dict["percent_bonus_to_steal"] += 10
-            else:
-                dominion.perk_dict["percent_bonus_to_steal"] = 10
-            
             dominion.save()
-            can_take_multiple_times = True
         case "Battering Rams":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Battering Ram"))
         case "Palisades":
@@ -169,8 +169,6 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Bastion"))
         case "Zombies":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Zombie"))
-        # case "Butcher":
-        #     print("Implement spells, silly")
         case "Archmage":
             archmage = give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Archmage"))
             archmage.quantity_at_home = 1
@@ -208,19 +206,26 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Living Saint"))
         case "Penitent Engines":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Penitent Engine"))
-        case "Heresy":
-            dominion.perk_dict["sinners_per_hundred_acres_per_tick"] *= 2
+        case "Zealous Persecution":
+            dominion.perk_dict["heretics_per_hundred_acres_per_tick"] *= 2
+
+            if "The Final Heresy" in dominion.available_discoveries:
+                dominion.available_discoveries.remove("The Final Heresy")
         case "Grim Sacrament":
             dominion.perk_dict["inquisition_makes_corpses"] = True
             create_resource_for_dominion("corpses", dominion)
-        case "Wights":
-            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Wight"))
+        # case "Wights":
+        #     give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Wight"))
         case "Cathedral Titans":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Cathedral Titan"))
         case "Funerals":
             dominion.perk_dict["faith_per_power_died"] = 10
         case "Cremain Knights":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Cremain Knight"))
+        case "The Final Heresy":
+            dominion.perk_dict["fallen_order"] = True
+            if "Zealous Persecution" in dominion.available_discoveries:
+                dominion.available_discoveries.remove("Zealous Persecution")
         case "More Experiment Slots":
             dominion.perk_dict["max_custom_units"] = 4
         case "Even More Experiment Slots":
@@ -228,21 +233,28 @@ def unlock_discovery(dominion: Dominion, discovery_name):
         case "Recycling Center":
             dominion.perk_dict["recycling_refund"] = 0.95
         case "Magnum Goopus":
-            create_magnum_goopus(dominion)
+            # create_magnum_goopus(dominion)
+            dominion.perk_dict["masterpieces_to_create"] += 1
         case "Encore":
-            create_magnum_goopus(dominion, encore=True)
+            # create_magnum_goopus(dominion, encore=True)
+            dominion.perk_dict["masterpieces_to_create"] += 1
         case "Wreckin Ballers":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Wreckin Baller"))
         case "Charcutiers":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Charcutier"))
         case "Rat Trainers":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Rat Trainer"))
+        case "Ratapults":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Ratapult"))
         case "Bestow Biclopean Ambition":
             give_dominion_spell(dominion, Spell.objects.get(ruler=None, name="Bestow Biclopean Ambition"))
         case "Triclops":
             dominion.perk_dict["percent_chance_of_instant_return"] = 10
-        case "Safecrackers":
-            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Safecracker"))
+        case "Gatesmashers":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Gatesmasher"))
+        case "Growing Determination":
+            if "bonus_determination" in dominion.perk_dict:
+                dominion.perk_dict["bonus_determination"] += 0.1
         case "Juggernaut Tanks":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Juggernaut Tank"))
         case "Inferno Mines":
@@ -250,7 +262,7 @@ def unlock_discovery(dominion: Dominion, discovery_name):
         case "Rapid Deployment":
             dominion.perk_dict["unit_training_time"] = "6"
 
-    if not can_take_multiple_times:
+    if not discovery.repeatable:
         dominion.available_discoveries.remove(discovery_name)
 
     message = update_available_discoveries(dominion)
@@ -275,124 +287,24 @@ def get_acres_conquered(attacker: Dominion, target: Dominion):
     return int(base * multiplier)
 
 
-def do_quest(units_sent_dict, my_dominion: Dominion):
-    total_units_sent = 0
+def create_unit_dict(request_data, id_prefix):
+    unit_dict = {}
+    total_units = 0
+    # id_prefix is like "send_"
+    for key, string_amount in request_data.items():
+        # key is like "send_123" where 123 is the ID of the Unit
+        if id_prefix in key and string_amount != "":
+            unit = Unit.objects.get(id=key[len(id_prefix):])
+            amount = int(string_amount)
 
-    for unit_id, unit_dict in units_sent_dict.items():
-        unit = Unit.objects.get(id=unit_id)
-        total_units_sent += unit_dict["quantity_sent"]
-        unit.quantity_at_home -= unit_dict["quantity_sent"]
-        unit.save()
+            if amount <= unit.quantity_at_home and amount > 0:
+                total_units += amount
+                unit_dict[str(unit.id)] = {
+                    "unit": unit,
+                    "quantity_sent": amount,
+                }
 
-    offense_sent = 0
-
-    # Calculate OP
-    for unit_details_dict in units_sent_dict.values():
-        unit = unit_details_dict["unit"]
-        quantity_sent = unit_details_dict["quantity_sent"]
-        offense_sent += unit.op * quantity_sent
-
-    my_dominion.highest_raw_op_sent = max(offense_sent, my_dominion.highest_raw_op_sent)
-
-    offense_sent *= my_dominion.offense_multiplier
-
-    my_dominion.op_quested += offense_sent
-    my_dominion.save()
-
-    # battle_units_sent_dict = {}
-    # battle_units_defending_dict = {}
-
-    # for unit_id, data in units_sent_dict.items():
-    #     battle_units_sent_dict[unit_id] = data["quantity_sent"]
-
-    # for unit in Unit.objects.filter(ruler=target_dominion):
-    #     if unit.quantity_at_home > 0 and unit.dp > 0:
-    #         battle_units_defending_dict[str(unit.id)] = unit.quantity_at_home
-    
-    # battle = Battle.objects.create(
-    #     attacker=my_dominion,
-    #     defender=target_dominion,
-    #     winner=my_dominion if attacker_victory else target_dominion,
-    #     op=offense_sent,
-    #     dp=target_dominion.defense,
-    #     units_sent_dict=battle_units_sent_dict,
-    #     units_defending_dict=battle_units_defending_dict,
-    # )
-
-    event = Event.objects.create(
-        reference_type="quest", 
-        category="Quest",
-        message_override=f"{my_dominion} went on a quest with {int(offense_sent):2,} OP"
-    )
-    
-    event.notified_dominions.add(my_dominion)
-
-    # Handle goblin Wreckin Ballers
-    if "Wreckin Ballers" in my_dominion.learned_discoveries:
-        for unit_details_dict in units_sent_dict.values():
-            unit = unit_details_dict["unit"]
-            quantity_sent = unit_details_dict["quantity_sent"]
-
-            # RIght now it assumes a value of 0.5. Please don't make me figure out how to handle something greater than 1.
-            if "random_allies_killed_on_invasion" in unit.perk_dict:
-                # When in doubt, they kill themselves, just to help avoid exceptions
-                victim = unit
-                victim_count = 0
-
-                for _ in range(int(quantity_sent / 2)):
-                    roll = randint(1, total_units_sent - victim_count)
-
-                    for victim_details_dict in units_sent_dict.values():
-                        if roll <= victim_details_dict["quantity_sent"]:
-                            victim = victim_details_dict
-                            break
-                        else:
-                            roll -= victim_details_dict["quantity_sent"]
-
-                    victim_count += 1
-                    victim["quantity_sent"] -= 1
-
-    # Apply offensive casualties and return the survivors home
-    for unit_details_dict in units_sent_dict.values():
-        unit = Unit.objects.get(ruler=my_dominion, name=unit_details_dict["unit"].name)
-        quantity_sent = unit_details_dict["quantity_sent"]
-        unit.returning_dict["12"] += quantity_sent
-        unit.save()
-
-    # chance for an artifact if you're highest quester
-    artifact_chance_percent = 20
-    base_artifact_chance = artifact_chance_percent * 100
-    your_quest_ratio = (my_dominion.op_quested_per_acre) / get_highest_op_quested()
-    your_artifact_chance = max(100, base_artifact_chance * your_quest_ratio)
-    roll = randint(1, 10000)
-
-    my_dominion.incoming_acres_dict["12"] += 1
-    my_dominion.save()
-
-    if your_artifact_chance >= roll and Artifact.objects.filter(ruler=None).count() > 0:
-        artifact = give_random_unowned_artifact_to_dominion(my_dominion)
-        artifact_event = Event.objects.create(
-            reference_id=artifact.id, 
-            reference_type="artifact", 
-            category="Artifact Discovered",
-            message_override=f"{my_dominion} found {artifact.name}"
-        )
-        artifact_event.notified_dominions.add(my_dominion)
-        artifact_event.save()
-        my_dominion.op_quested = 0
-        my_dominion.save()
-        return f"You embark upon a quest and find {artifact.name}!"
-
-    return "You embark upon a quest"
-
-
-def get_highest_op_quested():
-    highest_op_quested = 0.0001
-    
-    for dominion in Dominion.objects.all():
-        highest_op_quested = max(highest_op_quested, dominion.op_quested_per_acre)
-
-    return highest_op_quested
+    return unit_dict, total_units
 
 
 def cast_spell(spell: Spell, target=None):

@@ -41,13 +41,16 @@ def initialize_resources():
             "name": "sludge",
         },
         {
-            "name": "sinners",
+            "name": "heretics",
         },
         {
             "name": "mithril",
         },
         {
             "name": "rats",
+        },
+        {
+            "name": "blasphemy",
         },
     ]
 
@@ -141,7 +144,7 @@ def initialize_factions():
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"],
         description="""The brothers of the Blessed Order generate faith, which is used to restore the vengeful spirits of warriors who fall defending
         their people. When they're invaded, any accumulated faith is spent to turn defensive casualties into blessed martyrs at the cost of 500 faith
-        per martyr. However, one sinner appears per tick for each 100 acres and each drains 1 faith per tick until the order places their offense
+        per martyr. However, one heretic appears per tick for each 100 acres and each drains 1 faith per tick until the order places their offense
         on hold for 24 ticks to begin an inquisition to root them out."""
     )
 

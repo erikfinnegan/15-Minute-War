@@ -4,18 +4,19 @@ from random import randint
 import random
 import zoneinfo
 
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 
-from maingame.formatters import create_or_add_to_key, get_goblin_ruler, get_sludgeling_name
-from maingame.models import Artifact, Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings, Theme
+from maingame.formatters import create_or_add_to_key, get_sludgeling_name
+from maingame.models import Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings, Theme
 from maingame.tick_processors import do_global_tick
 from maingame.utils.dominion_controls import initialize_dominion, abandon_dominion, delete_dominion
-from maingame.utils.invasion import do_invasion, get_op
-from maingame.utils.utils import do_quest, get_acres_conquered, get_grudge_bonus, get_highest_op_quested, get_random_resource, round_x_to_nearest_y, unlock_discovery, cast_spell, update_available_discoveries
+from maingame.utils.give_stuff import create_resource_for_dominion, give_dominion_unit
+from maingame.utils.invasion import do_gsf_infiltration, do_invasion, get_op_and_dp_left
+from maingame.utils.utils import create_magnum_goopus, create_unit_dict, get_acres_conquered, round_x_to_nearest_y, unlock_discovery, cast_spell, update_available_discoveries
 
 
 def index(request):
@@ -43,6 +44,7 @@ def faction_info(request):
     return render(request, "maingame/faction_info.html", context)
 
 
+@login_required
 def register(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -71,7 +73,6 @@ def submit_register(request):
     return redirect("buildings")
 
 
-@login_required
 def buildings(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -102,7 +103,6 @@ def buildings(request):
     return render(request, "maingame/buildings.html", context)
 
 
-@login_required
 def discoveries(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -176,7 +176,6 @@ def discoveries(request):
     return render(request, "maingame/discoveries.html", context)
 
 
-@login_required
 def submit_discovery(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -218,7 +217,6 @@ def submit_discovery(request):
     return redirect("discoveries")
 
 
-@login_required
 def submit_building(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -283,7 +281,6 @@ def submit_building(request):
     return redirect("buildings")
 
 
-@login_required
 def military(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -297,7 +294,6 @@ def military(request):
     return render(request, "maingame/military.html", context)
 
 
-@login_required
 def submit_training(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -373,10 +369,8 @@ def submit_training(request):
 
                 if "unit_training_time" in dominion.perk_dict:
                     unit_training_time = dominion.perk_dict["unit_training_time"]
-                    print("unit_training_time", unit_training_time)
                     unit.training_dict[unit_training_time] += amount
                 else:
-                    print("else")
                     unit.training_dict["12"] += amount
 
                 unit.save()
@@ -386,7 +380,6 @@ def submit_training(request):
     return redirect("military")
 
 
-@login_required
 def submit_release(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -426,7 +419,6 @@ def submit_release(request):
     return redirect("military")
 
 
-@login_required
 def resources(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -481,7 +473,6 @@ def resources(request):
     return render(request, "maingame/resources.html", context)
 
 
-@login_required
 def trade(request):
     messages.error(request, f"Trading has been disabled.")
     return redirect("buildings")
@@ -559,7 +550,6 @@ def trade(request):
     return redirect("buildings")
 
 
-@login_required
 def upgrades(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -577,7 +567,6 @@ def upgrades(request):
     return render(request, "maingame/upgrades.html", context)
 
 
-@login_required
 def upgrade_building(request, building_id):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -620,7 +609,6 @@ def upgrade_building(request, building_id):
     return redirect("upgrades")
 
 
-@login_required
 def spells(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -638,7 +626,6 @@ def spells(request):
     return render(request, "maingame/spells.html", context)
 
 
-@login_required
 def submit_spell(request, spell_id):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -682,7 +669,6 @@ def submit_spell(request, spell_id):
     return redirect("spells")
 
 
-@login_required
 def run_tick_view(request, quantity):
     if request.user.username != "test":
         messages.error(request, f"Ticky tick tick")
@@ -698,7 +684,6 @@ def run_tick_view(request, quantity):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
-@login_required
 def protection_tick(request, quantity):
     if quantity <= 96:
         try:
@@ -730,8 +715,6 @@ def protection_tick(request, quantity):
             else:
                 return redirect("buildings")
         
-        print("user_settings.tutorial_step", user_settings.tutorial_step)
-        
         if dominion.protection_ticks_remaining - quantity < 12:
             forgot_units = True
 
@@ -759,7 +742,6 @@ def protection_tick(request, quantity):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
-@login_required
 def protection_restart(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -775,7 +757,6 @@ def protection_restart(request):
     return redirect("buildings")
 
 
-@login_required
 def goblin_restart(request, resource):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -797,7 +778,6 @@ def goblin_restart(request, resource):
     return redirect("buildings")
 
 
-@login_required
 def battle_report(request, battle_id):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -828,7 +808,6 @@ def battle_report(request, battle_id):
     return render(request, "maingame/battle_report.html", context)
 
 
-@login_required
 def news(request):
     TIMEZONES_CHOICES = [tz for tz in zoneinfo.available_timezones()]
     try:
@@ -855,7 +834,6 @@ def news(request):
     return render(request, "maingame/news.html", context)
 
 
-@login_required
 def overview(request, dominion_id):
     try:
         my_dominion = Dominion.objects.get(associated_user=request.user)
@@ -913,7 +891,6 @@ def overview(request, dominion_id):
     return render(request, "maingame/overview.html", context)
 
 
-@login_required
 def world(request):
     try:
         my_dominion = Dominion.objects.get(associated_user=request.user)
@@ -932,34 +909,13 @@ def world(request):
                 my_dominion.perk_dict["book_of_grudges"][str(dominion.id)]["pages"] = 0
                 my_dominion.perk_dict["book_of_grudges"][str(dominion.id)]["animosity"] = 0
 
-    offense_multiplier_dict = {}
-    offense_bonus_dict = {}
-    current_defense_dict = {}
     land_conquered_dict = {}
-    artifact_count_dict = {}
-    bonus_steal_op_dict = {}
     lowest_defense_larger_than_you = 99999999999
     lowest_defense_in_game = 99999999999
     largest_with_incoming = my_dominion
 
     for dominion in dominions:
-        if "book_of_grudges" in my_dominion.perk_dict:
-            offense_multiplier_dict[str(dominion.id)] = my_dominion.offense_multiplier + get_grudge_bonus(my_dominion, dominion)
-        else:
-            offense_multiplier_dict[str(dominion.id)] = my_dominion.offense_multiplier
-
-        if "infiltration_dict" in my_dominion.perk_dict and dominion.strid in my_dominion.perk_dict["infiltration_dict"]:
-            offense_bonus_dict[dominion.strid] = my_dominion.perk_dict["infiltration_dict"][dominion.strid]
-        else:
-            offense_bonus_dict[dominion.strid] = 0
-
-        if dominion.protection_ticks_remaining > 0:
-            current_defense_dict[str(dominion.id)] = False
-        else:
-            current_defense_dict[str(dominion.id)] = dominion.defense
-
         land_conquered_dict[str(dominion.id)] = get_acres_conquered(my_dominion, dominion)
-        artifact_count_dict[str(dominion.id)] = dominion.artifact_count
 
         if dominion.acres >= my_dominion.acres and dominion.is_oop:
             lowest_defense_larger_than_you = min(dominion.defense, lowest_defense_larger_than_you)
@@ -970,33 +926,22 @@ def world(request):
         if dominion.acres_with_incoming > largest_with_incoming.acres_with_incoming:
             largest_with_incoming = dominion
 
-    for unit in my_units:
-        if "op_bonus_percent_for_stealing_artifacts" in unit.perk_dict:
-            bonus_steal_op_dict[str(unit.id)] = unit.perk_dict["op_bonus_percent_for_stealing_artifacts"]
-
     context = {
         "dominions": dominions,
         "minimum_defense_left": my_dominion.acres * 5,
         "my_units": my_units,
         "base_offense_multiplier": my_dominion.offense_multiplier,
-        "offense_multiplier_dict": json.dumps(offense_multiplier_dict),
-        "offense_bonus_dict": json.dumps(offense_bonus_dict),
-        "current_defense_dict": json.dumps(current_defense_dict),
         "land_conquered_dict": json.dumps(land_conquered_dict),
-        "artifact_count_dict": json.dumps(artifact_count_dict),
-        "bonus_steal_op_dict": json.dumps(bonus_steal_op_dict),
         "raw_defense": my_dominion.raw_defense,
         "defense_multiplier": my_dominion.defense_multiplier,
         "lowest_defense_larger_than_you": lowest_defense_larger_than_you,
         "lowest_defense_in_game": lowest_defense_in_game,
-        "highest_op_quested": get_highest_op_quested(),
         "largest_with_incoming": largest_with_incoming,
     }
 
     return render(request, "maingame/world.html", context)
 
 
-@login_required
 def options(request):
     try:
         user_settings = UserSettings.objects.get(associated_user=request.user)
@@ -1024,7 +969,6 @@ def options(request):
     return render(request, "maingame/options.html", context)
 
 
-@login_required
 def submit_options(request):
     try:
         user_settings = UserSettings.objects.get(associated_user=request.user)
@@ -1095,7 +1039,6 @@ def submit_options(request):
     return redirect("options")
 
 
-@login_required
 def abandon(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -1117,7 +1060,6 @@ def abandon(request):
     return redirect("overview", dominion.id)
 
 
-@login_required
 def tutorial(request):
     try:
         my_dominion = Dominion.objects.get(associated_user=request.user)
@@ -1131,34 +1073,37 @@ def tutorial(request):
     return render(request, "maingame/tutorial.html", context)
 
 
-@login_required
 def church_affairs(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
-    if dominion.faction_name != "blessed order":
+    if dominion.faction_name not in ["blessed order", "fallen order"]:
         messages.error(request, f"I swear I WILL smite you")
         return redirect("buildings")
     
     if dominion.perk_dict["inquisition_rate"] > 0:
-        sinners_per_tick = -1 * dominion.perk_dict["inquisition_rate"]
+        heretics_per_tick = -1 * dominion.perk_dict["inquisition_rate"]
     else:
-        sinners_per_tick = dominion.get_production("sinners")
+        heretics_per_tick = dominion.get_production("heretics")
 
-    sinners = Resource.objects.get(ruler=dominion, name="sinners").quantity
+    try:
+        heretics = Resource.objects.get(ruler=dominion, name="heretics").quantity
+    except:
+        heretics = 0
 
     context = {
-        "inquisition_ticks_left": dominion.perk_dict["inquisition_ticks_left"],
-        "sinners_per_tick": sinners_per_tick,
-        "sinners": sinners,
+        "fallen_order": "fallen_order" in dominion.perk_dict,
+        "do_true_inquisition": "fallen_order" in dominion.perk_dict and dominion.perk_dict["fallen_order"] == True,
+        "order_cant_attack_ticks_left": dominion.perk_dict["order_cant_attack_ticks_left"],
+        "heretics_per_tick": heretics_per_tick,
+        "heretics": heretics,
     }
     
     return render(request, "maingame/faction_pages/church_affairs.html", context)
 
 
-@login_required
 def submit_inquisition(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -1173,20 +1118,121 @@ def submit_inquisition(request):
         messages.error(request, f"The tick is being processed, try again shortly.")
         return redirect("church_affairs")
     
-    dominion.perk_dict["inquisition_rate"] = math.ceil(Resource.objects.get(ruler=dominion, name="sinners").quantity / 24)
-    dominion.perk_dict["inquisition_ticks_left"] = 24
+    dominion.perk_dict["inquisition_rate"] = math.ceil(Resource.objects.get(ruler=dominion, name="heretics").quantity / 24)
+    dominion.perk_dict["order_cant_attack_ticks_left"] = 24
     dominion.save()
 
     messages.success(request, "The inquisition has begun.")
     return redirect("church_affairs")
 
 
-@login_required
+def submit_true_inquisition(request):
+    try:
+        dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    if Round.objects.first().has_ended:
+        messages.error(request, f"The round has already ended")
+        return redirect("church_affairs")
+    
+    if Round.objects.first().is_ticking:
+        messages.error(request, f"The tick is being processed, try again shortly.")
+        return redirect("church_affairs")
+    
+    if "fallen_order" not in dominion.perk_dict:
+        messages.error(request, f"You have much left to learn before you walk this path.")
+        return redirect("church_affairs")
+    
+    dominion.perk_dict["fallen_order"] = False
+    dominion.faction_name = "fallen order"
+    dominion.save()
+
+    blasphemy = create_resource_for_dominion("blasphemy", dominion)
+    faith = Resource.objects.get(ruler=dominion, name="faith")
+    heretics = Resource.objects.get(ruler=dominion, name="heretics")
+
+    blasphemy.quantity = faith.quantity
+    blasphemy.save()
+    faith.delete()
+    heretics.delete()
+
+    brothers = Unit.objects.get(ruler=dominion, name="Blessed Brother")
+    brothers.dp = -2
+    brothers.perk_dict = {"immortal": True}
+    brothers.upkeep_dict = {}
+    brothers.is_trainable = False
+    brothers.save()
+
+    harbingers = give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Harbinger"))
+    give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Grisly Altar"))
+    give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Chosen One"))
+    martyrs = Unit.objects.get(ruler=dominion, name="Blessed Martyr")
+
+    harbingers.quantity_at_home += martyrs.quantity_total_and_paid
+    harbingers.save()
+    martyrs.delete()
+
+    messages.success(request, "There's no going back now.")
+    return redirect("church_affairs")
+
+
+def submit_unholy_baptism(request):
+    try:
+        dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    if Round.objects.first().has_ended:
+        messages.error(request, f"The round has already ended")
+        return redirect("church_affairs")
+    
+    if Round.objects.first().is_ticking:
+        messages.error(request, f"The tick is being processed, try again shortly.")
+        return redirect("church_affairs")
+    
+    if "fallen_order" not in dominion.perk_dict:
+        messages.error(request, f"You have much left to learn before you walk this path.")
+        return redirect("church_affairs")
+    
+    try:
+        anointed_ones = Unit.objects.get(ruler=dominion, name="Anointed One")
+    except:
+        anointed_ones = give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Anointed One"))
+
+    chosen_ones = Unit.objects.get(ruler=dominion, name="Chosen One")
+    
+    blasphemy = Resource.objects.get(ruler=dominion, name="blasphemy")
+    conversion_max_blasphemy = int(blasphemy.quantity / 500)
+    conversion_max_units = chosen_ones.quantity_at_home
+    conversions = min(conversion_max_blasphemy, conversion_max_units)
+
+    chosen_ones.quantity_at_home -= conversions
+    chosen_ones.save()
+
+    anointed_ones.quantity_at_home += conversions
+    anointed_ones.save()
+
+    blasphemy.quantity -= conversions * 500
+    blasphemy.save()
+
+    dominion.perk_dict["order_cant_attack_ticks_left"] = 13
+    dominion.save()
+
+    messages.success(request, "The baptism has begun.")
+    return redirect("church_affairs")
+
+
 def experimentation(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
+    
+    try:
+        masterpieces_available = dominion.perk_dict["masterpieces_to_create"]
+    except:
+        return redirect("world")
 
     if dominion.faction_name != "sludgeling":
         messages.error(request, f"Go swim in a cesspool")
@@ -1211,12 +1257,13 @@ def experimentation(request):
         "latest_experiment_unit": latest_experiment_unit,
         "experimental_units": experimental_units,
         "has_experimental_units": dominion.perk_dict["custom_units"] > 0,
+        "units": dominion.sorted_units,
+        "masterpieces_available": masterpieces_available,
     }
     
     return render(request, "maingame/faction_pages/experimentation.html", context)
 
 
-@login_required
 def generate_experiment(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -1559,7 +1606,6 @@ def generate_experiment(request):
     return redirect("experimentation")
 
 
-@login_required
 def approve_experiment(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -1623,7 +1669,6 @@ def approve_experiment(request):
     return redirect("experimentation")
 
 
-@login_required
 def terminate_experiment(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -1679,7 +1724,38 @@ def terminate_experiment(request):
     return redirect("experimentation")
 
 
-@login_required
+def submit_masterpiece(request):
+    try:
+        dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    try:
+        masterpieces_available = dominion.perk_dict["masterpieces_to_create"]
+    except:
+        return redirect("world")
+    
+    if masterpieces_available < 1:
+        messages.error(request, f"Don't be greedy")
+        return redirect("experimentation")
+
+    unit_dict, _ = create_unit_dict(request.POST, "combine_")
+
+    is_encore = False
+
+    for unit in Unit.objects.filter(ruler=dominion):
+        if "is_more_glorious" in unit.perk_dict:
+            messages.error(request, f"Don't be greedy")
+            return redirect("experimentation")
+        elif "is_glorious" in unit.perk_dict:
+            is_encore = True
+
+    create_magnum_goopus(dominion, unit_dict, is_encore)
+
+    messages.success(request, f"Behold your masterpiece!")
+    return redirect("military")
+
+
 def other_head(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -1693,7 +1769,6 @@ def other_head(request):
     return render(request, "maingame/faction_pages/other_head.html")
 
 
-@login_required
 def submit_other_head(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -1719,94 +1794,65 @@ def submit_other_head(request):
     return redirect("other_head")
 
 
-@login_required
-def submit_infiltration(request):
+def calculate_op(request):
     try:
         my_dominion = Dominion.objects.get(associated_user=request.user)
     except:
         return redirect("register")
     
-    round = Round.objects.first()
-    dominion_id = request.POST["target_dominion_id"]
-    
-    if round.has_ended:
-        messages.error(request, f"The round has already ended")
-        return redirect("world")
-    
-    if round.is_ticking:
-        messages.error(request, f"The tick is being processed, try again shortly.")
-        return redirect("world")
-    
-    if dominion_id == "0":
-        messages.error(request, f"No target selected")
-        return redirect("world")
-    
-    if "infiltration_dict" not in my_dominion.perk_dict:
-        messages.error(request, f"You can't infiltrate")
-        return redirect("world")
-    
-    dominion = Dominion.objects.get(id=dominion_id)
+    dominion_id = request.GET.get("target_dominion_id")
+    is_infiltration = "do_infiltration" in request.GET
 
-    # Create a dict of the units sent
-    for key, string_amount in request.POST.items():
-        # key is like "send_123" where 123 is the ID of the Unit
-        if "infiltrate_" in key and string_amount != "":
-            unit = Unit.objects.get(id=key[11:])
-            amount = int(string_amount)
-            op_infiltrated = amount * unit.perk_dict["invasion_plan_power"]
+    # Not sure how to get the form-wide hx-trigger to fire on repeated use of the checkbox - it only picks up on the first.
 
-            if "invasion_plan_power" not in unit.perk_dict:
-                messages.error(request, f"You can't send those units to infiltrate.")
-                return redirect("world")
-            elif amount > unit.quantity_at_home:
-                messages.error(request, f"You can't send more units than you have at home.")
-                return redirect("world")
-            elif str(dominion.id) in my_dominion.perk_dict["infiltration_dict"] and op_infiltrated <= my_dominion.perk_dict["infiltration_dict"][dominion.strid]:
-                messages.error(request, f"You've already infiltrated that target for a greater amount.")
-                return redirect("world")
-            else:
-                my_dominion.perk_dict["infiltration_dict"][dominion.strid] = op_infiltrated
-                my_dominion.save()
-                unit.quantity_at_home -= amount
-                unit.returning_dict["12"] += amount
-                unit.save()
+    units_sent_dict, _ = create_unit_dict(request.GET, "send_")
 
-                messages.success(request, f"Successfully infiltrated {dominion.name} for {op_infiltrated} bonus OP.")
+    # total_units_sent = 0
+    # units_sent_dict = {}
     
-    return redirect("world")
+    # # Create a dict of the units sent
+    # for key, string_amount in request.GET.items():
+    #     # key is like "send_123" where 123 is the ID of the Unit
+    #     if "send_" in key and string_amount != "":
+    #         unit = Unit.objects.get(id=key[5:])
+    #         amount = int(string_amount)
 
-
-def eriktest(request):
-    try:
-        my_dominion = Dominion.objects.get(associated_user=request.user)
-    except:
-        return redirect("register")
-    
-    dominion_id = request.GET["target_dominion_id"]
-    total_units_sent = 0
-    units_sent_dict = {}
-    
-    # Create a dict of the units sent
-    for key, string_amount in request.GET.items():
-        # key is like "send_123" where 123 is the ID of the Unit
-        if "send_" in key and string_amount != "":
-            unit = Unit.objects.get(id=key[5:])
-            amount = int(string_amount)
-
-            if amount <= unit.quantity_at_home:
-                total_units_sent += amount
-                units_sent_dict[str(unit.id)] = {
-                    "unit": unit,
-                    "quantity_sent": amount,
-                }
+    #         if amount <= unit.quantity_at_home:
+    #             total_units_sent += amount
+    #             units_sent_dict[str(unit.id)] = {
+    #                 "unit": unit,
+    #                 "quantity_sent": amount,
+    #             }
     
     target_dominion = Dominion.objects.filter(id=dominion_id).first()
-    op_sent = get_op(units_sent_dict, my_dominion, target_dominion)
+    op_sent, dp_left, raw_dp_left = get_op_and_dp_left(units_sent_dict, my_dominion, target_dominion, is_infiltration)
+
+    larger_enemy_has_lower_defense = False
+    left_lowest_defense = True
+
+    for dominion in Dominion.objects.all():
+        if dominion.defense < dp_left and dominion.acres > my_dominion.acres:
+            larger_enemy_has_lower_defense = True
         
-    return HttpResponse(op_sent)
+        if dominion.defense < dp_left:
+            left_lowest_defense = False
+
+    invalid_invasion = False if is_infiltration else (not target_dominion or op_sent < target_dominion.defense or dp_left < my_dominion.acres * 5)
+
+    context = {
+        "op": op_sent,
+        "dp": target_dominion.defense if target_dominion else 0,
+        "dp_left": dp_left,
+        "raw_dp_left": raw_dp_left,
+        "invalid_invasion": invalid_invasion,
+        "larger_enemy_has_lower_defense": larger_enemy_has_lower_defense,
+        "left_lowest_defense": left_lowest_defense,
+        "is_infiltration": is_infiltration,
+    }
+        
+    return render(request, "maingame/components/op_vs_dp.html", context)
 
 
-@login_required
 def submit_invasion(request):
     try:
         my_dominion = Dominion.objects.get(associated_user=request.user)
@@ -1815,6 +1861,7 @@ def submit_invasion(request):
     
     round = Round.objects.first()
     dominion_id = request.POST["target_dominion_id"]
+    this_is_infiltration = "do_infiltration" in request.POST
     
     if round.has_ended:
         messages.error(request, f"The round has already ended")
@@ -1832,47 +1879,28 @@ def submit_invasion(request):
         messages.error(request, f"No target selected")
         return redirect("world")
     
-    total_units_sent = 0
-    units_sent_dict = {}
-
-    # Create a dict of the units sent
-    for key, string_amount in request.POST.items():
-        # key is like "send_123" where 123 is the ID of the Unit
-        if "send_" in key and string_amount != "":
-            unit = Unit.objects.get(id=key[5:])
-            amount = int(string_amount)
-
-            if amount <= unit.quantity_at_home:
-                total_units_sent += amount
-                units_sent_dict[str(unit.id)] = {
-                    "unit": unit,
-                    "quantity_sent": amount,
-                }
-            elif dominion_id == "quest" and "always_dies_on_offense" in unit.perk_dict:
-                messages.error(request, f"You can't send units that always die on offense on quests.")
-                return redirect("world", dominion_id=dominion_id)
-            else:
-                messages.error(request, f"You can't send more units than you have at home.")
-                return redirect("world", dominion_id=dominion_id)
+    units_sent_dict, total_units_sent = create_unit_dict(request.POST, "send_")
 
     if total_units_sent < 1:
         messages.error(request, f"Zero units sent")
         return redirect("world")
-    elif int(request.POST["dpLeftHidden"]) < my_dominion.acres * 5:
-        messages.error(request, f"You must leave at least {my_dominion.acres * 5} defense at home")
+
+    target_dominion = Dominion.objects.get(id=dominion_id)
+    
+    if target_dominion.protection_ticks_remaining > 0 or my_dominion.protection_ticks_remaining > 0 or not round.has_started or round.has_ended or target_dominion.is_abandoned:
+        messages.error(request, f"Illegal invasion")
         return redirect("world")
 
-    if dominion_id == "quest":
-        message = do_quest(units_sent_dict, my_dominion)
-        messages.success(request, message)
+    if this_is_infiltration:
+        success, message = do_gsf_infiltration(units_sent_dict, my_dominion, target_dominion)
+        
+        if success:
+            messages.success(request, message)
+        else:
+            messages.error(request, message)
+
         return redirect("world")
     else:
-        target_dominion = Dominion.objects.get(id=dominion_id)
-        
-        if target_dominion.protection_ticks_remaining > 0 or my_dominion.protection_ticks_remaining > 0 or not round.has_started or round.has_ended or target_dominion.is_abandoned:
-            messages.error(request, f"Illegal invasion")
-            return redirect("world")
-
         battle_id, message = do_invasion(units_sent_dict, my_dominion, target_dominion)
 
         if battle_id == 0:
@@ -1880,3 +1908,5 @@ def submit_invasion(request):
             return redirect("world")
 
         return redirect("battle_report", battle_id=battle_id)
+    
+    return redirect("world")

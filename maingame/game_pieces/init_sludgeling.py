@@ -35,6 +35,14 @@ def initialize_sludgeling_discoveries():
     )
 
     Discovery.objects.create(
+        name="Sludgehoarder",
+        description="What if every new creation is a masterpiece just waiting to be recognized? You shouldn't throw anything away ever! Adds one more extra slot for experimental units.",
+        repeatable=True,
+        required_faction_name="sludgeling",
+        required_discoveries=["Inspiration"],
+    )
+
+    Discovery.objects.create(
         name="Recycling Center",
         description="Increases refund for terminated experiments from 80% to 95%",
         required_discoveries=["More Experiment Slots", "Even More Experiment Slots"],
@@ -64,7 +72,7 @@ def initialize_sludgeling_discoveries():
 
     Discovery.objects.create(
         name="Magnum Goopus",
-        description="""Behold your glorious magnum goopus! At the time this is selected, combine all units at home with a sludge 
+        description="""Behold your glorious magnum goopus! Go to the experiment page and combine any units at home with a sludge 
             cost into a single unit with their combined offense and defense. Your incredible masterpiece requires no gold or sludge
             upkeep and consumes just as much food as all of the units that went into making it. If a unit with perks is included, it also 
             gains those perks. You can still train more of those experimental units afterwards.""",

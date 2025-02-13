@@ -25,132 +25,6 @@
 
     {% include "maingame/components/dominion_list.html" with this_dominion=active_dominion all_dominions=dominions my_view=True %}
 
-    {% comment %} Artifact list {% endcomment %}
-    {% comment %} <details class="accordion card card_colors max-w-md">
-        <summary class="accordion__summary">
-        {% if undiscovered_artifact_count > 0 %}
-        Artifacts
-        {% else %}
-        All artifacts have been found!
-        {% endif %}
-        </summary>
-        <div class="u-flex u-flex-column">
-        {% for dominion in dominions %}
-            {% if dominion.has_artifacts %}
-                <div class="u-flex u-flex-column pt-2">
-                    <span class="font-bold">{{ dominion.name }}</span>
-                    <span>{{ dominion.rulers_display_name }}, {{ dominion.faction_name }}</span>
-                    <div>
-                        {% for artifact in dominion.artifacts_owned %}
-                            <div class="u-flex u-flex-column">
-                                <em>{{ artifact.name }}</em>
-                                <span class="text-sm">{{ artifact.description }}</span>
-                            <div>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endif %}
-        {% endfor %}
-        </div>
-    </details> {% endcomment %}
-
-
-    {% comment %} GSF infiltration toggle {% endcomment %}
-    {% if active_dominion.faction_name == "gnomish special forces" and active_dominion.is_oop and round.has_started %}
-    <div class="max-w-md">
-        <div class="form-ext-control pl-0 w-24 u-center">
-            <label class="form-ext-toggle__label u-flex u-flex-row u-gap-2">
-                <span>Infiltration</span>
-                <div class="form-ext-toggle">
-                    <input name="show_infiltration" id="showInfiltrationToggle" type="checkbox" class="form-ext-input" onclick="toggleInfiltrate()" />
-                    <div class="form-ext-toggle__toggler"><i></i></div>
-                </div>
-            </label>
-        </div>
-    </div>
-    {% endif %}
-
-
-    {% comment %} GSF infiltration form {% endcomment %}
-    <form action="{% url 'submit_infiltration' %}" method="post" class="max-w-md u-overflow-x-scroll md:u-overflow-x-auto u-none" id="infiltrationForm">
-        {% csrf_token %}
-        <div class="u-flex u-flex-row u-center py-2">
-            <select class="max-w-xs" name="target_dominion_id" id="infiltration_target_select_dropdown" oninput="updateInfiltrateOffense();">
-                <option value="0">Select a target to infiltrate</option>
-                {% for dominion in dominions %}
-                {% if dominion != active_dominion and dominion.is_oop and not dominion.is_abandoned %}
-                <option value="{{ dominion.id }}">{{ dominion.name }} ({{ dominion.acres|intcomma }} acres, {{ dominion.acres|percent_of:active_dominion.acres }}%) {{ dominion.defense_short }} DP</option>
-                {% endif %}
-                {% endfor %}
-            </select>
-        </div>
-
-        <div>
-            <span class="u-center">Infiltrations reduce DP against your next attack.</span>
-        </div>
-        <table class="table striped">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>At home</th>
-                    <th class="w-16">Send</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for unit in my_units %}
-                {% if unit.op > 0 and "invasion_plan_power" in unit.perk_dict %}
-                <tr>
-                    {% include "maingame/components/unit_name_row.html" %}
-                    <td class="u-align-middle">{{ unit.quantity_at_home|intcomma }}</td>
-                    <td class="u-align-middle md:u-flex md:u-flex-row">
-                        <input 
-                            name="infiltrate_{{ unit.id }}" 
-                            id="infiltrate_{{ unit.id }}" 
-                            type="number" 
-                            min="0"
-                            max="{{ unit.quantity_at_home }}" 
-                            class="w-12 md:w-16 md:ml-auto md:mr-2 infiltration_unitInput"
-                            oninput="updateInfiltrateOffense()"
-                        >
-                        <button type="button" class="header_colors u-center" onclick="infiltrateMax('{{ unit.id }}', '{{ unit.quantity_at_home }}')">
-                            Max
-                        </button>
-                    </td>
-                </tr>
-                {% endif %}
-                {% endfor %}
-            </tbody>
-        </table>
-        <div>
-            <div id="infiltration_readoutSection" class="u-center u-gap-1">
-                <span>Reduce DP against your next attack by</span>
-                <span id="opToInfiltrate">0</span>
-            </div>
-
-            <div class="u-center u-flex u-gap-1" id="infiltration_dpLeftText">
-                <span>You'll have</span>
-                <span id="infiltration_dpLeft">{{ active_dominion.defense }}</span>
-                <span>defense after infiltrating</span>
-            </div>
-
-            <div class="u-center u-flex u-flex-column">
-                <span id="infiltrateLargerEnemyHasLowerDefense" hidden>✅ an enemy larger than you has lower defense</span>
-                <span id="infiltrateYouHaveTheLowestDefense" hidden>❌ you'll have the lowest DP in the game</span>
-            </div>
-
-            <input type="number" id="infiltration_dpLeftHidden" name="infiltration_dpLeftHidden" hidden value="{{ active_dominion.defense }}" />
-        </div>
-        <div style="display: none;">
-            <input type="submit" name="prevent-enter-submit" onclick="return false;">
-        </div>
-
-        <button class="btn-danger mt-1 w-24 h-6 p-0 u-center" type="submit" id="infiltrateButton" disabled>
-            <span id="infiltrateButtonText" class="font-bold" disabled>Submit</span>
-        </button>
-    </form>
-
-    <div id="search-results">x</div>
-
     {% comment %} Invasion form {% endcomment %}
     <div id="invasionForm">
         {% if not active_dominion.can_attack %}
@@ -164,30 +38,51 @@
             action="{% url 'submit_invasion' %}" 
             method="post" 
             class="max-w-md u-overflow-x-scroll md:u-overflow-x-auto"
-            hx-get="/eriktest"
-            hx-trigger="input changed from:body"
-            hx-target="#search-results"
+            hx-get="/calculate_op"
+            hx-trigger="input changed"
+            hx-target="#readoutSection"
         >
             {% csrf_token %}
+
+            {% if active_dominion.faction_name == "gnomish special forces" %}
+                <div class="max-w-md">
+                    <div class="form-ext-control pl-0 w-24 u-center">
+                        <label class="form-ext-toggle__label u-flex u-flex-row u-gap-2">
+                            <span>Infiltration</span>
+                            <div class="form-ext-toggle">
+                                <input 
+                                    name="do_infiltration" 
+                                    type="checkbox" 
+                                    class="form-ext-input" 
+                                    hx-get="/calculate_op"
+                                    hx-trigger="change"
+                                    hx-target="#readoutSection"
+                                />
+                                <div class="form-ext-toggle__toggler"><i></i></div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            {% endif %}
+
             <div class="u-flex u-flex-row u-center py-2">
-                <select class="max-w-xs" name="target_dominion_id" id="target_select_dropdown" oninput="updateTargetDefense(); updateOffenseToSend();">
-                    {% if undiscovered_artifact_count > 0 %}
-                    <option value="0">Select a target to plan an invasion or quest</option>
-                    <option value="quest">Quest</option>
-                    {% else %}
+                <select 
+                    class="max-w-xs" 
+                    name="target_dominion_id" 
+                    id="target_select_dropdown" 
+                >
                     <option value="0">Select a target to plan an invasion</option>
-                    {% endif %}
                     {% for dominion in dominions %}
-                    {% if dominion != active_dominion and dominion.is_oop and not dominion.is_abandoned %}
-                    <option value="{{ dominion.id }}">{{ dominion.name }} ({{ dominion.acres|intcomma }} acres, {{ dominion.acres|percent_of:active_dominion.acres }}%) {{ dominion.defense_short }} DP</option>
-                    {% endif %}
+                        {% if dominion != active_dominion and dominion.is_oop and not dominion.is_abandoned %}
+                            <option value="{{ dominion.id }}">{{ dominion.name }} ({{ dominion.acres|intcomma }} acres, {{ dominion.acres|percent_of:active_dominion.acres }}%) {{ dominion.defense_short }} DP</option>
+                        {% endif %}
                     {% endfor %}
                 </select>
             </div>
 
             <div>
                 <span class="u-center" id="acre_count_placeholder">Invasions discover extra acres equal to the amount conquered.</span>
-                <div class="u-none u-gap-1 u-center" id="acre_count_sentence" style="visibiliy: hidden;">
+                <div class="u-none u-gap-1 u-center" id="acre_count_sentence">
                     <span>This invasion would conquer</span>
                     <span id="acre_count_number">0</span>
                     <span>acres.</span>
@@ -217,7 +112,6 @@
                                 min="0"
                                 max="{{ unit.quantity_at_home }}" 
                                 class="w-12 md:w-16 md:ml-auto md:mr-2 unitInput"
-                                oninput="updateOffenseToSend()"
                             >
                             <button 
                                 type="button" 
@@ -232,65 +126,49 @@
                     {% endfor %}
                 </tbody>
             </table>
-            <div>
-                <div id="readoutSection" class="u-center u-none u-gap-1 text-red-400">
-                    <span id="opToSend">0</span>
-                    <span>OP</span>
-                    <div id="nonQuestReadoutPart" class="u-flex u-gap-1">
-                        <span>vs.</span>
-                        <span id="dpHere">0</span>
-                        <span> DP</span>
-                    </div>
-                </div>
-
-                <div class="u-center u-flex u-gap-1" id="dpLeftText">
-                    <span>You'll have</span>
-                    <span id="dpLeft">{{ active_dominion.defense }}</span>
-                    <span>defense after attacking</span>
-                </div>
-
-                <div id="stealChanceSection" class="u-center u-none u-gap-1">
-                    <span id="stealChance">0</span>
-                    <span>% chance to steal an artifact (WARNING: this number may be slightly off)</span>
-                </div>
-
-                <div id="questChanceSection" class="u-center u-none u-gap-1">
-                    <span id="questChance">0</span>
-                    <span>% chance to find an artifact</span>
-                </div>
-
-                <div class="u-center u-flex u-flex-column">
-                    <span id="largerEnemyHasLowerDefense" hidden>✅ an enemy larger than you has lower defense</span>
-                    <span id="youHaveTheLowestDefense" hidden>❌ you'll have the lowest DP in the game</span>
-                </div>
-
-                <input type="number" id="dpLeftHidden" name="dpLeftHidden" hidden value="{{ active_dominion.defense }}" />
+            <div id="readoutSection">
+                {% include "maingame/components/op_vs_dp.html" with op=0 dp=0 dp_left=active_dominion.defense invalid_invasion=True %}
             </div>
-            <div style="display: none;">
-                <input type="submit" name="prevent-enter-submit" onclick="return false;">
-            </div>
-
-            {% comment %} <marquee
-                direction="down"
-                width="1000"
-                height="150"
-                behavior="alternate"
-                style="border:solid">
-                <marquee behavior="alternate"><span id="bigscreen-time" class="u-center font-bold">
-                    <button class="btn-danger mt-1 w-24 h-6 p-0 u-center" type="submit">
-                        <span id="invadeButtonText" class="font-bold">Invade</span>
-                    </button></span>
-                </marquee>
-            </marquee> {% endcomment %}
-            {% comment %} <textarea placeholder="Smack talk"></textarea> {% endcomment %}
-
-            <button class="btn-danger mt-1 w-24 h-6 p-0 u-center" type="submit" id="invadeButton" disabled>
-                <span id="invadeButtonText" class="font-bold" disabled>Submit</span>
-            </button>
         </form>
         {% endif %}
     </div>
-
-    {% include "maingame/world_js.html" %}
 </div>
+
+<script>
+    function sendMax(unit_id, quantity_at_home) {
+        let thisInput = document.getElementById("send_" + unit_id);
+
+        if (thisInput.value == quantity_at_home) {
+            thisInput.value = ""
+        } else {
+            thisInput.value = quantity_at_home;
+        }
+
+        thisInput.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+
+    function infiltrateMax(unit_id, quantity_at_home) {
+        let thisInput = document.getElementById("infiltrate_" + unit_id);
+        if (thisInput.value == quantity_at_home) {
+            thisInput.value = ""
+        } else {
+            thisInput.value = quantity_at_home;
+        }
+    }
+</script>
 {% endblock %}
+
+
+{% comment %} <marquee
+    direction="down"
+    width="1000"
+    height="150"
+    behavior="alternate"
+    style="border:solid">
+    <marquee behavior="alternate"><span id="bigscreen-time" class="u-center font-bold">
+        <button class="btn-danger mt-1 w-24 h-6 p-0 u-center" type="submit">
+            <span id="invadeButtonText" class="font-bold">Invade</span>
+        </button></span>
+    </marquee>
+</marquee> {% endcomment %}
+{% comment %} <textarea placeholder="Smack talk"></textarea> {% endcomment %}

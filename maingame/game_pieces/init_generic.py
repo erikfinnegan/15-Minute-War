@@ -7,13 +7,13 @@ def initialize_generic_units():
         op=15,
         dp=0,
         cost_dict={
-            "wood": 5000,
-            "ore": 4000,
+            "wood": 7000,
+            "ore": 1800,
         },
         upkeep_dict={
             "wood": 4,
         },
-        perk_dict={"op_bonus_percent_for_stealing_artifacts": 10},
+        perk_dict={"gets_op_bonus_equal_to_percent_of_target_complacency": 15},
     )
 
     Unit.objects.create(
@@ -24,7 +24,7 @@ def initialize_generic_units():
             "wood": 1900,
         },
         upkeep_dict={
-            "wood": 5,
+            "wood": 4,
         },
     )
 
@@ -42,7 +42,7 @@ def initialize_generic_units():
         op=4,
         dp=3,
         cost_dict={
-            "mana": 1000,
+            "mana": 1200,
             "corpses": 1,
         },
         upkeep_dict={
@@ -79,7 +79,7 @@ def initialize_generic_units():
         op=6,
         dp=4,
         cost_dict={
-            "food": 3500,
+            "food": 3150,
         },
         perk_dict={"returns_in_ticks": 4, "casualty_multiplier": 1.5}
     )
@@ -111,13 +111,9 @@ def initialize_generic_units():
 def initialize_generic_discoveries():
     Discovery.objects.create(
         name="Prosperity",
-        description="Increases gold per acre by 1. Can be taken multiple times.",
+        description="Increases gold per acre by 1.",
+        repeatable=True,
     )
-
-    # Discovery.objects.create(
-    #     name="Raiders",
-    #     description="Increases chance of stealing an artifact by 10%. Can be taken multiple times, stacking additively.",
-    # )
 
     Discovery.objects.create(
         name="Battering Rams",
@@ -144,12 +140,6 @@ def initialize_generic_discoveries():
         associated_unit_name="Zombie",
     )
 
-    # Discovery.objects.create(
-    #     name="Butcher",
-    #     requirement="Zombies",
-    #     description="Learn a terrifying ritual to slaughter a portion of your army for bodies."
-    # )
-
     Discovery.objects.create(
         name="Archmage",
         description="""Gain the allegiance of a terrifyingly powerful sorcerer who consumes half of your stockpiled research each tick, but leaves 
@@ -162,11 +152,6 @@ def initialize_generic_discoveries():
         description="Conjure massive fireballs to support your invasions.",
         associated_unit_name="Fireball",
     )
-
-    # Discovery.objects.create(
-    #     name="Gem Mines",
-    #     description="Construct a new building to mine for precious gems. Produces 8 gems per tick. When trade values are determined, gems get a +30% bonus."
-    # )
 
     Discovery.objects.create(
         name="Gingerbrute Men",
