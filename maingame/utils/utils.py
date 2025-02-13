@@ -224,8 +224,15 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Cremain Knight"))
         case "The Final Heresy":
             dominion.perk_dict["fallen_order"] = True
+            dominion.faction_name = "fallen order"
+
             if "Zealous Persecution" in dominion.available_discoveries:
                 dominion.available_discoveries.remove("Zealous Persecution")
+
+            if "Funerals" in dominion.available_discoveries:
+                dominion.available_discoveries.remove("Funerals")
+
+            dominion.save()
         case "More Experiment Slots":
             dominion.perk_dict["max_custom_units"] = 4
         case "Even More Experiment Slots":

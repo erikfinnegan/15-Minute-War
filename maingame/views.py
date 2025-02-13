@@ -1083,7 +1083,7 @@ def church_affairs(request):
         messages.error(request, f"I swear I WILL smite you")
         return redirect("buildings")
     
-    if dominion.perk_dict["inquisition_rate"] > 0:
+    if "inquisition_rate" in dominion.perk_dict and dominion.perk_dict["inquisition_rate"] > 0:
         heretics_per_tick = -1 * dominion.perk_dict["inquisition_rate"]
     else:
         heretics_per_tick = dominion.get_production("heretics")
@@ -1144,6 +1144,21 @@ def submit_true_inquisition(request):
         messages.error(request, f"You have much left to learn before you walk this path.")
         return redirect("church_affairs")
     
+    if "faith_per_power_died" in dominion.perk_dict:
+        del dominion.perk_dict["faith_per_power_died"]
+
+    if "heretics_per_hundred_acres_per_tick" in dominion.perk_dict:
+        del dominion.perk_dict["heretics_per_hundred_acres_per_tick"]
+
+    if "inquisition_rate" in dominion.perk_dict:
+        del dominion.perk_dict["inquisition_rate"]
+
+    if "martyr_cost" in dominion.perk_dict:
+        del dominion.perk_dict["martyr_cost"]
+
+    if "corruption" in dominion.perk_dict:
+        del dominion.perk_dict["corruption"]
+
     dominion.perk_dict["fallen_order"] = False
     dominion.faction_name = "fallen order"
     dominion.save()

@@ -550,7 +550,7 @@ class Dominion(models.Model):
             except:
                 pass
 
-            if self.perk_dict["order_cant_attack_ticks_left"] == 0:
+            if self.perk_dict["order_cant_attack_ticks_left"] == 0 and self.faction_name == "blessed order":
                 self.perk_dict["inquisition_rate"] = 0
 
         if "corruption" in self.perk_dict and Resource.objects.filter(ruler=self, name="heretics").exists():
