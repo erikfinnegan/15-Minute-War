@@ -754,6 +754,9 @@ def protection_restart(request):
     delete_dominion(dominion)
     initialize_dominion(user=request.user, faction=faction, display_name=display_name)
 
+    if faction.name == "sludgeling":
+        return redirect("experimentation")    
+
     return redirect("buildings")
 
 
