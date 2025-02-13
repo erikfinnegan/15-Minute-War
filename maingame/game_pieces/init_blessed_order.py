@@ -99,8 +99,8 @@ def initialize_blessed_order_units():
     Unit.objects.create(
         name="Grisly Altar",
         op=0,
-        dp=0,
-        perk_dict={"blasphemy_per_tick": 300, "zealots_chosen_per_tick": 1},
+        dp=2000,
+        perk_dict={"immortal": True, "blasphemy_per_tick": 300, "zealots_chosen_per_tick": 1},
         is_trainable=False,
     )
 
