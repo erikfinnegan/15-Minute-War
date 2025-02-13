@@ -877,7 +877,7 @@ class Unit(models.Model):
         if "sacrifices_brothers_chance_percent" in self.perk_dict and "sacrifices_brothers_amount" in self.perk_dict:
             sacrifices_brothers_chance_percent = self.perk_dict["sacrifices_brothers_chance_percent"]
             sacrifices_brothers_amount = self.perk_dict["sacrifices_brothers_amount"]
-            perk_text += f"Every {sacrifices_brothers_amount} has a {sacrifices_brothers_chance_percent}% chance per tick to sacrifice up to {sacrifices_brothers_amount} Blessed Brothers to create one Grisly Altar. "
+            perk_text += f"Every {sacrifices_brothers_amount} (rounding up) has a {sacrifices_brothers_chance_percent}% chance per tick to sacrifice up to {sacrifices_brothers_amount} Blessed Brothers to create one Grisly Altar. "
 
         if "zealots_chosen_per_tick" in self.perk_dict:
             zealots_chosen_per_tick = self.perk_dict["zealots_chosen_per_tick"]
