@@ -1682,6 +1682,10 @@ def approve_experiment(request):
 
     unit_data = dominion.perk_dict["latest_experiment"]
 
+    if unit_data["name"] == "":
+        messages.error(request, f"Go swim in a cesspool")
+        return redirect("buildings")
+
     timer_template = {
         "1": 0,
         "2": 0,
