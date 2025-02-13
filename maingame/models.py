@@ -131,8 +131,8 @@ class Dominion(models.Model):
     is_starving = models.BooleanField(default=False)
     has_unread_events = models.BooleanField(default=False)
     protection_ticks_remaining = models.IntegerField(default=72)
-    complacency = models.IntegerField(default=0)
-    determination = models.IntegerField(default=0)
+    complacency = models.FloatField(default=0)
+    determination = models.FloatField(default=0)
     has_tick_units = models.BooleanField(default=False)
     is_abandoned = models.BooleanField(default=False)
     acres = models.IntegerField(default=500)
@@ -672,6 +672,9 @@ class Dominion(models.Model):
             self.complacency += 1
             self.determination += 1
 
+            if "bonus_determination" in self.perk_dict:
+                self.determination += self.perk_dict["bonus_determination"]
+
         self.save()
 
 
@@ -873,12 +876,6 @@ class Unit(models.Model):
             else:
                 perk_text += f"Takes {multiplier}x as many casualties. "
 
-        if "converts_apostles" in self.perk_dict:
-            perk_text += "Converts one Stoneshield to a Deep Apostle every tick. "
-
-        if "cm_dug_per_tick" in self.perk_dict:
-            perk_text += "Digs 1 torchbright per tick. "
-
         if "returns_in_ticks" in self.perk_dict:
             ticks_to_return = self.perk_dict["returns_in_ticks"]
             perk_text += f"Returns from battle in {ticks_to_return} tick{'s' if ticks_to_return > 1 else ''}. "
@@ -886,7 +883,30 @@ class Unit(models.Model):
         if "percent_attrition" in self.perk_dict:
             attrition_percent = self.perk_dict["percent_attrition"]
             perk_text += f"{attrition_percent}% of these die every tick, rounding up. "
-        
+
+        if "converts_apostles" in self.perk_dict:
+            perk_text += "Converts one Stoneshield to a Deep Apostle every tick. "
+
+        if "cm_dug_per_tick" in self.perk_dict:
+            perk_text += "Digs 1 torchbright per tick. "
+
+        if "sacrifices_brothers_chance_percent" in self.perk_dict and "sacrifices_brothers_amount" in self.perk_dict:
+            sacrifices_brothers_chance_percent = self.perk_dict["sacrifices_brothers_chance_percent"]
+            sacrifices_brothers_amount = self.perk_dict["sacrifices_brothers_amount"]
+            perk_text += f"{sacrifices_brothers_chance_percent}% chance per tick to sacrifice up to {sacrifices_brothers_amount} Blessed Brothers to create one Grisly Altar. "
+
+        if "zealots_chosen_per_tick" in self.perk_dict:
+            zealots_chosen_per_tick = self.perk_dict["zealots_chosen_per_tick"]
+            perk_text += f"Elevates {zealots_chosen_per_tick} zealot per tick to a Chosen One. "
+
+        if "percent_becomes_500_blasphemy" in self.perk_dict:
+            percent_becomes_500_blasphemy = self.perk_dict["percent_becomes_500_blasphemy"]
+            perk_text += f"{percent_becomes_500_blasphemy}% attrition into 500 blasphemy per tick. "
+
+        if "gets_op_bonus_equal_to_percent_of_target_complacency" in self.perk_dict:
+            gets_op_bonus_equal_to_percent_of_target_complacency = self.perk_dict["gets_op_bonus_equal_to_percent_of_target_complacency"]
+            perk_text += f"Increases OP by {gets_op_bonus_equal_to_percent_of_target_complacency}% of the target's complacency penalty. "
+
         # if "percent_becomes_rats" in self.perk_dict:
         #     becomes_rats_percent = self.perk_dict["percent_becomes_rats"]
         #     perk_text += f"{becomes_rats_percent}% of these return to normal rats every tick, rounding up. "
@@ -906,26 +926,18 @@ class Unit(models.Model):
             rats_trained_per_tick = self.perk_dict["rats_trained_per_tick"]
             perk_text += f"Attempts to train {rats_trained_per_tick} Trained Rat per tick, paying costs as normal. "
         
-        if "op_bonus_percent_for_stealing_artifacts" in self.perk_dict:
-            op_bonus_percent_for_stealing_artifacts = self.perk_dict["op_bonus_percent_for_stealing_artifacts"]
-            perk_text += f"Offense counts as {op_bonus_percent_for_stealing_artifacts}% higher when calculating artifact steal chance. "
+        # if "op_bonus_percent_for_stealing_artifacts" in self.perk_dict:
+        #     op_bonus_percent_for_stealing_artifacts = self.perk_dict["op_bonus_percent_for_stealing_artifacts"]
+        #     perk_text += f"Offense counts as {op_bonus_percent_for_stealing_artifacts}% higher when calculating artifact steal chance. "
 
         if "invasion_plan_power" in self.perk_dict:
             invasion_plan_power = self.perk_dict["invasion_plan_power"]
             perk_text += f"Can be sent to infiltrate a target, increasing your offense on your next attack against them by {invasion_plan_power}. "
 
-        if "sacrifices_brothers_chance_percent" in self.perk_dict and "sacrifices_brothers_amount" in self.perk_dict:
-            sacrifices_brothers_chance_percent = self.perk_dict["sacrifices_brothers_chance_percent"]
-            sacrifices_brothers_amount = self.perk_dict["sacrifices_brothers_amount"]
-            perk_text += f"{sacrifices_brothers_chance_percent}% chance per tick to sacrifice up to {sacrifices_brothers_amount} Blessed Brothers to create one Grisly Altar. "
-
-        if "zealots_chosen_per_tick" in self.perk_dict:
-            zealots_chosen_per_tick = self.perk_dict["zealots_chosen_per_tick"]
-            perk_text += f"Elevates {zealots_chosen_per_tick} zealot per tick to a Chosen One. "
-
-        if "percent_becomes_500_blasphemy" in self.perk_dict:
-            percent_becomes_500_blasphemy = self.perk_dict["percent_becomes_500_blasphemy"]
-            perk_text += f"{percent_becomes_500_blasphemy}% attrition into 500 blasphemy per tick. "
+        if "rats_launched" in self.perk_dict and "op_if_rats_launched" in self.perk_dict:
+            rats_launched = self.perk_dict["rats_launched"]
+            op_if_rats_launched = self.perk_dict["op_if_rats_launched"]
+            perk_text += f"When invading, each launches {rats_launched} rats for +{op_if_rats_launched} OP. "
 
         return perk_text
     

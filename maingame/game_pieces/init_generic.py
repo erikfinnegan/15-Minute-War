@@ -7,13 +7,13 @@ def initialize_generic_units():
         op=15,
         dp=0,
         cost_dict={
-            "wood": 5000,
-            "ore": 4000,
+            "wood": 7000,
+            "ore": 1800,
         },
         upkeep_dict={
             "wood": 4,
         },
-        perk_dict={"op_bonus_percent_for_stealing_artifacts": 10},
+        perk_dict={"gets_op_bonus_equal_to_percent_of_target_complacency": 15},
     )
 
     Unit.objects.create(
@@ -24,7 +24,7 @@ def initialize_generic_units():
             "wood": 1900,
         },
         upkeep_dict={
-            "wood": 5,
+            "wood": 4,
         },
     )
 
@@ -42,7 +42,7 @@ def initialize_generic_units():
         op=4,
         dp=3,
         cost_dict={
-            "mana": 1000,
+            "mana": 1200,
             "corpses": 1,
         },
         upkeep_dict={
@@ -79,7 +79,7 @@ def initialize_generic_units():
         op=6,
         dp=4,
         cost_dict={
-            "food": 3500,
+            "food": 3150,
         },
         perk_dict={"returns_in_ticks": 4, "casualty_multiplier": 1.5}
     )

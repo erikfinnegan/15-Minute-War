@@ -67,7 +67,7 @@ def initialize_dwarf_units():
         op=12,
         dp=8,
         cost_dict={
-            "gold": 2000,
+            "gold": 2200,
             "mithril": 2500,
         },
         upkeep_dict={
@@ -103,20 +103,20 @@ def initialize_dwarf_units():
         perk_dict={"casualty_multiplier": 0.5},
     )
 
-    # Unit.objects.create(
-    #     name="Doom Prospector",
-    #     op=14,
-    #     dp=0,
-    #     cost_dict={
-    #         "gold": 1200,
-    #         "ore": 800,
-    #     },
-    #     upkeep_dict={
-    #         "gold": 3,
-    #         "food": 1,
-    #     },
-    #     perk_dict={"casualty_multiplier": 3},
-    # )
+    Unit.objects.create(
+        name="Doom Prospector",
+        op=14,
+        dp=0,
+        cost_dict={
+            "gold": 2300,
+            "ore": 800,
+        },
+        upkeep_dict={
+            "gold": 3,
+            "food": 1,
+        },
+        perk_dict={"casualty_multiplier": 3},
+    )
 
 
 def initialize_dwarf_discoveries():

@@ -116,13 +116,23 @@ def get_op_and_dp_left(units_sent_dict, attacker: Dominion, defender: Dominion=N
 
     for unit_details_dict in units_sent_dict.values():
         unit = get_unit_from_dict(unit_details_dict)
+        modified_unit_op = unit.op
         quantity_sent = unit_details_dict["quantity_sent"]
+
+        if "gets_op_bonus_equal_to_percent_of_target_complacency" in unit.perk_dict:
+            op_multiplier = (defender.complacency_penalty_percent / 100) * (unit.perk_dict["gets_op_bonus_equal_to_percent_of_target_complacency"] / 100)
+            modified_unit_op *= 1 + op_multiplier
+
+        if "rats_launched" in unit.perk_dict and "op_if_rats_launched" in unit.perk_dict:
+            rats = Resource.objects.get(ruler=attacker, name="rats")
+            max_launches = min(quantity_sent, int(rats.quantity / unit.perk_dict["rats_launched"]))
+            offense_sent = max_launches * unit.perk_dict["op_if_rats_launched"]
 
         if is_infiltration:
             if "invasion_plan_power" in unit.perk_dict:
                 offense_sent += unit.perk_dict["invasion_plan_power"] * quantity_sent
         else:
-            offense_sent += unit.op * quantity_sent
+            offense_sent += modified_unit_op * quantity_sent
 
         raw_defense -= unit.dp * quantity_sent
 
@@ -273,6 +283,12 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion):
         else:
             slowest_unit_return_ticks = 12
 
+        if "rats_launched" in unit.perk_dict and "op_if_rats_launched" in unit.perk_dict:
+            rats = Resource.objects.get(ruler=attacker, name="rats")
+            max_launches = min(quantity_sent, int(rats.quantity / unit.perk_dict["rats_launched"]))
+            rats.quantity -= max_launches * unit.perk_dict["rats_launched"]
+            rats.save()
+
     defender.complacency = 0
     defender.failed_defenses += 1
     defender.acres -= acres_conquered
@@ -336,11 +352,6 @@ def do_gsf_infiltration(units_sent_dict, attacker: Dominion, defender: Dominion)
         
 
 def do_invasion_old(units_sent_dict, my_dominion: Dominion, target_dominion: Dominion):
-    print()
-    print()
-    print(units_sent_dict)
-    print()
-    print()
     round = Round.objects.first()
     total_units_sent = 0
     defense_snapshot = target_dominion.defense
@@ -770,5 +781,5 @@ def do_forced_attack(dominion: Dominion, use_always_dies_units=False):
                 if this_unit_dict["quantity_sent"] > 0:
                     units_sent_dict[str(offensive_unit.id)] = this_unit_dict
                     
-            do_invasion(units_sent_dict, my_dominion=dominion, target_dominion=other_dominion)
+            do_invasion(units_sent_dict, attacker=dominion, defender=other_dominion)
             hasnt_attacked_yet = False

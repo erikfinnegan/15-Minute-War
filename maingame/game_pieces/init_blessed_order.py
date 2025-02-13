@@ -39,8 +39,8 @@ def initialize_blessed_order_units():
     Unit.objects.create(
         # Cost is determined by dominion_controls.py 
         name="Blessed Martyr",
-        op=5,
-        dp=0,
+        op=4,
+        dp=3,
         upkeep_dict={
             "faith": 1,
         },
@@ -70,9 +70,14 @@ def initialize_blessed_order_units():
         name="Penitent Engine",
         op=19,
         dp=7,
+        # cost_dict={
+        #     "gold": 2250,
+        #     "ore": 4600,
+        #     "heretics": 1,
+        # },
         cost_dict={
-            "gold": 2250,
-            "ore": 4600,
+            "gold": 2100,
+            "ore": 4500,
             "heretics": 1,
         },
         upkeep_dict={

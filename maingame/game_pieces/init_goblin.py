@@ -27,9 +27,6 @@ def initialize_goblin_units():
             "food": 100,
             "rats": 1,
         },
-        upkeep_dict={
-            "food": 0.1,
-        },
         faction=goblin,
         perk_dict={"percent_attrition": 2},
     )
@@ -96,6 +93,21 @@ def initialize_goblin_units():
         perk_dict={"rats_trained_per_tick": 1},
     )
 
+    Unit.objects.create(
+        name="Ratapult",
+        op=1,
+        dp=0,
+        cost_dict={
+            "ore": 30000,
+            "wood": 30000,
+        },
+        upkeep_dict={
+            "wood": 4,
+            "rats": 1,
+        },
+        perk_dict={"immortal": True, "rats_launched": 100, "op_if_rats_launched": 100},
+    )
+
 
 def initialize_goblin_discoveries():
     Discovery.objects.create(
@@ -117,4 +129,11 @@ def initialize_goblin_discoveries():
         description="Some goblins attempt the Sisyphean task of maintaining a standing army of trained rats.",
         required_faction_name="goblin",
         associated_unit_name="Rat Trainer",
+    )
+
+    Discovery.objects.create(
+        name="Ratapults",
+        description="Exactly what you're imagining.",
+        required_faction_name="goblin",
+        associated_unit_name="Ratapult",
     )

@@ -252,12 +252,17 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Charcutier"))
         case "Rat Trainers":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Rat Trainer"))
+        case "Ratapults":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Ratapult"))
         case "Bestow Biclopean Ambition":
             give_dominion_spell(dominion, Spell.objects.get(ruler=None, name="Bestow Biclopean Ambition"))
         case "Triclops":
             dominion.perk_dict["percent_chance_of_instant_return"] = 10
-        case "Safecrackers":
-            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Safecracker"))
+        case "Gatesmashers":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Gatesmasher"))
+        case "Growing Determination":
+            if "bonus_determination" in dominion.perk_dict:
+                dominion.perk_dict["bonus_determination"] += 0.1
         case "Juggernaut Tanks":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Juggernaut Tank"))
         case "Inferno Mines":
