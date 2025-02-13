@@ -748,6 +748,10 @@ def protection_restart(request):
     except:
         return redirect("register")
     
+    if dominion.is_oop:
+        messages.error(request, f"I just saved your life.")
+        return redirect("world")
+    
     display_name = dominion.name
     faction = Faction.objects.get(name=dominion.faction_name)
 
