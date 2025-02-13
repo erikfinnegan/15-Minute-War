@@ -175,8 +175,6 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Bastion"))
         case "Zombies":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Zombie"))
-        # case "Butcher":
-        #     print("Implement spells, silly")
         case "Archmage":
             archmage = give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Archmage"))
             archmage.quantity_at_home = 1

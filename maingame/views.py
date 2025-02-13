@@ -369,10 +369,8 @@ def submit_training(request):
 
                 if "unit_training_time" in dominion.perk_dict:
                     unit_training_time = dominion.perk_dict["unit_training_time"]
-                    print("unit_training_time", unit_training_time)
                     unit.training_dict[unit_training_time] += amount
                 else:
-                    print("else")
                     unit.training_dict["12"] += amount
 
                 unit.save()
@@ -716,8 +714,6 @@ def protection_tick(request, quantity):
                 return redirect("discoveries")
             else:
                 return redirect("buildings")
-        
-        print("user_settings.tutorial_step", user_settings.tutorial_step)
         
         if dominion.protection_ticks_remaining - quantity < 12:
             forgot_units = True
