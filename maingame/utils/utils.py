@@ -232,6 +232,15 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             if "Funerals" in dominion.available_discoveries:
                 dominion.available_discoveries.remove("Funerals")
 
+            if "Penitent Engines" in dominion.available_discoveries:
+                dominion.available_discoveries.remove("Penitent Engines")
+
+            if "Cathedral Titans" in dominion.available_discoveries:
+                dominion.available_discoveries.remove("Cathedral Titans")
+
+            if "Living Saints" in dominion.available_discoveries:
+                dominion.available_discoveries.remove("Living Saints")
+
             dominion.save()
         case "More Experiment Slots":
             dominion.perk_dict["max_custom_units"] = 4

@@ -157,12 +157,12 @@ def initialize_dwarf_discoveries():
         required_discoveries=["Mithril"],
     )
 
-    # Discovery.objects.create(
-    #     name="Doom Prospectors",
-    #     description='The dwarf language lacks a distinction between "seeking" and "prospecting". Doom Prospectors are dwarves whose grudges against themselves have grown too heavy to bear and prospect for glorious death in battle.',
-    #     required_faction_name="dwarf",
-    #     associated_unit_name="Doom Prospector",
-    # )
+    Discovery.objects.create(
+        name="Doom Prospectors",
+        description='The dwarf language lacks a distinction between "seeking" and "prospecting". Doom Prospectors are dwarves whose grudges against themselves have grown too heavy to bear and prospect for glorious death in battle.',
+        required_faction_name="dwarf",
+        associated_unit_name="Doom Prospector",
+    )
 
     Discovery.objects.create(
         name="Always Be Digging",

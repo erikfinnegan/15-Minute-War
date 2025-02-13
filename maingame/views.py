@@ -1163,6 +1163,34 @@ def submit_true_inquisition(request):
     dominion.faction_name = "fallen order"
     dominion.save()
 
+    if "Penitent Engines" in dominion.learned_discoveries:
+        engines = Unit.objects.get(ruler=dominion, name="Penitent Engine")
+        del engines.upkeep_dict["faith"]
+        engines.upkeep_dict["blasphemy"] = 1
+        engines.perk_dict["casualty_multiplier"] = 0.25
+        engines.name = "Demon Engine"
+        engines.cost_dict = {}
+        engines.is_trainable = False
+        engines.save()
+
+    if "Cathedral Titans" in dominion.learned_discoveries:
+        titans = Unit.objects.get(ruler=dominion, name="Cathedral Titan")
+        del titans.upkeep_dict["faith"]
+        titans.upkeep_dict["gold"] = 20
+        titans.name = "Oubliette Titan"
+        del titans.perk_dict["casualty_multiplier"]
+        titans.perk_dict["immortal"] = True
+        titans.perk_dict["blasphemy_per_tick"] = 10
+        titans.save()
+
+    if "Living Saints" in dominion.learned_discoveries:
+        saints = Unit.objects.get(ruler=dominion, name="Living Saint")
+        del saints.upkeep_dict["faith"]
+        saints.upkeep_dict["blasphemy"] = 1
+        saints.name="Great Heretic"
+        saints.perk_dict["immortal"] = True
+        saints.save()
+
     blasphemy = create_resource_for_dominion("blasphemy", dominion)
     faith = Resource.objects.get(ruler=dominion, name="faith")
     heretics = Resource.objects.get(ruler=dominion, name="heretics")
