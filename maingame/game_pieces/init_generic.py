@@ -115,11 +115,6 @@ def initialize_generic_discoveries():
         repeatable=True,
     )
 
-    # Discovery.objects.create(
-    #     name="Raiders",
-    #     description="Increases chance of stealing an artifact by 10%. Can be taken multiple times, stacking additively.",
-    # )
-
     Discovery.objects.create(
         name="Battering Rams",
         description="Allows for the creation of a powerful offensive unit costing wood and ore.",
@@ -145,12 +140,6 @@ def initialize_generic_discoveries():
         associated_unit_name="Zombie",
     )
 
-    # Discovery.objects.create(
-    #     name="Butcher",
-    #     requirement="Zombies",
-    #     description="Learn a terrifying ritual to slaughter a portion of your army for bodies."
-    # )
-
     Discovery.objects.create(
         name="Archmage",
         description="""Gain the allegiance of a terrifyingly powerful sorcerer who consumes half of your stockpiled research each tick, but leaves 
@@ -163,11 +152,6 @@ def initialize_generic_discoveries():
         description="Conjure massive fireballs to support your invasions.",
         associated_unit_name="Fireball",
     )
-
-    # Discovery.objects.create(
-    #     name="Gem Mines",
-    #     description="Construct a new building to mine for precious gems. Produces 8 gems per tick. When trade values are determined, gems get a +30% bonus."
-    # )
 
     Discovery.objects.create(
         name="Gingerbrute Men",

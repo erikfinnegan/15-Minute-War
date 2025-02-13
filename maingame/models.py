@@ -140,7 +140,6 @@ class Dominion(models.Model):
     successful_invasions = models.IntegerField(default=0)
     failed_defenses = models.IntegerField(default=0)
     highest_raw_op_sent = models.IntegerField(default=0, null=True, blank=True)
-    op_quested = models.IntegerField(default=0)
 
     primary_resource_name = models.CharField(max_length=50, null=True, blank=True)
     primary_resource_per_acre = models.IntegerField(default=0)
@@ -259,14 +258,6 @@ class Dominion(models.Model):
         return shorten_number(self.highest_raw_op_sent)
     
     @property
-    def op_quested_short(self):
-        return shorten_number(self.op_quested)
-    
-    @property
-    def op_quested_per_acre(self):
-        return int(self.op_quested / self.acres)
-
-    @property
     def artifact_count(self):
         return Artifact.objects.filter(ruler=self).count()
 
@@ -277,13 +268,6 @@ class Dominion(models.Model):
     @property
     def artifacts_owned(self):
         return Artifact.objects.filter(ruler=self)
-
-    @property
-    def artifact_steal_chance_multiplier(self):
-        if "percent_bonus_to_steal" in self.perk_dict:
-            return 1 + (self.perk_dict["percent_bonus_to_steal"] / 100)
-        else:
-            return 1
 
     @property
     def juicy_target_threshold(self):
@@ -914,9 +898,9 @@ class Unit(models.Model):
         if "random_allies_killed_on_invasion" in self.perk_dict:
             random_allies_killed = self.perk_dict["random_allies_killed_on_invasion"]
             if random_allies_killed == 0.5:
-                perk_text += f"When invading (or questing), half of these each kill one randomly selected own unit on the same invasion. "
+                perk_text += f"When invading, half of these each kill one randomly selected own unit on the same invasion. "
             else:
-                perk_text += f"When invading (or questing), each kills {random_allies_killed} randomly selected own unit{'s' if random_allies_killed > 1 else ''} on the same invasion. "
+                perk_text += f"When invading, each kills {random_allies_killed} randomly selected own unit{'s' if random_allies_killed > 1 else ''} on the same invasion. "
 
         if "food_from_rat" in self.perk_dict:
             food_from_rat = self.perk_dict["food_from_rat"]
@@ -926,10 +910,6 @@ class Unit(models.Model):
             rats_trained_per_tick = self.perk_dict["rats_trained_per_tick"]
             perk_text += f"Attempts to train {rats_trained_per_tick} Trained Rat per tick, paying costs as normal. "
         
-        # if "op_bonus_percent_for_stealing_artifacts" in self.perk_dict:
-        #     op_bonus_percent_for_stealing_artifacts = self.perk_dict["op_bonus_percent_for_stealing_artifacts"]
-        #     perk_text += f"Offense counts as {op_bonus_percent_for_stealing_artifacts}% higher when calculating artifact steal chance. "
-
         if "invasion_plan_power" in self.perk_dict:
             invasion_plan_power = self.perk_dict["invasion_plan_power"]
             perk_text += f"Can be sent to infiltrate a target, increasing your offense on your next attack against them by {invasion_plan_power}. "
@@ -1049,8 +1029,6 @@ class Event(models.Model):
         elif self.reference_type == "abandon":
             return self.message_override
         elif self.reference_type == "artifact":
-            return self.message_override
-        elif self.reference_type == "quest":
             return self.message_override
         
         return "Unknown event type"

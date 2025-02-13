@@ -160,12 +160,6 @@ def unlock_discovery(dominion: Dominion, discovery_name):
     match discovery_name:
         case "Prosperity":
             dominion.primary_resource_per_acre += 1
-        case "Raiders":
-            if "percent_bonus_to_steal" in dominion.perk_dict:
-                dominion.perk_dict["percent_bonus_to_steal"] += 10
-            else:
-                dominion.perk_dict["percent_bonus_to_steal"] = 10
-            
             dominion.save()
         case "Battering Rams":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Battering Ram"))
@@ -291,126 +285,6 @@ def get_acres_conquered(attacker: Dominion, target: Dominion):
         multiplier = 1 + (0.8 * bonus_percent)
 
     return int(base * multiplier)
-
-
-def do_quest(units_sent_dict, my_dominion: Dominion):
-    total_units_sent = 0
-
-    for unit_id, unit_dict in units_sent_dict.items():
-        unit = Unit.objects.get(id=unit_id)
-        total_units_sent += unit_dict["quantity_sent"]
-        unit.quantity_at_home -= unit_dict["quantity_sent"]
-        unit.save()
-
-    offense_sent = 0
-
-    # Calculate OP
-    for unit_details_dict in units_sent_dict.values():
-        unit = unit_details_dict["unit"]
-        quantity_sent = unit_details_dict["quantity_sent"]
-        offense_sent += unit.op * quantity_sent
-
-    my_dominion.highest_raw_op_sent = max(offense_sent, my_dominion.highest_raw_op_sent)
-
-    offense_sent *= my_dominion.offense_multiplier
-
-    my_dominion.op_quested += offense_sent
-    my_dominion.save()
-
-    # battle_units_sent_dict = {}
-    # battle_units_defending_dict = {}
-
-    # for unit_id, data in units_sent_dict.items():
-    #     battle_units_sent_dict[unit_id] = data["quantity_sent"]
-
-    # for unit in Unit.objects.filter(ruler=target_dominion):
-    #     if unit.quantity_at_home > 0 and unit.dp > 0:
-    #         battle_units_defending_dict[str(unit.id)] = unit.quantity_at_home
-    
-    # battle = Battle.objects.create(
-    #     attacker=my_dominion,
-    #     defender=target_dominion,
-    #     winner=my_dominion if attacker_victory else target_dominion,
-    #     op=offense_sent,
-    #     dp=target_dominion.defense,
-    #     units_sent_dict=battle_units_sent_dict,
-    #     units_defending_dict=battle_units_defending_dict,
-    # )
-
-    event = Event.objects.create(
-        reference_type="quest", 
-        category="Quest",
-        message_override=f"{my_dominion} went on a quest with {int(offense_sent):2,} OP"
-    )
-    
-    event.notified_dominions.add(my_dominion)
-
-    # Handle goblin Wreckin Ballers
-    if "Wreckin Ballers" in my_dominion.learned_discoveries:
-        for unit_details_dict in units_sent_dict.values():
-            unit = unit_details_dict["unit"]
-            quantity_sent = unit_details_dict["quantity_sent"]
-
-            # RIght now it assumes a value of 0.5. Please don't make me figure out how to handle something greater than 1.
-            if "random_allies_killed_on_invasion" in unit.perk_dict:
-                # When in doubt, they kill themselves, just to help avoid exceptions
-                victim = unit
-                victim_count = 0
-
-                for _ in range(int(quantity_sent / 2)):
-                    roll = randint(1, total_units_sent - victim_count)
-
-                    for victim_details_dict in units_sent_dict.values():
-                        if roll <= victim_details_dict["quantity_sent"]:
-                            victim = victim_details_dict
-                            break
-                        else:
-                            roll -= victim_details_dict["quantity_sent"]
-
-                    victim_count += 1
-                    victim["quantity_sent"] -= 1
-
-    # Apply offensive casualties and return the survivors home
-    for unit_details_dict in units_sent_dict.values():
-        unit = Unit.objects.get(ruler=my_dominion, name=unit_details_dict["unit"].name)
-        quantity_sent = unit_details_dict["quantity_sent"]
-        unit.returning_dict["12"] += quantity_sent
-        unit.save()
-
-    # chance for an artifact if you're highest quester
-    artifact_chance_percent = 20
-    base_artifact_chance = artifact_chance_percent * 100
-    your_quest_ratio = (my_dominion.op_quested_per_acre) / get_highest_op_quested()
-    your_artifact_chance = max(100, base_artifact_chance * your_quest_ratio)
-    roll = randint(1, 10000)
-
-    my_dominion.incoming_acres_dict["12"] += 1
-    my_dominion.save()
-
-    if your_artifact_chance >= roll and Artifact.objects.filter(ruler=None).count() > 0:
-        artifact = give_random_unowned_artifact_to_dominion(my_dominion)
-        artifact_event = Event.objects.create(
-            reference_id=artifact.id, 
-            reference_type="artifact", 
-            category="Artifact Discovered",
-            message_override=f"{my_dominion} found {artifact.name}"
-        )
-        artifact_event.notified_dominions.add(my_dominion)
-        artifact_event.save()
-        my_dominion.op_quested = 0
-        my_dominion.save()
-        return f"You embark upon a quest and find {artifact.name}!"
-
-    return "You embark upon a quest"
-
-
-def get_highest_op_quested():
-    highest_op_quested = 0.0001
-    
-    for dominion in Dominion.objects.all():
-        highest_op_quested = max(highest_op_quested, dominion.op_quested_per_acre)
-
-    return highest_op_quested
 
 
 def create_unit_dict(request_data, id_prefix):

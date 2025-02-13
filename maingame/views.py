@@ -16,7 +16,7 @@ from maingame.tick_processors import do_global_tick
 from maingame.utils.dominion_controls import initialize_dominion, abandon_dominion, delete_dominion
 from maingame.utils.give_stuff import create_resource_for_dominion, give_dominion_unit
 from maingame.utils.invasion import do_gsf_infiltration, do_invasion, get_op_and_dp_left
-from maingame.utils.utils import create_magnum_goopus, create_unit_dict, get_acres_conquered, get_grudge_bonus, get_highest_op_quested, round_x_to_nearest_y, unlock_discovery, cast_spell, update_available_discoveries
+from maingame.utils.utils import create_magnum_goopus, create_unit_dict, get_acres_conquered, round_x_to_nearest_y, unlock_discovery, cast_spell, update_available_discoveries
 
 
 def index(request):
@@ -909,34 +909,13 @@ def world(request):
                 my_dominion.perk_dict["book_of_grudges"][str(dominion.id)]["pages"] = 0
                 my_dominion.perk_dict["book_of_grudges"][str(dominion.id)]["animosity"] = 0
 
-    offense_multiplier_dict = {}
-    offense_bonus_dict = {}
-    current_defense_dict = {}
     land_conquered_dict = {}
-    artifact_count_dict = {}
-    bonus_steal_op_dict = {}
     lowest_defense_larger_than_you = 99999999999
     lowest_defense_in_game = 99999999999
     largest_with_incoming = my_dominion
 
     for dominion in dominions:
-        if "book_of_grudges" in my_dominion.perk_dict:
-            offense_multiplier_dict[str(dominion.id)] = my_dominion.offense_multiplier + get_grudge_bonus(my_dominion, dominion)
-        else:
-            offense_multiplier_dict[str(dominion.id)] = my_dominion.offense_multiplier
-
-        if "infiltration_dict" in my_dominion.perk_dict and dominion.strid in my_dominion.perk_dict["infiltration_dict"]:
-            offense_bonus_dict[dominion.strid] = my_dominion.perk_dict["infiltration_dict"][dominion.strid]
-        else:
-            offense_bonus_dict[dominion.strid] = 0
-
-        if dominion.protection_ticks_remaining > 0:
-            current_defense_dict[str(dominion.id)] = False
-        else:
-            current_defense_dict[str(dominion.id)] = dominion.defense
-
         land_conquered_dict[str(dominion.id)] = get_acres_conquered(my_dominion, dominion)
-        artifact_count_dict[str(dominion.id)] = dominion.artifact_count
 
         if dominion.acres >= my_dominion.acres and dominion.is_oop:
             lowest_defense_larger_than_you = min(dominion.defense, lowest_defense_larger_than_you)
@@ -947,26 +926,16 @@ def world(request):
         if dominion.acres_with_incoming > largest_with_incoming.acres_with_incoming:
             largest_with_incoming = dominion
 
-    for unit in my_units:
-        if "op_bonus_percent_for_stealing_artifacts" in unit.perk_dict:
-            bonus_steal_op_dict[str(unit.id)] = unit.perk_dict["op_bonus_percent_for_stealing_artifacts"]
-
     context = {
         "dominions": dominions,
         "minimum_defense_left": my_dominion.acres * 5,
         "my_units": my_units,
         "base_offense_multiplier": my_dominion.offense_multiplier,
-        "offense_multiplier_dict": json.dumps(offense_multiplier_dict),
-        "offense_bonus_dict": json.dumps(offense_bonus_dict),
-        "current_defense_dict": json.dumps(current_defense_dict),
         "land_conquered_dict": json.dumps(land_conquered_dict),
-        "artifact_count_dict": json.dumps(artifact_count_dict),
-        "bonus_steal_op_dict": json.dumps(bonus_steal_op_dict),
         "raw_defense": my_dominion.raw_defense,
         "defense_multiplier": my_dominion.defense_multiplier,
         "lowest_defense_larger_than_you": lowest_defense_larger_than_you,
         "lowest_defense_in_game": lowest_defense_in_game,
-        "highest_op_quested": get_highest_op_quested(),
         "largest_with_incoming": largest_with_incoming,
     }
 
