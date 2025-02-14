@@ -7,4 +7,4 @@ class Command(BaseCommand):
     help = "Initiates a battle"
 
     def handle(self, *args, **options):
-        testdominion = test_me("sludgeling")
+        testdominion = test_me("mecha-dragon")

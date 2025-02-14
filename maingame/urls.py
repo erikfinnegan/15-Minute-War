@@ -38,6 +38,7 @@ urlpatterns = [
     path("options", views.options, name="options"),
     path("submit_options", views.submit_options, name="submit_options"),
     path("abandon", views.abandon, name="abandon"),
+    path("calculate_op", views.calculate_op, name="calculate_op"),
     
     path("church_affairs", views.church_affairs, name="church_affairs"),
     path("submit_inquisition", views.submit_inquisition, name="submit_inquisition"),
@@ -52,5 +53,7 @@ urlpatterns = [
    
     path("other_head", views.other_head, name="other_head"),
     path("submit_other_head", views.submit_other_head, name="submit_other_head"),
-    path("calculate_op", views.calculate_op, name="calculate_op"),
+    
+    path("mech_hangar", views.mech_hangar, name="mech_hangar"),
+    path("submit_mech_hangar", views.submit_mech_hangar, name="submit_mech_hangar"),
 ]

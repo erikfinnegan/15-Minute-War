@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% load extra_tags %}
+{% load humanize %}
+
+{% block title %}Mech Hangar{% endblock %}
+
+{% block content %}
+<div class="max-w-md">
+    <div>
+        <span>Capacity:</span>
+        <span id="current-capacity">0</span>
+        <span>/ {{ max_capacity }}</span>
+    </div>
+    <div class="u-flex u-flex-row u-gap-4">
+        <form action="{% url 'submit_mech_hangar' %}" method="post">
+            {% csrf_token %}
+            <div id="left" class="u-border-1 u-flex u-flex-column u-gap-1 p-2">
+                {% for component in components %}
+                    {% if component.equipped %}
+                        <div class="u-flex u-flex-column u-border-2 p-1">
+                            <input value="{{ component.id }}" name="{{ component.id }}" hidden>
+                            <span>{{ component.name }}</span>
+                            <span>OP: {{ component.op }}</span>
+                            <span class="capacity">Capacity: {{ component.capacity }}</span>
+                            <div class="h-2 bg-white-400 u-border-1">
+                                <div class="h-2 bg-red-400" style="width: {{ component.durability_percent }}%"></div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            
+            <button class="header_colors w-16 h-6 p-0 u-center" type="submit" id="building-submit-button">
+                <span class="font-bold">Submit</span>
+            </button>
+        </form>
+        
+        <form action="{% url 'submit_mech_hangar' %}" method="post">
+            <div id="right" class="u-border-1 u-flex u-flex-column u-gap-1 p-2">
+                {% for component in components %}
+                    {% if not component.equipped %}
+                        <div class="u-flex u-flex-column u-border-2 p-1">
+                            <input value="{{ component.id }}" name="{{ component.id }}" hidden>
+                            <span>{{ component.name }}</span>
+                            <span>OP: {{ component.op }}</span>
+                            <span class="capacity">Capacity: {{ component.capacity }}</span>
+                            <div class="h-2 bg-white-400 u-border-1">
+                                <div class="h-2 bg-red-400" style="width: {{ component.durability_percent }}%"></div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const maxCapacity = {{ max_capacity }}
+
+    function getCapacity(el) {
+        return parseInt(el.querySelector('.capacity').innerHTML.slice(10));
+    }
+
+    function getCurrentCapacity() {
+        const listItems = document.getElementById("left").children;
+        const listArray = [...listItems];
+        totalLeftValues = 0
+
+        listArray.forEach((item) => {
+            const capacity = getCapacity(item)
+            totalLeftValues = totalLeftValues + capacity
+        });
+
+        return totalLeftValues
+    }
+    
+    function updateCurrentCapacityReadout(addition=0) {
+        const currentCapacityReadout = document.getElementById("current-capacity")
+        const newCapacity = getCurrentCapacity() + addition
+        currentCapacityReadout.innerHTML = newCapacity
+    }
+
+    updateCurrentCapacityReadout()
+
+    dragula(
+        [document.getElementById("left"), document.getElementById("right")],
+        {
+            accepts: function (el, target) {
+                if (target.id == "right") {
+                    return true
+                }
+
+                const currentCapacity = getCurrentCapacity()
+                
+                return currentCapacity + getCapacity(el) <= maxCapacity
+            }
+        }
+    ).on('over', function (el, container) {
+        if (container.id == "right" && el.parentNode.id == "right") {
+            updateCurrentCapacityReadout()
+        }
+        else if (container.id == "left" && el.parentNode.id == "right") {
+            updateCurrentCapacityReadout(getCapacity(el))
+        } 
+        else if (container.id == "left" && el.parentNode.id == "left") {
+            updateCurrentCapacityReadout()
+        } 
+        else {
+            console.log("else")
+            updateCurrentCapacityReadout(-1 * getCapacity(el))
+        }
+    }).on('out', function (el) {
+        updateCurrentCapacityReadout()
+    }).on('drop', function (el) {
+        updateCurrentCapacityReadout()
+    })
+</script>
+
+<style>
+    .gu-mirror {
+        position: fixed !important;
+        margin: 0 !important;
+        z-index: 9999 !important;
+        opacity: 0.8;
+        -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+        filter: alpha(opacity=80);
+    }
+    .gu-hide {
+        display: none !important;
+    }
+    .gu-unselectable {
+        -webkit-user-select: none !important;
+        -moz-user-select: none !important;
+        -ms-user-select: none !important;
+        user-select: none !important;
+    }
+    .gu-transit {
+        opacity: 0.2;
+        -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
+        filter: alpha(opacity=20);
+    }
+</style>
+
+
+{% endblock %}

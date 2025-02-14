@@ -4,6 +4,7 @@ from maingame.game_pieces.init_dwarf import initialize_dwarf_discoveries, initia
 from maingame.game_pieces.init_generic import initialize_generic_discoveries, initialize_generic_units
 from maingame.game_pieces.init_goblin import initialize_goblin_discoveries, initialize_goblin_units
 from maingame.game_pieces.init_gsf import initialize_gnomish_special_forces_discoveries, initialize_gnomish_special_forces_units
+from maingame.game_pieces.init_mechadragon import initialize_mechadragon_discoveries, initialize_mechadragon_units
 from maingame.game_pieces.init_sludgeling import initialize_sludgeling_discoveries, initialize_sludgeling_units
 from maingame.models import Faction, Deity, Dominion, Building, Unit, Discovery, Round, Battle, Event, Resource, Spell, Artifact
 
@@ -200,6 +201,16 @@ def initialize_factions():
         the defenses of their targets before striking a decisive blow."""
     )
 
+    Faction.objects.create(
+        name="mecha-dragon",
+        primary_resource_name="gold",
+        primary_resource_per_acre="50",
+        building_primary_resource_name="gold",
+        building_secondary_resource_name="wood",
+        starting_buildings=["farm", "lumberyard", "school", "tower", "quarry",],
+        description="""Inspired by mythical creatures, they set out to construct the ultimate war machine. It is difficult to deny they've succeeded."""
+    )
+
 
 def initialize_units():
     initialize_generic_units()
@@ -209,6 +220,7 @@ def initialize_units():
     initialize_goblin_units()
     initialize_biclops_units()
     initialize_gnomish_special_forces_units()
+    initialize_mechadragon_units()
 
     for unit in Unit.objects.all():
         give_unit_timer_template(unit)
@@ -263,6 +275,7 @@ def initialize_discoveries():
     initialize_goblin_discoveries()
     initialize_biclops_discoveries()
     initialize_gnomish_special_forces_discoveries()
+    initialize_mechadragon_discoveries()
 
 
 def initialize_artifacts():

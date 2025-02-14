@@ -1,0 +1,579 @@
+import json
+import zoneinfo
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.db.models import Q
+
+from maingame.models import Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings, Theme
+from maingame.utils.invasion import get_op_and_dp_left
+from maingame.utils.utils import create_unit_dict, get_acres_conquered, update_available_discoveries
+
+
+def index(request):
+    context = {
+        "testcontext": "Context test successful",
+    }
+
+    return render(request, "maingame/index.html", context)
+
+
+def faction_info(request):
+    faction_list = []
+    
+    for faction in Faction.objects.all():
+        faction_list.append({
+            "faction": faction,
+            "units": Unit.objects.filter(ruler=None, faction=faction),
+            "discoveries": Discovery.objects.filter(required_faction_name=faction.name)
+        })
+
+    context = {
+        "factions": faction_list
+    }
+
+    return render(request, "maingame/faction_info.html", context)
+
+
+def buildings(request):
+    try:
+        dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    # primary_resource = Resource.objects.get(ruler=dominion, name=dominion.building_primary_resource_name)
+    # secondary_resource = Resource.objects.get(ruler=dominion, name=dominion.building_secondary_resource_name)
+    # max_affordable = int(min(primary_resource.quantity / dominion.building_primary_cost, secondary_resource.quantity / dominion.building_secondary_cost))
+
+    resources_dict = {}
+
+    for resource in Resource.objects.filter(ruler=dominion):
+        if not resource.name == "corpses":
+            resources_dict[resource.name] = {
+                "name": resource.name,
+                "produced": dominion.get_production(resource.name),
+                "consumed": dominion.get_consumption(resource.name),
+            }
+
+            resources_dict[resource.name]["net"] = resources_dict[resource.name]["produced"] - resources_dict[resource.name]["consumed"]
+
+    context = {
+        "resources_dict": resources_dict,
+        "buildings": Building.objects.filter(ruler=dominion),
+    }
+    
+    return render(request, "maingame/buildings.html", context)
+
+
+def discoveries(request):
+    try:
+        dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    new_discoveries_message = update_available_discoveries(dominion)
+    dominion.save()
+
+    if new_discoveries_message:
+        messages.success(request, f"New discoveries unlocked: {new_discoveries_message}")
+
+    available_discoveries = []
+
+    for discovery_name in dominion.available_discoveries:
+        available_discoveries.append(Discovery.objects.get(name=discovery_name))
+
+    depth = ""
+
+    if "mining_depth" in dominion.perk_dict:
+        mining_depth = dominion.perk_dict["mining_depth"]
+        depth = f"{mining_depth:2,} torchbrights"
+
+    future_discoveries = []
+
+    for discovery in Discovery.objects.all():
+        if discovery.name not in dominion.available_discoveries and discovery.name not in dominion.learned_discoveries:
+            if not discovery.required_faction_name or discovery.required_faction_name == dominion.faction_name:
+                and_requirements_left = []
+                or_requirements_left = []
+                
+                if discovery.required_discoveries:                    
+                    for requirement_name in discovery.required_discoveries:
+                        if requirement_name not in dominion.learned_discoveries:
+                            and_requirements_left.append(requirement_name)
+
+                if discovery.required_discoveries_or:
+                    for requirement_name in discovery.required_discoveries_or:
+                        if requirement_name not in dominion.learned_discoveries:
+                            or_requirements_left.append(requirement_name)
+
+                requirement_string = ""
+
+                if len(or_requirements_left) == 1:
+                    requirement_string = or_requirements_left[0]
+                elif len(or_requirements_left) > 1:
+                    requirement_string = f"one of {', '.join(or_requirements_left)}"
+
+                if len(and_requirements_left) == 1:
+                    requirement_string = and_requirements_left[0]
+                elif len(and_requirements_left) > 1:
+                    requirement_string = f"{', '.join(and_requirements_left)}"
+
+                if "mining_depth" in discovery.required_perk_dict:
+                    required_depth = discovery.required_perk_dict["mining_depth"]
+                    requirement_string += f"mining depth {int(required_depth):2,} torchbrights"
+
+                future_discoveries.append(
+                    {
+                        "discovery": discovery,
+                        "requirement_string": requirement_string,
+                    }
+                )
+
+    context = {
+        "available_discoveries": available_discoveries,
+        "future_discoveries": future_discoveries,
+        "depth": depth,
+    }
+    
+    return render(request, "maingame/discoveries.html", context)
+
+
+def military(request):
+    try:
+        dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    context = {
+        "units": dominion.sorted_units
+    }
+
+    return render(request, "maingame/military.html", context)
+
+
+def resources(request):
+    try:
+        dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    round = Round.objects.first()
+    resources_dict = {}
+    dominion_resource_total_dict = {}
+
+    for resource in Resource.objects.filter(ruler=dominion):
+        if not resource.name == "corpses":
+            dominion_resource_total_dict[resource.name] = resource.quantity
+
+            # resources_dict[resource.name] = {
+            #     "name": resource.name,
+            #     "produced": dominion.get_production(resource.name),
+            #     "consumed": dominion.get_consumption(resource.name),
+            # }
+
+            # resources_dict[resource.name]["net"] = resources_dict[resource.name]["produced"] - resources_dict[resource.name]["consumed"]
+
+    trade_price_dict = round.trade_price_dict
+    trade_price_data = {}
+    my_tradeable_price_data = {}
+
+    for resource_name, price in trade_price_dict.items():
+        trade_price_data[resource_name] = {
+            "name": resource_name,
+            "price": price,
+            "difference": int((price / round.base_price_dict[resource_name]) * 100)
+        }
+
+        if Resource.objects.filter(ruler=dominion, name=resource_name).exists():
+            my_tradeable_price_data[resource_name] = {
+            "name": resource_name,
+            "price": price,
+            "difference": int((price / round.base_price_dict[resource_name]) * 100)
+        }
+
+    context = {
+        "resources_dict": resources_dict,
+        "trade_price_data": trade_price_data,
+        "my_tradeable_price_data": my_tradeable_price_data,
+        "resources_dict_json": json.dumps(resources_dict),
+        "dominion_resources_json": json.dumps(dominion_resource_total_dict),
+        "trade_price_json": json.dumps(trade_price_dict),
+        "last_sold_resource_name": dominion.last_sold_resource_name,
+        "last_bought_resource_name": dominion.last_bought_resource_name,
+    }
+
+    return render(request, "maingame/resources.html", context)
+
+
+def trade(request):
+    messages.error(request, f"Trading has been disabled.")
+    return redirect("buildings")
+
+    try:
+        dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    if Round.objects.first().has_ended:
+        messages.error(request, f"The round has already ended")
+        return redirect("buildings")
+    
+    if Round.objects.first().is_ticking:
+        messages.error(request, f"The tick is being processed, try again shortly.")
+        return redirect("buildings")
+    
+    try:
+        input_resource_name = request.POST["inputResource"]
+        amount = int(request.POST["resourceAmount"])
+        output_resource_name = request.POST["outputResource"]
+    except:
+        messages.error(request, f"Please ensure your trade resources are selected properly")
+        return redirect("buildings")
+    
+    round = Round.objects.first()
+
+    if not Resource.objects.filter(ruler=dominion, name=input_resource_name).exists() or not Resource.objects.filter(ruler=dominion, name=output_resource_name).exists():
+        messages.error(request, f"You don't have access to that resource")
+        return redirect("buildings")
+    elif input_resource_name == output_resource_name:
+        messages.error(request, f"You can't trade a resource for itself")
+        return redirect("buildings")
+
+    untradable_resources = ["corpses", "faith", "mithril"]
+
+    if input_resource_name in untradable_resources or output_resource_name in untradable_resources:
+        messages.error(request, f"You can't trade that resource.")
+        return redirect("buildings")
+
+    input_resource = Resource.objects.get(ruler=dominion, name=input_resource_name)
+    output_resource = Resource.objects.get(ruler=dominion, name=output_resource_name)
+
+    if amount > input_resource.quantity:
+        messages.error(request, f"You can't trade more {input_resource_name} than you have")
+        return redirect("buildings")
+
+    credit = round.trade_price_dict[input_resource.name] * amount
+    payout = int((credit / round.trade_price_dict[output_resource.name]) * 0.9)
+
+    input_resource.quantity -= amount
+    input_resource.save()
+
+    output_resource.quantity += payout
+    output_resource.save()
+
+    input_total_production = 0
+    output_total_production = 0
+    dominion_count = 0
+
+    for dominion in Dominion.objects.all():
+        input_total_production += dominion.get_production(input_resource_name)
+        output_total_production += dominion.get_production(output_resource_name)
+        dominion_count += 1
+
+    round.resource_bank_dict[input_resource.name] += min(amount, 24 * int(input_total_production / dominion_count))
+    round.resource_bank_dict[output_resource.name] -= min(amount, 24 * int(output_total_production / dominion_count))
+    round.save()
+
+    dominion.last_sold_resource_name = input_resource.name
+    dominion.last_bought_resource_name = output_resource.name
+    dominion.save()
+
+    messages.success(request, f"Traded {amount:2,} {input_resource.name} for {payout:2,} {output_resource.name}")
+    return redirect("buildings")
+
+
+def upgrades(request):
+    try:
+        dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    research_resource = Resource.objects.get(ruler=dominion, name="research")
+    buildings = Building.objects.filter(ruler=dominion)
+
+    context = {
+        "buildings": buildings,
+        "research_points_available": research_resource.quantity,
+    }
+
+    return render(request, "maingame/upgrades.html", context)
+
+
+def spells(request):
+    try:
+        dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    spells = Spell.objects.filter(ruler=dominion)
+
+    context = {
+        "spells": spells,
+        "mana_quantity": Resource.objects.get(ruler=dominion, name="mana").quantity,
+        "dominions": Dominion.objects.filter(is_abandoned=False).order_by('protection_ticks_remaining', '-acres'),
+    }
+
+    return render(request, "maingame/spells.html", context)
+
+
+def battle_report(request, battle_id):
+    try:
+        dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    battle = Battle.objects.get(id=battle_id)
+
+    units_sent_dict = {}
+    units_defending_dict = {}
+
+    for unit_id, quantity in battle.units_sent_dict.items():
+        unit = Unit.objects.get(id=unit_id)
+        units_sent_dict[unit.name] = quantity
+
+    for unit_id, quantity in battle.units_defending_dict.items():
+        unit = Unit.objects.get(id=unit_id)
+        units_defending_dict[unit.name] = quantity
+
+    context = {
+        "battle": battle,
+        "units_sent_dict": units_sent_dict,
+        "units_defending_dict": units_defending_dict,
+        "attacker": battle.attacker,
+        "defender": battle.defender,
+    }
+
+    return render(request, "maingame/battle_report.html", context)
+
+
+def news(request):
+    TIMEZONES_CHOICES = [tz for tz in zoneinfo.available_timezones()]
+    try:
+        dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    displayed_events = []
+    
+    for event in Event.objects.all().order_by('-id')[:50]:
+        displayed_events.append({
+            "event": event,
+            "involves_dominion": event.notified_dominions.filter(id=dominion.id).count() > 0,
+        })
+
+    dominion.has_unread_events = False
+    dominion.save()
+
+    context = {
+        "displayed_events": displayed_events,
+        "timezones": TIMEZONES_CHOICES,
+    }
+
+    return render(request, "maingame/news.html", context)
+
+
+def overview(request, dominion_id):
+    try:
+        my_dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    dominion = Dominion.objects.get(id=dominion_id)
+
+    if dominion_id != my_dominion.id and dominion.protection_ticks_remaining > 0:
+        return redirect("world")
+
+    dominion = Dominion.objects.get(id=dominion_id)
+    units = dominion.sorted_units
+    buildings = Building.objects.filter(ruler=dominion, percent_of_land__gte=1)
+    resources = Resource.objects.filter(ruler=dominion)
+    learned_discoveries = []
+
+    for discovery in Discovery.objects.all():
+        if discovery.name in dominion.learned_discoveries:
+            learned_discoveries.append(discovery)
+
+    resources_dict = {}
+
+    for resource in Resource.objects.filter(ruler=dominion):
+        # if not resource.name == "corpses":
+        resources_dict[resource.name] = {
+            "name": resource.name,
+            "quantity": resource.quantity,
+            "produced": dominion.get_production(resource.name),
+            "consumed": dominion.get_consumption(resource.name),
+        }
+
+        resources_dict[resource.name]["net"] = resources_dict[resource.name]["produced"] - resources_dict[resource.name]["consumed"]
+
+        dominion.save()
+
+    battles_with_this_dominion = Battle.objects.filter(attacker=dominion) | Battle.objects.filter(defender=dominion)
+
+    context = {
+        "dominion": dominion,
+        "other_dominions": Dominion.objects.filter(~Q(id=dominion.id), is_abandoned=False, protection_ticks_remaining=0).order_by('protection_ticks_remaining', '-acres'),
+        "units": units,
+        "buildings": buildings,
+        "resources": resources,
+        "resources_dict": resources_dict,
+        "raw_defense": my_dominion.raw_defense,
+        "defense_multiplier": my_dominion.defense_multiplier,
+        "minimum_defense_left": my_dominion.acres * 5,
+        "spells": Spell.objects.filter(ruler=dominion),
+        "learned_discoveries": learned_discoveries,
+        "acres_conquered": get_acres_conquered(my_dominion, dominion),
+        "battles_with_this_dominion": battles_with_this_dominion.order_by("-timestamp"),
+    }
+
+    return render(request, "maingame/overview.html", context)
+
+
+def world(request):
+    try:
+        my_dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    dominions = Dominion.objects.filter(is_abandoned=False).order_by('protection_ticks_remaining', '-acres')
+
+    my_units = my_dominion.sorted_units
+
+    # If you don't have grudge values set for someone, set them now
+    if "book_of_grudges" in my_dominion.perk_dict:
+        for dominion in dominions:
+            if str(dominion.id) not in my_dominion.perk_dict["book_of_grudges"]:
+                my_dominion.perk_dict["book_of_grudges"][str(dominion.id)] = {}
+                my_dominion.perk_dict["book_of_grudges"][str(dominion.id)]["pages"] = 0
+                my_dominion.perk_dict["book_of_grudges"][str(dominion.id)]["animosity"] = 0
+
+    land_conquered_dict = {}
+    lowest_defense_larger_than_you = 99999999999
+    lowest_defense_in_game = 99999999999
+    largest_with_incoming = my_dominion
+
+    for dominion in dominions:
+        land_conquered_dict[str(dominion.id)] = get_acres_conquered(my_dominion, dominion)
+
+        if dominion.acres >= my_dominion.acres and dominion.is_oop:
+            lowest_defense_larger_than_you = min(dominion.defense, lowest_defense_larger_than_you)
+
+        if dominion.is_oop:
+            lowest_defense_in_game = min(dominion.defense, lowest_defense_in_game)
+
+        if dominion.acres_with_incoming > largest_with_incoming.acres_with_incoming:
+            largest_with_incoming = dominion
+
+    context = {
+        "dominions": dominions,
+        "minimum_defense_left": my_dominion.acres * 5,
+        "my_units": my_units,
+        "base_offense_multiplier": my_dominion.offense_multiplier,
+        "land_conquered_dict": json.dumps(land_conquered_dict),
+        "raw_defense": my_dominion.raw_defense,
+        "defense_multiplier": my_dominion.defense_multiplier,
+        "lowest_defense_larger_than_you": lowest_defense_larger_than_you,
+        "lowest_defense_in_game": lowest_defense_in_game,
+        "largest_with_incoming": largest_with_incoming,
+    }
+
+    return render(request, "maingame/world.html", context)
+
+
+def options(request):
+    try:
+        user_settings = UserSettings.objects.get(associated_user=request.user)
+    except:
+        return redirect("index")
+    
+    TIMEZONES_CHOICES = [tz for tz in zoneinfo.available_timezones()]
+    # themes = ["Mustard and blue", "Blood and beige", "It's a boy", "Elesh Norn", "Swampy", "OpenDominion", "ODA"]
+    current_theme = user_settings.theme_model
+
+    try:
+        my_theme = Theme.objects.get(creator_user_settings_id=user_settings.id)
+    except:
+        my_theme = Theme.objects.get(name="OpenDominion")
+
+    context = {
+        "themes": Theme.objects.all(),
+        "my_theme": my_theme,
+        "current_theme": current_theme,
+        "current_display_name": user_settings.display_name,
+        "juicy_target_threshold": user_settings.juicy_target_threshold,
+        "timezones": TIMEZONES_CHOICES,
+    }
+    
+    return render(request, "maingame/options.html", context)
+
+
+def tutorial(request):
+    try:
+        my_dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+
+    context = {
+        "asdf": "asdf",
+    }
+
+    return render(request, "maingame/tutorial.html", context)
+
+
+def calculate_op(request):
+    try:
+        my_dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    dominion_id = request.GET.get("target_dominion_id")
+    is_infiltration = "do_infiltration" in request.GET
+
+    # Not sure how to get the form-wide hx-trigger to fire on repeated use of the checkbox - it only picks up on the first.
+
+    units_sent_dict, _ = create_unit_dict(request.GET, "send_")
+
+    # total_units_sent = 0
+    # units_sent_dict = {}
+    
+    # # Create a dict of the units sent
+    # for key, string_amount in request.GET.items():
+    #     # key is like "send_123" where 123 is the ID of the Unit
+    #     if "send_" in key and string_amount != "":
+    #         unit = Unit.objects.get(id=key[5:])
+    #         amount = int(string_amount)
+
+    #         if amount <= unit.quantity_at_home:
+    #             total_units_sent += amount
+    #             units_sent_dict[str(unit.id)] = {
+    #                 "unit": unit,
+    #                 "quantity_sent": amount,
+    #             }
+    
+    target_dominion = Dominion.objects.filter(id=dominion_id).first()
+    op_sent, dp_left, raw_dp_left = get_op_and_dp_left(units_sent_dict, my_dominion, target_dominion, is_infiltration)
+
+    larger_enemy_has_lower_defense = False
+    left_lowest_defense = True
+
+    for dominion in Dominion.objects.all():
+        if dominion.defense < dp_left and dominion.acres > my_dominion.acres:
+            larger_enemy_has_lower_defense = True
+        
+        if dominion.defense < dp_left:
+            left_lowest_defense = False
+
+    invalid_invasion = False if is_infiltration else (not target_dominion or op_sent < target_dominion.defense or dp_left < my_dominion.acres * 5)
+
+    context = {
+        "op": op_sent,
+        "dp": target_dominion.defense if target_dominion else 0,
+        "dp_left": dp_left,
+        "raw_dp_left": raw_dp_left,
+        "invalid_invasion": invalid_invasion,
+        "larger_enemy_has_lower_defense": larger_enemy_has_lower_defense,
+        "left_lowest_defense": left_lowest_defense,
+        "is_infiltration": is_infiltration,
+    }
+        
+    return render(request, "maingame/components/op_vs_dp.html", context)

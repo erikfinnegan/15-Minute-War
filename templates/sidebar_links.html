@@ -50,6 +50,8 @@
         </a>
     {% elif active_dominion.faction_name == "biclops" %}
         <a href="{% url 'other_head' %}" class="">Other Head</a>
+    {% elif active_dominion.faction_name == "mecha-dragon" %}
+        <a href="{% url 'mech_hangar' %}" class="">Mech Hangar</a>
     {% endif %}
 
     {% if active_user_settings.tutorial_step >= 11 %}

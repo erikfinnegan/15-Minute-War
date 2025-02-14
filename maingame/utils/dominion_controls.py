@@ -54,6 +54,8 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
         dominion.perk_dict["bonus_determination"] = 0
     elif faction.name == "gnomish special forces":
         dominion.perk_dict["infiltration_dict"] = {}
+    elif faction.name == "mecha-dragon":
+        dominion.perk_dict["capacity"] = 0
 
     dominion.save()
 
