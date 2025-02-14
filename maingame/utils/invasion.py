@@ -419,6 +419,9 @@ def do_forced_attack(dominion: Dominion, use_always_dies_units=False):
                 
                 if this_unit_dict["quantity_sent"] > 0:
                     units_sent_dict[str(offensive_unit.id)] = this_unit_dict
-                    
-            do_invasion(units_sent_dict, attacker=dominion, defender=other_dominion)
-            hasnt_attacked_yet = False
+            
+            op_to_send, defense_left, _ = get_op_and_dp_left(units_sent_dict, attacker=dominion, defender=other_dominion)
+
+            if op_to_send >= other_dominion.defense and defense_left >= dominion.acres * 5:
+                do_invasion(units_sent_dict, attacker=dominion, defender=other_dominion)
+                hasnt_attacked_yet = False
