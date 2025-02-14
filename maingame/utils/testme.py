@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 
+from maingame.formatters import get_goblin_name
 from maingame.models import Dominion, Unit, Faction, Resource, Building, UserSettings, Round
 from maingame.game_pieces.initialize import initialize_game_pieces
 from maingame.utils.dominion_controls import initialize_dominion
@@ -24,7 +25,14 @@ def test_me(my_faction_name):
 
     for user in User.objects.all():
         if user.username != "test" and user.username != "dontdominionme":
-            dominion = initialize_dominion(user=user, faction=Faction.objects.get(name="dwarf"), display_name=f"p-{user.username}")
+            if user.username == "finn":
+                name = "Invade me"
+            elif user.username == "admin":
+                name = "Strong Guy"
+            else:
+                name = get_goblin_name()
+
+            dominion = initialize_dominion(user=user, faction=Faction.objects.get(name="dwarf"), display_name=name)
             dominion.protection_ticks_remaining = 0
             dominion.save()
             farm = Building.objects.get(ruler=dominion, name="farm")
@@ -43,8 +51,7 @@ def test_me(my_faction_name):
 
             user_settings.save()
     
-    invade_me_test = Dominion.objects.get(name="p-nofaction")
-    invade_me_test.name = "Invade me"
+    invade_me_test = Dominion.objects.get(name="Invade me")
 
     for unit in Unit.objects.filter(ruler=invade_me_test):
         unit.quantity_at_home = 10
@@ -72,7 +79,7 @@ def test_me(my_faction_name):
         resource.quantity = my_starting_resource_quantity
         resource.save()
 
-    admindominion = Dominion.objects.get(name="p-admin")
+    admindominion = Dominion.objects.get(name="Strong Guy")
     admindominion.protection_ticks_remaining = 0
     admindominion.discovery_points = 5000
     admindominion.save()

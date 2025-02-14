@@ -38,6 +38,7 @@ urlpatterns = [
     path("submit_options", views.submit_options, name="submit_options"),
     path("abandon", views.abandon, name="abandon"),
     path("calculate_op", views.calculate_op, name="calculate_op"),
+    path("calculate_acres_from_invasion", views.calculate_acres_from_invasion, name="calculate_acres_from_invasion"),
     
     path("church_affairs", views.church_affairs, name="church_affairs"),
     path("submit_inquisition", views.submit_inquisition, name="submit_inquisition"),

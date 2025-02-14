@@ -493,5 +493,12 @@ def calculate_acres_from_invasion(request):
         return redirect("register")
     
     target_id = request.GET.get("target_dominion_id")
+    acres_gained = 0
 
-    return HttpResponse("AKRES YO")
+    try:
+        target_dominion = Dominion.objects.get(id=target_id)
+        acres_gained = get_acres_conquered(attacker=my_dominion, target=target_dominion)
+    except:
+        pass
+    
+    return HttpResponse(f"{acres_gained}")

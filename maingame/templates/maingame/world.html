@@ -99,6 +99,9 @@
                     class="max-w-xs" 
                     name="target_dominion_id" 
                     id="target_select_dropdown" 
+                    hx-get="/calculate_acres_from_invasion"
+                    hx-trigger="change"
+                    hx-target="#acre_count_number"
                 >
                     <option value="0">Select a target to plan an invasion</option>
                     {% for dominion in dominions %}
@@ -111,7 +114,7 @@
 
             <div>
                 <span class="u-center" id="acre_count_placeholder">Invasions discover extra acres equal to the amount conquered.</span>
-                <div class="u-none u-gap-1 u-center" id="acre_count_sentence">
+                <div class="u-gap-1 u-center" id="acre_count_sentence">
                     <span>This invasion would conquer</span>
                     <span id="acre_count_number">0</span>
                     <span>acres.</span>
