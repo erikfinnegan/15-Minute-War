@@ -119,15 +119,21 @@
         </a>
         {% endif %}
 
+        {% if active_dominion.protection_ticks_remaining > 22 %}
+        <a href="{% url 'protection_tick' active_dominion.ticks_til_first_discovery %}">
+            <button class="h-4 py-0">discovery (+{{ active_dominion.ticks_til_first_discovery }})</button>
+        </a>
+        {% endif %}
+
         {% if active_dominion.ticks_til_training_time != 12 and active_dominion.protection_ticks_remaining > 12 and active_user_settings.tutorial_step >= 5 %}
         <a href="{% url 'protection_tick' active_dominion.ticks_til_training_time %}">
-            <button class="h-4 py-0">+{{ active_dominion.ticks_til_training_time }} ticks</button>
+            <button class="h-4 py-0">Training (+{{ active_dominion.ticks_til_training_time }})</button>
         </a>
         {% endif %}
 
         {% if active_dominion.protection_ticks_remaining > 1 and active_dominion.protection_ticks_remaining != 12 and active_user_settings.tutorial_step >= 6 %}
         <a href="{% url 'protection_tick' active_dominion.protection_ticks_remaining %}">
-            <button class="h-4 py-0">+{{ active_dominion.protection_ticks_remaining }} ticks</button>
+            <button class="h-4 py-0">end (+{{ active_dominion.protection_ticks_remaining }})</button>
         </a>
         {% endif %}
 

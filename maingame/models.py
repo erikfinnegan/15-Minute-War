@@ -185,6 +185,10 @@ class Dominion(models.Model):
         return max(0, self.protection_ticks_remaining - 12)
     
     @property
+    def ticks_til_first_discovery(self):
+        return max(0, self.protection_ticks_remaining - 22)
+
+    @property
     def resources(self):
         return Resource.objects.filter(ruler=self)
 

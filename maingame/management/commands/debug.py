@@ -14,17 +14,17 @@ class Command(BaseCommand):
         print("IT'S DEBUG TIME BABY")
         print()
         
-        whispers = 0
-        heretics = 0
+        rats = 1000
+        food_spent = 0
         
-        for _ in range(96 * 5):
-            heretics += 5
-            whispers += heretics
+        for _ in range(96):
+            survivors = int(0.02 * rats)
+            casualties = rats - survivors
+            food_spent += 100 * casualties
 
-            if heretics >= 48 * 5:
-                heretics = 0
+        food_spent_per_tick_per_rat = food_spent / 96 / 1000
 
-        print(f"{whispers:2,}")
+        print(f"{food_spent_per_tick_per_rat:2,}")
 
         print()
         print()
