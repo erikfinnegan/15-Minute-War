@@ -110,8 +110,6 @@
             console.log("else")
             updateCurrentCapacityReadout(-1 * getCapacity(el))
         }
-    }).on('out', function (el) {
-        updateCurrentCapacityReadout()
     }).on('drop', function (el) {
         updateCurrentCapacityReadout()
     })
