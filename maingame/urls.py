@@ -20,7 +20,6 @@ urlpatterns = [
     path("buildings/submit", views.submit_building, name="submit_building"),
     path("buildings", views.buildings, name="buildings"),
     path("resources", views.resources, name="resources"),
-    path("trade/submit", views.trade, name="trade"),
     path("run_tick_view/<int:quantity>", views.run_tick_view, name="run_tick_view"),
     path("protection_tick/<int:quantity>", views.protection_tick, name="protection_tick"),
     path("protection_restart", views.protection_restart, name="protection_restart"),

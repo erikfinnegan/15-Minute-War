@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 
+from maingame.models import Dominion
 from maingame.utils.testme import test_me
 
 

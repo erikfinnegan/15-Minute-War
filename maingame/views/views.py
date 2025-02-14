@@ -4,6 +4,7 @@ import zoneinfo
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.db.models import Q
+from django.http import HttpResponse
 
 from maingame.models import Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings, Theme
 from maingame.utils.invasion import get_op_and_dp_left
@@ -203,83 +204,6 @@ def resources(request):
     }
 
     return render(request, "maingame/resources.html", context)
-
-
-def trade(request):
-    messages.error(request, f"Trading has been disabled.")
-    return redirect("buildings")
-
-    try:
-        dominion = Dominion.objects.get(associated_user=request.user)
-    except:
-        return redirect("register")
-    
-    if Round.objects.first().has_ended:
-        messages.error(request, f"The round has already ended")
-        return redirect("buildings")
-    
-    if Round.objects.first().is_ticking:
-        messages.error(request, f"The tick is being processed, try again shortly.")
-        return redirect("buildings")
-    
-    try:
-        input_resource_name = request.POST["inputResource"]
-        amount = int(request.POST["resourceAmount"])
-        output_resource_name = request.POST["outputResource"]
-    except:
-        messages.error(request, f"Please ensure your trade resources are selected properly")
-        return redirect("buildings")
-    
-    round = Round.objects.first()
-
-    if not Resource.objects.filter(ruler=dominion, name=input_resource_name).exists() or not Resource.objects.filter(ruler=dominion, name=output_resource_name).exists():
-        messages.error(request, f"You don't have access to that resource")
-        return redirect("buildings")
-    elif input_resource_name == output_resource_name:
-        messages.error(request, f"You can't trade a resource for itself")
-        return redirect("buildings")
-
-    untradable_resources = ["corpses", "faith", "mithril"]
-
-    if input_resource_name in untradable_resources or output_resource_name in untradable_resources:
-        messages.error(request, f"You can't trade that resource.")
-        return redirect("buildings")
-
-    input_resource = Resource.objects.get(ruler=dominion, name=input_resource_name)
-    output_resource = Resource.objects.get(ruler=dominion, name=output_resource_name)
-
-    if amount > input_resource.quantity:
-        messages.error(request, f"You can't trade more {input_resource_name} than you have")
-        return redirect("buildings")
-
-    credit = round.trade_price_dict[input_resource.name] * amount
-    payout = int((credit / round.trade_price_dict[output_resource.name]) * 0.9)
-
-    input_resource.quantity -= amount
-    input_resource.save()
-
-    output_resource.quantity += payout
-    output_resource.save()
-
-    input_total_production = 0
-    output_total_production = 0
-    dominion_count = 0
-
-    for dominion in Dominion.objects.all():
-        input_total_production += dominion.get_production(input_resource_name)
-        output_total_production += dominion.get_production(output_resource_name)
-        dominion_count += 1
-
-    round.resource_bank_dict[input_resource.name] += min(amount, 24 * int(input_total_production / dominion_count))
-    round.resource_bank_dict[output_resource.name] -= min(amount, 24 * int(output_total_production / dominion_count))
-    round.save()
-
-    dominion.last_sold_resource_name = input_resource.name
-    dominion.last_bought_resource_name = output_resource.name
-    dominion.save()
-
-    messages.success(request, f"Traded {amount:2,} {input_resource.name} for {payout:2,} {output_resource.name}")
-    return redirect("buildings")
 
 
 def upgrades(request):
@@ -533,23 +457,6 @@ def calculate_op(request):
 
     units_sent_dict, _ = create_unit_dict(request.GET, "send_")
 
-    # total_units_sent = 0
-    # units_sent_dict = {}
-    
-    # # Create a dict of the units sent
-    # for key, string_amount in request.GET.items():
-    #     # key is like "send_123" where 123 is the ID of the Unit
-    #     if "send_" in key and string_amount != "":
-    #         unit = Unit.objects.get(id=key[5:])
-    #         amount = int(string_amount)
-
-    #         if amount <= unit.quantity_at_home:
-    #             total_units_sent += amount
-    #             units_sent_dict[str(unit.id)] = {
-    #                 "unit": unit,
-    #                 "quantity_sent": amount,
-    #             }
-    
     target_dominion = Dominion.objects.filter(id=dominion_id).first()
     op_sent, dp_left, raw_dp_left = get_op_and_dp_left(units_sent_dict, my_dominion, target_dominion, is_infiltration)
 
@@ -577,3 +484,14 @@ def calculate_op(request):
     }
         
     return render(request, "maingame/components/op_vs_dp.html", context)
+
+
+def calculate_acres_from_invasion(request):
+    try:
+        my_dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    target_id = request.GET.get("target_dominion_id")
+
+    return HttpResponse("AKRES YO")
