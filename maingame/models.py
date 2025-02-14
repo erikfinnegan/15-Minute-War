@@ -1101,6 +1101,20 @@ class Round(models.Model):
         #     return 0
 
         # return math.ceil(ticks_past_end / 4)
+
+    @property
+    def faction_count_list(self):
+        faction_counts = []
+
+        for faction in Faction.objects.all():
+            faction_count = {
+                "name": faction.name,
+                "count": Dominion.objects.filter(faction_name=faction.name).count()
+            }
+            
+            faction_counts.append(faction_count)
+        
+        return faction_counts
         
 
 class Discovery(models.Model):

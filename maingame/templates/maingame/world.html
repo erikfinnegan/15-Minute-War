@@ -12,15 +12,44 @@
 <div>
     <details class="accordion card card_colors max-w-md">
         <summary class="accordion__summary">Details</summary>
-            <p>
-                These are all the dominions at the moment. When someone makes an invasion, the units they send take 12 ticks to return home, leaving 
-                them more vulnerable to attack in the meantime. The land they conquer also takes 12 ticks to arrive and they can't attack again until
-                it does. On an invasion, the attacker takes 10% casualties and the defender takes 5% casualties.
-            </p>
-            <p>
-                Every tick, a dominion gains -0.33% defense. This resets when that dominion gets invaded. They also gain +0.33 offense, resetting when
-                they successfully make an invasion.
-            </p>
+        <p>
+            These are all the dominions at the moment. When someone makes an invasion, the units they send take 12 ticks to return home, leaving 
+            them more vulnerable to attack in the meantime. The land they conquer also takes 12 ticks to arrive and they can't attack again until
+            it does. On an invasion, the attacker takes 10% casualties and the defender takes 5% casualties.
+        </p>
+        <p>
+            Every tick, a dominion gains -0.33% defense. This resets when that dominion gets invaded. They also gain +0.33 offense, resetting when
+            they successfully make an invasion.
+        </p>
+
+        <script type="text/javascript">
+            window.onload = function () {
+                var chart = new CanvasJS.Chart("chartContainer",
+                {
+                    legend: {
+                        maxWidth: 350,
+                        itemWidth: 120
+                    },
+                    data: [
+                        {
+                            type: "pie",
+                            legendText: "{indexLabel}",
+                            dataPoints: [
+                                {% for faction_count_dict in round.faction_count_list %}
+                                    {% if faction_count_dict.count > 0 %}
+                                        { y: {{ faction_count_dict.count }}, indexLabel: "{{ faction_count_dict.name|title }}" },
+                                    {% endif %}
+                                {% endfor %}
+                            ]
+                        }
+                    ]
+                });
+                chart.render();
+            }
+        </script>
+        <script type="text/javascript" src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+        <div id="chartContainer" style="height: 300px; width: 100%;"></div>
+
     </details>
 
     {% include "maingame/components/dominion_list.html" with this_dominion=active_dominion all_dominions=dominions my_view=True %}
