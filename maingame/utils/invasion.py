@@ -159,17 +159,14 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casu
 
     if "partner_patience" in attacker.perk_dict:
         attacker.perk_dict["partner_patience"] = int(24 * attacker.acres / (defender.acres))
-        attacker.save()
 
     if "infiltration_dict" in attacker.perk_dict:
         if defender.strid in attacker.perk_dict["infiltration_dict"]:
             del attacker.perk_dict["infiltration_dict"][defender.strid]
-            attacker.save()
 
     if "goblin_ruler" in defender.perk_dict:
         defender.perk_dict["goblin_ruler"] = get_goblin_ruler()
         defender.perk_dict["rulers_favorite_resource"] = get_random_resource(defender).name
-        defender.save()
 
     if defender.faction_name == "blessed order":
         faith = Resource.objects.get(ruler=defender, name="faith")
@@ -180,6 +177,9 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casu
         martyrs = Unit.objects.get(ruler=defender, name="Blessed Martyr")
         martyrs.quantity_at_home += martyrs_gained
         martyrs.save()
+
+    attacker.save()
+    defender.save()
 
 
 def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion):
