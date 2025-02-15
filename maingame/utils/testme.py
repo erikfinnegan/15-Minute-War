@@ -10,6 +10,7 @@ from zoneinfo import ZoneInfo
 
 def test_me(my_faction_name):
     my_faction_name = my_faction_name
+    their_faction_name = "goblin"
 
     my_starting_resource_quantity = 1234567
 
@@ -32,7 +33,7 @@ def test_me(my_faction_name):
             else:
                 name = get_goblin_name()
 
-            dominion = initialize_dominion(user=user, faction=Faction.objects.get(name="dwarf"), display_name=name)
+            dominion = initialize_dominion(user=user, faction=Faction.objects.get(name=their_faction_name), display_name=name)
             dominion.protection_ticks_remaining = 0
             dominion.save()
             farm = Building.objects.get(ruler=dominion, name="farm")
@@ -54,7 +55,7 @@ def test_me(my_faction_name):
     invade_me_test = Dominion.objects.get(name="Invade me")
 
     for unit in Unit.objects.filter(ruler=invade_me_test):
-        unit.quantity_at_home = 10
+        unit.quantity_at_home = 100
         unit.save()
 
     invade_me_test.protection_ticks_remaining = 0

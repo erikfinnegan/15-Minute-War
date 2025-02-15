@@ -42,7 +42,7 @@ def initialize_generic_units():
         op=4,
         dp=3,
         cost_dict={
-            "mana": 1200,
+            "mana": 1000,
             "corpses": 1,
         },
         upkeep_dict={
