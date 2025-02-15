@@ -231,7 +231,7 @@ def do_defensive_casualties(defender: Dominion):
     defensive_casualties = 0
     new_corpses = 0
 
-    for unit in Unit.objects.filter(ruler=defender, op__gt=0, quantity_at_home__gt=0):
+    for unit in Unit.objects.filter(ruler=defender, dp__gt=0, quantity_at_home__gt=0):
         defensive_casualty_rate = 0.05
         casualties = 0
 
