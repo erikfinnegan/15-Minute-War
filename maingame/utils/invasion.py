@@ -166,7 +166,10 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casu
 
     if "goblin_ruler" in defender.perk_dict:
         defender.perk_dict["goblin_ruler"] = get_goblin_ruler()
-        defender.perk_dict["rulers_favorite_resource"] = get_random_resource(defender).name
+        current_favorite_name = defender.perk_dict["rulers_favorite_resource"]
+        defender.perk_dict["rulers_favorite_resource"] = get_random_resource(
+            defender, excluded_options=["gold", "corpses", "rats", current_favorite_name]
+        ).name
 
     if defender.faction_name == "blessed order":
         faith = Resource.objects.get(ruler=defender, name="faith")
