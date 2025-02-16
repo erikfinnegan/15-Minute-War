@@ -105,6 +105,16 @@ def generate_battle(units_sent_dict, attacker: Dominion, defender: Dominion, off
     return battle
 
 
+def get_conditional_op(unit: Unit, attacker: Dominion, defender: Dominion):
+    modified_unit_op = unit.op
+
+    if "gets_op_bonus_equal_to_percent_of_target_complacency" in unit.perk_dict:
+        op_multiplier = (defender.complacency_penalty_percent / 100) * (unit.perk_dict["gets_op_bonus_equal_to_percent_of_target_complacency"] / 100)
+        modified_unit_op *= 1 + op_multiplier
+
+    return modified_unit_op
+
+
 def get_op_and_dp_left(units_sent_dict, attacker: Dominion, defender: Dominion=None, is_infiltration=False):
     offense_sent = 0
     raw_defense = attacker.raw_defense
@@ -114,17 +124,13 @@ def get_op_and_dp_left(units_sent_dict, attacker: Dominion, defender: Dominion=N
 
     for unit_details_dict in units_sent_dict.values():
         unit = get_unit_from_dict(unit_details_dict)
-        modified_unit_op = unit.op
+        modified_unit_op = get_conditional_op(unit, attacker, defender)
         quantity_sent = unit_details_dict["quantity_sent"]
-
-        if "gets_op_bonus_equal_to_percent_of_target_complacency" in unit.perk_dict:
-            op_multiplier = (defender.complacency_penalty_percent / 100) * (unit.perk_dict["gets_op_bonus_equal_to_percent_of_target_complacency"] / 100)
-            modified_unit_op *= 1 + op_multiplier
 
         if "rats_launched" in unit.perk_dict and "op_if_rats_launched" in unit.perk_dict:
             rats = Resource.objects.get(ruler=attacker, name="rats")
             max_launches = min(quantity_sent, int(rats.quantity / unit.perk_dict["rats_launched"]))
-            offense_sent = max_launches * unit.perk_dict["op_if_rats_launched"]
+            offense_sent += max_launches * unit.perk_dict["op_if_rats_launched"]
 
         if is_infiltration:
             if "invasion_plan_power" in unit.perk_dict:
@@ -143,10 +149,23 @@ def get_op_and_dp_left(units_sent_dict, attacker: Dominion, defender: Dominion=N
         offense_sent *= (attacker.offense_multiplier + grudge_bonus)
 
     offense_sent = int(offense_sent)
-
     defense_left = int(raw_defense * attacker.defense_multiplier)
 
     return offense_sent, defense_left, raw_defense
+
+
+def does_x_of_unit_break_defender(quantity_theorized, unit: Unit, units_sent_dict, attacker: Dominion, defender: Dominion):
+    faux_units_sent_dict = units_sent_dict.copy()
+    strid = str(unit.id)
+
+    faux_units_sent_dict[strid] = {
+        "quantity_sent": quantity_theorized,
+        "unit": unit
+    }
+
+    faux_op, _, _ = get_op_and_dp_left(faux_units_sent_dict, attacker, defender)
+
+    return faux_op >= defender.defense
 
 
 def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casualties):

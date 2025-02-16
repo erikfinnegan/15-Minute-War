@@ -52,6 +52,12 @@
 
     </details>
 
+    {% if round.has_bugs %}
+    <div class="bg-red-300 max-w-md my-2">
+        <p class="u-center">There might be a bug, please @Erik in #bug-reports</p>
+    </div>
+    {% endif %}
+
     {% include "maingame/components/dominion_list.html" with this_dominion=active_dominion all_dominions=dominions my_view=True %}
 
     {% comment %} Invasion form {% endcomment %}
@@ -152,6 +158,13 @@
                             >
                                 Max
                             </button>
+                            <button 
+                                type="button" 
+                                class="header_colors u-center" 
+                                onclick="sendWin('{{ unit.id }}', '{{ unit.quantity_at_home }}')"
+                            >
+                                Win
+                            </button>
                         </td>
                     </tr>
                     {% endif %}
@@ -174,6 +187,19 @@
             thisInput.value = ""
         } else {
             thisInput.value = quantity_at_home;
+        }
+
+        thisInput.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+
+    function sendWin(unit_id, quantity_at_home) {
+        let thisInput = document.getElementById("send_" + unit_id);
+        const quantityNeeded = document.getElementById("win_" + unit_id).innerHTML;
+
+        if (thisInput.value == quantityNeeded) {
+            thisInput.value = ""
+        } else {
+            thisInput.value = quantityNeeded;
         }
 
         thisInput.dispatchEvent(new Event("input", { bubbles: true }));

@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.http import HttpResponse
 
 from maingame.models import Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings, Theme
-from maingame.utils.invasion import get_op_and_dp_left
+from maingame.utils.invasion import does_x_of_unit_break_defender, get_op_and_dp_left
 from maingame.utils.utils import create_unit_dict, get_acres_conquered, update_available_discoveries
 
 
@@ -457,7 +457,6 @@ def calculate_op(request):
     # Not sure how to get the form-wide hx-trigger to fire on repeated use of the checkbox - it only picks up on the first.
 
     units_sent_dict, _ = create_unit_dict(request.GET, "send_")
-
     target_dominion = Dominion.objects.filter(id=dominion_id).first()
     op_sent, dp_left, raw_dp_left = get_op_and_dp_left(units_sent_dict, my_dominion, target_dominion, is_infiltration)
 
@@ -473,6 +472,45 @@ def calculate_op(request):
 
     invalid_invasion = False if is_infiltration else (not target_dominion or op_sent < target_dominion.defense or dp_left < my_dominion.acres * 5)
 
+    # Build the dict that powers the win button. If this is slow, delete this part
+    units_needed_to_break_list = []
+    if target_dominion:
+        for unit in Unit.objects.filter(ruler=my_dominion, op__gt=0):
+            def check(x):
+                return does_x_of_unit_break_defender(x, unit, units_sent_dict, attacker=my_dominion, defender=target_dominion)
+
+            if not check(unit.quantity_at_home):
+                units_needed_to_break_list.append({
+                    "id": unit.id,
+                    "quantity_needed": unit.quantity_at_home,
+                })
+            elif check(0):
+                units_needed_to_break_list.append({
+                    "id": unit.id,
+                    "quantity_needed": 0,
+                })
+            else:
+                test_quantity = int(unit.quantity_at_home / 2)
+                keep_going = True
+                counter = 0
+                last_test = unit.quantity_at_home
+
+                while keep_going and counter < 1000000:
+                    counter += 1
+                    if check(test_quantity) and not check(test_quantity - 1):
+                        keep_going = False
+                        units_needed_to_break_list.append({
+                            "id": unit.id,
+                            "quantity_needed": test_quantity,
+                        })
+                    elif check(test_quantity):
+                        test_quantity = int(test_quantity / 2)
+                    else:
+                        test_quantity += max(1, int((last_test - test_quantity) / 2))
+
+                    last_test = test_quantity
+    # End win button stuff
+
     context = {
         "op": op_sent,
         "dp": target_dominion.defense if target_dominion else 0,
@@ -482,6 +520,7 @@ def calculate_op(request):
         "larger_enemy_has_lower_defense": larger_enemy_has_lower_defense,
         "left_lowest_defense": left_lowest_defense,
         "is_infiltration": is_infiltration,
+        "units_needed_to_break_list": units_needed_to_break_list,
     }
         
     return render(request, "maingame/components/op_vs_dp.html", context)

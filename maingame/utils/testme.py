@@ -55,8 +55,7 @@ def test_me(my_faction_name):
     invade_me_test = Dominion.objects.get(name="Invade me")
 
     for unit in Unit.objects.filter(ruler=invade_me_test):
-        unit.quantity_at_home = 100
-        unit.save()
+        unit.gain(100)
 
     invade_me_test.protection_ticks_remaining = 0
     invade_me_test.save()
@@ -73,12 +72,10 @@ def test_me(my_faction_name):
         building.save()
 
     for unit in Unit.objects.filter(ruler=testdominion):
-        unit.quantity_at_home = 500
-        unit.save()
+        unit.gain(500)
 
     for resource in Resource.objects.filter(ruler=testdominion):
-        resource.quantity = my_starting_resource_quantity
-        resource.save()
+        resource.gain(my_starting_resource_quantity)
 
     admindominion = Dominion.objects.get(name="Strong Guy")
     admindominion.protection_ticks_remaining = 0
@@ -86,8 +83,7 @@ def test_me(my_faction_name):
     admindominion.save()
 
     for unit in Unit.objects.filter(ruler=admindominion):
-        unit.quantity_at_home = 100000
-        unit.save()
+        unit.gain(100000)
 
     testdominion.save()
 

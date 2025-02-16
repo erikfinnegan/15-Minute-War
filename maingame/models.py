@@ -348,6 +348,10 @@ class Dominion(models.Model):
     @property
     def acres_with_incoming(self):
         return self.acres + self.incoming_acres
+    
+    @property
+    def net_acres(self):
+        return self.acres_gained - self.acres_lost
 
     @property
     def header_rows(self):
@@ -705,7 +709,7 @@ class Resource(models.Model):
     
     @property
     def net(self):
-        return self.produced - self.spent
+        return max(0, self.produced - self.spent)
 
     def spend(self, quantity):
         self.quantity -= quantity
@@ -938,7 +942,7 @@ class Unit(models.Model):
 
     @property
     def net(self):
-        return self.gained - self.lost
+        return max(0, self.gained - self.lost)
 
 
     def gain(self, quantity):
@@ -1021,6 +1025,8 @@ class Round(models.Model):
     ticks_passed = models.IntegerField(default=0)
     ticks_to_end = models.IntegerField(default=672)
     is_ticking = models.BooleanField(default=False)
+    bugs = models.JSONField(default=list, blank=True)
+    has_bugs = models.BooleanField(default=False)
 
     @property
     def allow_ticks(self):
@@ -1157,7 +1163,12 @@ class MechModule(models.Model):
     
     @property
     def versioned_name(self):
-        return self.name.replace("#", f"{self.version}")
+        versioned_name = self.name.replace("#", f"{self.version}")
+
+        if self.version == 0:
+            versioned_name += " prototype"
+
+        return versioned_name
     
     @property
     def versioned_power(self):
@@ -1206,6 +1217,15 @@ class MechModule(models.Model):
         return repair_cost_dict
     
     @property
+    def repair_cost_list(self):
+        repair_cost_string = "Repair/pt: "
+
+        for resource, amount in self.repair_cost_dict.items():
+            repair_cost_string += f"{shorten_number(amount)} {resource}, "
+
+        return repair_cost_string[:-2]
+    
+    @property
     def durability_percent(self):
         ratio = self.durability_current / self.durability_max
         return int(100 * ratio)
@@ -1229,6 +1249,18 @@ class MechModule(models.Model):
 
         return self.ruler.perk_dict["capacity_used"] + extra_capacity <= self.ruler.perk_dict["capacity_max"]
     
+    @property
+    def perk_text(self):
+        perk_text = ""
+
+        if "is_glorious" in self.perk_dict:
+            perk_text += "My god, it's glorious. "
+
+        if "is_more_glorious" in self.perk_dict:
+            perk_text += "HOW IS THIS ONE EVEN BETTER? "
+
+        return perk_text
+
     def upgrade(self):
         if self.zone == "mech" and not self.can_fit_upgrade:
             return False, f"Insufficient capacity, uninstall this module before upgrading."
@@ -1239,7 +1271,6 @@ class MechModule(models.Model):
         for resource_name, amount in self.upgrade_cost_dict.items():
             resource = Resource.objects.get(ruler=self.ruler, name=resource_name)
             resource.spend(amount)
-            resource.save()
 
         self.version += 1
 
@@ -1370,7 +1401,6 @@ def do_tick_units(dominion: Dominion):
                                 module.durability_current += 1
 
                             module.save()
-                            print()
 
         if update_harbingers:
             del unit.perk_dict["sacrifices_brothers_amount"]

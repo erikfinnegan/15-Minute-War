@@ -14,7 +14,7 @@ class Command(BaseCommand):
             if dom != testdominion:
                 testdominion.perk_dict["book_of_grudges"][dom.strid] = {
                     "pages": 100,
-                    "animosity": 100,
+                    "animosity": 0,
                 }
         
         testdominion.save()

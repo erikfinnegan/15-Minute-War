@@ -14,17 +14,25 @@ class Command(BaseCommand):
         print("IT'S DEBUG TIME BABY")
         print()
         
-        rats = 1000
-        food_spent = 0
-        
-        for _ in range(96):
-            survivors = int(0.02 * rats)
-            casualties = rats - survivors
-            food_spent += 100 * casualties
+        mult = 10
+        x = 1000
+        y = x * mult
 
-        food_spent_per_tick_per_rat = food_spent / 96 / 1000
+        total_x = 0
+        total_y = 0
 
-        print(f"{food_spent_per_tick_per_rat:2,}")
+        while x > 0:
+            total_x += x
+            x = int(x * 0.98)
+
+        while y > 0:
+            total_y += y
+            y = int(y * 0.98)
+
+        mod_x = total_x * mult
+        print(total_x)
+        print(total_y)
+        print(mod_x / total_y)
 
         print()
         print()

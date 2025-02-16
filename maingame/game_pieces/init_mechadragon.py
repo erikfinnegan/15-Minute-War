@@ -20,7 +20,7 @@ def initialize_mechadragon_units():
     )
 
     Unit.objects.create(
-        name="Mechanic",
+        name="Greasedrake",
         op=0,
         dp=0,
         cost_dict={
@@ -91,6 +91,94 @@ def initialize_mechadragon_modules():
         fragility=10,
         faction=mechadragon,
     )
+
+    MechModule.objects.create(
+        name="XV-# Rocket Pods",
+        capacity=1,
+        base_power=325,
+        base_upgrade_cost_dict={
+            "ore": 10000,
+        },
+        base_repair_cost_dict={
+            "ore": 100,
+        },
+        fragility=100,
+        faction=mechadragon,
+    )
+
+    MechModule.objects.create(
+        name="AC# Manafield",
+        capacity=1,
+        base_power=0,
+        base_upgrade_cost_dict={
+            "ore": 900,
+        },
+        base_repair_cost_dict={
+            "ore": 9,
+        },
+        fragility=100,
+        faction=mechadragon,
+    )
+
+    # MechModule.objects.create(
+    #     name="Test 1",
+    #     capacity=1,
+    #     base_power=300,
+    #     base_upgrade_cost_dict={
+    #         "ore": 46500,
+    #     },
+    #     base_repair_cost_dict={
+    #         "gold": 100,
+    #         "ore": 25,
+    #     },
+    #     fragility=10,
+    #     faction=mechadragon,
+    # )
+
+    # MechModule.objects.create(
+    #     name="Test 2",
+    #     capacity=1,
+    #     base_power=300,
+    #     base_upgrade_cost_dict={
+    #         "ore": 46500,
+    #     },
+    #     base_repair_cost_dict={
+    #         "gold": 100,
+    #         "ore": 25,
+    #     },
+    #     fragility=10,
+    #     faction=mechadragon,
+    # )
+
+    # MechModule.objects.create(
+    #     name="Test 3",
+    #     capacity=1,
+    #     base_power=300,
+    #     base_upgrade_cost_dict={
+    #         "ore": 46500,
+    #     },
+    #     base_repair_cost_dict={
+    #         "gold": 100,
+    #         "ore": 25,
+    #     },
+    #     fragility=10,
+    #     faction=mechadragon,
+    # )
+
+    # MechModule.objects.create(
+    #     name="Test 4",
+    #     capacity=1,
+    #     base_power=300,
+    #     base_upgrade_cost_dict={
+    #         "ore": 46500,
+    #     },
+    #     base_repair_cost_dict={
+    #         "gold": 100,
+    #         "ore": 25,
+    #     },
+    #     fragility=10,
+    #     faction=mechadragon,
+    # )
 
 
 def initialize_mechadragon_discoveries():

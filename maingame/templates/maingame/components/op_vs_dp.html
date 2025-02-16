@@ -28,4 +28,10 @@
     <button class="btn-danger mt-1 w-24 h-6 p-0 u-center" type="submit" id="invadeButton" {% if invalid_invasion %}disabled{% endif %}>
         <span id="invadeButtonText" class="font-bold" disabled>Submit</span>
     </button>
+
+    {% for unit in units_needed_to_break_list %}
+    <div hidden>
+        <span id="win_{{ unit.id }}">{{ unit.quantity_needed }}</span>
+    </div>
+    {% endfor %}
 </div>

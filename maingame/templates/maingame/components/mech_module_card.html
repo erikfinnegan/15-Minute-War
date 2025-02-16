@@ -1,15 +1,26 @@
 {% load humanize %}
 {% load extra_tags %}
 
-<div class="u-flex u-flex-column u-border-2 p-1">
+<div class="u-flex u-flex-column u-border-2 p-1 w-32">
     <input value="{{ module.id }}" name="{{ module.id }}" class="module-id" hidden>
     <input value="{{ module.zone }}" name="zone_{{ module.id }}" class="zone" hidden />
+
     <span>{{ module.versioned_name }}</span>
     <span>Power: {{ module.power_short }}</span>
     <span class="capacity">Capacity: {{ module.capacity }}</span>
+    <span>Durability lost in combat: {{ module.fragility }}%</span>
+    <span>{{ module.repair_cost_list }}</span>
+
     <div class="h-2 bg-white-400 u-border-1 mb-1">
-        <div class="h-2 bg-red-400" style="width: {{ module.durability_percent }}%"></div>
+        <div class="h-2 bg-red-400" style="width: {{ module.durability_percent }}%">
+            <span class="u-center text-xs leading-none h-100p">{{ module.durability_current }}</span>
+        </div>
     </div>
+
+    <div class="u-flex u-flex-column">
+        <span>{{ module.perk_text }}</span>
+    </div>
+
     <button 
         class="header_colors w-16 h-4 p-0 u-center" 
         type="submit" 
@@ -20,6 +31,7 @@
     >
         <span class="font-bold">Upgrade</span>
     </button>
+
     <div>
         {% for resource, amount in module.upgrade_cost_dict_short.items %}
             <span class="u-center">{{ amount|intcomma }}&nbsp;{{ resource|depluralize:amount }}</span>
