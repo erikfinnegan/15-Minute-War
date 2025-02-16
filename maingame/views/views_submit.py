@@ -178,8 +178,7 @@ def submit_training(request):
     if training_succeeded:
         for resource, amount in total_cost_dict.items():
             dominions_resource = Resource.objects.get(ruler=dominion, name=resource)
-            dominions_resource.quantity -= amount
-            dominions_resource.save()
+            dominions_resource.spend(amount)
 
         for key, string_amount in request.POST.items():
             if "train_" in key and string_amount != "":
@@ -188,9 +187,9 @@ def submit_training(request):
 
                 if "unit_training_time" in dominion.perk_dict:
                     unit_training_time = dominion.perk_dict["unit_training_time"]
-                    unit.training_dict[unit_training_time] += amount
+                    unit.put_into_training(amount, unit_training_time)
                 else:
-                    unit.training_dict["12"] += amount
+                    unit.put_into_training(amount, 12)
 
                 unit.save()
 
@@ -225,8 +224,7 @@ def submit_release(request):
                 messages.error(request, f"You can't release more units than you have at home.")
                 return redirect("military")
 
-            unit.quantity_at_home = max(0, unit.quantity_at_home - amount)
-            unit.save()
+            unit.lose(max(0, unit.quantity_at_home - amount))
             total_released += amount
 
     if total_released < 1:
@@ -266,8 +264,7 @@ def upgrade_building(request, building_id):
         messages.error(request, f"This would cost {f'{building.upgrade_cost:,}'} research. You have {f'{available_research_points:,}'}. You're {f'{building.upgrade_cost - available_research_points:,}'} short.")
         return redirect("upgrades")
 
-    research_resource.quantity -= building.upgrade_cost
-    research_resource.save()
+    research_resource.spend(building.upgrade_cost)
     building.upgrades += 1
     
     if building.amount_produced > 0:

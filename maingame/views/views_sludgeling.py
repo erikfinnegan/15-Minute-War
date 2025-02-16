@@ -86,11 +86,8 @@ def generate_experiment(request):
         pass
     
     if dominion.perk_dict["free_experiments"] == 0:
-        players_research.quantity -= experiment_research_cost
-        players_research.save()
-
-        players_sludge.quantity -= experiment_sludge_cost
-        players_sludge.save()
+        players_research.spend(experiment_research_cost)
+        players_sludge.spend(experiment_sludge_cost)
     else:
         dominion.perk_dict["free_experiments"] -= 1
         dominion.save()
@@ -496,12 +493,10 @@ def terminate_experiment(request):
         sludge_refund = int(unit.quantity_at_home * unit.cost_dict["sludge"] * dominion.perk_dict["recycling_refund"])
     
     gold = Resource.objects.get(ruler=dominion, name="gold")
-    gold.quantity += gold_refund
-    gold.save()
+    gold.gain(gold_refund)
 
     sludge = Resource.objects.get(ruler=dominion, name="sludge")
-    sludge.quantity += sludge_refund
-    sludge.save()
+    sludge.gain(sludge_refund)
 
     messages.success(request, f"Terminated the {unit.name} experiment, regained {gold_refund:2,} gold and {sludge_refund:2,} sludge from recycling {unit.quantity_at_home:2,} units")
 

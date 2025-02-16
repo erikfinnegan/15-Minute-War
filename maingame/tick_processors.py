@@ -59,7 +59,7 @@ def do_global_tick():
 
         if round.has_ended:
             for dominion in Dominion.objects.all():
-                dominion.acres += dominion.incoming_acres
+                dominion.gain_acres(dominion.incoming_acres)
                 dominion.incoming_acres_dict = {
                     "1": 0,
                     "2": 0,

@@ -57,8 +57,7 @@ def submit_mech_hangar(request):
             if quantity > upgrades_affordable:
                 messages.error(request, "Insufficient gold for that many capacity upgrades")
             else:
-                gold.quantity -= quantity * capacity_upgrade_cost
-                gold.save()
+                gold.spend(quantity * capacity_upgrade_cost)
                 dominion.perk_dict["capacity_max"] += quantity
                 messages.success(request, f"Upgraded capacity {quantity} times")
 

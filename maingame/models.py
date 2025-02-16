@@ -135,11 +135,14 @@ class Dominion(models.Model):
     determination = models.FloatField(default=0)
     has_tick_units = models.BooleanField(default=False)
     is_abandoned = models.BooleanField(default=False)
-    acres = models.IntegerField(default=500)
     incoming_acres_dict = models.JSONField(default=dict, blank=True)
     successful_invasions = models.IntegerField(default=0)
     failed_defenses = models.IntegerField(default=0)
     highest_raw_op_sent = models.IntegerField(default=0, null=True, blank=True)
+
+    acres = models.IntegerField(default=500)
+    acres_gained = models.IntegerField(default=0)
+    acres_lost = models.IntegerField(default=0)
 
     primary_resource_name = models.CharField(max_length=50, null=True, blank=True)
     primary_resource_per_acre = models.IntegerField(default=0)
@@ -465,17 +468,21 @@ class Dominion(models.Model):
         self.is_starving = False
         
         for resource in Resource.objects.filter(ruler=self):
-            resource.quantity += self.get_production(resource.name)
-            resource.quantity -= self.get_consumption(resource.name)
+            resource.gain(self.get_production(resource.name))
+            resource.spend(self.get_consumption(resource.name))
 
             if resource.quantity < 0:
                 self.is_starving = True
                 for unit in Unit.objects.filter(ruler=self):
                     if resource.name in unit.upkeep_dict:
-                        unit.quantity_at_home = math.ceil(unit.quantity_at_home * 0.99)
+                        new_amount = math.ceil(unit.quantity_at_home * 0.99)
+                        amount_lost = unit.quantity_at_home - new_amount
+                        unit.lose(amount_lost)
                         
                         for tick, quantity in unit.returning_dict.items():
-                            unit.returning_dict[tick] = math.ceil(quantity * 0.99)
+                            new_amount_returning = math.ceil(quantity * 0.99)
+                            unit.lost += quantity - new_amount_returning
+                            unit.returning_dict[tick] = new_amount_returning
 
                         unit.save()
 
@@ -486,7 +493,7 @@ class Dominion(models.Model):
     def advance_land_returning(self):
         for key, value in self.incoming_acres_dict.items():
             if key == "1":
-                self.acres += value
+                self.gain_acres(value)
             else:
                 new_key = str(int(key) - 1)
                 self.incoming_acres_dict[new_key] = value
@@ -519,12 +526,11 @@ class Dominion(models.Model):
             try:
                 heretics = Resource.objects.get(ruler=self, name="heretics")
                 heretics_killed = heretics.quantity if self.perk_dict["order_cant_attack_ticks_left"] == 0 else min(self.perk_dict["inquisition_rate"], heretics.quantity)
-                heretics.quantity -= heretics_killed
+                heretics.spend(heretics_killed)
 
                 if "inquisition_makes_corpses" in self.perk_dict:
                     corpses = Resource.objects.get(ruler=self, name="corpses")
-                    corpses.quantity += heretics_killed
-                    corpses.save()
+                    corpses.gain(heretics_killed)
 
                 heretics.save()
             except:
@@ -542,8 +548,8 @@ class Dominion(models.Model):
             deep_apostles = Unit.objects.get(ruler=self, name="Deep Apostle")
 
             max_converts = min(stoneshields.quantity_at_home, deep_angels.quantity_at_home)
-            stoneshields.quantity_at_home -= max_converts
-            deep_apostles.quantity_at_home += max_converts
+            stoneshields.lose(max_converts)
+            deep_apostles.gain(max_converts)
 
             stoneshields.save()
             deep_apostles.save()
@@ -552,7 +558,7 @@ class Dominion(models.Model):
             self.perk_dict["free_experiments"] += 1
 
         if "Always Be Digging" in self.learned_discoveries and Round.objects.first().ticks_passed % 4 == 0 and Round.objects.first().ticks_passed > 0:
-            self.acres += int(self.acres / 400)
+            self.gain_acres(int(self.acres / 400))
 
         if "partner_patience" in self.perk_dict and self.is_oop:
             self.perk_dict["partner_patience"] -= 1
@@ -587,6 +593,16 @@ class Dominion(models.Model):
             if "bonus_determination" in self.perk_dict:
                 self.determination += self.perk_dict["bonus_determination"]
 
+        self.save()
+
+    def gain_acres(self, quantity):
+        self.acres += quantity
+        self.acres_gained += quantity
+        self.save()
+
+    def lose_acres(self, quantity):
+        self.acres -= quantity
+        self.acres_lost += quantity
         self.save()
 
 
@@ -652,6 +668,8 @@ class Resource(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
     ruler = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, blank=True)
     quantity = models.IntegerField(default=0)
+    produced = models.IntegerField(default=0)
+    spent = models.IntegerField(default=0)
     
     def __str__(self):
         if self.ruler:
@@ -684,6 +702,20 @@ class Resource(models.Model):
                 return False
         
         return True
+    
+    @property
+    def net(self):
+        return self.produced - self.spent
+
+    def spend(self, quantity):
+        self.quantity -= quantity
+        self.spent += quantity
+        self.save()
+
+    def gain(self, quantity):
+        self.quantity += quantity
+        self.produced += quantity
+        self.save()
 
 
 class Unit(models.Model):
@@ -699,6 +731,8 @@ class Unit(models.Model):
     quantity_at_home = models.IntegerField(default=0)
     perk_dict = models.JSONField(default=dict, blank=True)
     faction = models.ForeignKey(Faction, on_delete=models.PROTECT, null=True, blank=True)
+    gained = models.IntegerField(default=0)
+    lost = models.IntegerField(default=0)
 
     def __str__(self):
         base_name = f"{self.name} ({self.op}/{self.dp}) -- x{self.quantity_at_home}"
@@ -900,6 +934,27 @@ class Unit(models.Model):
     @property
     def quantity_in_training_and_returning(self):
         return self.quantity_in_training + self.quantity_returning
+
+
+    @property
+    def net(self):
+        return self.gained - self.lost
+
+
+    def gain(self, quantity):
+        self.quantity_at_home += quantity
+        self.gained += quantity
+        self.save()
+
+    def put_into_training(self, quantity, ticks_to_train):
+        self.training_dict[str(ticks_to_train)] += quantity
+        self.gained += quantity
+        self.save()
+
+    def lose(self, quantity):
+        self.quantity_at_home -= quantity
+        self.lost += quantity
+        self.save()
 
 
 class Battle(models.Model):
@@ -1183,7 +1238,7 @@ class MechModule(models.Model):
             
         for resource_name, amount in self.upgrade_cost_dict.items():
             resource = Resource.objects.get(ruler=self.ruler, name=resource_name)
-            resource.quantity -= amount
+            resource.spend(amount)
             resource.save()
 
         self.version += 1
@@ -1212,7 +1267,7 @@ def do_tick_units(dominion: Dominion):
 
                     if consumable_research_points >= value:
                         instances_consumed = int(consumable_research_points / value)
-                        research.quantity -= instances_consumed * value
+                        research.spend(instances_consumed * value)
                         unit.op += instances_consumed
                         unit.dp += instances_consumed
                         research.save()
@@ -1226,24 +1281,20 @@ def do_tick_units(dominion: Dominion):
                         dominion.save()
                 case "percent_attrition":
                     attrition_multiplier = 1 - (value / 100)
-                    unit.quantity_at_home = math.floor(unit.quantity_at_home * attrition_multiplier)
+                    new_quantity = math.floor(unit.quantity_at_home * attrition_multiplier)
+                    quantity_lost = unit.quantity_at_home - new_quantity
+                    unit.lose(quantity_lost)
                         
                     for tick, quantity in unit.returning_dict.items():
-                        unit.returning_dict[tick] = math.floor(quantity * attrition_multiplier)
+                        new_quantity = math.floor(quantity * attrition_multiplier)
+                        quantity_lost = unit.returning_dict[tick] - new_quantity
+                        unit.returning_dict[tick] = new_quantity
+                        unit.lost += quantity_lost
                     
                     unit.save()
 
                     if unit.quantity_total_and_paid == 0 and "Overwhelming" in unit.name:
                         unit.delete()
-                # case "percent_becomes_rats":
-                #     attrition_multiplier = value / 100
-                #     rats = Resource.objects.get(ruler=unit.ruler, name="rats")
-                #     quantity_becomes_rats = math.ceil(unit.quantity_at_home * attrition_multiplier)
-
-                #     unit.quantity_at_home -= quantity_becomes_rats
-                #     unit.save()
-                #     rats.quantity += quantity_becomes_rats
-                #     rats.save()
                 case "rats_trained_per_tick":
                     try:
                         trained_rats = Unit.objects.get(ruler=unit.ruler, name="Trained Rat")
@@ -1254,10 +1305,8 @@ def do_tick_units(dominion: Dominion):
                             int(food.quantity / trained_rats.cost_dict["food"]), 
                             int(rats.quantity / trained_rats.cost_dict["rats"])
                         )
-                        rats.quantity -= max_trainable * trained_rats.cost_dict["rats"]
-                        rats.save()
-                        food.quantity -= max_trainable * trained_rats.cost_dict["food"]
-                        food.save()
+                        rats.spend(max_trainable * trained_rats.cost_dict["rats"])
+                        food.spend(max_trainable * trained_rats.cost_dict["food"])
                         trained_rats.training_dict["12"] += max_trainable
                         trained_rats.save()
                     except:
@@ -1274,8 +1323,8 @@ def do_tick_units(dominion: Dominion):
 
                         for _ in range(iterations):
                             if random.randint(1, 100) <= sacrifices_brothers_chance_percent and brothers.quantity_at_home > 0:
-                                brothers.quantity_at_home -= min(brothers.quantity_at_home, sacrifices_brothers_amount)
-                                grisly_altars.quantity_at_home += 1
+                                brothers.lose(min(brothers.quantity_at_home, sacrifices_brothers_amount))
+                                grisly_altars.gain(1)
                         
                         grisly_altars.save()
 
@@ -1291,19 +1340,15 @@ def do_tick_units(dominion: Dominion):
                     zealots = Unit.objects.get(ruler=dominion, name="Zealot")
                     chosen_ones = Unit.objects.get(ruler=dominion, name="Chosen One")
                     conversions = min(grisly_altars.quantity_at_home, zealots.quantity_at_home)
-                    zealots.quantity_at_home -= conversions
-                    chosen_ones.quantity_at_home += conversions
-                    zealots.save()
-                    chosen_ones.save()
+                    zealots.lose(conversions)
+                    chosen_ones.gain(conversions)
                 case "percent_becomes_500_blasphemy":
                     attrition_multiplier = value / 100
                     blasphemy = Resource.objects.get(ruler=unit.ruler, name="blasphemy")
                     quantity_becomes_500_blasphemy_each = math.ceil(unit.quantity_at_home * attrition_multiplier)
 
-                    unit.quantity_at_home -= quantity_becomes_500_blasphemy_each
-                    unit.save()
-                    blasphemy.quantity += quantity_becomes_500_blasphemy_each * 500
-                    blasphemy.save()
+                    unit.lose(quantity_becomes_500_blasphemy_each)
+                    blasphemy.gain(quantity_becomes_500_blasphemy_each * 500)
                 case "repairs_mechadragons":
                     if Unit.objects.get(ruler=unit.ruler, name="Mecha-Dragon").quantity_at_home > 0:
                         repairs = unit.quantity_at_home
@@ -1320,12 +1365,10 @@ def do_tick_units(dominion: Dominion):
                                 repairs > 0
                             ):
                                 repairs -= 1
-                                gold.quantity -= gold_cost
-                                ore.quantity -= ore_cost
+                                gold.spend(gold_cost)
+                                ore.spend(ore_cost)
                                 module.durability_current += 1
 
-                            gold.save()
-                            ore.save()
                             module.save()
                             print()
 

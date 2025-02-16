@@ -129,8 +129,7 @@ def submit_true_inquisition(request):
     faith = Resource.objects.get(ruler=dominion, name="faith")
     heretics = Resource.objects.get(ruler=dominion, name="heretics")
 
-    blasphemy.quantity = faith.quantity
-    blasphemy.save()
+    blasphemy.gain(faith.quantity)
     faith.delete()
     heretics.delete()
 
@@ -146,8 +145,7 @@ def submit_true_inquisition(request):
     give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Chosen One"))
     martyrs = Unit.objects.get(ruler=dominion, name="Blessed Martyr")
 
-    harbingers.quantity_at_home += martyrs.quantity_total_and_paid
-    harbingers.save()
+    harbingers.gain(martyrs.quantity_total_and_paid)
     martyrs.delete()
 
     messages.success(request, "There's no going back now.")
@@ -183,15 +181,10 @@ def submit_unholy_baptism(request):
     conversion_max_blasphemy = int(blasphemy.quantity / 500)
     conversion_max_units = chosen_ones.quantity_at_home
     conversions = min(conversion_max_blasphemy, conversion_max_units)
-
-    chosen_ones.quantity_at_home -= conversions
-    chosen_ones.save()
-
-    anointed_ones.quantity_at_home += conversions
-    anointed_ones.save()
-
-    blasphemy.quantity -= conversions * 500
-    blasphemy.save()
+    
+    chosen_ones.lose(conversions)
+    anointed_ones.gain(conversions)
+    blasphemy.spend(conversions * 500)
 
     dominion.perk_dict["order_cant_attack_ticks_left"] = 13
     dominion.save()

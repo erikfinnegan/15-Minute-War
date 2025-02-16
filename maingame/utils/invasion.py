@@ -173,11 +173,9 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casu
         faith = Resource.objects.get(ruler=defender, name="faith")
         martyrs_affordable = int(faith.quantity / defender.perk_dict["martyr_cost"])
         martyrs_gained = min(martyrs_affordable, defensive_casualties)
-        faith.quantity -= defender.perk_dict["martyr_cost"] * martyrs_gained
-        faith.save()
+        faith.spend(defender.perk_dict["martyr_cost"] * martyrs_gained)
         martyrs = Unit.objects.get(ruler=defender, name="Blessed Martyr")
-        martyrs.quantity_at_home += martyrs_gained
-        martyrs.save()
+        martyrs.gain(martyrs_gained)
 
     attacker.save()
     defender.save()
@@ -237,12 +235,12 @@ def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion):
             handle_module_durability(unit, is_attacker=True)
 
         if do_instant_return:
-            unit.quantity_at_home -= quantity_sent
-            unit.quantity_at_home += survivors
+            unit.lose(casualties)
         else:
             return_ticks = str(unit.perk_dict["returns_in_ticks"]) if "returns_in_ticks" in unit.perk_dict else "12"
             unit.quantity_at_home -= quantity_sent
             unit.returning_dict[return_ticks] = survivors
+            unit.lost += casualties
 
         unit.save()
         offensive_casualties += casualties
@@ -269,8 +267,7 @@ def do_defensive_casualties(defender: Dominion):
 
         if "faith_per_power_died" in defender.perk_dict:
             faith = Resource.objects.get(ruler=defender, name="faith")
-            faith.quantity += casualties * unit.dp * defender.perk_dict["faith_per_power_died"]
-            faith.save()
+            faith.gain(casualties * unit.dp * defender.perk_dict["faith_per_power_died"])
 
         if "food" in unit.upkeep_dict:
             new_corpses += casualties
@@ -278,8 +275,7 @@ def do_defensive_casualties(defender: Dominion):
         if unit.name == "Mecha-Dragon":
             handle_module_durability(is_attacker=False)
 
-        unit.quantity_at_home -= casualties
-        unit.save()
+        unit.lose(casualties)
         defensive_casualties += casualties
 
     return defensive_casualties, new_corpses
@@ -312,12 +308,11 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion):
         if "rats_launched" in unit.perk_dict and "op_if_rats_launched" in unit.perk_dict:
             rats = Resource.objects.get(ruler=attacker, name="rats")
             max_launches = min(quantity_sent, int(rats.quantity / unit.perk_dict["rats_launched"]))
-            rats.quantity -= max_launches * unit.perk_dict["rats_launched"]
-            rats.save()
+            rats.spend(max_launches * unit.perk_dict["rats_launched"])
 
     defender.complacency = 0
     defender.failed_defenses += 1
-    defender.acres -= acres_conquered
+    defender.lose_acres(acres_conquered)
     defender.save()
 
     attacker.highest_raw_op_sent = max(raw_op_sent, attacker.highest_raw_op_sent)
@@ -339,8 +334,7 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion):
 
     try:
         corpses = Resource.objects.get(ruler=attacker, name="corpses")
-        corpses.quantity += new_corpses
-        corpses.save()
+        corpses.gain(new_corpses)
         battle.battle_report_notes.append(f"{attacker} gained {new_corpses} corpses.")
         battle.save()
     except:

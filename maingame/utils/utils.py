@@ -104,8 +104,7 @@ def create_magnum_goopus(dominion: Dominion, units_included_dict, encore=False):
                 else:
                     perk_dict[perk] = value
             
-            unit.quantity_at_home -= quantity_included
-            unit.save()
+            unit.lose(quantity_included)
 
     encore_suffixes = [" Mk II", " 2: Electric Goopaloo", " Remastered", ": the Remix", " 2", " Jr.", " Magnum Goopier"]
 
@@ -186,8 +185,7 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Zombie"))
         case "Archmage":
             archmage = give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Archmage"))
-            archmage.quantity_at_home = 1
-            archmage.save()
+            archmage.gain(1)
             dominion.has_tick_units = True
         case "Fireballs":
             fireballs = give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Fireball"))
@@ -199,8 +197,7 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Mercenary"))
         case "Grudgestoker":
             grudgestoker = give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Grudgestoker"))
-            grudgestoker.quantity_at_home = 1
-            grudgestoker.save()
+            grudgestoker.gain(1)
             dominion.has_tick_units = True
         case "Never Forget":
             dominion.perk_dict["grudge_page_keep_multiplier"] = 0.2
@@ -347,8 +344,7 @@ def cast_spell(spell: Spell, target=None):
     elif spell.cooldown_remaining > 0:
         return
     
-    mana.quantity -= spell.mana_cost
-    mana.save()
+    mana.spend(spell.mana_cost)
 
     spell.cooldown_remaining = spell.cooldown
     spell.save()
@@ -377,9 +373,8 @@ def cast_spell(spell: Spell, target=None):
                     overwhelming_quantity = int(unit.quantity_at_home * 0.2)
 
                     if overwhelming_quantity > 0:
-                        overwhelming_unit.quantity_at_home += overwhelming_quantity
-                        unit.quantity_at_home -= overwhelming_quantity
-                        unit.save()
+                        overwhelming_unit.gain(overwhelming_quantity)
+                        unit.lose(overwhelming_quantity)
 
                         timer_template = {
                             "1": 0,

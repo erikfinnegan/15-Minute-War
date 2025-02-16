@@ -326,6 +326,7 @@ def overview(request, dominion_id):
             "quantity": resource.quantity,
             "produced": dominion.get_production(resource.name),
             "consumed": dominion.get_consumption(resource.name),
+            "resource": resource,
         }
 
         resources_dict[resource.name]["net"] = resources_dict[resource.name]["produced"] - resources_dict[resource.name]["consumed"]
