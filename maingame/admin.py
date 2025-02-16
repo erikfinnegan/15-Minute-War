@@ -1,15 +1,15 @@
 from django.contrib import admin
 
-from .models import Faction, Unit, Dominion, Deity, Building, Round, Event, Battle, Resource, Discovery, Spell, UserSettings, Theme, Artifact
+from .models import Faction, Unit, Dominion, Deity, Building, Round, Event, Battle, Resource, Discovery, Spell, UserSettings, Theme, MechModule
 
 class FooAdmin(admin.ModelAdmin):
     readonly_fields = ('timestamp',)
 
-admin.site.register(Artifact)
 admin.site.register(Faction)
 admin.site.register(Resource)
 admin.site.register(Dominion)
 admin.site.register(Unit)
+admin.site.register(MechModule)
 admin.site.register(Deity)
 admin.site.register(Discovery)
 admin.site.register(Event, FooAdmin)

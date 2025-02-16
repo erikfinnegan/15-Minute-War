@@ -1,10 +1,8 @@
-from random import randint, choice
+from random import choice
 import random
 
-from maingame.models import Artifact, Unit, Dominion, Discovery, Building, Event, Round, Faction, Resource, Spell, UserSettings
-from django.contrib.auth.models import User
+from maingame.models import Unit, Dominion, Discovery, Building, Resource, Spell, MechModule
 
-from maingame.utils.artifacts import give_random_unowned_artifact_to_dominion
 from maingame.utils.give_stuff import create_resource_for_dominion, give_dominion_building, give_dominion_spell, give_dominion_unit
 
 
@@ -148,6 +146,23 @@ def create_magnum_goopus(dominion: Dominion, units_included_dict, encore=False):
         training_dict=timer_template,
         returning_dict=timer_template,
     )
+
+
+def update_capacity(dominion: Dominion):
+    used_capacity = 0
+    mechadragon = Unit.objects.get(ruler=dominion, name="Mecha-Dragon")
+    module_power = 0
+
+    for module in MechModule.objects.filter(ruler=dominion, zone="mech"):
+        used_capacity += module.capacity
+        module_power += module.power
+    
+    mechadragon.op = module_power
+    mechadragon.dp = module_power
+    mechadragon.save()
+
+    dominion.perk_dict["capacity_used"] = used_capacity
+    dominion.save()
 
 
 def unlock_discovery(dominion: Dominion, discovery_name):

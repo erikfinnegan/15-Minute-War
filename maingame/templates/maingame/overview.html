@@ -48,15 +48,6 @@
         {% else %}
             <h6>Ruled by {{ dominion.rulers_display_name }}</h6>
         {% endif %}
-
-        <div class="u-flex u-flex-column">
-            {% for artifact in dominion.artifacts_owned %}
-                <div class="u-flex u-flex-column">
-                    <em>{{ artifact.name }}</em>
-                    <span class="text-sm">{{ artifact.description }}</span>
-                </div>
-            {% endfor %}
-        </div>
     </div>
 
     {% comment %} Units {% endcomment %}

@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 
+from maingame.models import Unit
 from maingame.utils.testme import test_me
 
 
@@ -8,3 +9,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         testdominion = test_me("mecha-dragon")
+
+        mechadragon = Unit.objects.get(ruler=testdominion, name="Mecha-Dragon")
+        mechadragon.quantity_at_home = 1
+        mechadragon.save()

@@ -1,4 +1,4 @@
-from maingame.models import Unit, Dominion, Spell, Building, Resource
+from maingame.models import Unit, Dominion, Spell, Building, Resource, MechModule
 
 
 def give_dominion_unit(dominion: Dominion, unit: Unit):
@@ -13,7 +13,28 @@ def give_dominion_unit(dominion: Dominion, unit: Unit):
         for resource in unit.cost_dict:
             create_resource_for_dominion(resource, dominion)
 
+        for resource in unit.upkeep_dict:
+            create_resource_for_dominion(resource, dominion)
+
     return dominions_unit
+
+
+def give_dominion_module(dominion: Dominion, module: MechModule):
+    try:
+        dominions_module = MechModule.objects.get(ruler=dominion, name=module.name)
+    except:
+        dominions_module = module
+        dominions_module.pk = None
+        dominions_module.ruler = dominion
+        dominions_module.save()
+
+        for resource in module.base_upgrade_cost_dict:
+            create_resource_for_dominion(resource, dominion)
+
+        for resource in module.base_repair_cost_dict:
+            create_resource_for_dominion(resource, dominion)
+
+    return dominions_module
 
 
 def give_dominion_spell(dominion: Dominion, spell: Spell):

@@ -1,9 +1,7 @@
-import math
 from random import randint
-import random
 
 from maingame.formatters import get_goblin_ruler
-from maingame.models import Artifact, Battle, Unit, Dominion, Event, Round, Resource
+from maingame.models import Battle, Unit, Dominion, Event, Round, Resource, MechModule
 from maingame.utils.utils import get_acres_conquered, get_grudge_bonus, get_random_resource, get_unit_from_dict
 
 
@@ -185,6 +183,24 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casu
     defender.save()
 
 
+def handle_module_durability(mechadragon: Unit, is_attacker):
+    if is_attacker:
+        new_durability_multiplier = 0.9
+    else:
+        new_durability_multiplier = 0.95
+
+    for module in MechModule.objects.filter(ruler=mechadragon.ruler, zone="mech"):
+        modified_fragility = module.fragility
+
+        if not is_attacker:
+            modified_fragility /= 2
+
+        new_durability_multiplier = 1 - (modified_fragility / 100)
+
+        module.durability_current = int(module.durability_current * new_durability_multiplier)
+        module.save()
+
+
 def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion):
     offensive_casualties = 0
     new_corpses = 0
@@ -216,6 +232,9 @@ def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion):
 
         if "food" in unit.upkeep_dict:
             new_corpses += casualties
+
+        if unit.name == "Mecha-Dragon":
+            handle_module_durability(unit, is_attacker=True)
 
         if do_instant_return:
             unit.quantity_at_home -= quantity_sent
@@ -255,6 +274,9 @@ def do_defensive_casualties(defender: Dominion):
 
         if "food" in unit.upkeep_dict:
             new_corpses += casualties
+
+        if unit.name == "Mecha-Dragon":
+            handle_module_durability(is_attacker=False)
 
         unit.quantity_at_home -= casualties
         unit.save()

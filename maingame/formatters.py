@@ -64,9 +64,15 @@ def get_goblin_ruler():
 
 
 def shorten_number(num):
-    if num < 100000: # 100k
+    hundred_thousand = 100000
+    one_million = 1000000
+    ten_million = 10000000
+    
+    if num < hundred_thousand: # 100k
         return f"{num:2,}"
-    elif num < 1000000: # 1m
+    elif num < one_million: # 1m
         return f"{int(num/1000)}k"
+    elif num < ten_million: #10m
+        return f"{round(num/one_million, 2)}m"
     else:
-        return f"{round(num/1000000, 2)}m"
+        return f"{round(num/one_million, 1)}m"

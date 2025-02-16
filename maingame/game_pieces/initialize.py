@@ -4,9 +4,9 @@ from maingame.game_pieces.init_dwarf import initialize_dwarf_discoveries, initia
 from maingame.game_pieces.init_generic import initialize_generic_discoveries, initialize_generic_units
 from maingame.game_pieces.init_goblin import initialize_goblin_discoveries, initialize_goblin_units
 from maingame.game_pieces.init_gsf import initialize_gnomish_special_forces_discoveries, initialize_gnomish_special_forces_units
-from maingame.game_pieces.init_mechadragon import initialize_mechadragon_discoveries, initialize_mechadragon_units
+from maingame.game_pieces.init_mechadragon import initialize_mechadragon_discoveries, initialize_mechadragon_units, initialize_mechadragon_modules
 from maingame.game_pieces.init_sludgeling import initialize_sludgeling_discoveries, initialize_sludgeling_units
-from maingame.models import Faction, Deity, Dominion, Building, Unit, Discovery, Round, Battle, Event, Resource, Spell, Artifact
+from maingame.models import Faction, Deity, Dominion, Building, Unit, Discovery, Round, Battle, Event, Resource, Spell, MechModule
 
 
 def initialize_resources():
@@ -226,6 +226,10 @@ def initialize_units():
         give_unit_timer_template(unit)
 
 
+def initialize_modules():
+    initialize_mechadragon_modules()
+
+
 def give_unit_timer_template(unit: Unit):
     timer_template = {
         "1": 0,
@@ -278,58 +282,6 @@ def initialize_discoveries():
     initialize_mechadragon_discoveries()
 
 
-def initialize_artifacts():
-    Artifact.objects.create(
-        name="The Eternal Egg of the Flame Princess",
-        description="Generates one fireball per tick for every 250 acres of the dominion that possesses it."
-    )
-
-    Artifact.objects.create(
-        name="The Infernal Contract",
-        description="Generates one imp per tick for every 250 acres of the dominion that possesses it."
-    )
-
-    Artifact.objects.create(
-        name="The Hoarder's Boon",
-        description="Generates an amount of your lowest resource as if you had 5% land dedicated to the building that generates it."
-    )
-
-    Artifact.objects.create(
-        name="The Stable of the North Wind",
-        description="Your units and land return in 10 ticks, unless they'd return faster."
-    )
-
-    Artifact.objects.create(
-        name="Death's True Name",
-        description="You suffer half casualties on defense."
-    )
-
-    # Artifact.objects.create(
-    #     name="A Ladder Made Entirely of Top Rungs",
-    #     description="Each tick you gain one page of grudges against the largest player (unless it's you)."
-    # )
-
-    Artifact.objects.create(
-        name="The Barbarian's Horn",
-        description="Your complacency gives you an equivalent bonus to offense."
-    )
-
-    # Artifact.objects.create(
-    #     name="The Three-Faced Coin",
-    #     description="Your gold gains 0.8% interest per tick."
-    # )
-
-    Artifact.objects.create(
-        name="The Cause of Nine Deaths",
-        description="You gain discoveries 25% faster."
-    )
-
-    Artifact.objects.create(
-        name="The Victor's Feast",
-        description="You have no food upkeep."
-    )
-
-
 def initialize_game_pieces():
     print()
     print("-- PLAYERS --")
@@ -350,9 +302,9 @@ def initialize_game_pieces():
     Discovery.objects.all().delete()
     Building.objects.all().delete()
     Unit.objects.all().delete()
+    MechModule.objects.all().delete()
     Spell.objects.all().delete()
     Faction.objects.all().delete()
-    Artifact.objects.all().delete()
     Dominion.objects.all().delete()
     Deity.objects.all().delete()
     
@@ -377,7 +329,5 @@ def initialize_game_pieces():
     initialize_deities()
     initialize_buildings()
     initialize_units()
+    initialize_modules()
     initialize_spells()
-    # initialize_trade_prices()
-    # initialize_artifacts()
-    # update_trade_prices()

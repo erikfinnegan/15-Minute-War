@@ -222,9 +222,6 @@ class Dominion(models.Model):
     def offense_multiplier(self):
         multiplier = 1 + (self.determination_bonus_percent / 100)
 
-        if Artifact.objects.filter(name="The Barbarian's Horn", ruler=self).exists():
-            multiplier += self.complacency_penalty_percent / 100
-
         return multiplier
     
     @property
@@ -239,9 +236,6 @@ class Dominion(models.Model):
     @property
     def defense_multiplier(self):
         multiplier = 1 - (self.complacency_penalty_percent / 100)
-
-        # if Artifact.objects.filter(name="The Three-Faced Coin", ruler=self).exists():
-        #     multiplier -= Resource.objects.get(ruler=self, name="gold").quantity - self.get_production("gold")
 
         return multiplier
 
@@ -261,18 +255,6 @@ class Dominion(models.Model):
     def highest_op_short(self):
         return shorten_number(self.highest_raw_op_sent)
     
-    @property
-    def artifact_count(self):
-        return Artifact.objects.filter(ruler=self).count()
-
-    @property
-    def has_artifacts(self):
-        return Artifact.objects.filter(ruler=self).count() > 0
-
-    @property
-    def artifacts_owned(self):
-        return Artifact.objects.filter(ruler=self)
-
     @property
     def juicy_target_threshold(self):
         return self.defense * UserSettings.objects.get(associated_user=self.associated_user).juicy_target_threshold
@@ -463,9 +445,6 @@ class Dominion(models.Model):
         return int(production)
     
     def get_consumption(self, resource_name):
-        if resource_name == "food" and Artifact.objects.filter(ruler=self, name="The Victor's Feast").exists():
-            return 0
-
         consumption = 0
 
         for unit in Unit.objects.filter(ruler=self):
@@ -488,9 +467,6 @@ class Dominion(models.Model):
         for resource in Resource.objects.filter(ruler=self):
             resource.quantity += self.get_production(resource.name)
             resource.quantity -= self.get_consumption(resource.name)
-
-            # if resource.name == "gold" and Artifact.objects.filter(name="The Three-Faced Coin", ruler=self).exists():
-            #     resource.quantity *= 1.008
 
             if resource.quantity < 0:
                 self.is_starving = True
@@ -587,64 +563,12 @@ class Dominion(models.Model):
             if self.perk_dict["biclopean_ambition_ticks_remaining"] == 0:
                 del self.perk_dict["biclopean_ambition_ticks_remaining"]
 
-    def do_artifacts(self):
-        if Artifact.objects.filter(name="The Eternal Egg of the Flame Princess", ruler=self).exists():
-            fireballs = Unit.objects.get(ruler=self, name="Fireball")
-            fireballs.quantity_at_home += int(self.acres/250)
-
-            if self.acres % 250 >= random.randint(1,250):
-                fireballs.quantity_at_home += 1
-
-            fireballs.save()
-
-        if Artifact.objects.filter(name="The Infernal Contract", ruler=self).exists():
-            imps = Unit.objects.get(ruler=self, name="Imp")
-            imps.quantity_at_home += int(self.acres/250)
-
-            if self.acres % 250 >= random.randint(1,250):
-                imps.quantity_at_home += 1
-
-            imps.save()
-
-        if Artifact.objects.filter(name="The Hoarder's Boon", ruler=self).exists():
-            acres_allocated = int(self.acres * 0.05)
-            resource_gained = Resource.objects.get(ruler=self, name="food")
-            lowest_resource_amount = 99999999999
-
-            for resource in Resource.objects.filter(ruler=self):
-                if resource.quantity < lowest_resource_amount and resource.name not in ["corpses", "faith", "rats", "heretics", "gold"]: 
-                    resource_gained = resource
-                    lowest_resource_amount = resource.quantity
-
-            building = Building.objects.get(resource_produced_name=resource_gained.name, ruler=self)
-
-            resource_gained.quantity += building.amount_produced * acres_allocated
-            resource_gained.save()
-
-        # if Artifact.objects.filter(name="A Ladder Made Entirely of Top Rungs", ruler=self).exists():
-        #     largest_dominion = Dominion.objects.all().order_by("-acres").first()
-        #     largest_size = largest_dominion.acres
-        #     largest_dominions = Dominion.objects.filter(acres=largest_size)
-
-        #     if largest_dominions.count() == 1 and largest_dominions.first() != self:
-                
-        #         if str(largest_dominion.id) in self.perk_dict["book_of_grudges"]:
-        #             self.perk_dict["book_of_grudges"][str(largest_dominion.id)]["pages"] += 1
-        #         else:
-        #             self.perk_dict["book_of_grudges"][str(largest_dominion.id)] = {}
-        #             self.perk_dict["book_of_grudges"][str(largest_dominion.id)]["pages"] = 1
-        #             self.perk_dict["book_of_grudges"][str(largest_dominion.id)]["animosity"] = 0
-
     def do_tick(self):
         self.do_resource_production()
         self.advance_land_returning()
         self.do_perks()
-        self.do_artifacts()
         
         self.discovery_points += 1
-
-        if Artifact.objects.filter(name="The Cause of Nine Deaths", ruler=self).exists() and Round.objects.first().ticks_passed % 4 == 0:
-            self.discovery_points += 1
 
         for unit in Unit.objects.filter(ruler=self):
             unit.advance_training_and_returning()
@@ -925,6 +849,9 @@ class Unit(models.Model):
             op_if_rats_launched = self.perk_dict["op_if_rats_launched"]
             perk_text += f"When invading, each launches {rats_launched} rats for +{op_if_rats_launched} OP. "
 
+        if "repairs_mechadragons" in self.perk_dict:
+            perk_text += f"Repairs damaged mecha-dragon modules. "
+
         return perk_text
     
     @property
@@ -975,24 +902,10 @@ class Unit(models.Model):
         return self.quantity_in_training + self.quantity_returning
 
 
-class Artifact(models.Model):
-    name = models.CharField(max_length=50, null=True, blank=True)
-    ruler = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, blank=True)
-    description = models.CharField(max_length=500, null=True, blank=True)
-
-    def __str__(self):
-        if self.ruler:
-            return f"{self.name} ({self.ruler})"
-        
-        return f"{self.name}"
-
-
 class Battle(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     attacker = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, related_name="battles_attacked")
     defender = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, related_name="battles_defended")
-    stolen_artifact = models.ForeignKey(Artifact, on_delete=models.PROTECT, null=True)
-    artifact_roll_string = models.CharField(max_length=500, null=True, blank=True)
     winner = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, related_name="battles_won")
     units_sent_dict = models.JSONField(default=dict, null=True, blank=True)
     units_defending_dict = models.JSONField(default=dict, null=True, blank=True)
@@ -1033,8 +946,6 @@ class Event(models.Model):
         elif self.reference_type == "signup":
             return self.message_override
         elif self.reference_type == "abandon":
-            return self.message_override
-        elif self.reference_type == "artifact":
             return self.message_override
         
         return "Unknown event type"
@@ -1165,6 +1076,125 @@ class Spell(models.Model):
         return self.ruler.acres * self.mana_cost_per_acre
     
 
+class MechModule(models.Model):
+    ruler = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, blank=True)
+    name = models.CharField(max_length=50, null=True, blank=True)
+    version = models.IntegerField(default=0)
+    capacity = models.IntegerField(default=1)
+    base_power = models.IntegerField(default=0)
+    base_upgrade_cost_dict = models.JSONField(default=dict, blank=True)
+    base_repair_cost_dict = models.JSONField(default=dict, blank=True)
+    perk_dict = models.JSONField(default=dict, blank=True)
+    durability_current = models.IntegerField(default=100)
+    durability_max = models.IntegerField(default=100)
+    fragility = models.IntegerField(default=20)
+    zone = models.CharField(max_length=50, default="hangar", choices={"mech": "mech", "hangar": "hangar", "repair": "repair"})
+    faction = models.ForeignKey(Faction, on_delete=models.PROTECT, null=True, blank=True)
+    order = models.IntegerField(default=0)
+
+    def __str__(self):
+        base_name = f"{self.name} @ {self.power} power ({self.durability_current}/{self.durability_max}) -- {self.order}"
+
+        if self.ruler:
+            return f"{self.ruler.rulers_display_name} -- {base_name}"
+        
+        return f"🟩Base --- {base_name}"
+    
+    @property
+    def versioned_name(self):
+        return self.name.replace("#", f"{self.version}")
+    
+    @property
+    def versioned_power(self):
+        versioned_power = self.capacity * self.base_power
+
+        if self.version == 0:
+            versioned_power = int(0.1 * self.base_power)
+
+        return versioned_power
+    
+    @property
+    def power(self):
+        durability_modifier = 0.5 + (0.5 * (self.durability_percent / 100))
+
+        return int(self.versioned_power * durability_modifier)
+    
+    @property
+    def power_short(self):
+        return shorten_number(self.power)
+    
+    @property
+    def upgrade_cost_dict(self):
+        upgrade_cost_dict = {}
+
+        for resource, amount in self.base_upgrade_cost_dict.items():
+            upgrade_cost_dict[resource] = self.capacity * amount
+
+        return upgrade_cost_dict
+    
+    @property
+    def upgrade_cost_dict_short(self):
+        shortened_upgrade_cost_dict = {}
+
+        for resource, amount in self.upgrade_cost_dict.items():
+            shortened_upgrade_cost_dict[resource] = shorten_number(amount)
+
+        return shortened_upgrade_cost_dict
+    
+    @property
+    def repair_cost_dict(self):
+        repair_cost_dict = {}
+
+        for resource, amount in self.base_repair_cost_dict.items():
+            repair_cost_dict[resource] = self.capacity * amount
+
+        return repair_cost_dict
+    
+    @property
+    def durability_percent(self):
+        ratio = self.durability_current / self.durability_max
+        return int(100 * ratio)
+    
+    @property
+    def can_afford_upgrade(self):
+        for resource_name, amount in self.upgrade_cost_dict.items():
+            resource = Resource.objects.get(ruler=self.ruler, name=resource_name)
+
+            if amount > resource.quantity:
+                return False
+            
+        return True
+    
+    @property
+    def can_fit_upgrade(self):
+        extra_capacity = 0
+
+        if self.version + 1 >= 2:
+            extra_capacity = self.capacity
+
+        return self.ruler.perk_dict["capacity_used"] + extra_capacity <= self.ruler.perk_dict["capacity_max"]
+    
+    def upgrade(self):
+        if self.zone == "mech" and not self.can_fit_upgrade:
+            return False, f"Insufficient capacity, uninstall this module before upgrading."
+
+        if not self.can_afford_upgrade:
+            return False, f"Insufficient resources to upgrade {self.versioned_name}"
+            
+        for resource_name, amount in self.upgrade_cost_dict.items():
+            resource = Resource.objects.get(ruler=self.ruler, name=resource_name)
+            resource.quantity -= amount
+            resource.save()
+
+        self.version += 1
+
+        if self.version >= 2:
+            self.capacity *= 2
+
+        self.save()
+        return True, f"Upgraded {self.versioned_name}"
+
+
 def do_tick_units(dominion: Dominion):
     for unit in Unit.objects.filter(ruler=dominion):
         update_harbingers = False
@@ -1274,6 +1304,30 @@ def do_tick_units(dominion: Dominion):
                     unit.save()
                     blasphemy.quantity += quantity_becomes_500_blasphemy_each * 500
                     blasphemy.save()
+                case "repairs_mechadragons":
+                    if Unit.objects.get(ruler=unit.ruler, name="Mecha-Dragon").quantity_at_home > 0:
+                        repairs = unit.quantity_at_home
+                        gold = Resource.objects.get(ruler=unit.ruler, name="gold")
+                        ore = Resource.objects.get(ruler=unit.ruler, name="ore")
+
+                        for module in MechModule.objects.filter(ruler=unit.ruler).order_by("order"):
+                            gold_cost = module.repair_cost_dict["gold"]
+                            ore_cost = module.repair_cost_dict["ore"]
+                            while (
+                                gold.quantity >= gold_cost and 
+                                ore.quantity >= ore_cost and 
+                                module.durability_current < module.durability_max and 
+                                repairs > 0
+                            ):
+                                repairs -= 1
+                                gold.quantity -= gold_cost
+                                ore.quantity -= ore_cost
+                                module.durability_current += 1
+
+                            gold.save()
+                            ore.save()
+                            module.save()
+                            print()
 
         if update_harbingers:
             del unit.perk_dict["sacrifices_brothers_amount"]

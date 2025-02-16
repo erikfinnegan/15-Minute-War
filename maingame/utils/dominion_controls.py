@@ -1,6 +1,6 @@
 from maingame.formatters import get_goblin_ruler
-from maingame.models import Dominion, Faction, Spell, Resource, Unit, Event, User, Building, UserSettings, Artifact
-from maingame.utils.give_stuff import create_resource_for_dominion, give_dominion_spell, give_dominion_unit
+from maingame.models import Dominion, Faction, Spell, Resource, Unit, Event, User, Building, UserSettings, MechModule
+from maingame.utils.give_stuff import create_resource_for_dominion, give_dominion_module, give_dominion_spell, give_dominion_unit
 from maingame.utils.utils import get_random_resource, update_available_discoveries
 
 
@@ -55,7 +55,9 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
     elif faction.name == "gnomish special forces":
         dominion.perk_dict["infiltration_dict"] = {}
     elif faction.name == "mecha-dragon":
-        dominion.perk_dict["capacity"] = 0
+        dominion.perk_dict["capacity_max"] = 1
+        dominion.perk_dict["capacity_used"] = 0
+        dominion.perk_dict["capacity_upgrade_cost"] = 100000
 
     dominion.save()
 
@@ -71,6 +73,9 @@ def initialize_dominion(user: User, faction: Faction, display_name):
 
     for unit in Unit.objects.filter(ruler=None, faction=faction):
         give_dominion_unit(dominion, unit)
+
+    for module in MechModule.objects.filter(ruler=None, faction=faction):
+        give_dominion_module(dominion, module)
 
     for building_name in faction.starting_buildings:
         base_building = Building.objects.get(name=building_name, ruler=None)
@@ -143,10 +148,6 @@ def abandon_dominion(dominion: Dominion):
         category="Abandon",
         message_override=f"{dominion} has been abandoned by {dominion.rulers_display_name}"
     )
-
-    for artifact in Artifact.objects.filter(ruler=dominion):
-        artifact.ruler = None
-        artifact.save()
 
     dominion.is_abandoned = True
     dominion.associated_user = None
