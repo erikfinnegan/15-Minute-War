@@ -13,4 +13,4 @@ class Command(BaseCommand):
         for _ in range(12):
             do_global_tick()
         
-        print("Finished do_tick script", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
+        print("Finished 12tick script", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
