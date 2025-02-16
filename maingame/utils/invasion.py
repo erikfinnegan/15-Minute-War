@@ -215,6 +215,7 @@ def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion):
             new_corpses += casualties
 
         if do_instant_return:
+            unit.quantity_at_home -= quantity_sent
             unit.quantity_at_home += survivors
         else:
             return_ticks = str(unit.perk_dict["returns_in_ticks"]) if "returns_in_ticks" in unit.perk_dict else "12"
