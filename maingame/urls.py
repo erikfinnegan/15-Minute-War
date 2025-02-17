@@ -57,4 +57,5 @@ urlpatterns = [
     path("mech_hangar", views.mech_hangar, name="mech_hangar"),
     path("submit_mech_hangar", views.submit_mech_hangar, name="submit_mech_hangar"),
     path("submit_upgrade_capacity", views.submit_upgrade_capacity, name="submit_upgrade_capacity"),
+    path("submit_town_portal", views.submit_town_portal, name="submit_town_portal"),
 ]

@@ -201,13 +201,20 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casu
 
 
 def handle_module_durability(mechadragon: Unit, is_attacker):
-    if is_attacker:
-        new_durability_multiplier = 0.9
-    else:
-        new_durability_multiplier = 0.95
+    try:
+        magefield = MechModule.objects.get(ruler=mechadragon.ruler, name="AC# Magefield")
+        damage_reduction_percent = magefield.perk_dict["durability_damage_percent_reduction_for_capacity_or_smaller"]
+        perk_based_fragility_modifier = 1 - (damage_reduction_percent / 100)
+        damage_reduction_capacity_max = magefield.capacity
+    except:
+        perk_based_fragility_modifier = 1
+        damage_reduction_capacity_max = 0
 
     for module in MechModule.objects.filter(ruler=mechadragon.ruler, zone="mech"):
         modified_fragility = module.fragility
+
+        if module.capacity <= damage_reduction_capacity_max:
+            modified_fragility *= perk_based_fragility_modifier
 
         if not is_attacker:
             modified_fragility /= 2
@@ -250,13 +257,15 @@ def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion):
         if "food" in unit.upkeep_dict:
             new_corpses += casualties
 
+        return_ticks = str(unit.perk_dict["returns_in_ticks"]) if "returns_in_ticks" in unit.perk_dict else "12"
+
         if unit.name == "Mecha-Dragon":
             handle_module_durability(unit, is_attacker=True)
+            return_ticks = 12 - MechModule.objects.get(ruler=attacker, name='"# fast # furious" Hyperwings').version
 
         if do_instant_return:
             unit.lose(casualties)
         else:
-            return_ticks = str(unit.perk_dict["returns_in_ticks"]) if "returns_in_ticks" in unit.perk_dict else "12"
             unit.quantity_at_home -= quantity_sent
             unit.returning_dict[return_ticks] = survivors
             unit.lost += casualties
@@ -321,6 +330,9 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion):
 
         if "returns_in_ticks" in unit.perk_dict:
             slowest_unit_return_ticks = max(slowest_unit_return_ticks, unit.perk_dict["returns_in_ticks"])
+        elif unit.name == "Mecha-Dragon":
+            return_ticks = 12 - MechModule.objects.get(ruler=attacker, name='"# fast # furious" Hyperwings').version
+            slowest_unit_return_ticks = max(slowest_unit_return_ticks, return_ticks)
         else:
             slowest_unit_return_ticks = 12
 

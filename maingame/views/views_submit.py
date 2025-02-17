@@ -224,7 +224,7 @@ def submit_release(request):
                 messages.error(request, f"You can't release more units than you have at home.")
                 return redirect("military")
 
-            unit.lose(max(0, unit.quantity_at_home - amount))
+            unit.lose(max(0, amount))
             total_released += amount
 
     if total_released < 1:

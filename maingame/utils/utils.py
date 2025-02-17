@@ -3,7 +3,7 @@ import random
 
 from maingame.models import Unit, Dominion, Discovery, Building, Resource, Spell, MechModule
 
-from maingame.utils.give_stuff import create_resource_for_dominion, give_dominion_building, give_dominion_spell, give_dominion_unit
+from maingame.utils.give_stuff import create_resource_for_dominion, give_dominion_building, give_dominion_module, give_dominion_spell, give_dominion_unit
 
 
 def get_unit_from_dict(unit_details_dict) -> Unit:
@@ -289,6 +289,8 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Inferno Mine"))
         case "Rapid Deployment":
             dominion.perk_dict["unit_training_time"] = "6"
+        case "Back-2-U Town Portal System":
+            give_dominion_module(dominion, MechModule.objects.get(ruler=None, name="Back-#-U Town Portal System"))
 
     if not discovery.repeatable:
         dominion.available_discoveries.remove(discovery_name)

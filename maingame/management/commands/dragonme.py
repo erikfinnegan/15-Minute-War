@@ -9,7 +9,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         testdominion = test_me("mecha-dragon")
+        testdominion.perk_dict["capacity_max"] = 15
+        testdominion.save()
 
         mechadragon = Unit.objects.get(ruler=testdominion, name="Mecha-Dragon")
-        mechadragon.quantity_at_home = 1
+        mechadragon.lose(499)
         mechadragon.save()

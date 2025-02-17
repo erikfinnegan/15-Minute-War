@@ -15,7 +15,20 @@ def mech_hangar(request):
     gold = Resource.objects.get(ruler=dominion, name="gold")
     mechadragon = Unit.objects.get(ruler=dominion, name="Mecha-Dragon")
     mechadragon_not_home = mechadragon.quantity_at_home == 0
-    print("mechadragon_not_home", mechadragon_not_home)
+
+    try:
+        town_portal = MechModule.objects.get(ruler=dominion, name="Back-#-U Town Portal System")
+        has_town_portal = True
+        can_use_town_portal = True
+        if town_portal.zone == "mech" and mechadragon_not_home:
+            for module in MechModule.objects.filter(ruler=dominion, zone="mech"):
+                if module.capacity > town_portal.capacity:
+                    can_use_town_portal = False
+        else:
+            can_use_town_portal = False
+    except:
+        has_town_portal = False
+        can_use_town_portal = False
 
     context = {
         "capacity_upgrade_cost": capacity_upgrade_cost,
@@ -25,6 +38,8 @@ def mech_hangar(request):
         "modules": MechModule.objects.filter(ruler=dominion).order_by("order"),
         "mechadragon": mechadragon,
         "mechadragon_not_home": mechadragon_not_home,
+        "has_town_portal": has_town_portal,
+        "can_use_town_portal": can_use_town_portal,
     }
     
     return render(request, "maingame/faction_pages/mech_hangar.html", context)
@@ -90,4 +105,34 @@ def submit_upgrade_capacity(request):
     
     quantity = request.POST.get("quantity")
 
+    return redirect("mech_hangar")
+
+
+def submit_town_portal(request):
+    try:
+        dominion = Dominion.objects.get(associated_user=request.user)
+        mechadragon = Unit.objects.get(ruler=dominion, name="Mecha-Dragon")
+        town_portal = MechModule.objects.get(ruler=dominion, name="Back-#-U Town Portal System")
+    except:
+        return redirect("register")
+    
+    try:
+        if town_portal.zone == "mech" and mechadragon.quantity_at_home == 0:
+            for module in MechModule.objects.filter(ruler=dominion, zone="mech"):
+                if module.capacity > town_portal.capacity:
+                    messages.error(request, "Brrr-ZAP! Oh no, misfire :(")
+                    return redirect("mech_hangar")
+        else:
+            messages.error(request, "Brrr-ZAP! Oh no, misfire :(")
+            return redirect("mech_hangar")
+    except:
+        messages.error(request, "Brrr-ZAP! Oh no, misfire :(")
+        return redirect("mech_hangar")
+    
+    while mechadragon.quantity_at_home == 0:
+        mechadragon.advance_training_and_returning()
+
+    town_portal.delete()
+
+    messages.success(request, "POOF! The Mecha-Dragon has returned!")
     return redirect("mech_hangar")

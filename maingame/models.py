@@ -1100,6 +1100,7 @@ class Discovery(models.Model):
     other_requirements_dict = models.JSONField(default=dict, blank=True)
     not_for_factions = models.JSONField(default=list, blank=True)
     associated_unit_name = models.CharField(max_length=50, null=True, blank=True)
+    associated_module_name = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):
         return f"{self.name}"
@@ -1108,6 +1109,13 @@ class Discovery(models.Model):
     def associated_unit(self):
         if self.associated_unit_name:
             return Unit.objects.get(name=self.associated_unit_name, ruler=None)
+        
+        return None
+    
+    @property
+    def associated_module(self):
+        if self.associated_module_name:
+            return MechModule.objects.get(name=self.associated_module_name, ruler=None)
         
         return None
 
@@ -1165,8 +1173,8 @@ class MechModule(models.Model):
     def versioned_name(self):
         versioned_name = self.name.replace("#", f"{self.version}")
 
-        if self.version == 0:
-            versioned_name += " prototype"
+        # if self.version == 0:
+        #     versioned_name += " (P)"
 
         return versioned_name
     
@@ -1182,6 +1190,10 @@ class MechModule(models.Model):
     @property
     def power(self):
         durability_modifier = 0.5 + (0.5 * (self.durability_percent / 100))
+
+        a = 0.5 * min(100, self.durability_percent+50) / 100
+        b = 0.5 * (self.durability_percent / 100)
+        durability_modifier = a + b
 
         return int(self.versioned_power * durability_modifier)
     
@@ -1218,7 +1230,7 @@ class MechModule(models.Model):
     
     @property
     def repair_cost_list(self):
-        repair_cost_string = "Repair/pt: "
+        repair_cost_string = ""
 
         for resource, amount in self.repair_cost_dict.items():
             repair_cost_string += f"{shorten_number(amount)} {resource}, "
@@ -1253,11 +1265,15 @@ class MechModule(models.Model):
     def perk_text(self):
         perk_text = ""
 
-        if "is_glorious" in self.perk_dict:
-            perk_text += "My god, it's glorious. "
+        if "durability_damage_percent_reduction_for_capacity_or_smaller" in self.perk_dict:
+            damage_reduction_percent = self.perk_dict["durability_damage_percent_reduction_for_capacity_or_smaller"]
+            perk_text += f"Reduces durability loss for modules of capacity {self.capacity} or less by {damage_reduction_percent}%. "
 
-        if "is_more_glorious" in self.perk_dict:
-            perk_text += "HOW IS THIS ONE EVEN BETTER? "
+        if "returns_faster" in self.perk_dict:
+            perk_text += f"Return from battle in {12 - self.version} ticks. "
+
+        if "recall_instantly" in self.perk_dict:
+            perk_text += f"Activate from the mech hangar to instantly return the mecha-dragon home as long as all modules installed are of capacity {self.capacity} or less. This module will not survive the process."
 
         return perk_text
 
@@ -1359,7 +1375,7 @@ def do_tick_units(dominion: Dominion):
                         
                         grisly_altars.save()
 
-                        if brothers.quantity_at_home <= 0:
+                        if brothers.quantity_total_and_paid <= 0:
                             brothers.delete()
                             update_harbingers = True
                         else:
@@ -1385,19 +1401,27 @@ def do_tick_units(dominion: Dominion):
                         repairs = unit.quantity_at_home
                         gold = Resource.objects.get(ruler=unit.ruler, name="gold")
                         ore = Resource.objects.get(ruler=unit.ruler, name="ore")
+                        mana = Resource.objects.get(ruler=unit.ruler, name="mana")
+                        research = Resource.objects.get(ruler=unit.ruler, name="research")
 
-                        for module in MechModule.objects.filter(ruler=unit.ruler).order_by("order"):
-                            gold_cost = module.repair_cost_dict["gold"]
-                            ore_cost = module.repair_cost_dict["ore"]
+                        for module in MechModule.objects.filter(ruler=unit.ruler, durability_current__gt=0).order_by("order"):
+                            gold_cost = module.repair_cost_dict["gold"] if "gold" in module.repair_cost_dict else 0
+                            ore_cost = module.repair_cost_dict["ore"] if "ore" in module.repair_cost_dict else 0
+                            mana_cost = module.repair_cost_dict["mana"] if "mana" in module.repair_cost_dict else 0
+                            research_cost = module.repair_cost_dict["research"] if "research" in module.repair_cost_dict else 0
                             while (
                                 gold.quantity >= gold_cost and 
                                 ore.quantity >= ore_cost and 
+                                mana.quantity >= mana_cost and 
+                                research.quantity >= research_cost and 
                                 module.durability_current < module.durability_max and 
                                 repairs > 0
                             ):
                                 repairs -= 1
                                 gold.spend(gold_cost)
                                 ore.spend(ore_cost)
+                                mana.spend(mana_cost)
+                                research.spend(research_cost)
                                 module.durability_current += 1
 
                             module.save()
