@@ -43,7 +43,7 @@
         {% endif %}
     </div>
 
-    <form action="{% url 'submit_mech_hangar' %}" method="post" style="width: fit-content;" class="p-2 {% if mechadragon_not_home %}bg-gray-400{% endif %}" {% if mechadragon_not_home %}inert{% endif %}>
+    <form action="{% url 'submit_mech_hangar' %}" method="post" style="width: fit-content;" class="p-2" {% if mechadragon_not_home %}inert{% endif %}>
         {% csrf_token %}
         <div>
             {% if mechadragon_not_home %}
