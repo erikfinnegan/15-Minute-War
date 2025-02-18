@@ -22,5 +22,5 @@ def goblin_restart(request, resource):
     new_dominion = initialize_dominion(user=request.user, faction=faction, display_name=display_name)
     new_dominion.perk_dict["rulers_favorite_resource"] = resource
     new_dominion.save()
-
+    
     return redirect("buildings")
