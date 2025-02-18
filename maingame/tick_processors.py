@@ -38,7 +38,7 @@ def do_global_tick():
                 if dominion.faction_name == "biclops" and not dominion.is_abandoned: 
                     do_biclops_partner_attack(dominion)
 
-                if "biclopean_ambition_ticks_remaining" in dominion.perk_dict:
+                if "biclopean_ambition_ticks_remaining" in dominion.perk_dict and dominion.can_attack:
                     do_forced_attack(dominion, use_always_dies_units=False)
             
             print("Dominions done", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
