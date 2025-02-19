@@ -98,8 +98,7 @@ def initialize_dominion(user: User, faction: Faction, display_name):
         create_resource_for_dominion("rats", dominion)
     elif dominion.faction_name == "mecha-dragon":
         mechadragon = Unit.objects.get(ruler=dominion, name="Mecha-Dragon")
-        mechadragon.quantity_at_home = 1
-        mechadragon.save()
+        mechadragon.gain(1)
 
     for spell in Spell.objects.filter(ruler=None, is_starter=True):
         give_dominion_spell(dominion, spell)

@@ -32,7 +32,7 @@
 
     <div class="h-2 bg-white-400 u-border-1 mb-1">
         <div class="bg-red-400" style="width: {{ module.durability_percent }}%;">
-            <span class="u-center text-xs leading-none h-100p">{{ module.durability_current }}</span>
+            <span class="u-center text-xs leading-none h-100p">{{ module.durability_current|intcomma }}</span>
         </div>
     </div>
 

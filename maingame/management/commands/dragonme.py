@@ -13,5 +13,5 @@ class Command(BaseCommand):
         testdominion.save()
 
         mechadragon = Unit.objects.get(ruler=testdominion, name="Mecha-Dragon")
-        mechadragon.lose(499)
+        mechadragon.lose(500)
         mechadragon.save()

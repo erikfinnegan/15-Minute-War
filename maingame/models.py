@@ -1224,7 +1224,7 @@ class MechModule(models.Model):
         repair_cost_dict = {}
 
         for resource, amount in self.base_repair_cost_dict.items():
-            repair_cost_dict[resource] = self.capacity * amount
+            repair_cost_dict[resource] = amount
 
         return repair_cost_dict
     
@@ -1292,6 +1292,8 @@ class MechModule(models.Model):
 
         if self.version >= 2:
             self.capacity *= 2
+            self.durability_current *= 2
+            self.durability_max *= 2            
 
         self.save()
         return True, f"Upgraded {self.versioned_name}"
@@ -1404,7 +1406,7 @@ def do_tick_units(dominion: Dominion):
                         mana = Resource.objects.get(ruler=unit.ruler, name="mana")
                         research = Resource.objects.get(ruler=unit.ruler, name="research")
 
-                        for module in MechModule.objects.filter(ruler=unit.ruler, durability_current__gt=0).order_by("order"):
+                        for module in MechModule.objects.filter(ruler=unit.ruler).order_by("order"):
                             gold_cost = module.repair_cost_dict["gold"] if "gold" in module.repair_cost_dict else 0
                             ore_cost = module.repair_cost_dict["ore"] if "ore" in module.repair_cost_dict else 0
                             mana_cost = module.repair_cost_dict["mana"] if "mana" in module.repair_cost_dict else 0
