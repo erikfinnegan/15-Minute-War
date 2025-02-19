@@ -96,6 +96,10 @@ def initialize_dominion(user: User, faction: Faction, display_name):
         create_resource_for_dominion("heretics", dominion)
     elif dominion.faction_name == "goblin":
         create_resource_for_dominion("rats", dominion)
+    elif dominion.faction_name == "mecha-dragon":
+        mechadragon = Unit.objects.get(ruler=dominion, name="Mecha-Dragon")
+        mechadragon.quantity_at_home = 1
+        mechadragon.save()
 
     for spell in Spell.objects.filter(ruler=None, is_starter=True):
         give_dominion_spell(dominion, spell)
@@ -151,6 +155,7 @@ def abandon_dominion(dominion: Dominion):
 
     dominion.is_abandoned = True
     dominion.associated_user = None
+    dominion.name += " (abandoned)"
     dominion.save()
 
 
