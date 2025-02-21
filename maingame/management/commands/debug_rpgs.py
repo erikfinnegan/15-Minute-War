@@ -470,12 +470,12 @@ class Command(BaseCommand):
         
 
         def three_dice():
-            die_a = 8
-            die_b = 8
-            die_c = 10
+            die_a = 10
+            die_b = 10
+            die_c = 12
             c_bonus = 0
 
-            target_number = 12
+            target_number = 16
 
             complications = 0
             big_complications = 0
