@@ -127,6 +127,14 @@ def get_perk_text(perk_dict, resource_name_list, faction_name="none"):
     return perk_text
 
 
+def cost_after_x_ticks(cost, ticks):
+    for _ in range(ticks):
+        cost *= 0.9281
+        cost = int(cost)
+        
+    return cost
+
+
 def get_casualty_mod_cost_multiplier(casualty_multiplier):
     total_spent = 0
     total_normal_spent = 0

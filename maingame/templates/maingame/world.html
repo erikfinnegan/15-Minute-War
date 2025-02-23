@@ -177,6 +177,14 @@
         </form>
         {% endif %}
     </div>
+    {% if active_dominion.acres_in_void > 0 %}
+    <form class="max-w-md">
+        <span class="u-center">Return your units from the void</span>
+        <button class="header_colors mt-1 h-6 px-4 u-center" formaction="{% url 'submit_void_return' %}">{{ active_dominion.void_return_cost|intcomma }} mana</button>
+        <span class="u-center">{{ active_dominion.void_cost_preview_text }}</span>
+        
+    </form>
+    {% endif %}
 </div>
 
 <script>

@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from maingame.formatters import format_minutes, get_perk_text, shorten_number
+from maingame.formatters import cost_after_x_ticks, format_minutes, get_perk_text, shorten_number
 
 
 class Deity(models.Model):
@@ -135,7 +135,6 @@ class Dominion(models.Model):
     determination = models.FloatField(default=0)
     has_tick_units = models.BooleanField(default=False)
     is_abandoned = models.BooleanField(default=False)
-    incoming_acres_dict = models.JSONField(default=dict, blank=True)
     successful_invasions = models.IntegerField(default=0)
     failed_defenses = models.IntegerField(default=0)
     highest_raw_op_sent = models.IntegerField(default=0, null=True, blank=True)
@@ -143,6 +142,9 @@ class Dominion(models.Model):
     acres = models.IntegerField(default=500)
     acres_gained = models.IntegerField(default=0)
     acres_lost = models.IntegerField(default=0)
+    incoming_acres_dict = models.JSONField(default=dict, blank=True)
+    acres_in_void = models.IntegerField(default=0)
+    void_return_cost = models.IntegerField(default=0)
 
     primary_resource_name = models.CharField(max_length=50, null=True, blank=True)
     primary_resource_per_acre = models.IntegerField(default=0)
@@ -196,6 +198,8 @@ class Dominion(models.Model):
         # elif self.has_units_returning:
         #     return False
         elif self.incoming_acres > 0:
+            return False
+        elif self.acres_in_void > 0:
             return False
         
         return True
@@ -335,7 +339,7 @@ class Dominion(models.Model):
         for key, value in self.incoming_acres_dict.items():
             total += value
 
-        return total
+        return total + self.acres_in_void
 
     @property
     def acres_with_incoming(self):
@@ -397,6 +401,14 @@ class Dominion(models.Model):
             return 0
         else:
             return 10 + (1 * self.failed_defenses)
+        
+    @property
+    def void_cost_preview_text(self):
+        text = f"6 ticks: {cost_after_x_ticks(self.void_return_cost, 6):2,} // "
+        text += f"12 ticks: {cost_after_x_ticks(self.void_return_cost, 12):2,} // "
+        text += f"18 ticks: {cost_after_x_ticks(self.void_return_cost, 18):2,}"
+        
+        return text
 
     def get_production(self, resource_name):
         production = 0
@@ -578,6 +590,7 @@ class Dominion(models.Model):
         for unit in Unit.objects.filter(ruler=self):
             unit.advance_training_and_returning()
 
+        self.void_return_cost = int(self.void_return_cost * 0.9281)
         do_tick_units(self)
 
         for spell in Spell.objects.filter(ruler=self):
@@ -724,6 +737,7 @@ class Unit(models.Model):
     upkeep_dict = models.JSONField(default=dict, blank=True)
     training_dict = models.JSONField(default=dict, blank=True)
     returning_dict = models.JSONField(default=dict, blank=True)
+    quantity_in_void = models.IntegerField(default=0)
     quantity_at_home = models.IntegerField(default=0)
     perk_dict = models.JSONField(default=dict, blank=True)
     faction = models.ForeignKey(Faction, on_delete=models.PROTECT, null=True, blank=True)
@@ -827,7 +841,7 @@ class Unit(models.Model):
         for key, value in self.returning_dict.items():
             total += value
 
-        return total
+        return total + self.quantity_in_void
     
     @property
     def quantity_in_training_and_returning(self):

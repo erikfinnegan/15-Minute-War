@@ -9,7 +9,6 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 def test_me(my_faction_name):
-    my_faction_name = my_faction_name
     their_faction_name = "goblin"
 
     my_starting_resource_quantity = 1234567
@@ -81,6 +80,9 @@ def test_me(my_faction_name):
     admindominion.protection_ticks_remaining = 0
     admindominion.discovery_points = 5000
     admindominion.save()
+    
+    for resource in Resource.objects.filter(ruler=admindominion):
+        resource.gain(my_starting_resource_quantity)
 
     for unit in Unit.objects.filter(ruler=admindominion):
         unit.gain(100000)

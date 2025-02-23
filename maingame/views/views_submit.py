@@ -389,6 +389,44 @@ def submit_options(request):
     return redirect("options")
 
 
+def submit_void_return(request):
+    try:
+        dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    round = Round.objects.first()
+    
+    if round.has_ended:
+        messages.error(request, f"The round has already ended")
+        return redirect("world")
+    
+    if round.is_ticking:
+        messages.error(request, f"The tick is being processed, try again shortly.")
+        return redirect("world")
+    
+    mana = Resource.objects.get(ruler=dominion, name="mana")
+    
+    if dominion.void_return_cost > mana.quantity:
+        messages.error(request, f"Insufficient mana")
+        return redirect("world")
+    
+    mana.spend(dominion.void_return_cost)
+    
+    for unit in Unit.objects.filter(ruler=dominion, quantity_in_void__gt=0):
+        unit.quantity_at_home += unit.quantity_in_void
+        unit.quantity_in_void = 0
+        unit.save()
+        
+    dominion.gain_acres(dominion.acres_in_void)
+    dominion.acres_in_void = 0
+    dominion.void_return_cost = 0
+    dominion.save()
+
+    messages.success(request, f"Your units have returned from a place between realities")
+    return redirect("world")
+
+
 def submit_invasion(request):
     try:
         my_dominion = Dominion.objects.get(associated_user=request.user)

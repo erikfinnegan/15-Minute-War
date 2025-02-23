@@ -14,70 +14,48 @@ class Command(BaseCommand):
         print("IT'S DEBUG TIME BABY")
         print()
         
+        mult = 10
         
-        for _ in range(6):
-            sludgene = create_random_sludgene(Dominion.objects.get(name="ERIKTEST"))
-        
-        # base_cost = 1000
-        
-        # def get_faster_cost(faster):
-        #     return get_fast_return_cost_multiplier(12 - faster)
-        #     # cost = base_cost
-        #     # expo = 1.02 + (faster/300)
-            
-        #     # for _ in range(faster):
-        #     #     cost *= expo
+        def cost_after_x_ticks(cost, ticks):
+            for _ in range(ticks):
+                cost *= 0.9281
+                cost = int(cost)
                 
-        #     # return int(cost)/base_cost
+            return cost
         
-        # op = 3
-        # dp = 10
-        # print(f"{op}/{dp}")
         
-        # for x in range(12):
-        #     # new_cost = get_faster_cost(x) - 1
-        #     mult = get_fast_return_cost_multiplier(12 - x, op, dp)
-        #     padnum = str(x).ljust(2, " ")
-        #     print(f"{padnum} faster = x{mult}")
-            
+        cost = 5000 * mult
+        ticks = 15
         
-        # total_rate = 0
-        # attempts = 100000
-        # targets = 0
-        # lowest = 1
-        # highest = 0
+        for _ in range(ticks):
+            # cost *= 0.94395
+            cost *= 0.9281
+            cost = int(cost)
         
-        # for _ in range(attempts):
-        #     rate = 1
-            
-        #     roll = randint(-1, 1)
-        #     rate += roll * 0.25
-            
-        #     roll = randint(-1, 1)
-        #     rate += roll * 0.25
-            
-        #     roll = randint(-1, 1)
-        #     rate += roll * 0.15
-            
-        #     roll = randint(-1, 1)
-        #     rate += roll * 0.10
-            
-        #     rate = round(rate, 2)
-            
-        #     total_rate += rate
-            
-        #     if rate == 0.25:
-        #         targets += 1
-                
-        #     if rate < lowest:
-        #         lowest = rate
-                
-        #     if rate > highest:
-        #         highest = rate
-            
-        # print(total_rate/attempts)
-        # print(targets/attempts)
-        # print(highest)
+        # Looking for 15000
+        print(f"Cost after {ticks} ticks: {cost}")
+        
+        pct_land_towers = cost / ticks / 50 / 5
+        print(pct_land_towers)
+        
+        
+        
+        
+        cost = 140000 * mult
+        
+        for _ in range(ticks):
+            # cost *= 0.94395
+            cost *= 0.9281
+            cost = int(cost)
+        
+        # Looking for 15000
+        print(f"Cost after {ticks} ticks: {cost}")
+        
+        pct_land_towers = cost / ticks / 50 / 45
+        print(pct_land_towers)
+        
+        # for _ in range(6):
+        #     sludgene = create_random_sludgene(Dominion.objects.get(name="ERIKTEST"))
 
         print()
         print()

@@ -43,33 +43,6 @@ def handle_grudges_from_attack(attacker: Dominion, defender: Dominion=None):
         attacker.save()
 
 
-def update_units_sent_dict_for_wreckin_ballers(units_sent_dict, total_units_sent):
-    for unit_details_dict in units_sent_dict.values():
-        unit = get_unit_from_dict(unit_details_dict)
-        quantity_sent = unit_details_dict["quantity_sent"]
-
-        # Right now it assumes a value of 0.5. Please don't make me figure out how to handle something greater than 1.
-        if "random_allies_killed_on_invasion" in unit.perk_dict:
-            # When in doubt, they kill themselves, just to help avoid exceptions
-            victim = unit_details_dict
-            victim_count = 0
-
-            for _ in range(int(quantity_sent / 2)):
-                roll = randint(1, total_units_sent - victim_count)
-
-                for victim_details_dict in units_sent_dict.values():
-                    if roll <= victim_details_dict["quantity_sent"]:
-                        victim = victim_details_dict
-                        break
-                    else:
-                        roll -= victim_details_dict["quantity_sent"]
-
-                victim_count += 1
-                victim["quantity_sent"] -= 1
-
-    return units_sent_dict
-
-
 def generate_battle(units_sent_dict, attacker: Dominion, defender: Dominion, offense_sent, defense_snapshot, acres_conquered):
     battle_units_sent_dict = {}
     battle_units_defending_dict = {}
@@ -231,7 +204,7 @@ def handle_module_durability(mechadragon: Unit, is_attacker):
         module.save()
 
 
-def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion):
+def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion, defender: Dominion, defense_snapshot):
     offensive_casualties = 0
     new_corpses = 0
 
@@ -273,8 +246,17 @@ def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion):
             unit.lose(casualties)
         else:
             unit.quantity_at_home -= quantity_sent
-            unit.returning_dict[return_ticks] = survivors
             unit.lost += casualties
+            
+            if attacker.faction_name == "aether confederacy" or defender.faction_name == "aether confederacy":
+                unit.quantity_in_void += survivors
+                
+                if attacker.faction_name == "aether confederacy":
+                    attacker.void_return_cost += (300 * survivors)
+                else:
+                    attacker.void_return_cost += (defense_snapshot * 10)
+            else:
+                unit.returning_dict[return_ticks] = survivors
 
         unit.save()
         offensive_casualties += casualties
@@ -346,8 +328,9 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion):
             max_launches = min(quantity_sent, int(rats.quantity / unit.perk_dict["rats_launched"]))
             rats.spend(max_launches * unit.perk_dict["rats_launched"])
 
-    if "adds_complacency_to_determination_when_hit" in defender.perk_dict:
-        defender.determination += defender.complacency
+    if "percent_complacency_to_determination_when_hit" in defender.perk_dict:
+        defender.determination += defender.complacency * (defender.perk_dict["percent_complacency_to_determination_when_hit"] / 100)
+        defender.save()
 
     defender.complacency = 0
     defender.failed_defenses += 1
@@ -357,13 +340,18 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion):
     attacker.highest_raw_op_sent = max(raw_op_sent, attacker.highest_raw_op_sent)
     attacker.successful_invasions += 1
     attacker.determination = 0
-    ticks_for_land = str(slowest_unit_return_ticks)
-    attacker.incoming_acres_dict[ticks_for_land] += acres_conquered * 2
+    
+    if attacker.faction_name == "aether confederacy" or defender.faction_name == "aether confederacy":
+        attacker.acres_in_void += acres_conquered * 2
+    else:
+        ticks_for_land = str(slowest_unit_return_ticks)
+        attacker.incoming_acres_dict[ticks_for_land] += acres_conquered * 2
+    
     attacker.save()
 
     battle = generate_battle(units_sent_dict, attacker, defender, offense_sent, defense_snapshot, acres_conquered)
 
-    _, offensive_corpses = do_offensive_casualties_and_return(units_sent_dict, attacker)
+    _, offensive_corpses = do_offensive_casualties_and_return(units_sent_dict, attacker, defender, defense_snapshot)
     defensive_casualties, defensive_corpses = do_defensive_casualties(defender)
 
     new_corpses = offensive_corpses + defensive_corpses
@@ -481,3 +469,30 @@ def do_forced_attack(dominion: Dominion, use_always_dies_units=False):
             if op_to_send >= other_dominion.defense and defense_left >= dominion.acres * 5:
                 do_invasion(units_sent_dict, attacker=dominion, defender=other_dominion)
                 hasnt_attacked_yet = False
+                
+
+# def update_units_sent_dict_for_wreckin_ballers(units_sent_dict, total_units_sent):
+#     for unit_details_dict in units_sent_dict.values():
+#         unit = get_unit_from_dict(unit_details_dict)
+#         quantity_sent = unit_details_dict["quantity_sent"]
+
+#         # Right now it assumes a value of 0.5. Please don't make me figure out how to handle something greater than 1.
+#         if "random_allies_killed_on_invasion" in unit.perk_dict:
+#             # When in doubt, they kill themselves, just to help avoid exceptions
+#             victim = unit_details_dict
+#             victim_count = 0
+
+#             for _ in range(int(quantity_sent / 2)):
+#                 roll = randint(1, total_units_sent - victim_count)
+
+#                 for victim_details_dict in units_sent_dict.values():
+#                     if roll <= victim_details_dict["quantity_sent"]:
+#                         victim = victim_details_dict
+#                         break
+#                     else:
+#                         roll -= victim_details_dict["quantity_sent"]
+
+#                 victim_count += 1
+#                 victim["quantity_sent"] -= 1
+
+#     return units_sent_dict

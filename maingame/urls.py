@@ -39,11 +39,12 @@ urlpatterns = [
     path("abandon", views.abandon, name="abandon"),
     path("calculate_op", views.calculate_op, name="calculate_op"),
     path("calculate_acres_from_invasion", views.calculate_acres_from_invasion, name="calculate_acres_from_invasion"),
+    path("submit_void_return", views.submit_void_return, name="submit_void_return"),
     
-    path("church_affairs", views.church_affairs, name="church_affairs"),
-    path("submit_inquisition", views.submit_inquisition, name="submit_inquisition"),
-    path("submit_true_inquisition", views.submit_true_inquisition, name="submit_true_inquisition"),
-    path("submit_unholy_baptism", views.submit_unholy_baptism, name="submit_unholy_baptism"),
+    # path("church_affairs", views.church_affairs, name="church_affairs"),
+    # path("submit_inquisition", views.submit_inquisition, name="submit_inquisition"),
+    # path("submit_true_inquisition", views.submit_true_inquisition, name="submit_true_inquisition"),
+    # path("submit_unholy_baptism", views.submit_unholy_baptism, name="submit_unholy_baptism"),
    
     path("experimentation", views.experimentation, name="experimentation"),
     path("terminate_experiment", views.terminate_experiment, name="terminate_experiment"),

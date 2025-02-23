@@ -15,6 +15,10 @@ def give_dominion_unit(dominion: Dominion, unit: Unit):
 
         for resource in unit.upkeep_dict:
             create_resource_for_dominion(resource, dominion)
+            
+        if unit.op > unit.dp and dominion.faction_name == "aether confederacy":
+            dominions_unit.upkeep_dict = {}
+            dominions_unit.save()
 
     return dominions_unit
 

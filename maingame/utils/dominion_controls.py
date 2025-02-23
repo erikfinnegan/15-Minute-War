@@ -31,13 +31,14 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
         dominion.perk_dict["partner_patience"] = 36
         dominion.perk_dict["partner_attack_on_sight"] = False
         dominion.perk_dict["bonus_determination"] = 0
-        dominion.perk_dict["adds_complacency_to_determination_when_hit"] = True
+        dominion.perk_dict["percent_complacency_to_determination_when_hit"] = 50
     elif faction.name == "gnomish special forces":
         dominion.perk_dict["infiltration_dict"] = {}
     elif faction.name == "mecha-dragon":
         dominion.perk_dict["capacity_max"] = 1
         dominion.perk_dict["capacity_used"] = 0
         dominion.perk_dict["capacity_upgrade_cost"] = 100000
+    # elif faction.name == "aether confederacy":
 
     dominion.save()
 
