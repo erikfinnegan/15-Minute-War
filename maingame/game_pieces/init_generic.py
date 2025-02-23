@@ -111,7 +111,7 @@ def initialize_generic_units():
 def initialize_generic_discoveries():
     Discovery.objects.create(
         name="Prosperity",
-        description="Increases gold per acre by 1.",
+        description="Increases gold (or goop) per acre by 1.",
         repeatable=True,
     )
 
@@ -135,8 +135,8 @@ def initialize_generic_discoveries():
 
     Discovery.objects.create(
         name="Zombies",
-        description="""Gain bodies from invasion casualties when you're victorious and use them to magically raise undead soldiers. Note that you don't get corpses from
-        units with a mana cost or mana upkeep, units that always die on invasions, or units that always kill allied units on invasions.""",
+        description="""Gain bodies from invasion casualties when you're victorious and use them to magically raise undead soldiers. Note that you
+        only get corpses from units that have food in their upkeep cost and you never get corpses from units that always die on invasions.""",
         associated_unit_name="Zombie",
     )
 
