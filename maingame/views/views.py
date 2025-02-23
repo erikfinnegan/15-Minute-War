@@ -495,6 +495,9 @@ def calculate_op(request):
 
                     last_test = test_quantity
     # End win button stuff
+    
+    target_faction = Faction.objects.get(name=target_dominion.faction_name)
+    invasion_consequences = target_faction.invasion_consequences
 
     context = {
         "op": op_sent,
@@ -506,6 +509,7 @@ def calculate_op(request):
         "left_lowest_defense": left_lowest_defense,
         "is_infiltration": is_infiltration,
         "units_needed_to_break_list": units_needed_to_break_list,
+        "invasion_consequences": invasion_consequences,
     }
         
     return render(request, "maingame/components/op_vs_dp.html", context)

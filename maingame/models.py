@@ -611,6 +611,7 @@ class Faction(models.Model):
     primary_resource_name = models.CharField(max_length=50, null=True, blank=True)
     primary_resource_per_acre = models.IntegerField(default=0)
     starting_buildings = models.JSONField(default=list, blank=True)
+    invasion_consequences = models.CharField(max_length=1000, null=True, blank=True)
 
     def __str__(self):
         return f"{self.name}"

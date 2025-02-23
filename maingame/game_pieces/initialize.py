@@ -134,7 +134,8 @@ def initialize_factions():
         # their grudges and even retain a bit of them instead of forgiving and forgetting like less stalwart folk."""
         description="""Dwarves keep a book of grudges, chronicling any slight against them, no matter how minor. When a dominion invades a dwarf, pages of 
         grudges are added about that dominion. Every tick, those grudges simmer and the dwarf's offense bonus against that dominion increases by 0.003% per page,
-        accumulating until the dwarf invades that player successfully. 0.003% may not sound like much, but it adds up quickly."""
+        accumulating until the dwarf invades that player successfully. 0.003% may not sound like much, but it adds up quickly.""",
+        invasion_consequences="This dominion will gain a growing OP bonus against you."
     )
 
     # Faction.objects.create(
@@ -156,7 +157,8 @@ def initialize_factions():
         description="""Most alchemists pursue the creation of potions or the transmutation of cheap materials into gold, but some opt instead to work
         with goop and sludge. The "masterminds" behind the sludgelings experiment with vile substances to see what sort of awful creatures they might create.
         Sludelings uncover new sludgene sequences when attacking and being attacked that can be used to create units. They can also splice these
-        sludgene sequences together to work towards creating the perfect units."""
+        sludgene sequences together to work towards creating the perfect units.""",
+        invasion_consequences="This dominion will gain a sludgene sequence."
     )
 
     Faction.objects.create(
@@ -167,7 +169,8 @@ def initialize_factions():
         description="""Goblins are nasty little creatures. Whether they like it or not (though they definitely do), they produce 1 rat for every 3 acres.
         Each is ruled by an ambitious little wretch who favors one resource above all others, getting a 10% bonus to production. Every time goblins are 
         invaded, they eat their leader and replace them with a new one who favors a new resource and increases the production bonus by 2%. Leaders will 
-        never favor gold as it would be seen as too unoriginal."""
+        never favor gold as it would be seen as too unoriginal.""",
+        invasion_consequences="This dominion will change the resource they get a bonus to producing and the bonus will increase by 1%."
     )
 
     Faction.objects.create(
@@ -180,7 +183,8 @@ def initialize_factions():
         with your mostly-cooperative other head. Your other head will gain patience any time you invade another dominion (see Overview page), but if they run out of
         patience, they'll wait until you stop actively managing your dominion (i.e. have no units in training) and take over choosing when and who to invade (anyone 
         over 75% of your size who you can beat using only units with OP > DP). If they get TOO impatient, they'll ignore this restriction. When biclops get invaded,
-        they add their lost complacency penalty to their determination bonus."""
+        they add their lost complacency penalty to their determination bonus.""",
+        invasion_consequences="This dominion will add their complacency penalty to their determination bonus."
     )
 
     Faction.objects.create(
