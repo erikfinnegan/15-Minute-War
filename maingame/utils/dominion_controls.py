@@ -135,6 +135,7 @@ def delete_dominion(dominion: Dominion):
     Resource.objects.filter(ruler=dominion).delete()
     Building.objects.filter(ruler=dominion).delete()
     Unit.objects.filter(ruler=dominion).delete()
+    MechModule.objects.filter(ruler=dominion).delete()
     Spell.objects.filter(ruler=dominion).delete()
     Event.objects.filter(reference_id=dominion.id, reference_type="signup").delete()
     

@@ -3,7 +3,6 @@ from string import Formatter
 
 
 def get_perk_text(perk_dict, resource_name_list, faction_name="none"):
-    print(resource_name_list)
     if not perk_dict:
         return ""
     
@@ -164,10 +163,6 @@ def get_casualty_mod_cost_multiplier(casualty_multiplier):
 
     cost_increase = 1 / (total_spent/total_normal_spent)
 
-    # print(f"{attacks} attacks at casualties x{casualty_multiplier}")
-    # print(f"Total spend: {total_spent:2,}")
-    # print(total_spent/27312500)
-    # print(f"Increase cost by {round(cost_increase, 2)}")
     return round(cost_increase, 2)
 
 
