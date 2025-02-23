@@ -451,12 +451,12 @@ class Dominion(models.Model):
                 if resource_name == upkeep_resource_name:
                     consumption += int(unit.quantity_trained_and_alive * upkeep)
 
-        if resource_name == "faith":
-            try:
-                heretics = Resource.objects.get(ruler=self, name="heretics")
-                consumption += heretics.quantity
-            except:
-                pass
+        # if resource_name == "faith":
+        #     try:
+        #         heretics = Resource.objects.get(ruler=self, name="heretics")
+        #         consumption += heretics.quantity
+        #     except:
+        #         pass
 
         return consumption
     
@@ -515,28 +515,28 @@ class Dominion(models.Model):
             miners = Unit.objects.get(ruler=self, name="Miner")
             self.perk_dict["mining_depth"] += miners.quantity_at_home * miners.perk_dict["cm_dug_per_tick"]
 
-        if "order_cant_attack_ticks_left" in self.perk_dict and self.perk_dict["order_cant_attack_ticks_left"] > 0:
-            self.perk_dict["order_cant_attack_ticks_left"] -= 1
+        # if "order_cant_attack_ticks_left" in self.perk_dict and self.perk_dict["order_cant_attack_ticks_left"] > 0:
+        #     self.perk_dict["order_cant_attack_ticks_left"] -= 1
             
-            # Inquisition kills heretics
-            try:
-                heretics = Resource.objects.get(ruler=self, name="heretics")
-                heretics_killed = heretics.quantity if self.perk_dict["order_cant_attack_ticks_left"] == 0 else min(self.perk_dict["inquisition_rate"], heretics.quantity)
-                heretics.spend(heretics_killed)
+        #     # Inquisition kills heretics
+        #     try:
+        #         heretics = Resource.objects.get(ruler=self, name="heretics")
+        #         heretics_killed = heretics.quantity if self.perk_dict["order_cant_attack_ticks_left"] == 0 else min(self.perk_dict["inquisition_rate"], heretics.quantity)
+        #         heretics.spend(heretics_killed)
 
-                if "inquisition_makes_corpses" in self.perk_dict:
-                    corpses = Resource.objects.get(ruler=self, name="corpses")
-                    corpses.gain(heretics_killed)
+        #         if "inquisition_makes_corpses" in self.perk_dict:
+        #             corpses = Resource.objects.get(ruler=self, name="corpses")
+        #             corpses.gain(heretics_killed)
 
-                heretics.save()
-            except:
-                pass
+        #         heretics.save()
+        #     except:
+        #         pass
 
-            if self.perk_dict["order_cant_attack_ticks_left"] == 0 and self.faction_name == "blessed order":
-                self.perk_dict["inquisition_rate"] = 0
+        #     if self.perk_dict["order_cant_attack_ticks_left"] == 0 and self.faction_name == "blessed order":
+        #         self.perk_dict["inquisition_rate"] = 0
 
-        if "corruption" in self.perk_dict and Resource.objects.filter(ruler=self, name="heretics").exists():
-            self.perk_dict["corruption"] += Resource.objects.get(ruler=self, name="heretics").quantity
+        # if "corruption" in self.perk_dict and Resource.objects.filter(ruler=self, name="heretics").exists():
+        #     self.perk_dict["corruption"] += Resource.objects.get(ruler=self, name="heretics").quantity
 
         if "The Deep Angels" in self.learned_discoveries:
             deep_angels = Unit.objects.get(ruler=self, name="Deep Angel")
