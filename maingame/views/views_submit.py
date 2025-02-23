@@ -112,7 +112,6 @@ def submit_building(request):
     return redirect("buildings")
 
 
-
 def submit_training(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -236,7 +235,6 @@ def submit_release(request):
     return redirect("military")
 
 
-
 def upgrade_building(request, building_id):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
@@ -276,7 +274,6 @@ def upgrade_building(request, building_id):
     dominion.save()
 
     return redirect("upgrades")
-
 
 
 def submit_spell(request, spell_id):
@@ -320,7 +317,6 @@ def submit_spell(request, spell_id):
 
     messages.success(request, f"Cast {spell.name}")
     return redirect("spells")
-
 
 
 def submit_options(request):

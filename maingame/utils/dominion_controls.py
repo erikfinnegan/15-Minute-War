@@ -18,27 +18,6 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
         dominion.perk_dict["corruption"] = 0
     elif faction.name == "sludgeling":
         dominion.perk_dict["splices"] = 3
-        # dominion.perk_dict["free_experiments"] = 10
-        # dominion.perk_dict["latest_experiment_id"] = 0
-        # dominion.perk_dict["latest_experiment"] = {
-        #     "should_display": False,
-        #     "name": "",
-        #     "op": 0,
-        #     "dp": 0,
-        #     "cost_dict": {
-        #         "gold": 0,
-        #         "sludge": 0,
-        #     },
-        #     "upkeep_dict": {
-        #         "gold": 0,
-        #         "sludge": 0,
-        #     },
-        #     "perk_dict": {},
-        # }
-        # dominion.perk_dict["experiment_cost_dict"] = {
-        #     "research_per_acre": 100,
-        #     "sludge_per_acre": 18,
-        # }
         dominion.perk_dict["custom_units"] = 1
         dominion.perk_dict["max_custom_units"] = 5
         # dominion.perk_dict["experiments_done"] = 0
@@ -50,7 +29,6 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
         dominion.perk_dict["rulers_favorite_resource"] = get_random_resource(dominion).name
     elif faction.name == "biclops":
         dominion.perk_dict["partner_patience"] = 36
-        # dominion.perk_dict["partner_unit_training_0random_1offense_2defense"] = 0
         dominion.perk_dict["partner_attack_on_sight"] = False
         dominion.perk_dict["bonus_determination"] = 0
     elif faction.name == "gnomish special forces":

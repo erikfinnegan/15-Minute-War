@@ -316,7 +316,6 @@ def do_defensive_casualties(defender: Dominion):
 
 
 def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion):
-    total_units_sent = 0
     raw_op_sent = 0
     defense_snapshot = defender.defense
     slowest_unit_return_ticks = 1
