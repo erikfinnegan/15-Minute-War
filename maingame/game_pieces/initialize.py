@@ -169,8 +169,8 @@ def initialize_factions():
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry", "ruler's favorite",],
         description="""Goblins are nasty little creatures. Whether they like it or not (though they definitely do), they produce 1 rat for every 3 acres.
         Each is ruled by an ambitious little wretch who favors one resource above all others, getting a 10% bonus to production. Every time goblins are 
-        invaded, they eat their leader and replace them with a new one who favors a new resource and increases the production bonus by 2%. Leaders will 
-        never favor gold as it would be seen as too unoriginal.""",
+        invaded, they eat their leader and replace them with a new one who favors a new resource and increases the production bonus by 1%. Leaders will 
+        never favor gold or rats as it would be seen as too unoriginal.""",
         invasion_consequences="This dominion will change the resource they get a bonus to producing and the bonus will increase by 1%."
     )
 
