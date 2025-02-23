@@ -101,7 +101,7 @@ def protection_restart(request):
     except:
         return redirect("register")
     
-    if dominion.is_oop:
+    if dominion.is_oop and Round.objects.first().has_started:
         messages.error(request, f"I just saved your life.")
         return redirect("world")
     
