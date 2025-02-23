@@ -145,7 +145,7 @@ def initialize_generic_discoveries():
         description="""Gain the allegiance of a terrifyingly powerful sorcerer who consumes half of your stockpiled research each tick, but leaves 
         enough to afford your upgrades. Gains OP and DP according to the amount of research consumed (see tooltip).""",
         associated_unit_name="Archmage",
-        not_for_factions=["sludgeling", "ather confederacy"]
+        not_for_factions=["sludgeling", "aether confederacy"]
     )
 
     Discovery.objects.create(

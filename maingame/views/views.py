@@ -90,7 +90,7 @@ def discoveries(request):
     future_discoveries = []
 
     for discovery in Discovery.objects.all():
-        if discovery.name not in dominion.available_discoveries and discovery.name not in dominion.learned_discoveries:
+        if discovery.name not in dominion.available_discoveries and discovery.name not in dominion.learned_discoveries and dominion.faction_name not in discovery.not_for_factions:
             if not discovery.required_faction_name or discovery.required_faction_name == dominion.faction_name:
                 and_requirements_left = []
                 or_requirements_left = []
