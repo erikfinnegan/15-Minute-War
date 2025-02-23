@@ -183,8 +183,8 @@ def initialize_factions():
         hinges on their ability to avoid conflict with themselves. You'll be playing just one half of a biclops leader and will need to share control over your dominion
         with your mostly-cooperative other head. Your other head will gain patience any time you invade another dominion (see Overview page), but if they run out of
         patience, they'll wait until you stop actively managing your dominion (i.e. have no units in training) and take over choosing when and who to invade (anyone 
-        over 75% of your size who you can beat using only units with OP > DP). If they get TOO impatient, they'll ignore this restriction. When biclops get invaded,
-        they add their lost complacency penalty to their determination bonus.""",
+        over 75% of your size who you can beat using only units with OP > DP). If they get TOO impatient, they'll ignore the restriction about units training. When biclops get invaded,
+        they add half of their lost complacency penalty to their determination bonus.""",
         invasion_consequences="This dominion will add half their complacency penalty to their determination bonus."
     )
 
@@ -213,7 +213,7 @@ def initialize_factions():
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry",],
         description="""In the void of unreality, the small nation states hate each other... but not nearly so much as they hate realscum, and the enemy of
         my enemy is my friend. Their offensive units (including ones gained via universal discoveries) have no upkeep, but their units and land do not 
-        return from battle on their own and instead cost an 100 mana per unit that decreases rapidly over time. Do you pay extra for fast return or leave
+        return from battle on their own and instead cost 100 mana per unit that decreases rapidly over time. Do you pay extra for fast return or leave
         your army in the void for effectively reduced upkeep? Enemies who attack you also have their units consigned to the void with a starting return
         cost equal to ten times your defense, also decreasing rapidly.""",
         invasion_consequences="""Your units and land will be trapped in the void until you spend mana to recall them. If you wait 15-18 ticks, it should only
