@@ -18,7 +18,7 @@
         <input type="text" name="dominionName" id="dominionName" maxlength="40" />
         <span>Unlike your display name, this cannot be changed.</span>
     </div>
-
+    
     <div>
         <label for="factionChoice">Select a faction</label>
         <select class="" name="factionChoice">
@@ -33,5 +33,33 @@
     <button class="btn-light mt-1 w-16 h-6 p-0 u-center" type="submit">
         <span class="font-bold">Register</span>
     </button>
+
+    <script type="text/javascript">
+        window.onload = function () {
+            var chart = new CanvasJS.Chart("chartContainer",
+            {
+                legend: {
+                    maxWidth: 350,
+                    itemWidth: 120
+                },
+                data: [
+                    {
+                        type: "pie",
+                        legendText: "{indexLabel}",
+                        dataPoints: [
+                            {% for faction_count_dict in round.faction_count_list %}
+                                {% if faction_count_dict.count > 0 %}
+                                    { y: {{ faction_count_dict.count }}, indexLabel: "{{ faction_count_dict.name|title }}" },
+                                {% endif %}
+                            {% endfor %}
+                        ]
+                    }
+                ]
+            });
+            chart.render();
+        }
+    </script>
+    <script type="text/javascript" src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+    <div id="chartContainer" style="height: 300px; width: 100%;"></div>
 </form>
 {% endblock %}
