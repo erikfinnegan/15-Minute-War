@@ -154,10 +154,9 @@ def initialize_factions():
         primary_resource_per_acre="50",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry", "cesspool"],
         description="""Most alchemists pursue the creation of potions or the transmutation of cheap materials into gold, but some opt instead to work
-        with sludge. The "masterminds" behind the sludgelings experiment with vile substances to see what sort of awful creatures they might create. Sludgelings
-        can spend research and sludge to create random unit types in pursuit of the perfect army. If a unit outgrows its usefulness, it can be melted down
-        to recoup most of its cost and make room for a new unit type. Every time you generate an experimental unit, it's random and different, but the more experiments
-        you run, the greater your chance of getting lucky with a very powerful unit."""
+        with goop and sludge. The "masterminds" behind the sludgelings experiment with vile substances to see what sort of awful creatures they might create.
+        Sludelings uncover new sludgene sequences when attacking and being attacked that can be used to create units. They can also splice these
+        sludgene sequences together to work towards creating the perfect units."""
     )
 
     Faction.objects.create(
@@ -180,7 +179,8 @@ def initialize_factions():
         hinges on their ability to avoid conflict with themselves. You'll be playing just one half of a biclops leader and will need to share control over your dominion
         with your mostly-cooperative other head. Your other head will gain patience any time you invade another dominion (see Overview page), but if they run out of
         patience, they'll wait until you stop actively managing your dominion (i.e. have no units in training) and take over choosing when and who to invade (anyone 
-        over 75% of your size who you can beat using only units with OP > DP). If they get TOO impatient, they'll ignore this restriction."""
+        over 75% of your size who you can beat using only units with OP > DP). If they get TOO impatient, they'll ignore this restriction. When biclops get invaded,
+        they add their lost complacency penalty to their determination bonus."""
     )
 
     Faction.objects.create(
@@ -197,7 +197,8 @@ def initialize_factions():
         primary_resource_name="gold",
         primary_resource_per_acre="50",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry",],
-        description="""Inspired by mythical creatures, they set out to construct the ultimate war machine. It is difficult to deny they've succeeded."""
+        description="""Inspired by mythical creatures, they set out to construct the ultimate war machine. It is difficult to deny they've succeeded. The bulk of
+        their offense comes from a single, powerful mecha-dragon comprised of modules that are upgraded and installed from the mech hangar."""
     )
 
 

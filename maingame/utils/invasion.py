@@ -327,7 +327,7 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion):
     if dp_left < attacker.acres * 5:
         return 0, "Insufficient defense left by attacker"
     
-    # Get units sent for wreckin ballers, slowest return time for land return time, raw OP sent for updating max
+    # Get slowest return time for land return time, raw OP sent for updating max
     for unit_details_dict in units_sent_dict.values():
         unit = get_unit_from_dict(unit_details_dict)
         quantity_sent = unit_details_dict["quantity_sent"]
@@ -346,6 +346,9 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion):
             max_launches = min(quantity_sent, int(rats.quantity / unit.perk_dict["rats_launched"]))
             rats.spend(max_launches * unit.perk_dict["rats_launched"])
 
+    if "adds_complacency_to_determination_when_hit" in defender.perk_dict:
+        defender.determination += defender.complacency
+
     defender.complacency = 0
     defender.failed_defenses += 1
     defender.lose_acres(acres_conquered)
@@ -359,9 +362,6 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion):
     attacker.save()
 
     battle = generate_battle(units_sent_dict, attacker, defender, offense_sent, defense_snapshot, acres_conquered)
-
-    # if "Wreckin Ballers" in attacker.learned_discoveries:
-    #     units_sent_dict = update_units_sent_dict_for_wreckin_ballers(units_sent_dict, total_units_sent)
 
     _, offensive_corpses = do_offensive_casualties_and_return(units_sent_dict, attacker)
     defensive_casualties, defensive_corpses = do_defensive_casualties(defender)

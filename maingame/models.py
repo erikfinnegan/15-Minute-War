@@ -396,7 +396,7 @@ class Dominion(models.Model):
         if self.faction_name != "goblin":
             return 0
         else:
-            return 10 + (2 * self.failed_defenses)
+            return 10 + (1 * self.failed_defenses)
 
     def get_production(self, resource_name):
         production = 0
@@ -411,19 +411,19 @@ class Dominion(models.Model):
             if f"{resource_name}_per_tick" in unit.perk_dict:
                 production += unit.perk_dict[f"{resource_name}_per_tick"] * unit.quantity_at_home
 
-        if resource_name == "heretics" and "heretics_per_hundred_acres_per_tick" in self.perk_dict:
-            if "order_cant_attack_ticks_left" in self.perk_dict and self.perk_dict["order_cant_attack_ticks_left"] > 0:
-                return 0
+        # if resource_name == "heretics" and "heretics_per_hundred_acres_per_tick" in self.perk_dict:
+        #     if "order_cant_attack_ticks_left" in self.perk_dict and self.perk_dict["order_cant_attack_ticks_left"] > 0:
+        #         return 0
             
-            if self.protection_ticks_remaining > 0:
-                return 0
+        #     if self.protection_ticks_remaining > 0:
+        #         return 0
             
-            heretics_gained = int((self.acres / 100) * self.perk_dict["heretics_per_hundred_acres_per_tick"])
+        #     heretics_gained = int((self.acres / 100) * self.perk_dict["heretics_per_hundred_acres_per_tick"])
 
-            if random.randint(1,100) <= self.acres % 100:
-                heretics_gained += 1
+        #     if random.randint(1,100) <= self.acres % 100:
+        #         heretics_gained += 1
 
-            production += heretics_gained
+        #     production += heretics_gained
 
         if resource_name == "rats" and "rats_per_acre_per_tick" in self.perk_dict:
             production += self.acres * self.perk_dict["rats_per_acre_per_tick"]
@@ -777,7 +777,9 @@ class Unit(models.Model):
         for resource in Resource.objects.filter(ruler=None):
             resource_name_list.append(resource.name)
             
-        return get_perk_text(self.perk_dict, resource_name_list)
+        faction_name = self.ruler.faction_name if self.ruler else "none"
+            
+        return get_perk_text(self.perk_dict, resource_name_list, faction_name)
     
     @property
     def has_perks(self):
@@ -1245,8 +1247,10 @@ class Sludgene(models.Model):
         
         for resource in Resource.objects.filter(ruler=None):
             resource_name_list.append(resource.name)
+            
+        faction_name = self.ruler.faction_name if self.ruler else "none"
         
-        return get_perk_text(self.perk_dict, resource_name_list)
+        return get_perk_text(self.perk_dict, resource_name_list, faction_name)
     
     # @property
     # def cost_type(self):

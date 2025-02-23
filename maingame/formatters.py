@@ -2,7 +2,8 @@ import random
 from string import Formatter
 
 
-def get_perk_text(perk_dict, resource_name_list):
+def get_perk_text(perk_dict, resource_name_list, faction_name="none"):
+    print(resource_name_list)
     if not perk_dict:
         return ""
     
@@ -34,10 +35,14 @@ def get_perk_text(perk_dict, resource_name_list):
     for resource in resource_name_list:
         if f"{resource}_per_tick" in perk_dict:
             amount_produced = perk_dict[f"{resource}_per_tick"]
-            
             amount_produced = int(amount_produced) if amount_produced == int(amount_produced) else amount_produced
             
-            perk_text += f"Produces {amount_produced} {resource} per tick. "
+            if faction_name == "sludgeling":
+                verb = "Secretes"
+            else:
+                verb = "Produces"
+                
+            perk_text += f"{verb} {amount_produced} {resource} per tick. "
 
     if "casualty_multiplier" in perk_dict:
         multiplier = perk_dict["casualty_multiplier"]

@@ -31,6 +31,7 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
         dominion.perk_dict["partner_patience"] = 36
         dominion.perk_dict["partner_attack_on_sight"] = False
         dominion.perk_dict["bonus_determination"] = 0
+        dominion.perk_dict["adds_complacency_to_determination_when_hit"] = True
     elif faction.name == "gnomish special forces":
         dominion.perk_dict["infiltration_dict"] = {}
     elif faction.name == "mecha-dragon":
