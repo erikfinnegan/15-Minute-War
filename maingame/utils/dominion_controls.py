@@ -1,6 +1,6 @@
 from maingame.formatters import get_goblin_ruler
-from maingame.models import Dominion, Faction, Spell, Resource, Unit, Event, User, Building, UserSettings, Artifact
-from maingame.utils.give_stuff import create_resource_for_dominion, give_dominion_spell, give_dominion_unit
+from maingame.models import Dominion, Faction, Spell, Resource, Unit, Event, User, Building, UserSettings, MechModule
+from maingame.utils.give_stuff import create_resource_for_dominion, give_dominion_module, give_dominion_spell, give_dominion_unit
 from maingame.utils.utils import get_random_resource, update_available_discoveries
 
 
@@ -17,30 +17,10 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
         dominion.perk_dict["martyr_cost"] = 500
         dominion.perk_dict["corruption"] = 0
     elif faction.name == "sludgeling":
-        dominion.perk_dict["free_experiments"] = 10
-        dominion.perk_dict["latest_experiment_id"] = 0
-        dominion.perk_dict["latest_experiment"] = {
-            "should_display": False,
-            "name": "",
-            "op": 0,
-            "dp": 0,
-            "cost_dict": {
-                "gold": 0,
-                "sludge": 0,
-            },
-            "upkeep_dict": {
-                "gold": 0,
-                "sludge": 0,
-            },
-            "perk_dict": {},
-        }
-        dominion.perk_dict["experiment_cost_dict"] = {
-            "research_per_acre": 100,
-            "sludge_per_acre": 18,
-        }
-        dominion.perk_dict["custom_units"] = 0
-        dominion.perk_dict["max_custom_units"] = 3
-        dominion.perk_dict["experiments_done"] = 0
+        dominion.perk_dict["splices"] = 3
+        dominion.perk_dict["custom_units"] = 1
+        dominion.perk_dict["max_custom_units"] = 5
+        # dominion.perk_dict["experiments_done"] = 0
         dominion.perk_dict["recycling_refund"] = 0.8
         dominion.perk_dict["masterpieces_to_create"] = 0
     elif faction.name == "goblin":
@@ -49,11 +29,16 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
         dominion.perk_dict["rulers_favorite_resource"] = get_random_resource(dominion).name
     elif faction.name == "biclops":
         dominion.perk_dict["partner_patience"] = 36
-        # dominion.perk_dict["partner_unit_training_0random_1offense_2defense"] = 0
         dominion.perk_dict["partner_attack_on_sight"] = False
         dominion.perk_dict["bonus_determination"] = 0
+        dominion.perk_dict["percent_complacency_to_determination_when_hit"] = 50
     elif faction.name == "gnomish special forces":
         dominion.perk_dict["infiltration_dict"] = {}
+    elif faction.name == "mecha-dragon":
+        dominion.perk_dict["capacity_max"] = 1
+        dominion.perk_dict["capacity_used"] = 0
+        dominion.perk_dict["capacity_upgrade_cost"] = 100000
+    # elif faction.name == "aether confederacy":
 
     dominion.save()
 
@@ -69,6 +54,9 @@ def initialize_dominion(user: User, faction: Faction, display_name):
 
     for unit in Unit.objects.filter(ruler=None, faction=faction):
         give_dominion_unit(dominion, unit)
+
+    for module in MechModule.objects.filter(ruler=None, faction=faction):
+        give_dominion_module(dominion, module)
 
     for building_name in faction.starting_buildings:
         base_building = Building.objects.get(name=building_name, ruler=None)
@@ -89,16 +77,15 @@ def initialize_dominion(user: User, faction: Faction, display_name):
         create_resource_for_dominion("heretics", dominion)
     elif dominion.faction_name == "goblin":
         create_resource_for_dominion("rats", dominion)
+    elif dominion.faction_name == "mecha-dragon":
+        mechadragon = Unit.objects.get(ruler=dominion, name="Mecha-Dragon")
+        mechadragon.gain(1)
 
     for spell in Spell.objects.filter(ruler=None, is_starter=True):
         give_dominion_spell(dominion, spell)
 
     dominion.primary_resource_name = faction.primary_resource_name
     dominion.primary_resource_per_acre = faction.primary_resource_per_acre
-    dominion.building_primary_resource_name = faction.building_primary_resource_name
-    dominion.building_secondary_resource_name = faction.building_secondary_resource_name
-    dominion.building_primary_cost_per_acre = faction.building_primary_cost_per_acre
-    dominion.building_secondary_cost_per_acre = faction.building_secondary_cost_per_acre
     dominion.incoming_acres_dict = {
         "1": 0,
         "2": 0,
@@ -113,10 +100,6 @@ def initialize_dominion(user: User, faction: Faction, display_name):
         "11": 0,
         "12": 0,
     }
-
-    primary_building_resource = Resource.objects.get(ruler=dominion, name=dominion.building_primary_resource_name)
-    dominion.last_bought_resource_name = primary_building_resource.name
-    dominion.last_sold_resource_name = primary_building_resource.name
 
     user_settings, _ = UserSettings.objects.get_or_create(associated_user=user)
 
@@ -142,12 +125,9 @@ def abandon_dominion(dominion: Dominion):
         message_override=f"{dominion} has been abandoned by {dominion.rulers_display_name}"
     )
 
-    for artifact in Artifact.objects.filter(ruler=dominion):
-        artifact.ruler = None
-        artifact.save()
-
     dominion.is_abandoned = True
     dominion.associated_user = None
+    dominion.name += " (abandoned)"
     dominion.save()
 
 

@@ -46,20 +46,20 @@ def initialize_goblin_units():
         faction=goblin,
     )
 
-    Unit.objects.create(
-        name="Wreckin Baller",
-        op=8,
-        dp=0,
-        cost_dict={
-            "gold": 700,
-            "ore": 1500,
-        },
-        upkeep_dict={
-            "gold": 1,
-            "food": 0.3,
-        },
-        perk_dict={"random_allies_killed_on_invasion": 0.5},
-    )
+    # Unit.objects.create(
+    #     name="Wreckin Baller",
+    #     op=8,
+    #     dp=0,
+    #     cost_dict={
+    #         "gold": 700,
+    #         "ore": 1500,
+    #     },
+    #     upkeep_dict={
+    #         "gold": 1,
+    #         "food": 0.3,
+    #     },
+    #     perk_dict={"random_allies_killed_on_invasion": 0.5},
+    # )
 
     Unit.objects.create(
         name="Charcutier",
@@ -110,12 +110,12 @@ def initialize_goblin_units():
 
 
 def initialize_goblin_discoveries():
-    Discovery.objects.create(
-        name="Wreckin Ballers",
-        description="Make the mistake of arming goblins with flails bigger than they are. Expect friendly fire.",
-        required_faction_name="goblin",
-        associated_unit_name="Wreckin Baller",
-    )
+    # Discovery.objects.create(
+    #     name="Wreckin Ballers",
+    #     description="Make the mistake of arming goblins with flails bigger than they are. Expect friendly fire.",
+    #     required_faction_name="goblin",
+    #     associated_unit_name="Wreckin Baller",
+    # )
 
     Discovery.objects.create(
         name="Charcutiers",

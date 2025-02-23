@@ -13,9 +13,9 @@
     <details class="accordion card card_colors max-w-md">
         <summary class="accordion__summary">Details</summary>
         <p>
-            These are all the dominions at the moment. When someone makes an invasion, the units they send take 12 ticks to return home, leaving 
-            them more vulnerable to attack in the meantime. The land they conquer also takes 12 ticks to arrive and they can't attack again until
-            it does. On an invasion, the attacker takes 10% casualties and the defender takes 5% casualties.
+            These are all the dominions at the moment. When someone makes an invasion, the units they send take 12 ticks to return home (unless
+            otherwise specified), leaving them more vulnerable to attack in the meantime. The land they conquer returns with the slowest units
+            sent and they can't attack again until it does. On an invasion, the attacker takes 10% casualties and the defender takes 5% casualties.
         </p>
         <p>
             Every tick, a dominion gains -0.33% defense. This resets when that dominion gets invaded. They also gain +0.33 offense, resetting when
@@ -51,6 +51,12 @@
         <div id="chartContainer" style="height: 300px; width: 100%;"></div>
 
     </details>
+
+    {% if round.has_bugs %}
+    <div class="bg-red-300 max-w-md my-2">
+        <p class="u-center">There might be a bug, please @Erik in #bug-reports</p>
+    </div>
+    {% endif %}
 
     {% include "maingame/components/dominion_list.html" with this_dominion=active_dominion all_dominions=dominions my_view=True %}
 
@@ -99,6 +105,9 @@
                     class="max-w-xs" 
                     name="target_dominion_id" 
                     id="target_select_dropdown" 
+                    hx-get="/calculate_acres_from_invasion"
+                    hx-trigger="change"
+                    hx-target="#acre_count_number"
                 >
                     <option value="0">Select a target to plan an invasion</option>
                     {% for dominion in dominions %}
@@ -111,7 +120,7 @@
 
             <div>
                 <span class="u-center" id="acre_count_placeholder">Invasions discover extra acres equal to the amount conquered.</span>
-                <div class="u-none u-gap-1 u-center" id="acre_count_sentence">
+                <div class="u-gap-1 u-center" id="acre_count_sentence">
                     <span>This invasion would conquer</span>
                     <span id="acre_count_number">0</span>
                     <span>acres.</span>
@@ -149,6 +158,13 @@
                             >
                                 Max
                             </button>
+                            <button 
+                                type="button" 
+                                class="header_colors u-center" 
+                                onclick="sendWin('{{ unit.id }}', '{{ unit.quantity_at_home }}')"
+                            >
+                                Win
+                            </button>
                         </td>
                     </tr>
                     {% endif %}
@@ -161,6 +177,14 @@
         </form>
         {% endif %}
     </div>
+    {% if active_dominion.acres_in_void > 0 %}
+    <form class="max-w-md">
+        <span class="u-center">Return your units from the void</span>
+        <button class="header_colors mt-1 h-6 px-4 u-center" formaction="{% url 'submit_void_return' %}">{{ active_dominion.void_return_cost|intcomma }} mana</button>
+        <span class="u-center">{{ active_dominion.void_cost_preview_text }}</span>
+        
+    </form>
+    {% endif %}
 </div>
 
 <script>
@@ -171,6 +195,19 @@
             thisInput.value = ""
         } else {
             thisInput.value = quantity_at_home;
+        }
+
+        thisInput.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+
+    function sendWin(unit_id, quantity_at_home) {
+        let thisInput = document.getElementById("send_" + unit_id);
+        const quantityNeeded = document.getElementById("win_" + unit_id).innerHTML;
+
+        if (thisInput.value == quantityNeeded) {
+            thisInput.value = ""
+        } else {
+            thisInput.value = quantityNeeded;
         }
 
         thisInput.dispatchEvent(new Event("input", { bubbles: true }));

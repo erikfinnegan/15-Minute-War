@@ -118,6 +118,10 @@
                             {% endif %}
                         </div>
                     {% endif %}
+
+                    {% if discovery.associated_module_name %}
+                        {% include "maingame/components/mech_module_card.html" with module=discovery.associated_module %}
+                    {% endif %}
                 </div>
             {% endif %}
         {% endfor %}

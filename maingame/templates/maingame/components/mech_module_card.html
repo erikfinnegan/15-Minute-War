@@ -1,0 +1,62 @@
+{% load humanize %}
+{% load extra_tags %}
+
+<div class="u-flex u-flex-column u-border-2 p-1 w-32">
+    <input value="{{ module.id }}" name="{{ module.id }}" class="module-id" hidden>
+    <input value="{{ module.zone }}" name="zone_{{ module.id }}" class="zone" hidden />
+
+    <table class="table striped">
+        <thead>
+            <tr>
+                <th>{{ module.versioned_name }}</th>
+            </tr>
+        </thead>
+        <tbody class="u-text-left">
+            <tr>
+                <td>Power: {{ module.power_short }}</span>
+            </tr>
+            <tr>
+                <td class="capacity">Capacity: {{ module.capacity }}</td>
+            </tr>
+            <tr>
+                <td>Durability/attack: {{ module.fragility }}%</td>
+            </tr>
+            <tr>
+                <td class="u-flex u-flex-column">
+                <span>Repair cost/point:</span>
+                <span>{{ module.repair_cost_list }}</span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="h-2 bg-white-400 u-border-1 mb-1">
+        <div class="bg-red-400" style="width: {{ module.durability_percent }}%;">
+            <span class="u-center text-xs leading-none h-100p">{{ module.durability_current|intcomma }}</span>
+        </div>
+    </div>
+
+    
+
+    <button 
+        class="header_colors w-16 h-4 p-0 u-center" 
+        type="submit" 
+        name="upgrade" 
+        value="{{ module.id }}" 
+        id="building-submit-button"
+        {% if not module.can_afford_upgrade %}disabled{% endif %}
+    >
+        <span class="font-bold">Upgrade</span>
+    </button>
+
+    <div>
+        {% for resource, amount in module.upgrade_cost_dict_short.items %}
+            <span class="u-center font-bold">{{ amount|intcomma }}&nbsp;{{ resource|depluralize:amount }}</span>
+        {% endfor %}
+    </div>
+
+    <div class="u-flex u-flex-column">
+        <span>{{ module.perk_text }}</span>
+    </div>
+    
+</div>

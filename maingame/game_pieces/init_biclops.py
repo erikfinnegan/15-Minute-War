@@ -5,7 +5,7 @@ def initialize_biclops_units():
     biclops = Faction.objects.get(name="biclops")
 
     Unit.objects.create(
-        name="Smasher",
+        name="Crusher",
         op=10,
         dp=20,
         cost_dict={

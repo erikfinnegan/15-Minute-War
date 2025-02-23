@@ -1,5 +1,5 @@
 from random import randint
-from maingame.models import Dominion, Round
+from maingame.models import Dominion, Round, Resource, Unit
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -15,18 +15,40 @@ def normalize_trade_prices():
 
 
 def do_global_tick():
-    print("Start global tick", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
+    start_timestamp = datetime.now(ZoneInfo('America/New_York'))
+    print("Start global tick", start_timestamp.strftime('%H:%M:%S'))
     round = Round.objects.first()
     round.is_ticking = True
     round.save()
 
     if not round.has_ended:
-        # print("Starting trade prices", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
+        resource_bugs = False
+        unit_bugs = False
+        acre_bugs = False
 
-        # update_trade_prices()
-        # normalize_trade_prices()
+        for resource in Resource.objects.all():
+            if resource.net != resource.quantity:
+                resource_bugs = True
+                round.bugs.append(f"{start_timestamp.strftime('%H:%M:%S')}: {resource.ruler}'s {resource.name} expected {resource.net} -vs- current {resource.quantity}")
 
-        # print("Trade prices done, starting dominion ticks", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
+        for unit in Unit.objects.all():
+            if unit.quantity_trained_and_alive != unit.net:
+                unit_bugs = True
+                round.bugs.append(f"{start_timestamp.strftime('%H:%M:%S')}: {unit.ruler}'s {unit.name} expected {unit.net} -vs- current {unit.quantity_trained_and_alive}")
+
+        for dominion in Dominion.objects.all():
+            if dominion.net_acres + 500 != dominion.acres:
+                acre_bugs = True
+                round.bugs.append(f"{start_timestamp.strftime('%H:%M:%S')}: {dominion} acres expected {dominion.net_acres + 500} -vs- current {dominion.acres}")
+
+        has_bugs = resource_bugs or unit_bugs or acre_bugs
+
+        if has_bugs:
+            print("We got bugs!")
+        else:
+            print("No bugs this tick")
+
+        round.has_bugs = has_bugs
 
         if Round.objects.first().allow_ticks:
             for dominion in Dominion.objects.all():
@@ -41,7 +63,7 @@ def do_global_tick():
                 if "biclopean_ambition_ticks_remaining" in dominion.perk_dict and dominion.can_attack:
                     do_forced_attack(dominion, use_always_dies_units=False)
             
-            print("Dominions done", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
+            # print("Dominions done", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
 
         now = datetime.now(ZoneInfo('America/New_York'))
 
@@ -59,7 +81,7 @@ def do_global_tick():
 
         if round.has_ended:
             for dominion in Dominion.objects.all():
-                dominion.acres += dominion.incoming_acres
+                dominion.gain_acres(dominion.incoming_acres)
                 dominion.incoming_acres_dict = {
                     "1": 0,
                     "2": 0,
@@ -76,7 +98,12 @@ def do_global_tick():
                 }
                 dominion.save()
 
-        print("Round management done", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
+    end_timestamp = datetime.now(ZoneInfo('America/New_York'))
+    print("End global tick", end_timestamp.strftime('%H:%M:%S'))
+
+    delta = end_timestamp - start_timestamp
+    printable_delta = str(delta)
+    print(f"Tick processing time: {printable_delta}")
 
     round.is_ticking = False
     round.save()

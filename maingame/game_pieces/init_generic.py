@@ -42,7 +42,7 @@ def initialize_generic_units():
         op=4,
         dp=3,
         cost_dict={
-            "mana": 1200,
+            "mana": 1000,
             "corpses": 1,
         },
         upkeep_dict={
@@ -60,7 +60,7 @@ def initialize_generic_units():
             "food": 1,
         },
         is_trainable=False,
-        perk_dict={"surplus_research_consumed_to_add_one_op_and_dp": 1400}
+        perk_dict={"surplus_research_consumed_to_add_one_op_and_dp": 1900}
     )
 
     Unit.objects.create(

@@ -1,11 +1,11 @@
 from random import randint
 from django.core.management.base import BaseCommand
 
+from maingame.formatters import get_fast_return_cost_multiplier
 from maingame.models import UserSettings, Resource, Round, Event, Dominion, Unit
 from django.contrib.auth.models import User
-import os
 
-from maingame.game_pieces.initialize import initialize_blessed_order_discoveries
+from maingame.utils.utils_sludgeling import create_random_sludgene
 
 class Command(BaseCommand):
     help = "Initiates a battle"
@@ -14,17 +14,48 @@ class Command(BaseCommand):
         print("IT'S DEBUG TIME BABY")
         print()
         
-        rats = 1000
-        food_spent = 0
+        mult = 10
         
-        for _ in range(96):
-            survivors = int(0.02 * rats)
-            casualties = rats - survivors
-            food_spent += 100 * casualties
-
-        food_spent_per_tick_per_rat = food_spent / 96 / 1000
-
-        print(f"{food_spent_per_tick_per_rat:2,}")
+        def cost_after_x_ticks(cost, ticks):
+            for _ in range(ticks):
+                cost *= 0.9281
+                cost = int(cost)
+                
+            return cost
+        
+        
+        cost = 5000 * mult
+        ticks = 15
+        
+        for _ in range(ticks):
+            # cost *= 0.94395
+            cost *= 0.9281
+            cost = int(cost)
+        
+        # Looking for 15000
+        print(f"Cost after {ticks} ticks: {cost}")
+        
+        pct_land_towers = cost / ticks / 50 / 5
+        print(pct_land_towers)
+        
+        
+        
+        
+        cost = 140000 * mult
+        
+        for _ in range(ticks):
+            # cost *= 0.94395
+            cost *= 0.9281
+            cost = int(cost)
+        
+        # Looking for 15000
+        print(f"Cost after {ticks} ticks: {cost}")
+        
+        pct_land_towers = cost / ticks / 50 / 45
+        print(pct_land_towers)
+        
+        # for _ in range(6):
+        #     sludgene = create_random_sludgene(Dominion.objects.get(name="ERIKTEST"))
 
         print()
         print()

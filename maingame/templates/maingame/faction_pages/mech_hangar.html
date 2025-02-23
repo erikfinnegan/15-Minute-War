@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% load extra_tags %}
+{% load humanize %}
+
+{% block title %}Mech Hangar{% endblock %}
+
+{% block content %}
+<div class="max-w-lg">
+    <details class="accordion card card_colors max-w-md">
+        <summary class="accordion__summary">Details</summary>
+        <p>
+            Your mecha-dragon is made up of modules. It has a maximum capacity, which can be upgraded here. Each module takes up a portion of that capacity.
+            Modules can be upgraded as well. The first upgrade takes it out of the prototype (version 0) phase, increasing the effects by approximately 10x
+            for only the cost listed. Each upgrade after that doubles the effects, costs, and capacity of the previous version.
+        </p>
+        <p>
+            When your mecha-dragon engages in battle, it loses a percentage of its durability (amount varies by module). Durability is repaired by
+            Greasedrakes while the mecha-dragon is home and costs the listed amount per point repaired. While a module's durability is less than 
+            100%, it reduces the effectiveness of the module. Modules are repaired in the order shown in the hangar, prioritizing ones that are
+            currently equipped.
+        </p>
+    </details>
+
+    <div class="u-flex u-flex-column mb-2">
+        <span class="text-xl">Mecha-Dragon</span>
+        <div class="text-lg">
+            <span>Capacity:</span>
+            <span id="current-capacity">{{ capacity_used }}</span>
+            <span>/ {{ max_capacity }}</span>
+        </div>
+        {% if has_town_portal %}
+        <div style="width: fit-content;">
+            <form class="mt-auto">
+                <button class="header_colors u-center font-bold" formaction="{% url 'submit_town_portal' %}" {% if not can_use_town_portal %}disabled{% endif %}>
+                    <span class="font-bold">Activate town portal</span>
+                </button>
+            </form>
+            
+            {% if can_use_town_portal %}
+                <span>Note that this will destroy the module</span>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <form action="{% url 'submit_mech_hangar' %}" method="post" style="width: fit-content;" class="p-2" {% if mechadragon_not_home %}inert{% endif %}>
+        {% csrf_token %}
+        <div>
+            {% if mechadragon_not_home %}
+            <h6>Changes cannot be made while the mecha-dragon is not present</h6>
+            {% else %}
+            <div class="u-flex u-flex-column" style="width: fit-content;">
+                <label for="capacity_upgrades">Increase capacity ({{ capacity_upgrade_cost|intcomma }} gold each)</label>
+                <div class="u-flex u-flex-row u-gap-2">
+                    <input 
+                        name="capacity_upgrades" 
+                        id="capacity_upgrades" 
+                        placeholder="{{ capacity_upgrades_affordable }}" 
+                        type="number" 
+                        max="{{ capacity_upgrades_affordable }}" 
+                        class="w-12 md:w-20"
+                    >
+                    <button type="button" class="header_colors u-center" onclick="trainMax('{{ capacity_upgrades_affordable }}')">
+                        Max
+                    </button>
+                    <script>
+                        function trainMax(max_affordable) {
+                            let thisInput = document.getElementById("capacity_upgrades");
+                            if (thisInput.value == max_affordable) {
+                                thisInput.value = ""
+                            } else {
+                                thisInput.value = max_affordable;
+                            }
+                        }
+                    </script>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="u-flex u-flex-row u-gap-4 mt-4">
+                <div class="u-flex u-flex-column u-gap-1">
+                    <span class="u-center">Equipped modules</span>
+                    <div id="mech" class="u-border-1 u-flex u-flex-column u-gap-2 p-2 min-h-90p" style="width: 290px;">
+                        {% for module in modules %}
+                            {% if module.zone == "mech" %}
+                                {% include "maingame/components/mech_module_card.html" with module=module %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="u-flex u-flex-column u-gap-1">
+                    <span class="u-center">Hangar</span>
+                    <div id="hangar" class="u-border-1 u-flex u-flex-wrap u-gap-2 p-2 min-h-20p" style="min-width: 290px;">
+                        {% for module in modules %}
+                            {% if not module.zone == "mech" %}
+                                {% include "maingame/components/mech_module_card.html" with module=module %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="header_colors w-16 h-6 p-0 u-center mt-4" type="submit" id="building-submit-button">
+            <span class="font-bold">Submit</span>
+        </button>
+    </form>
+</div>
+
+<script>
+    const maxCapacity = {{ max_capacity }}
+
+    function getCapacityOfElement(el) {
+        capacityOfElement = parseInt(el.querySelector('.capacity').innerHTML.slice(10));
+        return capacityOfElement
+    }
+
+    function getCurrentCapacity() {
+        const listItems = document.getElementById("mech").children;
+        const listArray = [...listItems];
+        totalLeftValues = 0
+
+        listArray.forEach((item) => {
+            const capacity = getCapacityOfElement(item)
+            totalLeftValues = totalLeftValues + capacity
+        });
+
+        return totalLeftValues
+    }
+    
+    function updateCurrentCapacityReadout(addition=0) {
+        const currentCapacityReadout = document.getElementById("current-capacity")
+        currentCapacityReadout.innerHTML = getCurrentCapacity() + addition
+    }
+
+    updateCurrentCapacityReadout()
+
+    let justDropped = false
+
+    dragula(
+        [document.getElementById("mech"), document.getElementById("hangar")],
+        {
+            accepts: function (el, target) {
+                if (target.id == "hangar") {
+                    return true
+                }
+
+                const currentCapacity = getCurrentCapacity()
+                return currentCapacity + getCapacityOfElement(el) <= maxCapacity
+            }
+        }
+    )
+    .on('drop', function (el, container) {
+        const id = el.querySelector('.module-id').value
+        el.querySelector('.zone').value = container.id
+        updateCurrentCapacityReadout()
+    })
+</script>
+
+<style>
+    .gu-mirror {
+        position: fixed !important;
+        margin: 0 !important;
+        z-index: 9999 !important;
+        opacity: 0.8;
+        -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+        filter: alpha(opacity=80);
+    }
+    .gu-hide {
+        display: none !important;
+    }
+    .gu-unselectable {
+        -webkit-user-select: none !important;
+        -moz-user-select: none !important;
+        -ms-user-select: none !important;
+        user-select: none !important;
+    }
+    .gu-transit {
+        opacity: 0.2;
+        -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
+        filter: alpha(opacity=20);
+    }
+</style>
+
+
+{% endblock %}

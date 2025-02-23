@@ -22,7 +22,7 @@ class Command(BaseCommand):
         units = 0
         normal_units = 0
         attacks = 7
-        casualty_multiplier = 0.5
+        casualty_multiplier = 1.75
 
         casualty_percent = 10 * casualty_multiplier
         survival_rate = 1 - (casualty_percent/100)

@@ -1,3 +1,15 @@
 {
-    "djlint.showInstallError": false
+    "djlint.showInstallError": false,
+    "python.analysis.extraPaths": [
+        "./maingame/views",
+        "./maingame"
+    ],
+    "editor.formatOnSave": true,
+    "python.formatting.provider": "autopep8",
+    "python.linting.enabled": true,
+    "python.linting.lintOnSave": true,
+    "python.linting.pylintEnabled": true,
+    "python.linting.pylintArgs": [
+        "--load-plugin=pylint_django"
+    ]
 }

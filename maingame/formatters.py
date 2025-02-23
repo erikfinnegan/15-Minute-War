@@ -2,6 +2,198 @@ import random
 from string import Formatter
 
 
+def get_perk_text(perk_dict, resource_name_list, faction_name="none"):
+    print(resource_name_list)
+    if not perk_dict:
+        return ""
+    
+    perk_text = ""
+
+    if "is_glorious" in perk_dict:
+        perk_text += "My god, it's glorious. "
+
+    if "is_more_glorious" in perk_dict:
+        perk_text += "HOW IS THIS ONE EVEN BETTER? "
+    
+    if "surplus_research_consumed_to_add_one_op_and_dp" in perk_dict:
+        perk_text += f"""Consumes half of your stockpiled research each tick, but leaves enough to afford your upgrades. Gains 1 OP and 1 DP per  
+        {perk_dict['surplus_research_consumed_to_add_one_op_and_dp']} consumed. """
+
+    if "random_grudge_book_pages_per_tick" in perk_dict:
+        pages_per_tick = perk_dict["random_grudge_book_pages_per_tick"]
+        perk_text += f"Adds {pages_per_tick} page{'s' if pages_per_tick > 1 else ''} to an existing grudge in your book of grudges each tick. "
+
+    if "always_dies_on_offense" in perk_dict:
+        perk_text += "Always dies when sent on an invasion. "
+
+    if "always_dies_on_defense" in perk_dict:
+        perk_text += "Always dies when successfully invaded. "
+
+    if "immortal" in perk_dict:
+        perk_text += "Does not die in combat. "
+
+    for resource in resource_name_list:
+        if f"{resource}_per_tick" in perk_dict:
+            amount_produced = perk_dict[f"{resource}_per_tick"]
+            amount_produced = int(amount_produced) if amount_produced == int(amount_produced) else amount_produced
+            
+            if faction_name == "sludgeling":
+                verb = "Secretes"
+            else:
+                verb = "Produces"
+                
+            perk_text += f"{verb} {amount_produced} {resource} per tick. "
+
+    if "casualty_multiplier" in perk_dict:
+        multiplier = perk_dict["casualty_multiplier"]
+        perk_text += f"Takes {multiplier}x casualties. "
+        # if multiplier == 2:
+        #     perk_text += f"Takes twice as many casualties. "
+        # elif multiplier == 3:
+        #     perk_text += f"Takes three times as many casualties. "
+        # elif multiplier == 0.25:
+        #     perk_text += f"Takes a quarter as many casualties. "
+        # elif multiplier == 0.5:
+        #     perk_text += f"Takes half as many casualties. "
+        # elif multiplier == 0.75:
+        #     perk_text += "Takes 25% fewer casualties. "
+        # elif multiplier == 1.5:
+        #     perk_text += "Takes 50% more casualties. "
+        # else:
+        #     perk_text += f"Takes {multiplier}x as many casualties. "
+
+    if "returns_in_ticks" in perk_dict:
+        ticks_to_return = perk_dict["returns_in_ticks"]
+        perk_text += f"Returns from battle in {ticks_to_return} tick{'s' if ticks_to_return > 1 else ''}. "
+
+    if "percent_attrition" in perk_dict:
+        attrition_percent = perk_dict["percent_attrition"]
+        perk_text += f"{attrition_percent}% of these die every tick, rounding up. "
+
+    if "converts_apostles" in perk_dict:
+        perk_text += "Converts one Stoneshield to a Deep Apostle every tick. "
+
+    if "cm_dug_per_tick" in perk_dict:
+        perk_text += "Digs 1 torchbright per tick. "
+
+    if "sacrifices_brothers_chance_percent" in perk_dict and "sacrifices_brothers_amount" in perk_dict:
+        sacrifices_brothers_chance_percent = perk_dict["sacrifices_brothers_chance_percent"]
+        sacrifices_brothers_amount = perk_dict["sacrifices_brothers_amount"]
+        perk_text += f"Every {sacrifices_brothers_amount} (rounding up) has a {sacrifices_brothers_chance_percent}% chance per tick to sacrifice up to {sacrifices_brothers_amount} Blessed Brothers to create one Grisly Altar. "
+
+    if "zealots_chosen_per_tick" in perk_dict:
+        zealots_chosen_per_tick = perk_dict["zealots_chosen_per_tick"]
+        perk_text += f"Elevates {zealots_chosen_per_tick} zealot per tick to a Chosen One. "
+
+    if "percent_becomes_500_blasphemy" in perk_dict:
+        percent_becomes_500_blasphemy = perk_dict["percent_becomes_500_blasphemy"]
+        perk_text += f"{percent_becomes_500_blasphemy}% attrition into 500 blasphemy per tick. "
+
+    if "gets_op_bonus_equal_to_percent_of_target_complacency" in perk_dict:
+        gets_op_bonus_equal_to_percent_of_target_complacency = perk_dict["gets_op_bonus_equal_to_percent_of_target_complacency"]
+        perk_text += f"Increases OP by {gets_op_bonus_equal_to_percent_of_target_complacency}% of the target's complacency penalty. "
+
+    # if "percent_becomes_rats" in perk_dict:
+    #     becomes_rats_percent = perk_dict["percent_becomes_rats"]
+    #     perk_text += f"{becomes_rats_percent}% of these return to normal rats every tick, rounding up. "
+
+    if "random_allies_killed_on_invasion" in perk_dict:
+        random_allies_killed = perk_dict["random_allies_killed_on_invasion"]
+        if random_allies_killed == 0.5:
+            perk_text += f"When invading, half of these each kill one randomly selected own unit on the same invasion. "
+        else:
+            perk_text += f"When invading, each kills {random_allies_killed} randomly selected own unit{'s' if random_allies_killed > 1 else ''} on the same invasion. "
+
+    if "food_from_rat" in perk_dict:
+        food_from_rat = perk_dict["food_from_rat"]
+        perk_text += f"Each carves up one rat per tick into {food_from_rat} food. "
+
+    if "rats_trained_per_tick" in perk_dict:
+        rats_trained_per_tick = perk_dict["rats_trained_per_tick"]
+        perk_text += f"Attempts to train {rats_trained_per_tick} Trained Rat per tick, paying costs as normal. "
+    
+    if "invasion_plan_power" in perk_dict:
+        invasion_plan_power = perk_dict["invasion_plan_power"]
+        perk_text += f"Can be sent to infiltrate a target, increasing your offense on your next attack against them by {invasion_plan_power}. "
+
+    if "rats_launched" in perk_dict and "op_if_rats_launched" in perk_dict:
+        rats_launched = perk_dict["rats_launched"]
+        op_if_rats_launched = perk_dict["op_if_rats_launched"]
+        perk_text += f"When invading, each launches {rats_launched} rats for +{op_if_rats_launched} OP. "
+
+    if "repairs_mechadragons" in perk_dict:
+        perk_text += f"Repairs damaged mecha-dragon modules. "
+
+    return perk_text
+
+
+def cost_after_x_ticks(cost, ticks):
+    for _ in range(ticks):
+        cost *= 0.9281
+        cost = int(cost)
+        
+    return cost
+
+
+def get_casualty_mod_cost_multiplier(casualty_multiplier):
+    total_spent = 0
+    total_normal_spent = 0
+    unit_price = 2300
+    target = 50000
+    unit_op = 8
+    units = 0
+    normal_units = 0
+    attacks = 7
+    casualty_multiplier = casualty_multiplier
+
+    casualty_percent = 10 * casualty_multiplier
+    survival_rate = 1 - (casualty_percent/100)
+
+    for _ in range(attacks):
+        while units * unit_op < target:
+            units += 1
+            total_spent += unit_price
+
+        units = int(units * survival_rate)
+
+        while normal_units * unit_op < target:
+            normal_units += 1
+            total_normal_spent += unit_price
+
+        normal_units = int(normal_units * 0.9)
+
+    cost_increase = 1 / (total_spent/total_normal_spent)
+
+    # print(f"{attacks} attacks at casualties x{casualty_multiplier}")
+    # print(f"Total spend: {total_spent:2,}")
+    # print(total_spent/27312500)
+    # print(f"Increase cost by {round(cost_increase, 2)}")
+    return round(cost_increase, 2)
+
+
+def get_fast_return_cost_multiplier(return_ticks, op, dp):
+    base_cost = 10000
+    cost = base_cost
+    faster = 12 - return_ticks
+    increase_per_speed = 1.02 + (faster/300)
+    
+    for _ in range(faster):
+        cost *= increase_per_speed
+        
+    multiplier = int(cost)/base_cost
+    
+    extra_cost_decimal = multiplier - 1
+    proportion_of_multiplier = min(op / max(1, dp), dp / max(1, op)) # 2/10 and 10/2 both end up with 20%
+    third_extra_cost_decimal = extra_cost_decimal / 3
+    
+    return 1 + third_extra_cost_decimal + (third_extra_cost_decimal * proportion_of_multiplier * 2)
+
+
+def get_low_turtle_cost_multiplier(op, dp):
+    # Up to a 15% discount based on how much turtle the unit doesn't have
+    return min(1, 1 - (1 - (dp / max(1, op))) * 0.15)
+
+
 def smart_comma(base, addition):
     if len(base) > 0:
         return f", {addition}"
@@ -31,8 +223,23 @@ def format_minutes(minutes):
 
 
 def get_sludgeling_name():
-    return random.choice(["Sludger", "Oozeling", "Gooper", "Marshling", "Sogger", "Squishling", "Slimezoid", "Pudling", "Swamper", "Snotling",
-                              "Slurpling", "Slopling", "Dampling", "Grossling", "Slurpazoid"])
+    return random.choice(
+        [
+            "Sludger", "Oozer", "Gooper", "Marsher", "Sogger", "Squisher", "Slimer", "Pudder", "Swamper", "Snotter", "Slurper", "Slopper", "Damper", "Grosser",
+            "Oozeling", "Goopling", "Marshling", "Sogling", "Squishling", "Slimeling", "Pudling", "Swampling", "Snotling", "Slurpling", "Dampling", "Grossling",
+            "Sludgezoid", "Oozoid", "Goopazoid", "Marshazoid", "Soggazoid", "Squishazoid", "Slimazoid", "Swampazoid", "Snotazoid", "Slurpazoid", "Sloppazoid",
+        ]
+    )
+    
+
+def get_sludgene_name():
+    letters = ["S", "L", "U", "D", "G", "E", "G", "O", "P"]
+    name = ""
+    
+    for _ in range(5):
+        name += random.choice(letters)
+        
+    return name
 
 
 def get_goblin_name():
@@ -64,9 +271,15 @@ def get_goblin_ruler():
 
 
 def shorten_number(num):
-    if num < 100000: # 100k
+    hundred_thousand = 100000
+    one_million = 1000000
+    ten_million = 10000000
+    
+    if num < hundred_thousand: # 100k
         return f"{num:2,}"
-    elif num < 1000000: # 1m
+    elif num < one_million: # 1m
         return f"{int(num/1000)}k"
+    elif num < ten_million: #10m
+        return f"{round(num/one_million, 2)}m"
     else:
-        return f"{round(num/1000000, 2)}m"
+        return f"{round(num/one_million, 1)}m"

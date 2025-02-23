@@ -19,6 +19,12 @@
             {% if left_lowest_defense %}<span>❌ you'll have the lowest DP in the game</span>{% endif %}
         </div>
 
+        {% if invasion_consequences %}
+        <div class="u-center u-flex u-flex-column">
+            <span>{{ invasion_consequences  }}</span>
+        </div>
+        {% endif %}
+
         <input type="number" id="dpLeftHidden" name="dpLeftHidden" hidden value="{{ active_dominion.defense }}" />
     </div>
     <div style="display: none;">
@@ -28,4 +34,10 @@
     <button class="btn-danger mt-1 w-24 h-6 p-0 u-center" type="submit" id="invadeButton" {% if invalid_invasion %}disabled{% endif %}>
         <span id="invadeButtonText" class="font-bold" disabled>Submit</span>
     </button>
+
+    {% for unit in units_needed_to_break_list %}
+    <div hidden>
+        <span id="win_{{ unit.id }}">{{ unit.quantity_needed }}</span>
+    </div>
+    {% endfor %}
 </div>

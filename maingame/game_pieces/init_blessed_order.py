@@ -92,7 +92,7 @@ def initialize_blessed_order_units():
         name="Harbinger",
         op=0,
         dp=5,
-        perk_dict={"sacrifices_brothers_chance_percent": 10, "sacrifices_brothers_amount": 1000,},
+        perk_dict={"sacrifices_brothers_chance_percent": 20, "sacrifices_brothers_amount": 1000,},
         is_trainable=False,
     )
 
