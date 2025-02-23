@@ -3,7 +3,6 @@ from string import Formatter
 
 
 def get_perk_text(perk_dict, resource_name_list, faction_name="none"):
-    print(resource_name_list)
     if not perk_dict:
         return ""
     
