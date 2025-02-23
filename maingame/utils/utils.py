@@ -1,9 +1,98 @@
 from random import choice
 import random
 
+from maingame.formatters import get_casualty_mod_cost_multiplier, get_fast_return_cost_multiplier, get_low_turtle_cost_multiplier
 from maingame.models import Unit, Dominion, Discovery, Building, Resource, Spell, MechModule
 
 from maingame.utils.give_stuff import create_resource_for_dominion, give_dominion_building, give_dominion_module, give_dominion_spell, give_dominion_unit
+
+
+def get_primary_type_base_costs(power, secondary_resource_name, is_offense):
+    building = Building.objects.get(ruler=None, resource_produced_name=secondary_resource_name)
+    btick_amount = building.amount_produced + 10
+
+    if power == 1:
+        primary_cost = 75
+    if power == 2:
+        primary_cost = 175
+    else:
+        primary_cost = (power * 300) - 600
+    
+    secondary_cost = power * 1.5 * btick_amount
+    
+    if is_offense:
+        return primary_cost * 1.3, secondary_cost * 1.3
+    else:
+        return primary_cost, secondary_cost
+
+
+def get_secondary_type_base_costs(power, secondary_resource_name, is_offense):
+    building = Building.objects.get(ruler=None, resource_produced_name=secondary_resource_name)
+    btick_amount = building.amount_produced + 10
+    
+    if power == 1:
+        secondary_cost = 0.75 * btick_amount
+    else:
+        secondary_cost = ((power * 6) - 10) * btick_amount
+        
+    if is_offense:
+        return 0, secondary_cost * 1.3
+    else:
+        return 0, secondary_cost
+
+
+def generate_unit_cost_dict(op, dp, primary_resource_name, secondary_resource_name, type, casualty_multiplier=1, return_ticks=12):
+    if type not in ["primary", "secondary", "hybrid"]:
+        return {"error": 1}
+    
+    primary_op_primary_cost, primary_op_secondary_cost = get_primary_type_base_costs(op, secondary_resource_name, True)
+    primary_dp_primary_cost, primary_dp_secondary_cost = get_primary_type_base_costs(dp, secondary_resource_name, False)
+    
+    secondary_op_primary_cost, secondary_op_secondary_cost = get_secondary_type_base_costs(op, secondary_resource_name, True)
+    secondary_dp_primary_cost, secondary_dp_secondary_cost = get_secondary_type_base_costs(dp, secondary_resource_name, False)
+        
+    hybrid_op_primary_cost = (primary_op_primary_cost + secondary_op_primary_cost) / 2
+    hybrid_op_secondary_cost = (primary_op_secondary_cost + secondary_op_secondary_cost) / 2
+    
+    hybrid_dp_primary_cost = (primary_dp_primary_cost + secondary_dp_primary_cost) / 2
+    hybrid_dp_secondary_cost = (primary_dp_secondary_cost + secondary_dp_secondary_cost) / 2
+    
+    if type == "primary":
+        primary_cost = max(primary_op_primary_cost, primary_dp_primary_cost)
+        secondary_cost = max(primary_op_secondary_cost, primary_dp_secondary_cost)
+    elif type == "secondary":
+        primary_cost = max(secondary_op_primary_cost, secondary_dp_primary_cost)
+        secondary_cost = max(secondary_op_secondary_cost, secondary_dp_secondary_cost)
+    else:
+        primary_cost = max(hybrid_op_primary_cost, hybrid_dp_primary_cost)
+        secondary_cost = max(hybrid_op_secondary_cost, hybrid_dp_secondary_cost)
+    
+    cost_multiplier = get_low_turtle_cost_multiplier(op, dp)
+    cost_multiplier *= get_casualty_mod_cost_multiplier(casualty_multiplier)
+    cost_multiplier *= get_fast_return_cost_multiplier(return_ticks, op, dp)
+        
+    primary_cost = primary_cost * cost_multiplier
+    secondary_cost = secondary_cost * cost_multiplier
+    
+    if primary_cost > 1000:
+        primary_cost = round_x_to_nearest_y(primary_cost, 50)
+    else:
+        primary_cost = round_x_to_nearest_y(primary_cost, 25)
+        
+    if secondary_cost > 1000:
+        secondary_cost = round_x_to_nearest_y(secondary_cost, 50)
+    else:
+        secondary_cost = round_x_to_nearest_y(secondary_cost, 25)
+    
+    cost_dict = {}
+    
+    if primary_cost > 0:
+        cost_dict[primary_resource_name] = primary_cost
+        
+    if secondary_cost > 0:
+        cost_dict[secondary_resource_name] = secondary_cost
+
+    return cost_dict
 
 
 def get_unit_from_dict(unit_details_dict) -> Unit:
@@ -74,78 +163,6 @@ def get_grudge_bonus(my_dominion: Dominion, other_dominion: Dominion):
     except:
         return 0
     
-
-def create_magnum_goopus(dominion: Dominion, units_included_dict, encore=False):
-    total_quantity = 0
-    total_op = 0
-    total_dp = 0
-    food_upkeep = 0
-
-    if encore:
-        perk_dict = {"is_more_glorious": True}
-    else:
-        perk_dict = {"is_glorious": True}
-
-    for unit_details_dict in units_included_dict.values():
-        unit = get_unit_from_dict(unit_details_dict)
-        quantity_included = unit_details_dict["quantity_sent"]
-
-        if "sludge" in unit.cost_dict and quantity_included <= unit.quantity_at_home:
-            total_quantity += quantity_included
-            total_op += quantity_included * unit.op
-            total_dp += quantity_included * unit.dp
-
-            if "food" in unit.upkeep_dict:
-                food_upkeep += quantity_included * unit.upkeep_dict["food"]
-
-            for perk, value in unit.perk_dict.items():
-                if perk == "casualty_multiplier" and perk in perk_dict:
-                    perk_dict[perk] = min(value, perk_dict[perk])
-                else:
-                    perk_dict[perk] = value
-            
-            unit.lose(quantity_included)
-
-    encore_suffixes = [" Mk II", " 2: Electric Goopaloo", " Remastered", ": the Remix", " 2", " Jr.", " Magnum Goopier"]
-
-    if encore:
-        name = f"Magnum Goopus {random.choice(encore_suffixes)}"
-    else:
-        name = "Magnum Goopus"
-
-    dominion.perk_dict["masterpieces_to_create"] -= 1
-    dominion.save()
-
-    timer_template = {
-        "1": 0,
-        "2": 0,
-        "3": 0,
-        "4": 0,
-        "5": 0,
-        "6": 0,
-        "7": 0,
-        "8": 0,
-        "9": 0,
-        "10": 0,
-        "11": 0,
-        "12": 0,
-    }
-
-    return Unit.objects.create(
-        ruler=dominion,
-        name=name,
-        op=total_op,
-        dp=total_dp,
-        upkeep_dict={
-            "food": food_upkeep,
-        },
-        perk_dict=perk_dict,
-        is_trainable=False,
-        quantity_at_home=1,
-        training_dict=timer_template,
-        returning_dict=timer_template,
-    )
-
 
 def update_capacity(dominion: Dominion):
     used_capacity = 0
@@ -255,11 +272,13 @@ def unlock_discovery(dominion: Dominion, discovery_name):
 
             dominion.save()
         case "More Experiment Slots":
-            dominion.perk_dict["max_custom_units"] = 4
+            dominion.perk_dict["max_custom_units"] += 1
         case "Even More Experiment Slots":
-            dominion.perk_dict["max_custom_units"] = 6
+            dominion.perk_dict["max_custom_units"] += 2
+        case "Sludgehoarder":
+            dominion.perk_dict["max_custom_units"] += 3
         case "Recycling Center":
-            dominion.perk_dict["recycling_refund"] = 0.95
+            dominion.perk_dict["recycling_refund"] = 0.97
         case "Magnum Goopus":
             # create_magnum_goopus(dominion)
             dominion.perk_dict["masterpieces_to_create"] += 1

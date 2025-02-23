@@ -7,120 +7,175 @@
 
 {% block content %}
 <div class="u-flex u-flex-column u-gap-2">
-    <details class="accordion card card_colors max-w-md">
+    <details class="accordion card card_colors">
         <summary class="accordion__summary">Details</summary>
         <p>
-            Conduct experiments to unlock the perfect sludgelings for your army. Every time it's random. 
-            The more experiments you run, the (slightly) higher your chance of getting a very powerful unit.
+            Conduct experiments to unlock the perfect sludgelings for your army. Sludgene sequences from the same family
+            can be spliced together to create a new sludgene sequence with values that fall between the range of both parents
+            (usually). There's no limit to how many sludgene sequences you can store except your own tolerance for clutter.
         </p>
         <p>
-            The cost of each experiment is based on your acreage. You can only have three experimental units at a time, but you can terminate any 
-            existing experiments to make room for new ones as long as none are returning or in training. Doing so will refund you 80% of the 
-            cost of any units you had trained of that type.
+            Once you find a sludgene sequence you like, you can spawn it as a unit.
         </p>
-        <p>
-            When someone invades you, you'll get five free experiments.
-        </p>
-        <p>
-            "Cost/OP" is based on "cost" being ((gold cost * 1.08) + sludge cost) to represent how much it would cost if you paid by converting gold to sludge.
-            "Upkeep-normalized OP" is ((OP * 3) / gold upkeep) to determine how efficient it is to pay for in the long run.
-        </p>
+        <p class="font-bold">Splicing formula:</p>
+        <p>OP and DP have a 1/3 chance to match one parent and a 2/3 chance to fall somewhere in between.</p>
+        <p>Faster return has a 1/3 chance to match the faster parent and a 2/3 chance to fall somewhere between the two.</p>
+        <p>Casualty rate has a 1/3 chance to match the more durable parent and a 2/3 chance to fall somewhere between the two.</p>
+        <p>Cost type matches the parents (sludgene sequence families are based on cost type).</p>
+        <p>Upkeep type matches on of the parents at random.</p>
+        <p>Resource secreted has a 1/4 chance to match each parent and a 1/2 chance to be absent.</p>
+        <p>Discount has a 1/2 chance to fall between the parents and a 1/2 chance to be 0%.</p>
     </details>
-    <div class="u-flex u-flex-column u-gap-2">
-        {% if allow_new_experiments %}
-        <span>
-            New experiment: {{ research_cost|intcomma }} research, {{ sludge_cost|intcomma }} sludge
-        </span>
-        <span>
-            You have {{ active_dominion.perk_dict.free_experiments }} free experiments available.
-        </span>
-        <form class="max-w-xs">
-            <button class="u-center header_colors" formaction="{% url 'generate_experiment' %}">Generate</button>
-        </form>
-        {% endif %}
-    </div>
-
-    {% if latest_experiment_unit %}
-    <div class="card card_colors p-1 w-100p max-w-xs">
-        <table class="table striped card_colors">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Pwr</th>
-                    <th class="w-16">Cost</th>
-                    <th>Upkeep</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    {% include "maingame/components/unit_name_row.html" with unit=latest_experiment_unit %}
-                    <td class="u-align-middle">{{ latest_experiment_unit.op|intcomma }} / {{ latest_experiment_unit.dp|intcomma }}</td>
-                    <td class="u-align-middle">
-                        <div class="u-flex u-flex-column">
-                            {% for resource, amount in latest_experiment_unit.cost_dict.items %}
-                            <span>{{ amount|intcomma }} {{ resource|depluralize:amount }}</span>
-                            {% endfor %}
-                        </div>
-                    </td>
-                    <td class="u-align-middle">
-                        <div class="u-flex u-flex-column">
-                            {% for resource, amount in latest_experiment_unit.upkeep_dict.items %}
-                            <span>{{ amount|intcomma }} {{ resource|depluralize:amount }}</span>
-                            {% endfor %}
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-            <div class="u-center u-align-middle my-auto md:u-none" id="test-modal">
-                <div class="u-flex u-flex-column u-justify-space-between">
-                    <p>{{ latest_experiment_unit.perk_text }}</p>
-                </div>
-            </div>
-        </table>
-        <div class="w-100p u-center mb-2">
-            <form class="max-w-xs">
-                <button class="u-center header_colors" formaction="{% url 'approve_experiment' %}">Approve</button>
-            </form>
-        </div>
-        <table class="table striped card_colors">
-            <thead>
-                <tr>
-                    <th>Cost/OP</th>
-                    <th>Cost/DP</th>
-                    <th>Upkeep-normalized OP</th>
-                    <th>Upkeep-normalized DP</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="u-align-middle">{{ latest_experiment.cost_per_op }}</td>
-                    <td class="u-align-middle">{{ latest_experiment.cost_per_dp }}</td>
-                    <td class="u-align-middle">{{ latest_experiment.op_per_normalized_upkeep|floatformat:"-1" }}</td>
-                    <td class="u-align-middle">{{ latest_experiment.dp_per_normalized_upkeep|floatformat:"-1" }}</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    {% endif %}
     
-    {% if has_experimental_units %}
-    <div>
+    <div class="max-w-md" style="width: fit-content;">
+        <form action="{% url 'submit_sludgenes' %}" method="post" class="u-flex u-flex-column u-gap-4 max-w-md" >
+            {% csrf_token %}
+            <table class="table striped card_colors" style="min-width: 400px">
+                <tbody>
+                    <tr class="header_colors" style="background: {{ active_user_settings.used_theme.header_background }};">
+                        <th>Sequence</th>
+                        <th>Power</th>
+                        <th>Perks</th>
+                        <th>Discount</th>
+                        <th class="u-text-no-wrap">Cost</th>
+                        <th class="u-text-no-wrap">Upkeep</th>
+                        <th>Selected</th>
+                    </tr>
+
+                    {% for sludgene in sludgenes %}
+                        {% if sludgene.cost_type == "primary" %}
+                            <tr onclick="document.getElementById('breed_{{ sludgene.id }}').checked ^= 1; return false;">
+                                <td class="u-align-middle">A-{{ sludgene.name }}</td>
+                                <td class="u-align-middle u-text-no-wrap">{{ sludgene.op|intcomma }}&nbsp;/&nbsp;{{ sludgene.dp|intcomma }}</td>
+                                <td class="u-align-middle">{{ sludgene.perk_text }}</td>
+                                <td class="u-align-middle">{{ sludgene.discount_percent }}%</td>
+                                <td class="u-align-middle">
+                                    {% for resource, amount in sludgene.cost_dict.items %}
+                                        <span class="u-center">{{ amount|intcomma }}&nbsp;{{ resource|depluralize:amount }}</span>
+                                    {% endfor %}
+                                </td>
+                                <td class="u-align-middle">
+                                    {% for resource, amount in sludgene.upkeep_dict.items %}
+                                        <span class="u-center">{{ amount|intcomma }}&nbsp;{{ resource|depluralize:amount }}</span>
+                                    {% endfor %}
+                                </td>
+                                <td class="u-align-middle">
+                                    <input type="checkbox" id="breed_{{ sludgene.id }}" name="breed_{{ sludgene.id }}" style="pointer-events: none;">
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+
+                    <tr class="header_colors" style="background: {{ active_user_settings.used_theme.header_background }};">
+                        <th>Sequence</th>
+                        <th>Power</th>
+                        <th>Perks</th>
+                        <th>Discount</th>
+                        <th>Cost</th>
+                        <th>Upkeep</th>
+                        <th>Selected</th>
+                    </tr>
+
+                    {% for sludgene in sludgenes %}
+                        {% if sludgene.cost_type == "hybrid" %}
+                            <tr onclick="document.getElementById('breed_{{ sludgene.id }}').checked ^= 1; return false;">
+                                <td class="u-align-middle">B-{{ sludgene.name }}</td>
+                                <td class="u-align-middle u-text-no-wrap">{{ sludgene.op|intcomma }}&nbsp;/&nbsp;{{ sludgene.dp|intcomma }}</td>
+                                <td class="u-align-middle">{{ sludgene.perk_text }}</td>
+                                <td class="u-align-middle">{{ sludgene.discount_percent }}%</td>
+                                <td class="u-align-middle">
+                                    {% for resource, amount in sludgene.cost_dict.items %}
+                                        <span class="u-center">{{ amount|intcomma }}&nbsp;{{ resource|depluralize:amount }}</span>
+                                    {% endfor %}
+                                </td>
+                                <td class="u-align-middle">
+                                    {% for resource, amount in sludgene.upkeep_dict.items %}
+                                        <span class="u-center">{{ amount|intcomma }}&nbsp;{{ resource|depluralize:amount }}</span>
+                                    {% endfor %}
+                                </td>
+                                <td class="u-align-middle">
+                                    <input type="checkbox" id="breed_{{ sludgene.id }}" name="breed_{{ sludgene.id }}" style="pointer-events: none;">
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+
+                    <tr class="header_colors" style="background: {{ active_user_settings.used_theme.header_background }};">
+                        <th>Sequence</th>
+                        <th>Power</th>
+                        <th>Perks</th>
+                        <th>Discount</th>
+                        <th class="u-text-no-wrap">Cost</th>
+                        <th class="u-text-no-wrap">Upkeep</th>
+                        <th>Selected</th>
+                    </tr>
+
+                    {% for sludgene in sludgenes %}
+                        {% if sludgene.cost_type == "secondary" %}
+                            <tr onclick="document.getElementById('breed_{{ sludgene.id }}').checked ^= 1; return false;">
+                                <td class="u-align-middle">C-{{ sludgene.name }}</td>
+                                <td class="u-align-middle u-text-no-wrap">{{ sludgene.op|intcomma }}&nbsp;/&nbsp;{{ sludgene.dp|intcomma }}</td>
+                                <td class="u-align-middle">{{ sludgene.perk_text }}</td>
+                                <td class="u-align-middle">{{ sludgene.discount_percent }}%</td>
+                                <td class="u-align-middle">
+                                    {% for resource, amount in sludgene.cost_dict.items %}
+                                        <span class="u-center">{{ amount|intcomma }}&nbsp;{{ resource|depluralize:amount }}</span>
+                                    {% endfor %}
+                                </td>
+                                <td class="u-align-middle">
+                                    {% for resource, amount in sludgene.upkeep_dict.items %}
+                                        <span class="u-center">{{ amount|intcomma }}&nbsp;{{ resource|depluralize:amount }}</span>
+                                    {% endfor %}
+                                </td>
+                                <td class="u-align-middle">
+                                    <input type="checkbox" id="breed_{{ sludgene.id }}" name="breed_{{ sludgene.id }}" style="pointer-events: none;">
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div>
+                <select name="action" class="w-32 h-6 u-center mb-2">
+                    <option value="splice">Splice</option>
+                    <option value="spawn">Spawn unit</option>
+                    <option value="delete">Delete</option>
+                </select>
+                <button class="header_colors w-16 h-6 p-0 u-center" type="submit">
+                    <span class="font-bold">Submit</span>
+                </button>
+                <span class="u-center">{{ splices }} splices remaining</span>
+                <span class="u-center">{{ active_dominion.perk_dict.custom_units }} / {{ active_dominion.perk_dict.max_custom_units }} custom units used</span>
+            </div>
+        <form>
+    
+    {% comment %} Without this, the terminate experiment form hits submit_sludgenes and I don't know why {% endcomment %}
+    <div class="max-w-md u-none">
         <form action="{% url 'terminate_experiment' %}" method="post" class="u-flex u-flex-column u-gap-4 w-90p max-w-xs">
             {% csrf_token %}
-            <label class="form-ext-toggle__label u-flex u-flex-column mt-2">
-                <span class="w-24">Terminate experiment</span>
-                <select name="experiment_to_terminate" class="w-100p">
-                    <option></option>
-                    {% for unit in experimental_units %}
-                    <option value="{{ unit.id }}">{{ unit.name }} {{ unit.op|intcomma}}/{{ unit.dp|intcomma }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-            <button class="header_colors w-16 h-6 p-0 u-center" type="submit">
-                <span class="font-bold">Submit</span>
-            </button>
         </form>
     </div>
+    {% comment %} End bullshit {% endcomment %}
+
+    {% if has_experimental_units %}
+        <div class="u-overflow-x-scroll md:u-overflow-x-hidden mt-6 max-w-md" style="min-width: 400px">
+            <form action="{% url 'terminate_experiment' %}" method="post" class="max-w-md">
+                {% csrf_token %}
+                <label class="form-ext-toggle__label u-flex u-flex-column mt-2">
+                    <span class="w-24 u-center">Terminate experiment</span>
+                    <select name="experiment_to_terminate" class="w-48 u-center mb-2">
+                        <option></option>
+                        {% for unit in experimental_units %}
+                        <option value="{{ unit.id }}">{{ unit.name }} {{ unit.op|intcomma}}/{{ unit.dp|intcomma }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <button class="header_colors mt-1 w-32 h-6 p-0 u-center" type="submit">
+                    <span class="font-bold">Terminate</span>
+                </button>
+            </form>
+        </div>
     {% endif %}
 
     {% if masterpieces_available > 0 %}
@@ -137,7 +192,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for unit in units %}
+                        {% for unit in experimental_units %}
                         <tr>
                             {% include "maingame/components/unit_name_row.html" %}
                             <td class="u-align-middle" id="power_{{ unit.id }}" style="white-space:nowrap">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
@@ -190,6 +245,7 @@
             </form>
         </div>
     {% endif %}
+    </div>
 </div>
 
 {% endblock %}

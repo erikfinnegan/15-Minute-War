@@ -1,11 +1,11 @@
 from random import randint
 from django.core.management.base import BaseCommand
 
+from maingame.formatters import get_fast_return_cost_multiplier
 from maingame.models import UserSettings, Resource, Round, Event, Dominion, Unit
 from django.contrib.auth.models import User
-import os
 
-from maingame.game_pieces.initialize import initialize_blessed_order_discoveries
+from maingame.utils.utils_sludgeling import create_random_sludgene
 
 class Command(BaseCommand):
     help = "Initiates a battle"
@@ -14,25 +14,70 @@ class Command(BaseCommand):
         print("IT'S DEBUG TIME BABY")
         print()
         
-        mult = 10
-        x = 1000
-        y = x * mult
-
-        total_x = 0
-        total_y = 0
-
-        while x > 0:
-            total_x += x
-            x = int(x * 0.98)
-
-        while y > 0:
-            total_y += y
-            y = int(y * 0.98)
-
-        mod_x = total_x * mult
-        print(total_x)
-        print(total_y)
-        print(mod_x / total_y)
+        
+        for _ in range(6):
+            sludgene = create_random_sludgene(Dominion.objects.get(name="ERIKTEST"))
+        
+        # base_cost = 1000
+        
+        # def get_faster_cost(faster):
+        #     return get_fast_return_cost_multiplier(12 - faster)
+        #     # cost = base_cost
+        #     # expo = 1.02 + (faster/300)
+            
+        #     # for _ in range(faster):
+        #     #     cost *= expo
+                
+        #     # return int(cost)/base_cost
+        
+        # op = 3
+        # dp = 10
+        # print(f"{op}/{dp}")
+        
+        # for x in range(12):
+        #     # new_cost = get_faster_cost(x) - 1
+        #     mult = get_fast_return_cost_multiplier(12 - x, op, dp)
+        #     padnum = str(x).ljust(2, " ")
+        #     print(f"{padnum} faster = x{mult}")
+            
+        
+        # total_rate = 0
+        # attempts = 100000
+        # targets = 0
+        # lowest = 1
+        # highest = 0
+        
+        # for _ in range(attempts):
+        #     rate = 1
+            
+        #     roll = randint(-1, 1)
+        #     rate += roll * 0.25
+            
+        #     roll = randint(-1, 1)
+        #     rate += roll * 0.25
+            
+        #     roll = randint(-1, 1)
+        #     rate += roll * 0.15
+            
+        #     roll = randint(-1, 1)
+        #     rate += roll * 0.10
+            
+        #     rate = round(rate, 2)
+            
+        #     total_rate += rate
+            
+        #     if rate == 0.25:
+        #         targets += 1
+                
+        #     if rate < lowest:
+        #         lowest = rate
+                
+        #     if rate > highest:
+        #         highest = rate
+            
+        # print(total_rate/attempts)
+        # print(targets/attempts)
+        # print(highest)
 
         print()
         print()

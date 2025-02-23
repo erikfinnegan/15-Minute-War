@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Faction, Unit, Dominion, Deity, Building, Round, Event, Battle, Resource, Discovery, Spell, UserSettings, Theme, MechModule
+from .models import Faction, Unit, Dominion, Deity, Building, Round, Event, Battle, Resource, Discovery, Spell, UserSettings, Theme, MechModule, Sludgene
 
 class FooAdmin(admin.ModelAdmin):
     readonly_fields = ('timestamp',)
@@ -19,3 +19,4 @@ admin.site.register(Spell)
 admin.site.register(Round)
 admin.site.register(UserSettings)
 admin.site.register(Theme)
+admin.site.register(Sludgene)

@@ -15,7 +15,7 @@ def index(request):
     context = {
         "testcontext": "Context test successful",
     }
-
+    
     return render(request, "maingame/index.html", context)
 
 
@@ -42,8 +42,6 @@ def buildings(request):
     except:
         return redirect("register")
     
-    # primary_resource = Resource.objects.get(ruler=dominion, name=dominion.building_primary_resource_name)
-    # secondary_resource = Resource.objects.get(ruler=dominion, name=dominion.building_secondary_resource_name)
     # max_affordable = int(min(primary_resource.quantity / dominion.building_primary_cost, secondary_resource.quantity / dominion.building_secondary_cost))
 
     resources_dict = {}
@@ -199,8 +197,6 @@ def resources(request):
         "resources_dict_json": json.dumps(resources_dict),
         "dominion_resources_json": json.dumps(dominion_resource_total_dict),
         "trade_price_json": json.dumps(trade_price_dict),
-        "last_sold_resource_name": dominion.last_sold_resource_name,
-        "last_bought_resource_name": dominion.last_bought_resource_name,
     }
 
     return render(request, "maingame/resources.html", context)
@@ -248,21 +244,10 @@ def battle_report(request, battle_id):
     
     battle = Battle.objects.get(id=battle_id)
 
-    units_sent_dict = {}
-    units_defending_dict = {}
-
-    for unit_id, quantity in battle.units_sent_dict.items():
-        unit = Unit.objects.get(id=unit_id)
-        units_sent_dict[unit.name] = quantity
-
-    for unit_id, quantity in battle.units_defending_dict.items():
-        unit = Unit.objects.get(id=unit_id)
-        units_defending_dict[unit.name] = quantity
-
     context = {
         "battle": battle,
-        "units_sent_dict": units_sent_dict,
-        "units_defending_dict": units_defending_dict,
+        "units_sent_dict": battle.units_sent_dict,
+        "units_defending_dict": battle.units_defending_dict,
         "attacker": battle.attacker,
         "defender": battle.defender,
     }

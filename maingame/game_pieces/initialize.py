@@ -6,13 +6,16 @@ from maingame.game_pieces.init_goblin import initialize_goblin_discoveries, init
 from maingame.game_pieces.init_gsf import initialize_gnomish_special_forces_discoveries, initialize_gnomish_special_forces_units
 from maingame.game_pieces.init_mechadragon import initialize_mechadragon_discoveries, initialize_mechadragon_units, initialize_mechadragon_modules
 from maingame.game_pieces.init_sludgeling import initialize_sludgeling_discoveries, initialize_sludgeling_units
-from maingame.models import Faction, Deity, Dominion, Building, Unit, Discovery, Round, Battle, Event, Resource, Spell, MechModule
+from maingame.models import Faction, Deity, Dominion, Building, Unit, Discovery, Round, Battle, Event, Resource, Spell, MechModule, Sludgene
 
 
 def initialize_resources():
     resource_templates = [
         {
             "name": "gold",
+        },
+        {
+            "name": "goop",
         },
         {
             "name": "wood",
@@ -126,8 +129,6 @@ def initialize_factions():
         name="dwarf",
         primary_resource_name="gold",
         primary_resource_per_acre="50",
-        building_primary_resource_name="gold",
-        building_secondary_resource_name="wood",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"],
         # description="""Dwarves keep the most meticulous grudges, gaining 50% more pages than anyone else. They also unlock unique abilities to expand
         # their grudges and even retain a bit of them instead of forgiving and forgetting like less stalwart folk."""
@@ -136,25 +137,21 @@ def initialize_factions():
         accumulating until the dwarf invades that player successfully. 0.003% may not sound like much, but it adds up quickly."""
     )
 
-    Faction.objects.create(
-        name="blessed order",
-        primary_resource_name="gold",
-        primary_resource_per_acre="50",
-        building_primary_resource_name="gold",
-        building_secondary_resource_name="wood",
-        starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"],
-        description="""The brothers of the Blessed Order generate faith, which is used to restore the vengeful spirits of warriors who fall defending
-        their people. When they're invaded, any accumulated faith is spent to turn defensive casualties into blessed martyrs at the cost of 500 faith
-        per martyr. However, one heretic appears per tick for each 100 acres and each drains 1 faith per tick until the order places their offense
-        on hold for 24 ticks to begin an inquisition to root them out."""
-    )
+    # Faction.objects.create(
+    #     name="blessed order",
+    #     primary_resource_name="gold",
+    #     primary_resource_per_acre="50",
+    #     starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"],
+    #     description="""The brothers of the Blessed Order generate faith, which is used to restore the vengeful spirits of warriors who fall defending
+    #     their people. When they're invaded, any accumulated faith is spent to turn defensive casualties into blessed martyrs at the cost of 500 faith
+    #     per martyr. However, one heretic appears per tick for each 100 acres and each drains 1 faith per tick until the order places their offense
+    #     on hold for 24 ticks to begin an inquisition to root them out."""
+    # )
 
     Faction.objects.create(
         name="sludgeling",
-        primary_resource_name="gold",
+        primary_resource_name="goop",
         primary_resource_per_acre="50",
-        building_primary_resource_name="gold",
-        building_secondary_resource_name="wood",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry", "cesspool"],
         description="""Most alchemists pursue the creation of potions or the transmutation of cheap materials into gold, but some opt instead to work
         with sludge. The "masterminds" behind the sludgelings experiment with vile substances to see what sort of awful creatures they might create. Sludgelings
@@ -167,8 +164,6 @@ def initialize_factions():
         name="goblin",
         primary_resource_name="gold",
         primary_resource_per_acre="50",
-        building_primary_resource_name="gold",
-        building_secondary_resource_name="wood",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry", "ruler's favorite",],
         description="""Goblins are nasty little creatures. Whether they like it or not (though they definitely do), they produce 1 rat for every 3 acres.
         Each is ruled by an ambitious little wretch who favors one resource above all others, getting a 10% bonus to production. Every time goblins are 
@@ -180,8 +175,6 @@ def initialize_factions():
         name="biclops",
         primary_resource_name="gold",
         primary_resource_per_acre="50",
-        building_primary_resource_name="gold",
-        building_secondary_resource_name="wood",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry",],
         description="""Fifteen feet tall, two heads, one eye apiece, and as greedy as they are cruel. Biclops have two distinct minds and their success in life almost always
         hinges on their ability to avoid conflict with themselves. You'll be playing just one half of a biclops leader and will need to share control over your dominion
@@ -194,8 +187,6 @@ def initialize_factions():
         name="gnomish special forces",
         primary_resource_name="gold",
         primary_resource_per_acre="50",
-        building_primary_resource_name="gold",
-        building_secondary_resource_name="wood",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry",],
         description="""The GSF are as tricky as they are small. What they lack in power they make up for with their devious schemes, strategically undermining
         the defenses of their targets before striking a decisive blow."""
@@ -205,8 +196,6 @@ def initialize_factions():
         name="mecha-dragon",
         primary_resource_name="gold",
         primary_resource_per_acre="50",
-        building_primary_resource_name="gold",
-        building_secondary_resource_name="wood",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry",],
         description="""Inspired by mythical creatures, they set out to construct the ultimate war machine. It is difficult to deny they've succeeded."""
     )
@@ -215,7 +204,7 @@ def initialize_factions():
 def initialize_units():
     initialize_generic_units()
     initialize_dwarf_units()
-    initialize_blessed_order_units()
+    # initialize_blessed_order_units()
     initialize_sludgeling_units()
     initialize_goblin_units()
     initialize_biclops_units()
@@ -274,7 +263,7 @@ def initialize_spells():
 def initialize_discoveries():
     initialize_generic_discoveries()
     initialize_dwarf_discoveries()
-    initialize_blessed_order_discoveries()
+    # initialize_blessed_order_discoveries()
     initialize_sludgeling_discoveries()
     initialize_goblin_discoveries()
     initialize_biclops_discoveries()
@@ -302,6 +291,7 @@ def initialize_game_pieces():
     Discovery.objects.all().delete()
     Building.objects.all().delete()
     Unit.objects.all().delete()
+    Sludgene.objects.all().delete()
     MechModule.objects.all().delete()
     Spell.objects.all().delete()
     Faction.objects.all().delete()

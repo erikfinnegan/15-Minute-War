@@ -3,6 +3,7 @@ from random import randint
 from maingame.formatters import get_goblin_ruler
 from maingame.models import Battle, Unit, Dominion, Event, Round, Resource, MechModule
 from maingame.utils.utils import get_acres_conquered, get_grudge_bonus, get_random_resource, get_unit_from_dict
+from maingame.utils.utils_sludgeling import create_random_sludgene
 
 
 def handle_grudges_from_attack(attacker: Dominion, defender: Dominion=None):
@@ -72,13 +73,15 @@ def update_units_sent_dict_for_wreckin_ballers(units_sent_dict, total_units_sent
 def generate_battle(units_sent_dict, attacker: Dominion, defender: Dominion, offense_sent, defense_snapshot, acres_conquered):
     battle_units_sent_dict = {}
     battle_units_defending_dict = {}
-
+    
     for unit_id, data in units_sent_dict.items():
-        battle_units_sent_dict[unit_id] = data["quantity_sent"]
+        print("aaa")
+        print(units_sent_dict[unit_id]["unit"].name)
+        battle_units_sent_dict[units_sent_dict[unit_id]["unit"].name] = data["quantity_sent"]
 
     for unit in Unit.objects.filter(ruler=defender):
         if unit.quantity_at_home > 0 and unit.dp > 0:
-            battle_units_defending_dict[str(unit.id)] = unit.quantity_at_home
+            battle_units_defending_dict[unit.name] = unit.quantity_at_home
     
     battle = Battle.objects.create(
         attacker=attacker,
@@ -171,8 +174,8 @@ def does_x_of_unit_break_defender(quantity_theorized, unit: Unit, units_sent_dic
 def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casualties):
     handle_grudges_from_attack(attacker, defender)
 
-    if "free_experiments" in defender.perk_dict:
-        defender.perk_dict["free_experiments"] += 5
+    if attacker.faction_name == "sludgeling":
+        create_random_sludgene(attacker)
 
     if "partner_patience" in attacker.perk_dict:
         attacker.perk_dict["partner_patience"] = int(24 * attacker.acres / (defender.acres))
@@ -181,6 +184,9 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casu
         if defender.strid in attacker.perk_dict["infiltration_dict"]:
             del attacker.perk_dict["infiltration_dict"][defender.strid]
 
+    if defender.faction_name == "sludgeling":
+        create_random_sludgene(defender)
+
     if "goblin_ruler" in defender.perk_dict:
         defender.perk_dict["goblin_ruler"] = get_goblin_ruler()
         current_favorite_name = defender.perk_dict["rulers_favorite_resource"]
@@ -188,13 +194,13 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casu
             defender, excluded_options=["gold", "corpses", "rats", current_favorite_name]
         ).name
 
-    if defender.faction_name == "blessed order":
-        faith = Resource.objects.get(ruler=defender, name="faith")
-        martyrs_affordable = int(faith.quantity / defender.perk_dict["martyr_cost"])
-        martyrs_gained = min(martyrs_affordable, defensive_casualties)
-        faith.spend(defender.perk_dict["martyr_cost"] * martyrs_gained)
-        martyrs = Unit.objects.get(ruler=defender, name="Blessed Martyr")
-        martyrs.gain(martyrs_gained)
+    # if defender.faction_name == "blessed order":
+    #     faith = Resource.objects.get(ruler=defender, name="faith")
+    #     martyrs_affordable = int(faith.quantity / defender.perk_dict["martyr_cost"])
+    #     martyrs_gained = min(martyrs_affordable, defensive_casualties)
+    #     faith.spend(defender.perk_dict["martyr_cost"] * martyrs_gained)
+    #     martyrs = Unit.objects.get(ruler=defender, name="Blessed Martyr")
+    #     martyrs.gain(martyrs_gained)
 
     attacker.save()
     defender.save()
@@ -355,8 +361,8 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion):
 
     battle = generate_battle(units_sent_dict, attacker, defender, offense_sent, defense_snapshot, acres_conquered)
 
-    if "Wreckin Ballers" in attacker.learned_discoveries:
-        units_sent_dict = update_units_sent_dict_for_wreckin_ballers(units_sent_dict, total_units_sent)
+    # if "Wreckin Ballers" in attacker.learned_discoveries:
+    #     units_sent_dict = update_units_sent_dict_for_wreckin_ballers(units_sent_dict, total_units_sent)
 
     _, offensive_corpses = do_offensive_casualties_and_return(units_sent_dict, attacker)
     defensive_casualties, defensive_corpses = do_defensive_casualties(defender)

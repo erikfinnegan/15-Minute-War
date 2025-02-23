@@ -22,7 +22,7 @@ def initialize_gnomish_special_forces_units():
     Unit.objects.create(
         name="Greencap",
         op=6,
-        dp=5, # If you change this or the perk, update world_js.html updateInfiltrateOffense() because they're hardcoded like a fucking idiot
+        dp=5,
         cost_dict={
             "gold": 2300,
             "ore": 300,
@@ -33,7 +33,7 @@ def initialize_gnomish_special_forces_units():
             "food": 1,
         },
         faction=gnomish_special_forces,
-        perk_dict={"invasion_plan_power": 4}, # If you change this or DP, update world_js.html updateInfiltrateOffense() because they're hardcoded like a fucking idiot
+        perk_dict={"invasion_plan_power": 6},
     )
 
     Unit.objects.create(

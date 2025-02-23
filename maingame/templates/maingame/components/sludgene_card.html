@@ -1,0 +1,31 @@
+{% load humanize %}
+{% load extra_tags %}
+
+<table class="table striped card_colors w-64" style="min-width: 400px">
+    <thead>
+        <tr>
+            <th>Sequence</th>
+            <th>Power</th>
+            <th>Perks</th>
+            <th class="u-text-no-wrap">Cost</th>
+            <th class="u-text-no-wrap">Upkeep</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="u-align-middle">{{ sludgene.name }}</td>
+            <td class="u-align-middle u-text-no-wrap">{{ sludgene.op|intcomma }}&nbsp;/&nbsp;{{ sludgene.dp|intcomma }}</td>
+            <td class="u-align-middle">I do stuff</td>
+            <td class="u-align-middle">
+                {% for resource, amount in sludgene.cost_dict.items %}
+                    <span class="u-center">{{ amount|intcomma }}&nbsp;{{ resource|depluralize:amount }}</span>
+                {% endfor %}
+            </td>
+            <td class="u-align-middle">
+                {% for resource, amount in sludgene.upkeep_dict.items %}
+                    <span class="u-center">{{ amount|intcomma }}&nbsp;{{ resource|depluralize:amount }}</span>
+                {% endfor %}
+            </td>
+        </tr>
+    </tbody>
+</table>

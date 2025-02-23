@@ -60,41 +60,6 @@
     </div> {% endcomment %}
 
     <div class="">
-        <form action="{% url 'trade' %}" method="post">
-            {% csrf_token %}
-            <div class="u-flex u-flex-column u-gap-2">
-                <select class="card_colors" id="inputResource" name="inputResource" oninput="showRatio()">
-                    {% for key in my_tradeable_price_data %}
-                    <option {% if key == active_dominion.last_sold_resource_name %} selected{% endif %}>{{ key }}</option>
-                    {% endfor %}
-                </select>
-                <input type="range" min="0" max="100" value="0" id="resourceRange" name="resourceAmount" oninput="showCurrentValue()">
-                <div class="u-center u-flex-row u-gap-1">
-                    <span id="ratioNumerator">1</span>
-                    <span>:</span>
-                    <span id="ratioDenominator">1</span>
-                </div>
-                <select class="card_colors" id="outputResource" name="outputResource" oninput="showRatio()">
-                    {% for key in my_tradeable_price_data %}
-                    <option {% if key == active_dominion.last_bought_resource_name %} selected{% endif %}>{{ key }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="u-center u-gap-1 pt-1">
-                <span>Trade</span>
-                <span id="resourceRangeValue">1</span>
-                <span id="soldResource">gold</span>
-                <span>for</span>
-                <span id="boughtResourceAmount">1</span>
-                <span id="boughtResource">gold</span>
-            </div>
-            <div class="u-center mt-2">
-                <button class="header_colors w-16 h-6 p-0 u-center" type="submit">
-                    <span class="font-bold">Trade</span>
-                </button>
-            </div>
-        </form>
-
         <table class="table striped max-w-md">
             <thead>
                 <tr>
@@ -124,59 +89,6 @@
             </tbody>
         </table>
     </div>
-
-    <script>
-        const dominionResourcesDict = JSON.parse('{{ dominion_resources_json|escapejs }}');
-        const resourceInfoDict = JSON.parse('{{ resources_dict_json|escapejs }}');
-        const tradePrices = JSON.parse('{{ trade_price_json|escapejs }}');
-        const lastSoldResourcename = '{{ last_sold_resource_name|escapejs }}'
-        const lastBoughtResourcename = '{{ last_bought_resource_name|escapejs }}'
-
-        document.getElementById("inputResource").value = lastSoldResourcename
-        document.getElementById("outputResource").value = lastBoughtResourcename
-        document.getElementById("resourceRange").max = dominionResourcesDict["gold"];
-        showCurrentValue();
-        showRatio();
-
-        function showCurrentValue() {
-            document.getElementById("resourceRangeValue").innerHTML = document.getElementById("resourceRange").value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-            const inputResource = document.getElementById("inputResource").value;
-            const outputResource = document.getElementById("outputResource").value;
-            const amount = document.getElementById("resourceRange").value
-            inputResourceName = resourceInfoDict[inputResource].name
-            outputResourceName = resourceInfoDict[outputResource].name
-            const credit = tradePrices[inputResourceName] * amount
-            const outputAmount = Math.floor((credit / tradePrices[outputResourceName]) * 0.5)
-            document.getElementById("boughtResourceAmount").innerHTML = outputAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        }
-
-        function showRatio() {
-            document.getElementById("resourceRangeValue").innerHTML = "1";
-            const inputResource = document.getElementById("inputResource").value;
-            const outputResource = document.getElementById("outputResource").value;
-            document.getElementById("resourceRange").value = 0
-            document.getElementById("resourceRange").max = dominionResourcesDict[inputResource];
-            document.getElementById("soldResource").innerHTML = inputResource
-            document.getElementById("boughtResource").innerHTML = outputResource
-            const inputPrice = tradePrices[inputResource]
-            const outputPrice = tradePrices[outputResource] / 0.5
-
-            decToFrac = dec =>
-                [...Array(100).keys()].flatMap(
-                    i => [...Array(100).keys()].map(
-                    j => [
-                        i + 1, j + 1, (i + 1) / (j + 1),
-                        Math.abs(((i + 1) / (j + 1)) - dec)
-                    ]
-                    )
-                ).sort((a, b) => a[3] - b[3])[0].slice(0, 2)
-            let decfrac = decToFrac(inputPrice/outputPrice)
-
-            document.getElementById("ratioNumerator").innerHTML = +(decfrac[1] / decfrac[1]).toFixed(2)
-            document.getElementById("ratioDenominator").innerHTML = +(decfrac[0] / decfrac[1]).toFixed(2)
-            showCurrentValue()
-        }
-    </script>
 </div>
 
 {% endblock %}

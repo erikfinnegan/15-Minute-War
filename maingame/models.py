@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from maingame.formatters import format_minutes, shorten_number
+from maingame.formatters import format_minutes, get_perk_text, shorten_number
 
 
 class Deity(models.Model):
@@ -147,11 +147,6 @@ class Dominion(models.Model):
     primary_resource_name = models.CharField(max_length=50, null=True, blank=True)
     primary_resource_per_acre = models.IntegerField(default=0)
     
-    building_primary_resource_name = models.CharField(max_length=50, null=True, blank=True)
-    building_secondary_resource_name = models.CharField(max_length=50, null=True, blank=True)
-    building_primary_cost_per_acre = models.IntegerField(default=100)
-    building_secondary_cost_per_acre = models.IntegerField(default=50)
-
     upgrade_cost = models.IntegerField(default=50000)
     upgrade_exponent = models.FloatField(default=1.01, null=True, blank=True)
     
@@ -161,9 +156,6 @@ class Dominion(models.Model):
     discovery_points = models.IntegerField(default=0)
     available_discoveries = models.JSONField(default=list, blank=True)
     learned_discoveries = models.JSONField(default=list, blank=True)
-
-    last_sold_resource_name = models.CharField(max_length=50, null=True, blank=True)
-    last_bought_resource_name = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):
         return f"{self.name}"
@@ -212,7 +204,7 @@ class Dominion(models.Model):
     def complacency_penalty_percent(self):
         penalty = self.complacency * 0.33
 
-        return penalty
+        return max(0, penalty)
     
     @property
     def determination_bonus_percent(self):
@@ -557,9 +549,12 @@ class Dominion(models.Model):
 
             stoneshields.save()
             deep_apostles.save()
+            
+        if "splices" in self.perk_dict and Round.objects.first().ticks_passed % 4 == 0:
+            self.perk_dict["splices"] += 1
 
-        if "Inspiration" in self.learned_discoveries and Round.objects.first().ticks_passed % 4 == 0 and "free_experiments" in self.perk_dict:
-            self.perk_dict["free_experiments"] += 1
+        if "Inspiration" in self.learned_discoveries and Round.objects.first().ticks_passed % 2 == 0:
+            self.perk_dict["splices"] += 1
 
         if "Always Be Digging" in self.learned_discoveries and Round.objects.first().ticks_passed % 4 == 0 and Round.objects.first().ticks_passed > 0:
             self.gain_acres(int(self.acres / 400))
@@ -615,11 +610,7 @@ class Faction(models.Model):
     description = models.CharField(max_length=1000, null=True, blank=True, default="Placeholder description")
     primary_resource_name = models.CharField(max_length=50, null=True, blank=True)
     primary_resource_per_acre = models.IntegerField(default=0)
-    building_primary_resource_name = models.CharField(max_length=50, null=True, blank=True)
-    building_secondary_resource_name = models.CharField(max_length=50, null=True, blank=True)
     starting_buildings = models.JSONField(default=list, blank=True)
-    building_primary_cost_per_acre = models.IntegerField(default=10)
-    building_secondary_cost_per_acre = models.IntegerField(default=1)
 
     def __str__(self):
         return f"{self.name}"
@@ -781,125 +772,25 @@ class Unit(models.Model):
     
     @property
     def perk_text(self):
-        perk_text = ""
-
-        if "is_glorious" in self.perk_dict:
-            perk_text += "My god, it's glorious. "
-
-        if "is_more_glorious" in self.perk_dict:
-            perk_text += "HOW IS THIS ONE EVEN BETTER? "
+        resource_name_list = []
         
-        if "surplus_research_consumed_to_add_one_op_and_dp" in self.perk_dict:
-            perk_text += f"""Consumes half of your stockpiled research each tick, but leaves enough to afford your upgrades. Gains 1 OP and 1 DP per  
-            {self.perk_dict['surplus_research_consumed_to_add_one_op_and_dp']} consumed. """
-
-        if "random_grudge_book_pages_per_tick" in self.perk_dict:
-            pages_per_tick = self.perk_dict["random_grudge_book_pages_per_tick"]
-            perk_text += f"Adds {pages_per_tick} page{'s' if pages_per_tick > 1 else ''} to an existing grudge in your book of grudges each tick. "
-
-        if "always_dies_on_offense" in self.perk_dict:
-            perk_text += "Always dies when sent on an invasion. "
-
-        if "always_dies_on_defense" in self.perk_dict:
-            perk_text += "Always dies when successfully invaded. "
-
-        if "immortal" in self.perk_dict:
-            perk_text += "Does not die in combat. "
-
         for resource in Resource.objects.filter(ruler=None):
-            if f"{resource.name}_per_tick" in self.perk_dict:
-                amount_produced = self.perk_dict[f"{resource.name}_per_tick"]
-                perk_text += f"Produces {amount_produced} {resource.name} per tick. "
-
-        if "casualty_multiplier" in self.perk_dict:
-            multiplier = self.perk_dict["casualty_multiplier"]
-            if multiplier == 2:
-                perk_text += f"Takes twice as many casualties. "
-            elif multiplier == 3:
-                perk_text += f"Takes three times as many casualties. "
-            elif multiplier == 0.25:
-                perk_text += f"Takes a quarter as many casualties. "
-            elif multiplier == 0.5:
-                perk_text += f"Takes half as many casualties. "
-            elif multiplier == 0.75:
-                perk_text += "Takes 25% fewer casualties. "
-            elif multiplier == 1.5:
-                perk_text += "Takes 50% more casualties. "
-            else:
-                perk_text += f"Takes {multiplier}x as many casualties. "
-
-        if "returns_in_ticks" in self.perk_dict:
-            ticks_to_return = self.perk_dict["returns_in_ticks"]
-            perk_text += f"Returns from battle in {ticks_to_return} tick{'s' if ticks_to_return > 1 else ''}. "
-
-        if "percent_attrition" in self.perk_dict:
-            attrition_percent = self.perk_dict["percent_attrition"]
-            perk_text += f"{attrition_percent}% of these die every tick, rounding up. "
-
-        if "converts_apostles" in self.perk_dict:
-            perk_text += "Converts one Stoneshield to a Deep Apostle every tick. "
-
-        if "cm_dug_per_tick" in self.perk_dict:
-            perk_text += "Digs 1 torchbright per tick. "
-
-        if "sacrifices_brothers_chance_percent" in self.perk_dict and "sacrifices_brothers_amount" in self.perk_dict:
-            sacrifices_brothers_chance_percent = self.perk_dict["sacrifices_brothers_chance_percent"]
-            sacrifices_brothers_amount = self.perk_dict["sacrifices_brothers_amount"]
-            perk_text += f"Every {sacrifices_brothers_amount} (rounding up) has a {sacrifices_brothers_chance_percent}% chance per tick to sacrifice up to {sacrifices_brothers_amount} Blessed Brothers to create one Grisly Altar. "
-
-        if "zealots_chosen_per_tick" in self.perk_dict:
-            zealots_chosen_per_tick = self.perk_dict["zealots_chosen_per_tick"]
-            perk_text += f"Elevates {zealots_chosen_per_tick} zealot per tick to a Chosen One. "
-
-        if "percent_becomes_500_blasphemy" in self.perk_dict:
-            percent_becomes_500_blasphemy = self.perk_dict["percent_becomes_500_blasphemy"]
-            perk_text += f"{percent_becomes_500_blasphemy}% attrition into 500 blasphemy per tick. "
-
-        if "gets_op_bonus_equal_to_percent_of_target_complacency" in self.perk_dict:
-            gets_op_bonus_equal_to_percent_of_target_complacency = self.perk_dict["gets_op_bonus_equal_to_percent_of_target_complacency"]
-            perk_text += f"Increases OP by {gets_op_bonus_equal_to_percent_of_target_complacency}% of the target's complacency penalty. "
-
-        # if "percent_becomes_rats" in self.perk_dict:
-        #     becomes_rats_percent = self.perk_dict["percent_becomes_rats"]
-        #     perk_text += f"{becomes_rats_percent}% of these return to normal rats every tick, rounding up. "
-
-        if "random_allies_killed_on_invasion" in self.perk_dict:
-            random_allies_killed = self.perk_dict["random_allies_killed_on_invasion"]
-            if random_allies_killed == 0.5:
-                perk_text += f"When invading, half of these each kill one randomly selected own unit on the same invasion. "
-            else:
-                perk_text += f"When invading, each kills {random_allies_killed} randomly selected own unit{'s' if random_allies_killed > 1 else ''} on the same invasion. "
-
-        if "food_from_rat" in self.perk_dict:
-            food_from_rat = self.perk_dict["food_from_rat"]
-            perk_text += f"Each carves up one rat per tick into {food_from_rat} food. "
-
-        if "rats_trained_per_tick" in self.perk_dict:
-            rats_trained_per_tick = self.perk_dict["rats_trained_per_tick"]
-            perk_text += f"Attempts to train {rats_trained_per_tick} Trained Rat per tick, paying costs as normal. "
-        
-        if "invasion_plan_power" in self.perk_dict:
-            invasion_plan_power = self.perk_dict["invasion_plan_power"]
-            perk_text += f"Can be sent to infiltrate a target, increasing your offense on your next attack against them by {invasion_plan_power}. "
-
-        if "rats_launched" in self.perk_dict and "op_if_rats_launched" in self.perk_dict:
-            rats_launched = self.perk_dict["rats_launched"]
-            op_if_rats_launched = self.perk_dict["op_if_rats_launched"]
-            perk_text += f"When invading, each launches {rats_launched} rats for +{op_if_rats_launched} OP. "
-
-        if "repairs_mechadragons" in self.perk_dict:
-            perk_text += f"Repairs damaged mecha-dragon modules. "
-
-        return perk_text
+            resource_name_list.append(resource.name)
+            
+        return get_perk_text(self.perk_dict, resource_name_list)
     
     @property
     def has_perks(self):
+        if len(self.perk_dict) == 1 and "sludgene_sequence" in self.perk_dict:
+            return False
+        
         return self.perk_dict != {} and self.perk_dict != {"is_releasable": True}
     
     def advance_training_and_returning(self):
         for key, value in self.training_dict.items():
             if key == "1":
-                self.quantity_at_home += value
+                self.gain(value)
+                # self.quantity_at_home += value
             else:
                 new_key = str(int(key) - 1)
                 self.training_dict[new_key] = value
@@ -952,7 +843,7 @@ class Unit(models.Model):
 
     def put_into_training(self, quantity, ticks_to_train):
         self.training_dict[str(ticks_to_train)] += quantity
-        self.gained += quantity
+        # self.gained += quantity
         self.save()
 
     def lose(self, quantity):
@@ -1085,6 +976,13 @@ class Round(models.Model):
             }
             
             faction_counts.append(faction_count)
+            
+        faction_counts.append(
+            {
+                "name": "fallen order",
+                "count": Dominion.objects.filter(faction_name="fallen order").count()
+            }
+        )
         
         return faction_counts
         
@@ -1297,6 +1195,80 @@ class MechModule(models.Model):
 
         self.save()
         return True, f"Upgraded {self.versioned_name}"
+
+
+class Sludgene(models.Model):
+    ruler = models.ForeignKey(Dominion, on_delete=models.PROTECT, null=True, blank=True)
+    name = models.CharField(max_length=50, null=True, blank=True)
+    op = models.IntegerField(default=0)
+    dp = models.IntegerField(default=0)
+    return_ticks = models.IntegerField(default=12)
+    casualty_rate = models.FloatField(default=1)
+    resource_secreted_name = models.CharField(max_length=50, null=True, blank=True, choices={"food": "food", "ore": "ore", "wood": "wood", "mana": "mana"})
+    amount_secreted = models.FloatField(default=1)
+    cost_type = models.CharField(max_length=50, null=True, blank=True, choices={"primary": "primary", "secondary": "secondary", "hybrid": "hybrid"})
+    upkeep_type = models.CharField(max_length=50, null=True, blank=True, choices={"primary": "primary", "secondary": "secondary", "hybrid": "hybrid"})
+    cost_dict = models.JSONField(default=dict, blank=True)
+    upkeep_dict = models.JSONField(default=dict, blank=True)
+    discount_percent = models.IntegerField(default=0)
+    
+    def __str__(self):
+        base_name = f"{self.name} {self.op}/{self.dp}"
+
+        if self.ruler:
+            return f"{self.ruler.rulers_display_name} -- {base_name}"
+        
+        return f"🟩Base --- {base_name}"
+    
+    @property
+    def discount_cost_multiplier(self):
+        return 1 - (self.discount_percent / 100)
+    
+    @property
+    def perk_dict(self):
+        perk_dict = {}
+        
+        if self.casualty_rate != 1:
+            perk_dict["casualty_multiplier"] = self.casualty_rate
+            
+        if self.amount_secreted > 0:
+            perk_dict[f"{self.resource_secreted_name}_per_tick"] = self.amount_secreted
+            
+        if self.return_ticks < 12:
+            perk_dict["returns_in_ticks"] = self.return_ticks
+            
+        return perk_dict
+    
+    @property
+    def perk_text(self):
+        resource_name_list = []
+        
+        for resource in Resource.objects.filter(ruler=None):
+            resource_name_list.append(resource.name)
+        
+        return get_perk_text(self.perk_dict, resource_name_list)
+    
+    # @property
+    # def cost_type(self):
+    #     if self.upkeep_goop_multiplier > 0.66:
+    #         return "Mostly goop"
+    #     elif self.upkeep_goop_multiplier > 0.33:
+    #         return "About even"
+    #     elif self.upkeep_goop_multiplier > 0:
+    #         return "Mostly sludge"
+    #     else:
+    #         return "All sludge"
+        
+    # @property
+    # def upkeep_type(self):
+    #     if self.cost_goop_multiplier > 0.66:
+    #         return "Mostly goop"
+    #     elif self.cost_goop_multiplier > 0.33:
+    #         return "About even"
+    #     elif self.cost_goop_multiplier > 0:
+    #         return "Mostly sludge"
+    #     else:
+    #         return "All sludge"
 
 
 def do_tick_units(dominion: Dominion):

@@ -46,10 +46,9 @@ urlpatterns = [
     path("submit_unholy_baptism", views.submit_unholy_baptism, name="submit_unholy_baptism"),
    
     path("experimentation", views.experimentation, name="experimentation"),
-    path("generate_experiment", views.generate_experiment, name="generate_experiment"),
-    path("approve_experiment", views.approve_experiment, name="approve_experiment"),
     path("terminate_experiment", views.terminate_experiment, name="terminate_experiment"),
     path("submit_masterpiece", views.submit_masterpiece, name="submit_masterpiece"),
+    path("submit_sludgenes", views.submit_sludgenes, name="submit_sludgenes"),
    
     path("other_head", views.other_head, name="other_head"),
     path("submit_other_head", views.submit_other_head, name="submit_other_head"),
