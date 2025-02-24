@@ -46,3 +46,4 @@ class Command(BaseCommand):
             print("No bugs right now")
 
         round.has_bugs = has_bugs
+        round.save()

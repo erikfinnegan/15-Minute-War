@@ -44,6 +44,7 @@ def audit_for_bugs():
         print("No bugs this tick")
 
     round.has_bugs = has_bugs
+    round.save()
 
 
 def do_global_tick():
