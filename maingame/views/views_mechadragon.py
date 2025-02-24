@@ -2,7 +2,6 @@ from django.contrib import messages
 from django.shortcuts import redirect, render
 
 from maingame.models import Dominion, MechModule, Unit, Resource
-from maingame.utils.utils import update_capacity
 
 
 def mech_hangar(request):
@@ -78,7 +77,7 @@ def submit_mech_hangar(request):
 
         # print(f"{key} -- {value}")
 
-    update_capacity(dominion)
+    dominion.update_capacity()
 
     if "upgrade" in request.POST:
         id_to_upgrade = request.POST.get("upgrade")
@@ -92,7 +91,7 @@ def submit_mech_hangar(request):
         else:
             messages.error(request, message)
 
-        update_capacity(dominion)
+        dominion.update_capacity()
     
     return redirect("mech_hangar")
 

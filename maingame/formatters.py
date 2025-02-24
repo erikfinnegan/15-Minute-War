@@ -265,6 +265,13 @@ def get_goblin_ruler():
     return f"{get_goblin_title()} {get_goblin_name()}"
 
 
+def divide_hack(x, y):
+    if y == 0:
+        return 99999999999999
+    else:
+        return x / y
+
+
 def shorten_number(num):
     hundred_thousand = 100000
     one_million = 1000000

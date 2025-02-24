@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from maingame.formatters import cost_after_x_ticks, format_minutes, get_perk_text, shorten_number
+from maingame.formatters import cost_after_x_ticks, divide_hack, format_minutes, get_perk_text, shorten_number
 
 
 class Deity(models.Model):
@@ -580,6 +580,22 @@ class Dominion(models.Model):
             if self.perk_dict["biclopean_ambition_ticks_remaining"] == 0:
                 del self.perk_dict["biclopean_ambition_ticks_remaining"]
 
+    def update_capacity(self):
+        used_capacity = 0
+        mechadragon = Unit.objects.get(ruler=self, name="Mecha-Dragon")
+        module_power = 0
+
+        for module in MechModule.objects.filter(ruler=self, zone="mech"):
+            used_capacity += module.capacity
+            module_power += module.power
+        
+        mechadragon.op = 1 + module_power
+        mechadragon.dp = module_power
+        mechadragon.save()
+
+        self.perk_dict["capacity_used"] = used_capacity
+        self.save()
+
     def do_tick(self):
         self.do_resource_production()
         self.advance_land_returning()
@@ -604,7 +620,10 @@ class Dominion(models.Model):
 
             if "bonus_determination" in self.perk_dict:
                 self.determination += self.perk_dict["bonus_determination"]
-
+                
+            if self.faction_name == "mecha-dragon":
+                self.update_capacity()
+                
         self.save()
 
     def gain_acres(self, quantity):
@@ -1402,6 +1421,7 @@ def do_tick_units(dominion: Dominion):
                             ore_cost = module.repair_cost_dict["ore"] if "ore" in module.repair_cost_dict else 0
                             mana_cost = module.repair_cost_dict["mana"] if "mana" in module.repair_cost_dict else 0
                             research_cost = module.repair_cost_dict["research"] if "research" in module.repair_cost_dict else 0
+                            
                             while (
                                 gold.quantity >= gold_cost and 
                                 ore.quantity >= ore_cost and 
@@ -1410,12 +1430,22 @@ def do_tick_units(dominion: Dominion):
                                 module.durability_current < module.durability_max and 
                                 repairs > 0
                             ):
-                                repairs -= 1
-                                gold.spend(gold_cost)
-                                ore.spend(ore_cost)
-                                mana.spend(mana_cost)
-                                research.spend(research_cost)
-                                module.durability_current += 1
+                                repairs_needed = module.durability_max - module.durability_current
+                                repairs_possible = min(
+                                    repairs, 
+                                    repairs_needed,
+                                    int(divide_hack(gold.quantity, gold_cost)),
+                                    int(divide_hack(ore.quantity, ore_cost)),
+                                    int(divide_hack(mana.quantity, mana_cost)),
+                                    int(divide_hack(research.quantity, research_cost)),
+                                )
+                                
+                                repairs -= repairs_possible
+                                gold.spend(gold_cost * repairs_possible)
+                                ore.spend(ore_cost * repairs_possible)
+                                mana.spend(mana_cost * repairs_possible)
+                                research.spend(research_cost * repairs_possible)
+                                module.durability_current += repairs_possible
 
                             module.save()
 

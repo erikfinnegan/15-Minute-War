@@ -164,23 +164,6 @@ def get_grudge_bonus(my_dominion: Dominion, other_dominion: Dominion):
         return 0
     
 
-def update_capacity(dominion: Dominion):
-    used_capacity = 0
-    mechadragon = Unit.objects.get(ruler=dominion, name="Mecha-Dragon")
-    module_power = 0
-
-    for module in MechModule.objects.filter(ruler=dominion, zone="mech"):
-        used_capacity += module.capacity
-        module_power += module.power
-    
-    mechadragon.op = module_power
-    mechadragon.dp = module_power
-    mechadragon.save()
-
-    dominion.perk_dict["capacity_used"] = used_capacity
-    dominion.save()
-
-
 def unlock_discovery(dominion: Dominion, discovery_name):
     if not discovery_name in dominion.available_discoveries:
         return False
