@@ -20,23 +20,26 @@ class Command(BaseCommand):
         for resource in Resource.objects.all():
             if resource.net != resource.quantity:
                 resource_bugs = True
-                round.bugs.append(f"{start_timestamp.strftime('%H:%M:%S')}: {resource.ruler}'s {resource.name} expected {resource.net} -vs- current {resource.quantity}")
+                msg = f"{start_timestamp.strftime('%H:%M:%S')}: {resource.ruler}'s {resource.name} expected {resource.net} -vs- current {resource.quantity}"
+                round.bugs.append(msg)
 
         for unit in Unit.objects.all():
             if unit.quantity_trained_and_alive != unit.net:
                 unit_bugs = True
-                round.bugs.append(f"{start_timestamp.strftime('%H:%M:%S')}: {unit.ruler}'s {unit.name} expected {unit.net} -vs- current {unit.quantity_trained_and_alive}")
+                msg = f"{start_timestamp.strftime('%H:%M:%S')}: {unit.ruler}'s {unit.name} expected {unit.net} -vs- current {unit.quantity_trained_and_alive}"
+                round.bugs.append(msg)
 
         for dominion in Dominion.objects.all():
             if dominion.net_acres + 500 != dominion.acres:
                 acre_bugs = True
-                round.bugs.append(f"{start_timestamp.strftime('%H:%M:%S')}: {dominion} acres expected {dominion.net_acres + 500} -vs- current {dominion.acres}")
+                msg = f"{start_timestamp.strftime('%H:%M:%S')}: {dominion} acres expected {dominion.net_acres + 500} -vs- current {dominion.acres}"
+                round.bugs.append(msg)
 
         has_bugs = resource_bugs or unit_bugs or acre_bugs
 
         if has_bugs:
             print("We got bugs!")
         else:
-            print("No bugs this tick")
+            print("No bugs right now")
 
         round.has_bugs = has_bugs
