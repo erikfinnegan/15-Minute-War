@@ -14,6 +14,38 @@ def normalize_trade_prices():
     round.save()
 
 
+def audit_for_bugs():
+    start_timestamp = datetime.now(ZoneInfo('America/New_York'))
+    round = Round.objects.first()
+    resource_bugs = False
+    unit_bugs = False
+    acre_bugs = False
+
+    for resource in Resource.objects.all():
+        if resource.net != resource.quantity:
+            resource_bugs = True
+            round.bugs.append(f"{start_timestamp.strftime('%H:%M:%S')}: {resource.ruler}'s {resource.name} expected {resource.net} -vs- current {resource.quantity}")
+
+    for unit in Unit.objects.all():
+        if unit.quantity_trained_and_alive != unit.net:
+            unit_bugs = True
+            round.bugs.append(f"{start_timestamp.strftime('%H:%M:%S')}: {unit.ruler}'s {unit.name} expected {unit.net} -vs- current {unit.quantity_trained_and_alive}")
+
+    for dominion in Dominion.objects.all():
+        if dominion.net_acres + 500 != dominion.acres:
+            acre_bugs = True
+            round.bugs.append(f"{start_timestamp.strftime('%H:%M:%S')}: {dominion} acres expected {dominion.net_acres + 500} -vs- current {dominion.acres}")
+
+    has_bugs = resource_bugs or unit_bugs or acre_bugs
+
+    if has_bugs:
+        print("We got bugs!")
+    else:
+        print("No bugs this tick")
+
+    round.has_bugs = has_bugs
+
+
 def do_global_tick():
     start_timestamp = datetime.now(ZoneInfo('America/New_York'))
     print("Start global tick", start_timestamp.strftime('%H:%M:%S'))
@@ -22,33 +54,7 @@ def do_global_tick():
     round.save()
 
     if not round.has_ended:
-        resource_bugs = False
-        unit_bugs = False
-        acre_bugs = False
-
-        for resource in Resource.objects.all():
-            if resource.net != resource.quantity:
-                resource_bugs = True
-                round.bugs.append(f"{start_timestamp.strftime('%H:%M:%S')}: {resource.ruler}'s {resource.name} expected {resource.net} -vs- current {resource.quantity}")
-
-        for unit in Unit.objects.all():
-            if unit.quantity_trained_and_alive != unit.net:
-                unit_bugs = True
-                round.bugs.append(f"{start_timestamp.strftime('%H:%M:%S')}: {unit.ruler}'s {unit.name} expected {unit.net} -vs- current {unit.quantity_trained_and_alive}")
-
-        for dominion in Dominion.objects.all():
-            if dominion.net_acres + 500 != dominion.acres:
-                acre_bugs = True
-                round.bugs.append(f"{start_timestamp.strftime('%H:%M:%S')}: {dominion} acres expected {dominion.net_acres + 500} -vs- current {dominion.acres}")
-
-        has_bugs = resource_bugs or unit_bugs or acre_bugs
-
-        if has_bugs:
-            print("We got bugs!")
-        else:
-            print("No bugs this tick")
-
-        round.has_bugs = has_bugs
+        audit_for_bugs()
 
         if Round.objects.first().allow_ticks:
             for dominion in Dominion.objects.all():
