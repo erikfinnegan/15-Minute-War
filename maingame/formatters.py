@@ -121,7 +121,7 @@ def get_perk_text(perk_dict, resource_name_list, faction_name="none"):
         perk_text += f"When invading, each launches {rats_launched} rats for +{op_if_rats_launched} OP. "
 
     if "repairs_mechadragons" in perk_dict:
-        perk_text += f"Repairs damaged mecha-dragon modules. "
+        perk_text += f"Repairs 1 durability/tick to a damaged mecha-dragon module. "
 
     return perk_text
 
