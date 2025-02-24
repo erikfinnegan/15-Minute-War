@@ -494,8 +494,10 @@ class Dominion(models.Model):
 
                         unit.save()
 
-            resource.quantity = max(0, resource.quantity)            
-            resource.save()
+            if resource.quantity < 0:
+                resource.gain(resource.quantity * -1)
+            # resource.quantity = max(0, resource.quantity)
+            # resource.save()
             self.save()
 
     def advance_land_returning(self):
