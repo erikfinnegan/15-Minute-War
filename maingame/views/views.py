@@ -346,7 +346,17 @@ def world(request):
         return redirect("register")
     
     dominions = Dominion.objects.filter(is_abandoned=False).order_by('protection_ticks_remaining', '-acres')
-
+    dominion_list = list(dominions)
+    
+    def sort_dominions(dominion: Dominion):
+        if dominion.protection_ticks_remaining > 0:
+            return 0
+        
+        sort_val = dominion.acres * 1000000
+        sort_val += dominion.defense
+        return sort_val
+        
+    dominion_list.sort(key=sort_dominions, reverse=True)
     my_units = my_dominion.sorted_units
 
     # If you don't have grudge values set for someone, set them now
@@ -375,7 +385,7 @@ def world(request):
             largest_with_incoming = dominion
 
     context = {
-        "dominions": dominions,
+        "dominions": dominion_list,
         "minimum_defense_left": my_dominion.acres * 5,
         "my_units": my_units,
         "base_offense_multiplier": my_dominion.offense_multiplier,
