@@ -8,7 +8,21 @@
     <table class="table striped">
         <thead>
             <tr>
-                <th>{{ module.versioned_name }}</th>
+                <th class="u-flex u-flex-row u-gap-2">
+                    <span>{{ module.versioned_name }}</span>
+                    <button 
+                        class="header_colors w-4 h-4 p-0 ml-auto" 
+                        type="submit" 
+                        name="toggle_equip" 
+                        value="{{ module.id }}" 
+                    >
+                        <span class="font-bold">
+                            {% if module.zone == "mech" %}X
+                            {% else %}+
+                            {% endif %}
+                        </span>
+                    </button>
+                </th>
             </tr>
         </thead>
         <tbody class="u-text-left">

@@ -82,8 +82,6 @@ def submit_mech_hangar(request):
     if "upgrade" in request.POST:
         id_to_upgrade = request.POST.get("upgrade")
         module = MechModule.objects.get(ruler=dominion, id=id_to_upgrade)
-        # module.version += 1
-        # module.save()
         success, message = module.upgrade()
 
         if success:
@@ -92,6 +90,12 @@ def submit_mech_hangar(request):
             messages.error(request, message)
 
         dominion.update_capacity()
+    elif "toggle_equip" in request.POST:
+        print("toggle_equip")
+        id_to_equip = request.POST.get("toggle_equip")
+        module = MechModule.objects.get(ruler=dominion, id=id_to_equip)
+        module.zone = "mech" if module.zone == "hangar" else "hangar"
+        module.save()
     
     return redirect("mech_hangar")
 
