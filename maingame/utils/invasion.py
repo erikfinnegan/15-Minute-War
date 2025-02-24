@@ -293,7 +293,7 @@ def do_defensive_casualties(defender: Dominion):
             new_corpses += casualties
 
         if unit.name == "Mecha-Dragon":
-            handle_module_durability(is_attacker=False)
+            handle_module_durability(unit, is_attacker=False)
 
         unit.lose(casualties)
         defensive_casualties += casualties
