@@ -564,7 +564,7 @@ class Dominion(models.Model):
             stoneshields.save()
             deep_apostles.save()
             
-        if "splices" in self.perk_dict and Round.objects.first().ticks_passed % 4 == 0:
+        if "splices" in self.perk_dict and Round.objects.first().ticks_passed % 4 == 0 and self.is_oop:
             self.perk_dict["splices"] += 1
 
         if "Inspiration" in self.learned_discoveries and Round.objects.first().ticks_passed % 2 == 0:

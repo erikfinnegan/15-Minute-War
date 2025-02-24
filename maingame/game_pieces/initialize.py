@@ -213,7 +213,7 @@ def initialize_factions():
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry",],
         description="""In the void of unreality, the small nation states hate each other... but not nearly so much as they hate realscum, and the enemy of
         my enemy is my friend. Their offensive units (including ones gained via universal discoveries) have no upkeep, but their units and land do not 
-        return from battle on their own and instead cost 100 mana per unit that decreases rapidly over time. Do you pay extra for fast return or leave
+        return from battle on their own and instead cost 300 mana per unit that decreases rapidly over time. Do you pay extra for fast return or leave
         your army in the void for effectively reduced upkeep? Enemies who attack you also have their units consigned to the void with a starting return
         cost equal to ten times your defense, also decreasing rapidly.""",
         invasion_consequences="""Your units and land will be trapped in the void until you spend mana to recall them. If you wait 15-18 ticks, it should only
