@@ -1008,7 +1008,7 @@ class Round(models.Model):
         for faction in Faction.objects.all():
             faction_count = {
                 "name": faction.name,
-                "count": Dominion.objects.filter(faction_name=faction.name).count()
+                "count": Dominion.objects.filter(faction_name=faction.name, is_abandoned=False).count()
             }
             
             faction_counts.append(faction_count)
