@@ -91,10 +91,18 @@ def submit_mech_hangar(request):
 
         dominion.update_capacity()
     elif "toggle_equip" in request.POST:
-        print("toggle_equip")
+        max_capacity = dominion.perk_dict["capacity_max"]
+        capacity_used = dominion.perk_dict["capacity_used"]
         id_to_equip = request.POST.get("toggle_equip")
         module = MechModule.objects.get(ruler=dominion, id=id_to_equip)
-        module.zone = "mech" if module.zone == "hangar" else "hangar"
+
+        if module.zone == "hangar" and capacity_used + module.capacity <= max_capacity:
+            module.zone = "mech"
+        elif module.zone == "hangar" and capacity_used + module.capacity > max_capacity:
+            messages.error(request, f"Insufficient capacity to equip {module.versioned_name}")
+        else:
+            module.zone == "hangar"
+        
         module.save()
     
     return redirect("mech_hangar")
