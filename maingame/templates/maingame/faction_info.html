@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block content %}
-<script>
+{% comment %} <script>
     var delayInMilliseconds = 3000;
 
     setTimeout(function() {
@@ -30,8 +30,13 @@
         let orderName = document.getElementById("order-name");
         orderName.innerHTML = "Blessed Order"
     }, delayInMilliseconds * 3 + 500);
-</script>
+</script> {% endcomment %}
 <div>
+    <h6>
+        Until the game reaches a less "beta" state, the faction descriptions on this page are written manually 
+        and I sometimes forget to update them. If you're planning on enacting a strategy that is contingent 
+        on them being accurate, you may wish to double check their accuracy with me on Discord.
+    </h6>
     <div class="u-flex u-flex-wrap u-gap-4">
         {% for faction_dict in factions %}
         <div class="card card_colors p-1 max-w-xs p-2">
