@@ -352,7 +352,8 @@ def world(request):
         if dominion.protection_ticks_remaining > 0:
             return 0
         
-        sort_val = dominion.acres * 1000000
+        sort_val = dominion.acres * 1000000000
+        sort_val += dominion.incoming_acres * 100000
         sort_val += dominion.defense
         return sort_val
         
