@@ -2,7 +2,7 @@ from random import randint
 from django.core.management.base import BaseCommand
 
 from maingame.formatters import get_fast_return_cost_multiplier
-from maingame.models import UserSettings, Resource, Round, Event, Dominion, Unit
+from maingame.models import UserSettings, Resource, Round, Event, Dominion, Unit, MechModule
 from django.contrib.auth.models import User
 
 from maingame.utils.utils_sludgeling import create_random_sludgene
@@ -13,6 +13,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         print("IT'S DEBUG TIME BABY")
         print()
+        
+        for module in MechModule.objects.all():
+            module.zone == "hangar"
+            module.save()
         
         # ticks = 0
         # mana_upkeep = 0
@@ -68,8 +72,8 @@ class Command(BaseCommand):
         # pct_land_towers = cost / ticks / 50 / 45
         # print(pct_land_towers)
         
-        for _ in range(6):
-            sludgene = create_random_sludgene(Dominion.objects.get(name="ERIKTEST"))
+        # for _ in range(6):
+        #     sludgene = create_random_sludgene(Dominion.objects.get(name="ERIKTEST"))
 
         # print()
         # print()

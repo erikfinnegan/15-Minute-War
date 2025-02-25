@@ -75,8 +75,6 @@ def submit_mech_hangar(request):
                 dominion.perk_dict["capacity_max"] += quantity
                 messages.success(request, f"Upgraded capacity {quantity} times")
 
-        # print(f"{key} -- {value}")
-
     dominion.update_capacity()
 
     if "upgrade" in request.POST:
@@ -101,7 +99,7 @@ def submit_mech_hangar(request):
         elif module.zone == "hangar" and capacity_used + module.capacity > max_capacity:
             messages.error(request, f"Insufficient capacity to equip {module.versioned_name}")
         else:
-            module.zone == "hangar"
+            module.zone = "hangar"
         
         module.save()
     
