@@ -14,17 +14,18 @@ class Command(BaseCommand):
         print("IT'S DEBUG TIME BABY")
         print()
         
-        testdominion = Dominion.objects.get(name="ERIKTEST")
+        # ticks = 0
+        # mana_upkeep = 0
+        # return_cost = 200
+        # print(f"Upkeep vs Cost")
         
-        food = Resource.objects.get(name="food", ruler=testdominion)
-        food.spend(food.quantity)
-        
-        
-        
-        
-        
-        
-        
+        # while return_cost > mana_upkeep:
+        #     ticks += 1
+        #     mana_upkeep += 3
+        #     return_cost *= 0.85
+            
+        #     print(f"{ticks}: {mana_upkeep} vs {return_cost}")
+            
         
         
         # mult = 10
@@ -67,8 +68,8 @@ class Command(BaseCommand):
         # pct_land_towers = cost / ticks / 50 / 45
         # print(pct_land_towers)
         
-        # # for _ in range(6):
-        # #     sludgene = create_random_sludgene(Dominion.objects.get(name="ERIKTEST"))
+        for _ in range(6):
+            sludgene = create_random_sludgene(Dominion.objects.get(name="ERIKTEST"))
 
         # print()
         # print()

@@ -10,10 +10,10 @@ from maingame.utils.give_stuff import create_resource_for_dominion, give_dominio
 def get_primary_type_base_costs(power, secondary_resource_name, is_offense):
     building = Building.objects.get(ruler=None, resource_produced_name=secondary_resource_name)
     btick_amount = building.amount_produced + 10
-
+    
     if power == 1:
         primary_cost = 75
-    if power == 2:
+    elif power == 2:
         primary_cost = 175
     else:
         primary_cost = (power * 300) - 600
