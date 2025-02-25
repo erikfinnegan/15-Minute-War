@@ -2,6 +2,10 @@
 {% load humanize %}
 
 {% if active_dominion %}
+    {% if round.is_ticking %}
+    <span>⏳⏳⏳</span>
+    {% endif %}
+
     {% if active_user_settings.tutorial_step >= 11 %}
     <a href="{% url 'overview' active_dominion.id %}" class="mt-1">Overview</a>
     {% endif %}
