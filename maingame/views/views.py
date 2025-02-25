@@ -487,7 +487,9 @@ def calculate_op(request):
                     "quantity_needed": 0,
                 })
             else:
-                test_quantity = int(unit.quantity_at_home / 2)
+                mod_op = unit.op * my_dominion.offense_multiplier
+                # test_quantity = int(unit.quantity_at_home / 2)
+                test_quantity = int(target_dominion.defense / mod_op) + 1
                 keep_going = True
                 counter = 0
                 last_test = unit.quantity_at_home
