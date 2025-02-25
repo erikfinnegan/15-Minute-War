@@ -82,6 +82,46 @@
     <h6>Units will be displayed here once this dominion is out of protection and the round has started.</h6>
     {% endif %}
 
+
+
+
+
+
+
+
+    {% if dominion.faction_name == "mecha-dragon" %}
+        <div class="u-flex u-flex-row u-gap-4 mt-4">
+            <div class="u-flex u-flex-column u-gap-1">
+                <span class="u-center">Equipped modules</span>
+                <div id="mech" class="u-border-1 u-flex u-flex-column u-gap-2 p-2 min-h-90p" style="width: 290px;">
+                    {% for module in modules %}
+                        {% if module.zone == "mech" %}
+                            {% include "maingame/components/mech_module_card.html" with module=module %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="u-flex u-flex-column u-gap-1">
+                <span class="u-center">Module storage</span>
+                <div id="hangar" class="u-border-1 u-flex u-flex-wrap u-gap-2 p-2 min-h-20p" style="min-width: 290px;">
+                    {% for module in modules %}
+                        {% if not module.zone == "mech" %}
+                            {% include "maingame/components/mech_module_card.html" with module=module %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+
+
+
+
+
+
+
     {% comment %} Resource production {% endcomment %}
     <div class="u-overflow-x-scroll md:u-overflow-x-hidden">
         <table class="table striped max-w-md">

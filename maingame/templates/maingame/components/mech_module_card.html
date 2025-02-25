@@ -10,18 +10,20 @@
             <tr>
                 <th class="u-flex u-flex-row u-gap-2">
                     <span>{{ module.versioned_name }}</span>
-                    <button 
-                        class="header_colors w-4 h-4 p-0 ml-auto" 
-                        type="submit" 
-                        name="toggle_equip" 
-                        value="{{ module.id }}" 
-                    >
-                        <span class="font-bold">
-                            {% if module.zone == "mech" %}X
-                            {% else %}+
-                            {% endif %}
-                        </span>
-                    </button>
+                    {% if editable %}
+                        <button 
+                            class="header_colors w-4 h-4 p-0 ml-auto" 
+                            type="submit" 
+                            name="toggle_equip" 
+                            value="{{ module.id }}" 
+                        >
+                            <span class="font-bold">
+                                {% if module.zone == "mech" %}X
+                                {% else %}+
+                                {% endif %}
+                            </span>
+                        </button>
+                    {% endif %}
                 </th>
             </tr>
         </thead>
@@ -51,17 +53,18 @@
     </div>
 
     
-
-    <button 
-        class="header_colors w-16 h-4 p-0 u-center" 
-        type="submit" 
-        name="upgrade" 
-        value="{{ module.id }}" 
-        id="building-submit-button"
-        {% if not module.can_afford_upgrade %}disabled{% endif %}
-    >
-        <span class="font-bold">Upgrade</span>
-    </button>
+    {% if editable %}
+        <button 
+            class="header_colors w-16 h-4 p-0 u-center" 
+            type="submit" 
+            name="upgrade" 
+            value="{{ module.id }}" 
+            id="building-submit-button"
+            {% if not module.can_afford_upgrade %}disabled{% endif %}
+        >
+            <span class="font-bold">Upgrade</span>
+        </button>
+    {% endif %}
 
     <div>
         {% for resource, amount in module.upgrade_cost_dict_short.items %}

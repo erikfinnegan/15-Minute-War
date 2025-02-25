@@ -83,7 +83,7 @@
                     <div id="mech" class="u-border-1 u-flex u-flex-column u-gap-2 p-2 min-h-90p" style="width: 290px;">
                         {% for module in modules %}
                             {% if module.zone == "mech" %}
-                                {% include "maingame/components/mech_module_card.html" with module=module %}
+                                {% include "maingame/components/mech_module_card.html" with module=module editable=True %}
                             {% endif %}
                         {% endfor %}
                     </div>
@@ -94,7 +94,7 @@
                     <div id="hangar" class="u-border-1 u-flex u-flex-wrap u-gap-2 p-2 min-h-20p" style="min-width: 290px;">
                         {% for module in modules %}
                             {% if not module.zone == "mech" %}
-                                {% include "maingame/components/mech_module_card.html" with module=module %}
+                                {% include "maingame/components/mech_module_card.html" with module=module editable=True %}
                             {% endif %}
                         {% endfor %}
                     </div>

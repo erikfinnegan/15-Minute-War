@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.db.models import Q
 from django.http import HttpResponse
 
-from maingame.models import Building, Dominion, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings, Theme
+from maingame.models import Building, Dominion, MechModule, Unit, Battle, Round, Event, Resource, Faction, Discovery, Spell, UserSettings, Theme
 from maingame.utils.invasion import does_x_of_unit_break_defender, get_op_and_dp_left
 from maingame.utils.utils import create_unit_dict, get_acres_conquered, update_available_discoveries
 
@@ -334,6 +334,7 @@ def overview(request, dominion_id):
         "learned_discoveries": learned_discoveries,
         "acres_conquered": get_acres_conquered(my_dominion, dominion),
         "battles_with_this_dominion": battles_with_this_dominion.order_by("-timestamp"),
+        "modules": MechModule.objects.filter(ruler=dominion),
     }
 
     return render(request, "maingame/overview.html", context)
