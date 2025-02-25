@@ -87,10 +87,13 @@
 
 
 
-
-
     {% if dominion.faction_name == "mecha-dragon" %}
-        <div class="u-flex u-flex-row u-gap-4 mt-4">
+        <div class="text-lg">
+            <span>Module capacity:</span>
+            <span id="current-capacity">{{ dominion.perk_dict.capacity_used }}</span>
+            <span>/ {{ dominion.perk_dict.capacity_max }}</span>
+        </div>
+        <div class="u-flex u-flex-row u-gap-4">
             <div class="u-flex u-flex-column u-gap-1">
                 <span class="u-center">Equipped modules</span>
                 <div id="mech" class="u-border-1 u-flex u-flex-column u-gap-2 p-2 min-h-90p" style="width: 290px;">
