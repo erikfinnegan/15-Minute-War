@@ -1209,7 +1209,7 @@ class MechModule(models.Model):
             perk_text += f"Return from battle in {12 - self.version} ticks. "
 
         if "recall_instantly" in self.perk_dict:
-            perk_text += f"Activate from the mech hangar to instantly return the mecha-dragon home as long as all modules installed are of capacity {self.capacity} or less. This module will not survive the process."
+            perk_text += f"Activate from the mech hangar to instantly return the mecha-dragon home as long as all modules installed are of capacity {self.capacity} or less. This module will be removed from existence in the process to avoid paradoxes."
 
         return perk_text
 

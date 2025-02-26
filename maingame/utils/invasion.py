@@ -140,7 +140,7 @@ def does_x_of_unit_break_defender(quantity_theorized, unit: Unit, units_sent_dic
     }
 
     faux_op, _, _ = get_op_and_dp_left(faux_units_sent_dict, attacker, defender)
-
+    
     return faux_op >= defender.defense
 
 
