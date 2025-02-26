@@ -48,8 +48,6 @@ def generate_battle(units_sent_dict, attacker: Dominion, defender: Dominion, off
     battle_units_defending_dict = {}
     
     for unit_id, data in units_sent_dict.items():
-        print("aaa")
-        print(units_sent_dict[unit_id]["unit"].name)
         battle_units_sent_dict[units_sent_dict[unit_id]["unit"].name] = data["quantity_sent"]
 
     for unit in Unit.objects.filter(ruler=defender):

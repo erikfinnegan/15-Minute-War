@@ -19,7 +19,7 @@
 
     <div>
     {% for event in displayed_events %}
-        <div class="card {% if active_dominion in event.event.notified_dominions_list or event.event.reference_id == active_dominion.id %}header_colors{% else %}card_colors{% endif %} p-1 max-w-md">
+        <div class="card {% if active_dominion in event.event.notified_dominions_list %}header_colors{% else %}card_colors{% endif %} p-1 max-w-md">
             <div class="w-100p u-flex u-justify-space-between h-4">
                 <div>
                     <span class="font-bold">
