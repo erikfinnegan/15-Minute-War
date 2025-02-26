@@ -250,19 +250,17 @@ def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion, defe
             unit.quantity_at_home -= quantity_sent
             unit.lost += casualties
             
-            if attacker.faction_name == "aether confederacy" or defender.faction_name == "aether confederacy":
+            if attacker.faction_name == "aether confederacy":
                 unit.quantity_in_void += survivors
-                
-                if attacker.faction_name == "aether confederacy":
-                    attacker.void_return_cost += (300 * survivors)
+                attacker.void_return_cost += (300 * survivors)
             else:
                 unit.returning_dict[return_ticks] = survivors
 
         unit.save()
         offensive_casualties += casualties
         
-    if defender.faction_name == "aether confederacy" and attacker.faction_name != "aether confederacy":
-        attacker.void_return_cost += (defense_snapshot * 10)
+    # if defender.faction_name == "aether confederacy" and attacker.faction_name != "aether confederacy":
+    #     attacker.void_return_cost += (defense_snapshot * 10)
         
     attacker.save()
 

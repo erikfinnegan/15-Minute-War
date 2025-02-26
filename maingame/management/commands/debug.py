@@ -14,9 +14,28 @@ class Command(BaseCommand):
         print("IT'S DEBUG TIME BABY")
         print()
         
-        for module in MechModule.objects.all():
-            module.zone == "hangar"
-            module.save()
+        
+        total_ticks = 0
+        attempts = 100000
+        
+        for _ in range(attempts):
+            ticks = 0
+            percent_chance = 2
+            units_out = True
+            
+            while units_out:
+                ticks += 1
+                
+                if percent_chance >= randint(1,100):
+                    units_out = False
+            
+                percent_chance += 1
+            
+            total_ticks += ticks
+            
+        print(total_ticks/attempts)
+            
+            
         
         # ticks = 0
         # mana_upkeep = 0
