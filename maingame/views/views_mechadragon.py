@@ -106,17 +106,6 @@ def submit_mech_hangar(request):
     return redirect("mech_hangar")
 
 
-def submit_upgrade_capacity(request):
-    try:
-        dominion = Dominion.objects.get(associated_user=request.user)
-    except:
-        return redirect("register")
-    
-    quantity = request.POST.get("quantity")
-
-    return redirect("mech_hangar")
-
-
 def submit_town_portal(request):
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
