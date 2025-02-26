@@ -160,7 +160,7 @@ class Dominion(models.Model):
     learned_discoveries = models.JSONField(default=list, blank=True)
 
     def __str__(self):
-        return f"{self.name} - {self.id}"
+        return f"{self.name}"
     
     @property
     def is_oop(self):
