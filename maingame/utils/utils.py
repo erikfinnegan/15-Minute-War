@@ -41,7 +41,7 @@ def get_secondary_type_base_costs(power, secondary_resource_name, is_offense):
         return 0, secondary_cost
 
 
-def generate_unit_cost_dict(op, dp, primary_resource_name, secondary_resource_name, type, casualty_multiplier=1, return_ticks=12):
+def generate_unit_cost_dict(op, dp, primary_resource_name, secondary_resource_name, type, casualty_multiplier=1, return_ticks=12, cost_multiplier=1):
     if type not in ["primary", "secondary", "hybrid"]:
         return {"error": 1}
     
@@ -67,7 +67,7 @@ def generate_unit_cost_dict(op, dp, primary_resource_name, secondary_resource_na
         primary_cost = max(hybrid_op_primary_cost, hybrid_dp_primary_cost)
         secondary_cost = max(hybrid_op_secondary_cost, hybrid_dp_secondary_cost)
     
-    cost_multiplier = get_low_turtle_cost_multiplier(op, dp)
+    cost_multiplier *= get_low_turtle_cost_multiplier(op, dp)
     cost_multiplier *= get_casualty_mod_cost_multiplier(casualty_multiplier)
     cost_multiplier *= get_fast_return_cost_multiplier(return_ticks, op, dp)
         

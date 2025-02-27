@@ -117,9 +117,11 @@ def create_random_sludgene(ruler: Dominion):
     resource_secreted_name, amount_secreted = generate_random_sludgene_resource_secreted()
     cost_type = generate_random_sludgene_cost_type()
     upkeep_type = generate_random_sludgene_cost_type()
-    cost_dict = generate_unit_cost_dict(op, dp, "goop", "sludge", cost_type, casualty_rate, return_ticks)
     upkeep_dict = generate_random_sludgene_upkeep_dict(upkeep_type, amount_secreted > 0)
     discount_percent = generate_random_sludgene_discount_percent()
+    
+    cost_multiplier = (100 - discount_percent) / 100
+    cost_dict = generate_unit_cost_dict(op, dp, "goop", "sludge", cost_type, casualty_rate, return_ticks, cost_multiplier)
     
     return Sludgene.objects.create(
         name=name,
