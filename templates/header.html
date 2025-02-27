@@ -52,9 +52,6 @@
             {% if active_dominion.ticks_til_all_acres_return > 0 %}
                 <span>Army home in</span>
                 <span>{{ active_dominion.ticks_til_all_acres_return }} ticks</span>
-            {% elif active_dominion.ticks_til_all_units_return > 0 %}
-                <small>All units home in {{ active_dominion.ticks_til_all_units_return }} ticks</small>
-                <small>(but you can attack)</small>
             {% else %}
                 <span>All units</span>
                 <span>are home</span>
