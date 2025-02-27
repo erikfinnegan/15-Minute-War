@@ -348,7 +348,7 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion):
     attacker.successful_invasions += 1
     attacker.determination = 0
     
-    if attacker.faction_name == "aether confederacy" or defender.faction_name == "aether confederacy":
+    if attacker.faction_name == "aether confederacy":
         attacker.acres_in_void += acres_conquered * 2
     else:
         ticks_for_land = str(slowest_unit_return_ticks)
