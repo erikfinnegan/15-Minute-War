@@ -219,7 +219,7 @@ def create_magnum_goopus(dominion: Dominion, units_included_dict, encore=False):
     total_op = 0
     total_dp = 0
     food_upkeep = 0
-    return_ticks = 12
+    return_ticks = 1
 
     if encore:
         perk_dict = {"is_more_glorious": True}
@@ -228,8 +228,9 @@ def create_magnum_goopus(dominion: Dominion, units_included_dict, encore=False):
 
     for unit_details_dict in units_included_dict.values():
         unit = get_unit_from_dict(unit_details_dict)
+        print(unit.name)
         quantity_included = unit_details_dict["quantity_sent"]
-
+        
         if "sludge" in unit.cost_dict and quantity_included <= unit.quantity_at_home:
             total_quantity += quantity_included
             total_op += quantity_included * unit.op
@@ -241,14 +242,8 @@ def create_magnum_goopus(dominion: Dominion, units_included_dict, encore=False):
             try:
                 return_ticks = max(return_ticks, unit.perk_dict["returns_in_ticks"])
             except:
-                pass
-
-            # for perk, value in unit.perk_dict.items():
-            #     if perk == "returns_in_ticks" and perk in perk_dict:
-            #         perk_dict[perk] = max(value, perk_dict[perk])
-            #     else:
-            #         perk_dict[perk] = value
-            
+                return_ticks = 12
+                
             unit.lose(quantity_included)
 
     encore_suffixes = [" Mk II", " 2: Electric Goopaloo", " Remastered", ": the Remix", " 2", " Jr.", " Magnum Goopier"]
@@ -257,6 +252,9 @@ def create_magnum_goopus(dominion: Dominion, units_included_dict, encore=False):
         name = f"Magnum Goopus {random.choice(encore_suffixes)}"
     else:
         name = "Magnum Goopus"
+        
+    if return_ticks < 12:
+        perk_dict["returns_in_ticks"] = return_ticks
 
     dominion.perk_dict["masterpieces_to_create"] -= 1
     dominion.save()
