@@ -607,6 +607,11 @@ class Dominion(models.Model):
 
         for unit in Unit.objects.filter(ruler=self):
             unit.advance_training_and_returning()
+            
+        for module in MechModule.objects.filter(ruler=self, battery_max__gt=0):
+            if module.battery_current < module.battery_max:
+                module.battery_current += 1
+                module.save()
 
         self.void_return_cost = int(self.void_return_cost * 0.9281)
         do_tick_units(self)
@@ -1092,10 +1097,15 @@ class MechModule(models.Model):
     perk_dict = models.JSONField(default=dict, blank=True)
     durability_current = models.IntegerField(default=100)
     durability_max = models.IntegerField(default=100)
+    battery_current = models.IntegerField(default=0)
+    battery_max = models.IntegerField(default=0)
     fragility = models.IntegerField(default=20)
     zone = models.CharField(max_length=50, default="hangar", choices={"mech": "mech", "hangar": "hangar", "repair": "repair"})
     faction = models.ForeignKey(Faction, on_delete=models.PROTECT, null=True, blank=True)
     order = models.IntegerField(default=0)
+    upgrade_increases_capacity = models.BooleanField(default=True)
+    upgrade_increases_durability = models.BooleanField(default=True)
+    is_upgradable = models.BooleanField(default=True)
 
     def __str__(self):
         base_name = f"{self.name} @ {self.power} power ({self.durability_current}/{self.durability_max}) -- {self.order}"
@@ -1142,7 +1152,13 @@ class MechModule(models.Model):
         upgrade_cost_dict = {}
 
         for resource, amount in self.base_upgrade_cost_dict.items():
-            upgrade_cost_dict[resource] = self.capacity * amount
+            # 1, 1, 2, 4, 8
+            # 0, 1, 2, 3, 4
+            if self.version <= 1:
+                upgrade_cost_dict[resource] = amount
+            else:
+                upgrade_cost_dict[resource] = amount * (2 ** (self.version - 1))
+            # upgrade_cost_dict[resource] = self.capacity * amount
 
         return upgrade_cost_dict
     
@@ -1179,6 +1195,11 @@ class MechModule(models.Model):
         return int(100 * ratio)
     
     @property
+    def battery_percent(self):
+        ratio = self.battery_current / self.battery_max
+        return int(100 * ratio)
+    
+    @property
     def can_afford_upgrade(self):
         for resource_name, amount in self.upgrade_cost_dict.items():
             resource = Resource.objects.get(ruler=self.ruler, name=resource_name)
@@ -1201,9 +1222,9 @@ class MechModule(models.Model):
     def perk_text(self):
         perk_text = ""
 
-        if "durability_damage_percent_reduction_for_capacity_or_smaller" in self.perk_dict:
-            damage_reduction_percent = self.perk_dict["durability_damage_percent_reduction_for_capacity_or_smaller"]
-            perk_text += f"Reduces durability loss for modules of capacity {self.capacity} or less by {damage_reduction_percent}%. "
+        if "durability_damage_percent_reduction_for_version_or_lesser" in self.perk_dict:
+            damage_reduction_percent = self.perk_dict["durability_damage_percent_reduction_for_version_or_lesser"]
+            perk_text += f"Reduces durability loss for modules of version {self.version} or less by {damage_reduction_percent}%. "
 
         if "returns_faster" in self.perk_dict:
             perk_text += f"Return from battle in {12 - self.version} ticks. "
@@ -1211,7 +1232,17 @@ class MechModule(models.Model):
         if "recall_instantly" in self.perk_dict:
             perk_text += f"Activate from the mech hangar to instantly return the mecha-dragon home as long as all modules installed are of capacity {self.capacity} or less. This module will be removed from existence in the process to avoid paradoxes."
 
+        if "modifies_determination" in self.perk_dict:
+            perk_text += f"Rather than clearing your determination when invading, instead multiply it by {self.version_based_determination_multiplier}."
+            
+        if "allies_are_immortal" in self.perk_dict:
+            perk_text += f"All units sent on this invasion suffer no casualties (unless they always die)."
+
         return perk_text
+    
+    @property
+    def version_based_determination_multiplier(self):
+        return (self.version + 1) * 0.5
 
     def upgrade(self):
         if self.zone == "mech" and not self.can_fit_upgrade:
@@ -1227,9 +1258,12 @@ class MechModule(models.Model):
         self.version += 1
 
         if self.version >= 2:
-            self.capacity *= 2
-            self.durability_current *= 2
-            self.durability_max *= 2            
+            if self.upgrade_increases_capacity:
+                self.capacity *= 2
+                
+            if self.upgrade_increases_durability:
+                self.durability_current *= 2
+                self.durability_max *= 2
 
         self.save()
         return True, f"Upgraded {self.versioned_name}"

@@ -1,3 +1,4 @@
+from math import ceil
 from random import randint
 from django.core.management.base import BaseCommand
 
@@ -6,6 +7,7 @@ from maingame.models import UserSettings, Resource, Round, Event, Dominion, Unit
 from django.contrib.auth.models import User
 
 from maingame.utils.utils_sludgeling import create_random_sludgene
+from maingame.utils.utils import generate_unit_cost_dict
 
 class Command(BaseCommand):
     help = "Initiates a battle"
@@ -14,40 +16,69 @@ class Command(BaseCommand):
         print("IT'S DEBUG TIME BABY")
         print()
         
-        
-        total_ticks = 0
-        attempts = 100000
-        
-        for _ in range(attempts):
-            ticks = 0
-            percent_chance = 2
-            units_out = True
-            
-            while units_out:
-                ticks += 1
-                
-                if percent_chance >= randint(1,100):
-                    units_out = False
-            
-                percent_chance += 1
-            
-            total_ticks += ticks
-            
-        print(total_ticks/attempts)
-            
-            
-        
+        # void_units = 10000
+        # return_mult_growth = 0.03
+        # return_mult = return_mult_growth
         # ticks = 0
-        # mana_upkeep = 0
-        # return_cost = 200
-        # print(f"Upkeep vs Cost")
+        # attacks = 1
         
-        # while return_cost > mana_upkeep:
+        # while void_units > 100:
         #     ticks += 1
-        #     mana_upkeep += 3
-        #     return_cost *= 0.85
+        #     returned_units = ceil(return_mult * void_units)
+        #     void_units -= returned_units
+        #     return_mult = min(1, return_mult + return_mult_growth)
             
-        #     print(f"{ticks}: {mana_upkeep} vs {return_cost}")
+        #     if void_units < 2000 and void_units > 0:
+        #         attacks += 1
+        #         void_units += 10000
+        #         print(ticks)
+            
+        # print(ticks)
+        # print("attacks", attacks)
+             
+        # costdict = generate_unit_cost_dict(1000, 1000, "gold", "research", "secondary", casualty_multiplier=0.01, return_ticks=12, cost_multiplier=1)
+        # print(costdict)
+        
+        # total_ticks = 0
+        # attempts = 100000
+        
+        # for _ in range(attempts):
+        #     ticks = 0
+        #     percent_chance = 2
+        #     units_out = True
+            
+        #     while units_out:
+        #         ticks += 1
+                
+        #         if percent_chance >= randint(1,100):
+        #             units_out = False
+            
+        #         percent_chance += 1
+            
+        #     total_ticks += ticks
+            
+        # print(total_ticks/attempts)
+            
+        
+        
+        
+        
+        def update_return_cost(return_cost, ticks):
+            mult = 0.7
+            return min(return_cost - 1, return_cost * mult)
+            
+        
+        ticks = 0
+        mana_upkeep = 0
+        return_cost = 5000
+        print(f"Upkeep vs Cost")
+        
+        while return_cost > mana_upkeep:
+            ticks += 1
+            mana_upkeep += 3
+            return_cost = update_return_cost(return_cost, ticks)
+            
+            print(f"{ticks}: {mana_upkeep} vs {return_cost}")
             
         
         

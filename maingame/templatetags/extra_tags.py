@@ -36,6 +36,14 @@ def dash_if_zero(number):
 def subtract(value, arg):
     return value - arg
 
+@register.filter(name='divided_by') 
+def subtract(value, arg):
+    result = value / arg
+    
+    if result == int(result):
+        return int(result)
+    
+    return round(result, 1)
 
 @register.filter(name='multiply') 
 def multiply(value, arg):

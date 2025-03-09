@@ -29,31 +29,51 @@
         </thead>
         <tbody class="u-text-left">
             <tr>
-                <td>Power: {{ module.power_short }}</span>
+                <td>{% if module.base_power > 0 %}*{% endif %}Power: {{ module.power_short }}</span>
             </tr>
             <tr>
-                <td class="capacity">Capacity: {{ module.capacity }}</td>
+                <td class="capacity">{% if module.upgrade_increases_capacity %}*{% endif %}Capacity: {{ module.capacity }}</td>
             </tr>
             <tr>
-                <td>Durability/battle: {{ module.fragility }}%</td>
+                <td>
+                    {% if module.battery_max > 0 %}
+                        Battery-powered
+                    {% elif module.durability_max == 1 %}
+                        Destroyed when activated
+                    {% else %}
+                        Durability/battle: {{ module.fragility }}%
+                    {% endif %}
+                </td>
             </tr>
             <tr>
                 <td class="u-flex u-flex-column">
-                <span>Repair cost/point:</span>
-                <span>{{ module.repair_cost_list }}</span>
+                    {% if module.battery_max > 0 %}
+                        <span>Battery/tick: {{ 100|divided_by:module.battery_max }}</span>
+                        <span>&nbsp</span>
+                    {% else %}
+                        <span>Repair cost/point:</span>
+                        <span>{{ module.repair_cost_list }}</span>
+                    {% endif %}
                 </td>
             </tr>
         </tbody>
     </table>
 
     <div class="h-2 bg-white-400 u-border-1 mb-1">
-        <div class="bg-red-400" style="width: {{ module.durability_percent }}%;">
-            <span class="u-center text-xs leading-none h-100p">{{ module.durability_current|intcomma }}</span>
-        </div>
+        {% if module.battery_max > 0 %}
+            <div class="bg-teal-300" style="width: {{ module.battery_percent }}%;">
+                <span class="u-center text-xs leading-none h-100p">{{ module.battery_percent|intcomma }}</span>
+            </div>
+        {% else %}
+            <div class="bg-red-400" style="width: {{ module.durability_percent }}%;">
+                <span class="u-center text-xs leading-none h-100p">{{ module.durability_current|intcomma }}</span>
+            </div>
+        {% endif %}
     </div>
 
     
     {% if editable %}
+        {% if module.is_upgradable %}
         <button 
             class="header_colors w-16 h-4 p-0 u-center" 
             type="submit" 
@@ -64,6 +84,14 @@
         >
             <span class="font-bold">Upgrade</span>
         </button>
+        {% else %}
+        <button 
+            class="header_colors w-24 h-4 p-0 u-center" 
+            disabled
+        >
+            <span class="font-bold">Not upgradable</span>
+        </button>
+        {% endif %}
     {% endif %}
 
     <div>

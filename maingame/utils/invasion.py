@@ -180,17 +180,17 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casu
 def handle_module_durability(mechadragon: Unit, is_attacker):
     try:
         magefield = MechModule.objects.get(ruler=mechadragon.ruler, name="AC# Magefield", zone="mech")
-        damage_reduction_percent = magefield.perk_dict["durability_damage_percent_reduction_for_capacity_or_smaller"]
+        damage_reduction_percent = magefield.perk_dict["durability_damage_percent_reduction_for_version_or_lesser"] if magefield.battery_current >= magefield.battery_max else 0
         perk_based_fragility_modifier = 1 - (damage_reduction_percent / 100)
-        damage_reduction_capacity_max = magefield.capacity
+        damage_reduction_version_max = magefield.version
     except:
         perk_based_fragility_modifier = 1
-        damage_reduction_capacity_max = 0
+        damage_reduction_version_max = 0
 
     for module in MechModule.objects.filter(ruler=mechadragon.ruler, zone="mech"):
         modified_fragility = module.fragility
 
-        if module.capacity <= damage_reduction_capacity_max:
+        if module.version <= damage_reduction_version_max:
             modified_fragility *= perk_based_fragility_modifier
 
         if not is_attacker:
@@ -199,12 +199,22 @@ def handle_module_durability(mechadragon: Unit, is_attacker):
         new_durability_multiplier = 1 - (modified_fragility / 100)
 
         module.durability_current = int(module.durability_current * new_durability_multiplier)
+        
+        if is_attacker and module.battery_current == module.battery_max:
+            module.battery_current = 0
+        
         module.save()
 
 
 def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion, defender: Dominion, defense_snapshot):
     offensive_casualties = 0
     new_corpses = 0
+    
+    try:
+        comrade_carapace = MechModule.objects.get(ruler=attacker, name="THAC# Comrade Carapace", zone="mech")
+        units_dont_die = comrade_carapace.battery_current >= comrade_carapace.battery_max
+    except:
+        units_dont_die = False
 
     do_instant_return = False
 
@@ -221,7 +231,9 @@ def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion, defe
         casualties = 0
         offensive_casualty_rate = 0.1
 
-        if "immortal" in unit.perk_dict:
+        if units_dont_die and "always_dies_on_offense" not in unit.perk_dict:
+            offensive_casualty_rate = 0
+        elif "immortal" in unit.perk_dict:
             offensive_casualty_rate = 0
         elif "always_dies_on_offense" in unit.perk_dict:
             offensive_casualty_rate = 1
@@ -240,7 +252,8 @@ def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion, defe
             handle_module_durability(unit, is_attacker=True)
             
             try:
-                return_ticks = 12 - MechModule.objects.get(ruler=attacker, name='"# fast # furious" Hyperwings', zone="mech").version
+                hyperwings = MechModule.objects.get(ruler=attacker, name='"# fast # furious" Hyperwings', zone="mech")
+                return_ticks = 12 - hyperwings.version if hyperwings.battery_current >= hyperwings.battery_max else 12
             except:
                 return_ticks = 12
 
@@ -346,7 +359,12 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion):
 
     attacker.highest_raw_op_sent = max(raw_op_sent, attacker.highest_raw_op_sent)
     attacker.successful_invasions += 1
-    attacker.determination = 0
+    
+    try:
+        adrenaline_pump = MechModule.objects.get(ruler=attacker, name="PP# Pseudrenaline Pump", zone="mech")
+        attacker.determination = int(attacker.determination * adrenaline_pump.version_based_determination_multiplier) if adrenaline_pump.battery_current >= adrenaline_pump.battery_max else 0
+    except:
+        attacker.determination = 0
     
     if attacker.faction_name == "aether confederacy":
         attacker.acres_in_void += acres_conquered * 2

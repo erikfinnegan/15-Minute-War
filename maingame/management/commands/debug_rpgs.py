@@ -18,8 +18,8 @@ class Command(BaseCommand):
         print()
 
 
-        def percentize(x):
-            x = x / attempts
+        def percentize(x, y=attempts):
+            x = x / y
             x = x * 100
             return int(x)
 
@@ -470,20 +470,24 @@ class Command(BaseCommand):
         
 
         def three_dice():
-            die_a = 4
-            die_b = 4
-            die_c = 12
+            die_a = 8
+            die_b = 8
+            die_c = 8
             c_bonus = 0
 
             target_number = 11
 
             complications = 0
+            no_fuss = 0
             big_complications = 0
             full_successes = 0
             comp_successes = 0
             bigc_successes = 0
             successes = 0
             failures = 0
+            regular_failures = 0
+            comp_failures = 0
+            bigc_failures = 0
 
             for _ in range(attempts):
                 a = randint(1, die_a)
@@ -499,6 +503,8 @@ class Command(BaseCommand):
                 elif c + c_bonus > b or c + c_bonus > a:
                     complications += 1
                     is_complication = True
+                else:
+                    no_fuss += 1
 
                 if a + b + c >= target_number:
                     successes += 1
@@ -511,20 +517,41 @@ class Command(BaseCommand):
                         full_successes += 1
                 else:
                     failures += 1
+                    
+                    if is_big_complication:
+                        bigc_failures += 1
+                    elif is_complication:
+                        comp_failures += 1
+                    else:
+                        regular_failures += 1
 
             
             target_number_readout = f"{target_number}" if c_bonus == 0 else f"{target_number} (+{c_bonus})"
 
             print(f"{die_a} {die_b} [{die_c}] -vs- {target_number_readout}")
-            print("Success (full):", percentize(full_successes))
-            print("Success (comp):", percentize(comp_successes))
-            print("Success (big comp):", percentize(bigc_successes))
+            # print("Success (full):", percentize(full_successes))
+            # print("Success (comp):", percentize(comp_successes))
+            # print("Success (bad):", percentize(bigc_successes))
             print()
-            print("Success:", percentize(successes))
-            print("Failure:", percentize(failures))
+            # print("Success:", percentize(successes))
+            # print("Failure:", percentize(failures))
+            # print()
+            
+            # print()
+            # print()
+            print(f"SUCCESS -- {percentize(successes)}%", )
+            print(f"full {percentize(full_successes, successes)}%")
+            print(f"comp {percentize(comp_successes, successes)}%")
+            print(f"bad  {percentize(bigc_successes, successes)}%")
             print()
-            print("Complication:", percentize(complications))
-            print("Big comps:", percentize(big_complications))
+            print(f"FAILURE -- {percentize(failures)}%")
+            print(f"reg  {percentize(regular_failures, failures)}%")
+            print(f"comp {percentize(comp_failures, failures)}%")
+            print(f"bad  {percentize(bigc_failures, failures)}%")
+            print()
+            print(f"No fuss {percentize(no_fuss)}%")
+            print(f"Any comp {percentize(complications)}%")
+            print(f"Any bad {percentize(big_complications)}%")
 
         three_dice()
         print()

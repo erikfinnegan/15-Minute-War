@@ -293,6 +293,10 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             dominion.perk_dict["unit_training_time"] = "6"
         case "Back-2-U Town Portal System":
             give_dominion_module(dominion, MechModule.objects.get(ruler=None, name="Back-#-U Town Portal System"))
+        case "PP0 Pseudrenaline Pump":
+            give_dominion_module(dominion, MechModule.objects.get(ruler=None, name="PP# Pseudrenaline Pump"))
+        case "THAC0 Comrade Carapace":
+            give_dominion_module(dominion, MechModule.objects.get(ruler=None, name="THAC# Comrade Carapace"))
 
     if not discovery.repeatable:
         dominion.available_discoveries.remove(discovery_name)
