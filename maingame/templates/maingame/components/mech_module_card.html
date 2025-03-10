@@ -48,7 +48,7 @@
             <tr>
                 <td class="u-flex u-flex-column">
                     {% if module.battery_max > 0 %}
-                        <span>Battery/tick: {{ 100|divided_by:module.battery_max }}</span>
+                        <span>Battery recharge/tick: {{ 100|divided_by:module.battery_max }}</span>
                         <span>&nbsp</span>
                     {% else %}
                         <span>Repair cost/point:</span>

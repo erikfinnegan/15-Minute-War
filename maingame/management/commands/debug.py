@@ -16,6 +16,52 @@ class Command(BaseCommand):
         print("IT'S DEBUG TIME BABY")
         print()
         
+        attempts = 1000000
+        
+        def percentize(x, y=attempts):
+            x = x / y
+            x = x * 100
+            return int(x)
+        
+        
+        
+        sorcs = 99000
+        demons = 0
+        demons_per_sorc_per_tick = 1
+        demon_attrition_mult = 0.98
+        
+        for _ in range(100):
+            demons = int(demons * demon_attrition_mult)
+            demons += demons_per_sorc_per_tick * sorcs
+            print(demons)
+        
+        print("demons per sorc", demons/sorcs)
+        
+        
+        
+        # returned_mult = 0.025
+        # mult_add = 0.025
+        
+        # void_units = attempts
+        # home_units = 0
+        # ticks = 0
+        
+        # while void_units > 0:
+        #     ticks += 1
+        #     units_returned = ceil(returned_mult * void_units)
+        #     void_units -= units_returned
+        #     home_units += units_returned
+        #     returned_mult += mult_add
+            
+        #     print(f"{ticks}: {percentize(home_units)}")
+            
+        # print("ticks", ticks)
+        
+        
+        
+        
+        
+        
         # void_units = 10000
         # return_mult_growth = 0.03
         # return_mult = return_mult_growth
@@ -35,6 +81,15 @@ class Command(BaseCommand):
             
         # print(ticks)
         # print("attacks", attacks)
+        
+        
+        
+        
+        
+        
+        
+        
+        
              
         # costdict = generate_unit_cost_dict(1000, 1000, "gold", "research", "secondary", casualty_multiplier=0.01, return_ticks=12, cost_multiplier=1)
         # print(costdict)
@@ -63,22 +118,22 @@ class Command(BaseCommand):
         
         
         
-        def update_return_cost(return_cost, ticks):
-            mult = 0.7
-            return min(return_cost - 1, return_cost * mult)
+        # def update_return_cost(return_cost, ticks):
+        #     mult = 0.7
+        #     return min(return_cost - 1, return_cost * mult)
             
         
-        ticks = 0
-        mana_upkeep = 0
-        return_cost = 5000
-        print(f"Upkeep vs Cost")
+        # ticks = 0
+        # mana_upkeep = 0
+        # return_cost = 5000
+        # print(f"Upkeep vs Cost")
         
-        while return_cost > mana_upkeep:
-            ticks += 1
-            mana_upkeep += 3
-            return_cost = update_return_cost(return_cost, ticks)
+        # while return_cost > mana_upkeep:
+        #     ticks += 1
+        #     mana_upkeep += 3
+        #     return_cost = update_return_cost(return_cost, ticks)
             
-            print(f"{ticks}: {mana_upkeep} vs {return_cost}")
+        #     print(f"{ticks}: {mana_upkeep} vs {return_cost}")
             
         
         
