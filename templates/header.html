@@ -49,9 +49,9 @@
     <div class="u-none md:u-flex u-flex-wrap {% if active_dominion.resource_types >= 9 %}u-gap-4{% else %}u-gap-6{% endif %}">
         {% if active_dominion %}
         <div class="u-flex u-flex-column">
-            {% if active_dominion.ticks_til_all_acres_return > 0 %}
+            {% if active_dominion.has_units_returning %}
                 <span>Army home in</span>
-                <span>{{ active_dominion.ticks_til_all_acres_return }} ticks</span>
+                <span>{{ active_dominion.ticks_til_all_units_return }} ticks</span>
             {% else %}
                 <span>All units</span>
                 <span>are home</span>
