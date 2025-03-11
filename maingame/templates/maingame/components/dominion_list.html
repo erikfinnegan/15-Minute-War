@@ -88,6 +88,7 @@
                 </td>
 
                 {% comment %} Your faction {% endcomment %}
+                {% comment %} dwarf {% endcomment %}
                 {% if "book_of_grudges" in this_dominion.perk_dict %}
                     {% if dominion.strid in this_dominion.perk_dict.book_of_grudges %}
                         <td class="u-align-middle">
@@ -103,6 +104,7 @@
                     {% else %}
                         <td class="u-align-middle">None</td>
                     {% endif %}
+                {% comment %} GSF {% endcomment %}
                 {% elif "infiltration_dict" in this_dominion.perk_dict %}
                     {% if dominion.strid in this_dominion.perk_dict.infiltration_dict %}
                         <td class="u-align-middle">
@@ -121,12 +123,15 @@
                             {% endif %}
                         </td>
                     {% else %}
-                        <td class="u-align-middle">None</td>
+                        <td class="u-align-middle">-</td>
                     {% endif %}
+                {% comment %} goblin {% endcomment %}
                 {% elif "rulers_favorite_resource" in this_dominion.perk_dict and dominion == this_dominion %}
                     <td class="u-align-middle" style="white-space:nowrap">+{{ this_dominion.goblin_bonus }}% {{ this_dominion.perk_dict.rulers_favorite_resource }}</td>
+                {% comment %} blessed order {% endcomment %}
                 {% elif "order_cant_attack_ticks_left" in this_dominion.perk_dict and this_dominion.perk_dict.order_cant_attack_ticks_left > 0 and dominion == this_dominion %}
                      <td class="u-align-middle">Can't attack for {{ this_dominion.perk_dict.order_cant_attack_ticks_left }} {{ "ticks"|depluralize:this_dominion.perk_dict.order_cant_attack_ticks_left }}</td>
+                {% comment %} biclops {% endcomment %}
                 {% elif "partner_patience" in this_dominion.perk_dict and dominion == this_dominion %}
                     <td class="u-align-middle">Current mood:
                     {% if this_dominion.perk_dict.partner_attack_on_sight == True %}
