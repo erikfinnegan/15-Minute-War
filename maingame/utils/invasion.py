@@ -249,13 +249,13 @@ def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion, defe
         return_ticks = str(unit.perk_dict["returns_in_ticks"]) if "returns_in_ticks" in unit.perk_dict else "12"
 
         if unit.name == "Mecha-Dragon":
-            handle_module_durability(unit, is_attacker=True)
-            
             try:
                 hyperwings = MechModule.objects.get(ruler=attacker, name='"# fast # furious" Hyperwings', zone="mech")
                 return_ticks = 12 - hyperwings.version if hyperwings.battery_current >= hyperwings.battery_max else 12
             except:
                 return_ticks = 12
+                
+            handle_module_durability(unit, is_attacker=True)
 
         if do_instant_return:
             unit.lose(casualties)
