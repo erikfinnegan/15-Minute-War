@@ -182,10 +182,10 @@ def handle_module_durability(mechadragon: Unit, is_attacker):
         magefield = MechModule.objects.get(ruler=mechadragon.ruler, name="AC# Magefield", zone="mech")
         damage_reduction_percent = magefield.perk_dict["durability_damage_percent_reduction_for_version_or_lesser"] if magefield.battery_current >= magefield.battery_max else 0
         perk_based_fragility_modifier = 1 - (damage_reduction_percent / 100)
-        damage_reduction_version_max = magefield.version
+        damage_reduction_version_max = magefield.version if is_attacker else -1
     except:
         perk_based_fragility_modifier = 1
-        damage_reduction_version_max = 0
+        damage_reduction_version_max = -1
 
     for module in MechModule.objects.filter(ruler=mechadragon.ruler, zone="mech"):
         modified_fragility = module.fragility

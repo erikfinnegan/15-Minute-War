@@ -89,88 +89,87 @@
 
                 {% comment %} Your faction {% endcomment %}
                 {% comment %} dwarf {% endcomment %}
-                {% if "book_of_grudges" in this_dominion.perk_dict %}
-                    {% if dominion.strid in this_dominion.perk_dict.book_of_grudges %}
-                        <td class="u-align-middle">
+                <td class="u-align-middle">
+                    {% if "book_of_grudges" in this_dominion.perk_dict %}
+                        {% if dominion.strid in this_dominion.perk_dict.book_of_grudges %}
                             <div class="u-flex u-flex-column u-center w-16">
                                 <span>
                                     {{ this_dominion.perk_dict.book_of_grudges|getattr:dominion.strid|getattr:"pages" }} page{% if this_dominion.perk_dict.book_of_grudges|getattr:dominion.strid|getattr:"pages" > 1 %}s{% endif %}
                                 </span>
                                 <span>+{{ this_dominion.perk_dict.book_of_grudges|getattr:dominion.strid|getattr:"animosity"|floatformat:"1" }}% OP</span>
                             </div>
-                        </td>
-                    {% elif dominion == this_dominion %}
-                        <td class="u-align-middle">-</td>
-                    {% else %}
-                        <td class="u-align-middle">None</td>
-                    {% endif %}
-                {% comment %} GSF {% endcomment %}
-                {% elif "infiltration_dict" in this_dominion.perk_dict %}
-                    {% if dominion.strid in this_dominion.perk_dict.infiltration_dict %}
-                        <td class="u-align-middle">
+                        {% elif dominion == this_dominion %}
+                            <span>-</span>
+                        {% else %}
+                            <span>-</span>
+                        {% endif %}
+                    {% comment %} GSF {% endcomment %}
+                    {% elif "infiltration_dict" in this_dominion.perk_dict %}
+                        {% if dominion.strid in this_dominion.perk_dict.infiltration_dict %}
                             <div class="u-flex u-flex-column u-center w-16">
                                 <span>
                                     +{{ this_dominion.perk_dict.infiltration_dict|getattr:dominion.strid|intcomma }} OP
                                 </span>
                             </div>
-                        </td>
-                    {% elif dominion == this_dominion %}
-                        <td class="u-align-middle">
+                        {% elif dominion == this_dominion %}
                             {% if dominion.ticks_til_infiltrators_return > 0 %}
                                 <small>Infiltrators return in {{ dominion.ticks_til_infiltrators_return }} ticks</small>
                             {% else %}
                                 <span>-</span>
                             {% endif %}
-                        </td>
+                        {% else %}
+                            <td class="u-align-middle">-</td>
+                        {% endif %}
+                    {% comment %} goblin {% endcomment %}
+                    {% elif "rulers_favorite_resource" in this_dominion.perk_dict and dominion == this_dominion %}
+                        <span style="white-space:nowrap">
+                            +{{ this_dominion.goblin_bonus }}% {{ this_dominion.perk_dict.rulers_favorite_resource }}
+                        </span>
+                    {% comment %} blessed order {% endcomment %}
+                    {% elif "order_cant_attack_ticks_left" in this_dominion.perk_dict and this_dominion.perk_dict.order_cant_attack_ticks_left > 0 and dominion == this_dominion %}
+                        Can't attack for {{ this_dominion.perk_dict.order_cant_attack_ticks_left }} {{ "ticks"|depluralize:this_dominion.perk_dict.order_cant_attack_ticks_left }}
+                    {% comment %} biclops {% endcomment %}
+                    {% elif "partner_patience" in this_dominion.perk_dict and dominion == this_dominion %}
+                        <div class="u-flex u-flex-column">
+                            <span>Current mood:</span>
+                            <span>
+                                {% if this_dominion.perk_dict.partner_attack_on_sight == True %}
+                                    Aggressive
+                                {% elif this_dominion.perk_dict.partner_patience <= 0 %}
+                                    Lashing out
+                                {% elif this_dominion.perk_dict.partner_patience <= 12 %}
+                                    On edge
+                                {% else %}
+                                    Calm
+                                {% endif %}
+                            </span>
+                        </div>
                     {% else %}
-                        <td class="u-align-middle">-</td>
+                        <span>-</span>
                     {% endif %}
-                {% comment %} goblin {% endcomment %}
-                {% elif "rulers_favorite_resource" in this_dominion.perk_dict and dominion == this_dominion %}
-                    <td class="u-align-middle" style="white-space:nowrap">+{{ this_dominion.goblin_bonus }}% {{ this_dominion.perk_dict.rulers_favorite_resource }}</td>
-                {% comment %} blessed order {% endcomment %}
-                {% elif "order_cant_attack_ticks_left" in this_dominion.perk_dict and this_dominion.perk_dict.order_cant_attack_ticks_left > 0 and dominion == this_dominion %}
-                     <td class="u-align-middle">Can't attack for {{ this_dominion.perk_dict.order_cant_attack_ticks_left }} {{ "ticks"|depluralize:this_dominion.perk_dict.order_cant_attack_ticks_left }}</td>
-                {% comment %} biclops {% endcomment %}
-                {% elif "partner_patience" in this_dominion.perk_dict and dominion == this_dominion %}
-                    <td class="u-align-middle">Current mood:
-                    {% if this_dominion.perk_dict.partner_attack_on_sight == True %}
-                        Aggressive
-                    {% elif this_dominion.perk_dict.partner_patience <= 0 %}
-                        Lashing out
-                    {% elif this_dominion.perk_dict.partner_patience <= 12 %}
-                        On edge
-                    {% else %}
-                        Calm
-                    {% endif %}
-                    </td>
-                {% else %}
-                    <td class="u-align-middle">-</td>
-                {% endif %}
+                </td>
 
                 {% comment %} Highest OP {% endcomment %}
                 <td class="u-align-middle">{{ dominion.highest_op_short }}</td>
 
                 {% comment %} Their faction {% endcomment %}
-                {% if dominion == this_dominion %}
-                    <td class="u-align-middle">-</td>
-                {% elif "book_of_grudges" in dominion.perk_dict %}
-                    {% if this_dominion.strid in dominion.perk_dict.book_of_grudges %}
-                        <td class="u-align-middle">
+                <td class="u-align-middle">
+                    {% if dominion == this_dominion %}
+                        <span>-</span>
+                    {% elif "book_of_grudges" in dominion.perk_dict %}
+                        {% if this_dominion.strid in dominion.perk_dict.book_of_grudges %}
                             <div class="u-flex u-flex-column u-center w-16">
                                 <span>
                                     {{ dominion.perk_dict.book_of_grudges|getattr:this_dominion.strid|getattr:"pages" }} page{% if dominion.perk_dict.book_of_grudges|getattr:this_dominion.strid|getattr:"pages" > 1 %}s{% endif %}
                                 </span>
                                 <span>+{{ dominion.perk_dict.book_of_grudges|getattr:this_dominion.strid|getattr:"animosity"|floatformat:"1" }}% OP</span>
                             </div>
-                        </td>
-                    {% elif dominion == this_dominion %}
-                        <td class="u-align-middle">-</td>
-                    {% else %}
-                        <td class="u-align-middle">None</td>
-                    {% endif %}
-                {% elif "infiltration_dict" in dominion.perk_dict %}
-                    <td class="u-align-middle">
+                        {% elif dominion == this_dominion %}
+                            <span>-</span>
+                        {% else %}
+                            <span>-</span>
+                        {% endif %}
+                    {% elif "infiltration_dict" in dominion.perk_dict %}
                         <div class="u-flex u-flex-column u-center w-16">
                             {% if this_dominion.strid in dominion.perk_dict.infiltration_dict %}
                                 <span>
@@ -179,33 +178,36 @@
                             {% elif dominion == this_dominion %}
                                 <span>-</span>
                             {% else %}
-                                <span>None</span>
+                                <span>-</span>
                             {% endif %}
 
                             {% if dominion.ticks_til_infiltrators_return > 0 %}
                                 <small>Infiltrators return in {{ dominion.ticks_til_infiltrators_return }} ticks</small>
                             {% endif %}
                         </div>
-                    </td>
-                {% elif "rulers_favorite_resource" in dominion.perk_dict %}
-                    <td class="u-align-middle" style="white-space:nowrap">+{{ dominion.goblin_bonus }}% {{ dominion.perk_dict.rulers_favorite_resource }}</td>
-                {% elif "order_cant_attack_ticks_left" in dominion.perk_dict and dominion.perk_dict.order_cant_attack_ticks_left > 0 %}
-                     <td class="u-align-middle">Can't attack for {{ dominion.perk_dict.order_cant_attack_ticks_left }} {{ "ticks"|depluralize:dominion.perk_dict.order_cant_attack_ticks_left }}</td>
-                {% elif "partner_patience" in dominion.perk_dict %}
-                    <td class="u-align-middle">Current mood:
-                    {% if dominion.perk_dict.partner_attack_on_sight == True %}
-                        Aggressive
-                    {% elif dominion.perk_dict.partner_patience <= 0 %}
-                        Lashing out
-                    {% elif dominion.perk_dict.partner_patience <= 12 %}
-                        On edge
+                    {% elif "rulers_favorite_resource" in dominion.perk_dict %}
+                        <div style="white-space:nowrap">
+                            <span>+{{ dominion.goblin_bonus }}% {{ dominion.perk_dict.rulers_favorite_resource }}</span>
+                        </div>
+                    {% elif "order_cant_attack_ticks_left" in dominion.perk_dict and dominion.perk_dict.order_cant_attack_ticks_left > 0 %}
+                        <span>Can't attack for {{ dominion.perk_dict.order_cant_attack_ticks_left }} {{ "ticks"|depluralize:dominion.perk_dict.order_cant_attack_ticks_left }}</span>
+                    {% elif "partner_patience" in dominion.perk_dict %}
+                        <span>
+                            Current mood:
+                            {% if dominion.perk_dict.partner_attack_on_sight == True %}
+                                Aggressive
+                            {% elif dominion.perk_dict.partner_patience <= 0 %}
+                                Lashing out
+                            {% elif dominion.perk_dict.partner_patience <= 12 %}
+                                On edge
+                            {% else %}
+                                Calm
+                            {% endif %}
+                        </span>
                     {% else %}
-                        Calm
+                        <span>-</span>
                     {% endif %}
-                    </td>
-                {% else %}
-                    <td class="u-align-middle">-</td>
-                {% endif %}
+                </td>
 
                 {% comment %} W/L {% endcomment %}
                 <td class="u-align-middle" style="white-space:nowrap">{{ dominion.successful_invasions }}-{{ dominion.failed_defenses }}</td>

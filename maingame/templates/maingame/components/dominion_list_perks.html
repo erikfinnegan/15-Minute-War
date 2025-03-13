@@ -1,0 +1,67 @@
+{% load humanize %}
+{% load extra_tags %}
+
+{% comment %} dwarf {% endcomment %}
+<td class="u-align-middle u-flex u-flex-column">
+    {% if show_all or subject_dominion == other_dominion %}
+        {% if "book_of_grudges" in subject_dominion.perk_dict %}
+            {% if other_dominion.strid in subject_dominion.perk_dict.book_of_grudges %}
+                <div class="u-flex u-flex-column u-center w-16">
+                    <span>
+                        {{ subject_dominion.perk_dict.book_of_grudges|getattr:other_dominion.strid|getattr:"pages" }} page{% if subject_dominion.perk_dict.book_of_grudges|getattr:other_dominion.strid|getattr:"pages" > 1 %}s{% endif %}
+                    </span>
+                    <span>+{{ subject_dominion.perk_dict.book_of_grudges|getattr:other_dominion.strid|getattr:"animosity"|floatformat:"1" }}% OP</span>
+                </div>
+            {% elif other_dominion == subject_dominion %}
+                <span>-</span>
+            {% else %}
+                <span>-</span>
+            {% endif %}
+        {% comment %} GSF {% endcomment %}
+        {% elif "infiltration_dict" in subject_dominion.perk_dict %}
+            {% if other_dominion.strid in subject_dominion.perk_dict.infiltration_dict %}
+                <div class="u-flex u-flex-column u-center w-16">
+                    <span>
+                        +{{ subject_dominion.perk_dict.infiltration_dict|getattr:other_dominion.strid|intcomma }} OP
+                    </span>
+                </div>
+            {% elif other_dominion == subject_dominion %}
+                {% if other_dominion.ticks_til_infiltrators_return > 0 %}
+                    <small>Infiltrators return in {{ other_dominion.ticks_til_infiltrators_return }} ticks</small>
+                {% else %}
+                    <span>-</span>
+                {% endif %}
+            {% else %}
+                <td class="u-align-middle">-</td>
+            {% endif %}
+        {% comment %} goblin {% endcomment %}
+        {% elif "rulers_favorite_resource" in subject_dominion.perk_dict and other_dominion == subject_dominion %}
+            <span style="white-space:nowrap">
+                +{{ subject_dominion.goblin_bonus }}% {{ subject_dominion.perk_dict.rulers_favorite_resource }}
+            </span>
+        {% comment %} blessed order {% endcomment %}
+        {% elif "order_cant_attack_ticks_left" in subject_dominion.perk_dict and subject_dominion.perk_dict.order_cant_attack_ticks_left > 0 and other_dominion == subject_dominion %}
+            Can't attack for {{ subject_dominion.perk_dict.order_cant_attack_ticks_left }} {{ "ticks"|depluralize:subject_dominion.perk_dict.order_cant_attack_ticks_left }}
+        {% comment %} biclops {% endcomment %}
+        {% elif "partner_patience" in subject_dominion.perk_dict and other_dominion == subject_dominion %}
+            <div class="u-flex u-flex-column">
+                <span>Current mood:</span>
+                <span>
+                    {% if subject_dominion.perk_dict.partner_attack_on_sight == True %}
+                        Aggressive
+                    {% elif subject_dominion.perk_dict.partner_patience <= 0 %}
+                        Lashing out
+                    {% elif subject_dominion.perk_dict.partner_patience <= 12 %}
+                        On edge
+                    {% else %}
+                        Calm
+                    {% endif %}
+                </span>
+            </div>
+        {% else %}
+            <span>-</span>
+        {% endif %}
+    {% endif %}
+
+    {% comment %} <span>Grrr smash</span> {% endcomment %}
+</td>
