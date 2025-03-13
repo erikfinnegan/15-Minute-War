@@ -16,3 +16,6 @@ class Command(BaseCommand):
 
         for unit in Unit.objects.filter(ruler=testdominion):
             unit.gain(2000)
+            
+        testdominion.perk_dict["splices"] = 9999
+        testdominion.save()

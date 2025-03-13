@@ -70,7 +70,7 @@ def generate_unit_cost_dict(op, dp, primary_resource_name, secondary_resource_na
     cost_multiplier *= get_low_turtle_cost_multiplier(op, dp)
     cost_multiplier *= get_casualty_mod_cost_multiplier(casualty_multiplier)
     cost_multiplier *= get_fast_return_cost_multiplier(return_ticks, op, dp)
-        
+    
     primary_cost = primary_cost * cost_multiplier
     secondary_cost = secondary_cost * cost_multiplier
     

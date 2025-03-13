@@ -180,7 +180,9 @@ def breed_sludgenes(father: Sludgene, mother: Sludgene):
         discount_percent = randint(min(father.discount_percent, mother.discount_percent), max(father.discount_percent, mother.discount_percent))
     else:
         discount_percent = 0
-    
+        
+    cost_multiplier = (100 - discount_percent) / 100
+        
     return Sludgene.objects.create(
         name=get_sludgene_name(),
         ruler=father.ruler,
@@ -192,7 +194,7 @@ def breed_sludgenes(father: Sludgene, mother: Sludgene):
         upkeep_type=upkeep_type,
         resource_secreted_name=resource_secreted_name,
         amount_secreted=amount_secreted,
-        cost_dict=generate_unit_cost_dict(op, dp, "goop", "sludge", cost_type),
+        cost_dict=generate_unit_cost_dict(op, dp, "goop", "sludge", cost_type, cost_multiplier=cost_multiplier),
         upkeep_dict=generate_random_sludgene_upkeep_dict(upkeep_type, amount_secreted > 0),
         discount_percent=discount_percent,
     )
@@ -228,7 +230,6 @@ def create_magnum_goopus(dominion: Dominion, units_included_dict, encore=False):
 
     for unit_details_dict in units_included_dict.values():
         unit = get_unit_from_dict(unit_details_dict)
-        print(unit.name)
         quantity_included = unit_details_dict["quantity_sent"]
         
         if "sludge" in unit.cost_dict and quantity_included <= unit.quantity_at_home:
