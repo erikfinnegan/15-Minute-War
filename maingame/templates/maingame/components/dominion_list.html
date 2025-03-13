@@ -134,15 +134,15 @@
                 {% comment %} biclops {% endcomment %}
                 {% elif "partner_patience" in this_dominion.perk_dict and dominion == this_dominion %}
                     <td class="u-align-middle">Current mood:
-                    {% if this_dominion.perk_dict.partner_attack_on_sight == True %}
-                        Aggressive
-                    {% elif this_dominion.perk_dict.partner_patience <= 0 %}
-                        Lashing out
-                    {% elif this_dominion.perk_dict.partner_patience <= 12 %}
-                        On edge
-                    {% else %}
-                        Calm
-                    {% endif %}
+                        {% if this_dominion.perk_dict.partner_attack_on_sight == True %}
+                            Aggressive
+                        {% elif this_dominion.perk_dict.partner_patience <= 0 %}
+                            Lashing out
+                        {% elif this_dominion.perk_dict.partner_patience <= 12 %}
+                            On edge
+                        {% else %}
+                            Calm
+                        {% endif %}
                     </td>
                 {% else %}
                     <td class="u-align-middle">-</td>
