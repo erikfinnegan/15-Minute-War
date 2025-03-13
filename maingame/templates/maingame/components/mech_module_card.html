@@ -66,7 +66,7 @@
             </div>
         {% else %}
             <div class="bg-red-400" style="width: {{ module.durability_percent }}%;">
-                <span class="u-center text-xs leading-none h-100p">{{ module.durability_current|intcomma }}</span>
+                <span class="u-center text-xs leading-none h-100p">{{ module.durability_current|intcomma }} / {{ module.durability_max|intcomma }}</span>
             </div>
         {% endif %}
     </div>
