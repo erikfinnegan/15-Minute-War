@@ -16,26 +16,40 @@ class Command(BaseCommand):
         print("IT'S DEBUG TIME BABY")
         print()
         
-        attempts = 1000000
         
-        def percentize(x, y=attempts):
-            x = x / y
-            x = x * 100
-            return int(x)
+        gold_mercs = 20 * 1699
+        gold_crushers = 6 * 3000
+        
+        ticks = 0
+        
+        while gold_mercs > gold_crushers:
+            ticks += 1
+            gold_mercs += (20 * 3)
+            gold_crushers += (6 * 12)
+            
+        print(ticks)
+        
+        
+        # attempts = 1000000
+        
+        # def percentize(x, y=attempts):
+        #     x = x / y
+        #     x = x * 100
+        #     return int(x)
         
         
         
-        sorcs = 99000
-        demons = 0
-        demons_per_sorc_per_tick = 1
-        demon_attrition_mult = 0.98
+        # sorcs = 99000
+        # demons = 0
+        # demons_per_sorc_per_tick = 1
+        # demon_attrition_mult = 0.98
         
-        for _ in range(100):
-            demons = int(demons * demon_attrition_mult)
-            demons += demons_per_sorc_per_tick * sorcs
-            print(demons)
+        # for _ in range(100):
+        #     demons = int(demons * demon_attrition_mult)
+        #     demons += demons_per_sorc_per_tick * sorcs
+        #     print(demons)
         
-        print("demons per sorc", demons/sorcs)
+        # print("demons per sorc", demons/sorcs)
         
         
         

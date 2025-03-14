@@ -1213,7 +1213,7 @@ class MechModule(models.Model):
     def can_fit_upgrade(self):
         extra_capacity = 0
 
-        if self.version + 1 >= 2:
+        if self.version + 1 >= 2 and self.upgrade_increases_capacity:
             extra_capacity = self.capacity
 
         return self.ruler.perk_dict["capacity_used"] + extra_capacity <= self.ruler.perk_dict["capacity_max"]
