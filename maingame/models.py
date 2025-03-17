@@ -564,11 +564,11 @@ class Dominion(models.Model):
             stoneshields.save()
             deep_apostles.save()
             
-        if "splices" in self.perk_dict and Round.objects.first().ticks_passed % 8 == 0 and self.is_oop:
+        if "splices" in self.perk_dict and Round.objects.first().ticks_passed % 12 == 0 and self.is_oop:
             self.perk_dict["splices"] += 1
-
-        if "Inspiration" in self.learned_discoveries and Round.objects.first().ticks_passed % 4 == 0:
-            self.perk_dict["splices"] += 1
+            
+            if "Inspiration" in self.learned_discoveries:
+                self.perk_dict["splices"] += 1    
 
         if "Always Be Digging" in self.learned_discoveries and Round.objects.first().ticks_passed % 4 == 0 and Round.objects.first().ticks_passed > 0:
             self.gain_acres(int(self.acres / 400))

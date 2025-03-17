@@ -9,11 +9,12 @@ from maingame.utils.utils_sludgeling import create_random_sludgene
 def handle_grudges_from_attack(attacker: Dominion, defender: Dominion=None):
     if "book_of_grudges" in defender.perk_dict:
         round = Round.objects.first()
-        pages_to_gain = 50
+        pages_to_gain = 55
 
         for _ in range(round.ticks_passed):
             pages_to_gain *= 1.002
 
+        # This was mostly just a thing in the "everyone has grudges" era, as of 3/17/2025 it isn't currently used by anything
         if "grudge_page_multiplier" in defender.perk_dict:
             pages_to_gain *= defender.perk_dict["grudge_page_multiplier"]
         

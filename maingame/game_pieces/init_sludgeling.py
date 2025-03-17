@@ -83,7 +83,7 @@ def initialize_sludgeling_discoveries():
 
     Discovery.objects.create(
         name="Inspiration",
-        description="""Your creativity runs wild! Gain three times as many splices!.""",
+        description="""Your creativity runs wild! Gain twice the splices!.""",
         required_faction_name="sludgeling",
         required_discoveries=["Magnum Goopus"],
     )
