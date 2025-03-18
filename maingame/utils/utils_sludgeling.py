@@ -250,7 +250,7 @@ def create_magnum_goopus(dominion: Dominion, units_included_dict, encore=False):
     encore_suffixes = [" Mk II", " 2: Electric Goopaloo", " Remastered", ": the Remix", " 2", " Jr.", " Magnum Goopier"]
 
     if encore:
-        name = f"Magnum Goopus {random.choice(encore_suffixes)}"
+        name = f"Magnum Goopus{random.choice(encore_suffixes)}"
     else:
         name = "Magnum Goopus"
         

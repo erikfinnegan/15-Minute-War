@@ -16,11 +16,11 @@ class Command(BaseCommand):
         print("UNIT COST CALCULATOR")
         print()
         
-        op = 0
-        dp = 9
+        op = 7
+        dp = 0
         secondary_resource_name = "wood"
-        casualty_multiplier = 0
-        return_ticks = 12
+        casualty_multiplier = 1
+        return_ticks = 6
         
         # primary secondary hybrid
         cost_type = "primary"

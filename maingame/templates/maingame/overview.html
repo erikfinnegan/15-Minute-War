@@ -60,6 +60,8 @@
                     <th>Power</th>
                     <th>Quantity (Training)</th>
                     <th>At home</th>
+                    <th>Cost</th>
+                    <th>Upkeep</th>
                 </tr>
             </thead>
             <tbody>
@@ -73,6 +75,20 @@
                         </td>
                         
                         <td class="u-align-middle">{{ unit.quantity_at_home|intcomma }}</td>
+
+                        <td class="u-align-middle">
+                            {% if unit.is_trainable %}
+                            {% for resource, amount in unit.cost_dict.items %}
+                            <span class="u-center">{{ amount|intcomma }}&nbsp;{{ resource|depluralize:amount }}</span>
+                            {% endfor %}
+                            {% endif %}
+                        </td>
+
+                        <td class="u-align-middle">
+                            {% for resource, amount in unit.upkeep_dict.items %}
+                            <span class="u-center">{{ amount|intcomma }}&nbsp;{{ resource|depluralize:amount }}</span>
+                            {% endfor %}
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
