@@ -10,7 +10,7 @@ def initialize_sludgeling_units():
         dp=7,
         cost_dict={
             "goop": 1550,
-            "sludge": 1000,
+            "sludge": 1250,
         },
         upkeep_dict={
             "goop": 3,
@@ -72,9 +72,9 @@ def initialize_sludgeling_discoveries():
 
     Discovery.objects.create(
         name="Magnum Goopus",
-        description="""Behold your glorious magnum goopus! Go to the experiment page and combine any units at home with a sludge 
+        description="""Behold your glorious magnum goopus! Go to the experiment page and merge any units at home with a sludge 
             cost into a single unit with their combined offense and defense. Your incredible masterpiece requires no goop or sludge
-            upkeep and consumes just as much food as all of the units that went into making it. It will return from battle at the
+            upkeep but consumes 2 sludge per merged unit. It will return from battle at the
             speed of the slowest unit used to create it.""",
         required_faction_name="sludgeling",
         required_discoveries=["Recycling Center"],

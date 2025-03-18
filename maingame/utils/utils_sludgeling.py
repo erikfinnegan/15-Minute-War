@@ -85,12 +85,12 @@ def generate_random_sludgene_upkeep_dict(upkeep_type, extra_sludge=0):
             "food": 1
         },
         {
-            "sludge": 4,
+            "sludge": 5,
             "food": 1
         },
         {
             "goop": 1.5,
-            "sludge": 2.5,
+            "sludge": 3,
         },
     ]
     
@@ -221,7 +221,7 @@ def create_magnum_goopus(dominion: Dominion, units_included_dict, encore=False):
     total_quantity = 0
     total_op = 0
     total_dp = 0
-    food_upkeep = 0
+    sludge_upkeep = 0
     return_ticks = 1
 
     if encore:
@@ -238,8 +238,9 @@ def create_magnum_goopus(dominion: Dominion, units_included_dict, encore=False):
             total_op += quantity_included * unit.op
             total_dp += quantity_included * unit.dp
 
-            if "food" in unit.upkeep_dict:
-                food_upkeep += quantity_included * unit.upkeep_dict["food"]
+            # if "food" in unit.upkeep_dict:
+            #     food_upkeep += quantity_included * unit.upkeep_dict["food"]
+            sludge_upkeep += quantity_included * 2
                 
             try:
                 return_ticks = max(return_ticks, unit.perk_dict["returns_in_ticks"])
@@ -282,7 +283,8 @@ def create_magnum_goopus(dominion: Dominion, units_included_dict, encore=False):
         op=total_op,
         dp=total_dp,
         upkeep_dict={
-            "food": food_upkeep,
+            # "food": food_upkeep,
+            "sludge": sludge_upkeep,
         },
         perk_dict=perk_dict,
         is_trainable=False,

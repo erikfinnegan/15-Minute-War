@@ -3,7 +3,7 @@ from django.contrib import messages
 
 from maingame.formatters import create_or_add_to_key
 from maingame.models import Building, Dominion, Unit, Round, Resource, Discovery, Spell, UserSettings, Theme
-from maingame.utils.invasion import do_gsf_infiltration, do_invasion
+from maingame.utils.invasion import do_gsf_infiltration, do_invasion, get_op_and_dp_left
 from maingame.utils.utils import create_unit_dict, unlock_discovery, cast_spell
 
 
@@ -466,7 +466,8 @@ def submit_invasion(request):
         return redirect("world")
 
     if this_is_infiltration:
-        success, message = do_gsf_infiltration(units_sent_dict, my_dominion, target_dominion)
+        infiltration_power_gained, _, _ = get_op_and_dp_left(units_sent_dict, attacker=my_dominion, defender=target_dominion, is_infiltration=True)
+        success, message = do_gsf_infiltration(infiltration_power_gained, units_sent_dict, my_dominion, target_dominion)
         
         if success:
             messages.success(request, message)

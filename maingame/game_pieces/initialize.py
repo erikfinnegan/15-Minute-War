@@ -102,7 +102,7 @@ def initialize_buildings():
         {
             "name": "cesspool",
             "resource_produced_name": "sludge",
-            "amount_produced": 75,
+            "amount_produced": 95,
         },
         {
             "name": "mithril mine",
@@ -277,7 +277,7 @@ def initialize_spells():
         only units with OP > DP and without the "always dies on offense" perk.""",
         mana_cost_per_acre=50,
         is_targeted=True,
-        cooldown=48,
+        cooldown=24,
     )
 
 

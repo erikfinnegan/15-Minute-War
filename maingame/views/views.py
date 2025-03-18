@@ -490,7 +490,6 @@ def calculate_op(request):
                 })
             else:
                 mod_op = unit.op * my_dominion.offense_multiplier
-                # test_quantity = int(unit.quantity_at_home / 2)
                 test_quantity = min(unit.quantity_at_home, int((target_dominion.defense - op_sent) / mod_op) + 1 + quantity_queued)
                 test_quantity = max(0, test_quantity)
                 keep_going = True
@@ -508,16 +507,14 @@ def calculate_op(request):
                         test_quantity -= 1
                     else:
                         test_quantity += 1
-                    # elif check(test_quantity):
-                    #     test_quantity = int(test_quantity / 2)
-                    # else:
-                    #     test_quantity += max(1, int((last_test - test_quantity) / 2))
 
-                    last_test = test_quantity
     # End win button stuff
     
-    target_faction = Faction.objects.get(name=target_dominion.faction_name)
-    invasion_consequences = target_faction.invasion_consequences
+    try:
+        target_faction = Faction.objects.get(name=target_dominion.faction_name)
+        invasion_consequences = target_faction.invasion_consequences
+    except:
+        invasion_consequences = ""
 
     context = {
         "op": op_sent,

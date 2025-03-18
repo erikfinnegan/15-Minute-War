@@ -92,10 +92,18 @@ def get_conditional_op(unit: Unit, attacker: Dominion, defender: Dominion):
 
 def get_op_and_dp_left(units_sent_dict, attacker: Dominion, defender: Dominion=None, is_infiltration=False):
     offense_sent = 0
+    infiltration_power_sent = 0
+    infiltration_power_gained = 0
     raw_defense = attacker.raw_defense
 
     if defender and "infiltration_dict" in attacker.perk_dict and defender.strid in attacker.perk_dict["infiltration_dict"] and not is_infiltration:
         offense_sent += attacker.perk_dict["infiltration_dict"][defender.strid]
+        
+    if is_infiltration:
+        try:
+            current_infiltration_power = attacker.perk_dict["infiltration_dict"][defender.strid]
+        except:
+            current_infiltration_power = 0
 
     for unit_details_dict in units_sent_dict.values():
         unit = get_unit_from_dict(unit_details_dict)
@@ -109,11 +117,17 @@ def get_op_and_dp_left(units_sent_dict, attacker: Dominion, defender: Dominion=N
 
         if is_infiltration:
             if "invasion_plan_power" in unit.perk_dict:
-                offense_sent += unit.perk_dict["invasion_plan_power"] * quantity_sent
+                infiltration_power_sent += unit.perk_dict["invasion_plan_power"] * quantity_sent
+                
         else:
             offense_sent += modified_unit_op * quantity_sent
 
         raw_defense -= unit.dp * quantity_sent
+        
+    if is_infiltration:
+        new_infiltration_power = max(0, infiltration_power_sent - current_infiltration_power)
+        repeat_infiltration_power = infiltration_power_sent - new_infiltration_power
+        infiltration_power_gained = new_infiltration_power + int(repeat_infiltration_power / 2)
 
     grudge_bonus = 0
 
@@ -126,7 +140,10 @@ def get_op_and_dp_left(units_sent_dict, attacker: Dominion, defender: Dominion=N
     offense_sent = int(offense_sent)
     defense_left = int(raw_defense * attacker.defense_multiplier)
 
-    return offense_sent, defense_left, raw_defense
+    if is_infiltration:
+        return infiltration_power_gained, defense_left, raw_defense
+    else:
+        return offense_sent, defense_left, raw_defense
 
 
 def does_x_of_unit_break_defender(quantity_theorized, unit: Unit, units_sent_dict, attacker: Dominion, defender: Dominion):
@@ -395,30 +412,43 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion):
     return battle.id, "-- Congratulations, your invasion didn't crash! --"
 
 
-def do_gsf_infiltration(units_sent_dict, attacker: Dominion, defender: Dominion):
-    infiltration_power_sent = 0
-
+def do_gsf_infiltration(infiltration_power_gained, units_sent_dict, attacker: Dominion, defender: Dominion):
     for unit_details_dict in units_sent_dict.values():
         unit = get_unit_from_dict(unit_details_dict)
         quantity_sent = unit_details_dict["quantity_sent"]
 
-        if "invasion_plan_power" in unit.perk_dict:
-            infiltration_power_sent += unit.perk_dict["invasion_plan_power"] * quantity_sent
-        else:
+        if "invasion_plan_power" not in unit.perk_dict:
             return False, f"You can't send {unit.name} to infiltrate."
+        
+    try:
+        current_infiltration_power = attacker.perk_dict["infiltration_dict"][defender.strid]
+    except:
+        current_infiltration_power = 0
+        
+    updated_infiltration_power = current_infiltration_power + infiltration_power_gained
     
-    if defender.strid not in attacker.perk_dict["infiltration_dict"] or infiltration_power_sent > attacker.perk_dict["infiltration_dict"][defender.strid]:
-        attacker.perk_dict["infiltration_dict"][defender.strid] = infiltration_power_sent
-        attacker.save()
+    attacker.perk_dict["infiltration_dict"][defender.strid] = updated_infiltration_power
+    attacker.save()
+    
+    for unit_details_dict in units_sent_dict.values():
+        unit.quantity_at_home -= quantity_sent
+        unit.returning_dict["12"] += quantity_sent
+        unit.save()
+    
+    return True, f"Successfully infiltrated {defender.name} for {infiltration_power_gained:2,} bonus OP."
+    
+    # if defender.strid not in attacker.perk_dict["infiltration_dict"] or infiltration_power_sent > attacker.perk_dict["infiltration_dict"][defender.strid]:
+    #     attacker.perk_dict["infiltration_dict"][defender.strid] = infiltration_power_sent
+    #     attacker.save()
 
-        for unit_details_dict in units_sent_dict.values():
-            unit.quantity_at_home -= quantity_sent
-            unit.returning_dict["12"] += quantity_sent
-            unit.save()
+    #     for unit_details_dict in units_sent_dict.values():
+    #         unit.quantity_at_home -= quantity_sent
+    #         unit.returning_dict["12"] += quantity_sent
+    #         unit.save()
 
-        return True, f"Successfully infiltrated {defender.name} for {infiltration_power_sent:2,} bonus OP."
-    else:
-        return False, "You already have a greater infiltration against that target."
+    #     return True, f"Successfully infiltrated {defender.name} for {infiltration_power_sent:2,} bonus OP."
+    # else:
+    #     return False, "You already have a greater infiltration against that target."
         
 
 def do_biclops_partner_attack(dominion: Dominion):

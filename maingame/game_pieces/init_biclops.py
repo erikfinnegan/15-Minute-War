@@ -49,7 +49,7 @@ def initialize_biclops_units():
             "food": 4,
             "wood": 4,
         },
-        perk_dict={"casualty_multiplier": 0.5, "gets_op_bonus_equal_to_percent_of_target_complacency": 33},
+        perk_dict={"casualty_multiplier": 0.5, "gets_op_bonus_equal_to_percent_of_target_complacency": 50},
     )
 
 
