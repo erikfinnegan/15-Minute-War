@@ -9,8 +9,8 @@ def initialize_sludgeling_units():
         op=6,
         dp=7,
         cost_dict={
-            "goop": 1500,
-            "sludge": 800,
+            "goop": 1550,
+            "sludge": 1000,
         },
         upkeep_dict={
             "goop": 3,

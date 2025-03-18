@@ -85,11 +85,12 @@ def generate_random_sludgene_upkeep_dict(upkeep_type, extra_sludge=0):
             "food": 1
         },
         {
-            "sludge": 3.5,
+            "sludge": 4,
+            "food": 1
         },
         {
             "goop": 1.5,
-            "sludge": 2,
+            "sludge": 2.5,
         },
     ]
     

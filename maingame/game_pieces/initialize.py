@@ -102,7 +102,7 @@ def initialize_buildings():
         {
             "name": "cesspool",
             "resource_produced_name": "sludge",
-            "amount_produced": 60,
+            "amount_produced": 75,
         },
         {
             "name": "mithril mine",
