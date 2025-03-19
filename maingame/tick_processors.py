@@ -5,7 +5,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from maingame.utils.invasion import do_biclops_partner_attack, do_forced_attack
-from utils.utils_aethertide_corsairs import get_number_of_times_to_tick
+from maingame.utils.utils_aethertide_corsairs import get_number_of_times_to_tick
 
 def normalize_trade_prices():
     round = Round.objects.first()
@@ -63,7 +63,7 @@ def do_global_tick():
             for dominion in Dominion.objects.all():
                 if dominion.is_oop and not dominion.is_abandoned:
                     number_of_ticks = get_number_of_times_to_tick(dominion)
-                    
+
                     for _ in range(number_of_ticks):
                         dominion.do_tick()
 

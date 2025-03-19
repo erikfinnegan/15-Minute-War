@@ -149,11 +149,14 @@
                         <div class="u-flex u-flex-row">
                             <div class="u-flex u-flex-column">
                                 <span>
-                                    {% if this_dominion.aethertide_dict.op_mod >= 0 %}+{% endif %}{{ this_dominion.aethertide_dict.op_mod }}% OP
+                                    {{ this_dominion.aethertide_dict.chance_to_trigger }}% to {{ this_dominion.aethertide_dict.action }} next tick
                                 </span>
                                 <span>
-                                    {% if this_dominion.aethertide_dict.return_mod >= 0 %}+{% endif %}{{ this_dominion.aethertide_dict.return_mod }}% return ticks
+                                    {% if this_dominion.aethertide_dict.op_mod >= 0 %}+{% endif %}{{ this_dominion.aethertide_dict.op_mod }}% OP
                                 </span>
+                                {% comment %} <span>
+                                    {% if this_dominion.aethertide_dict.return_mod >= 0 %}+{% endif %}{{ this_dominion.aethertide_dict.return_mod }}% return ticks
+                                </span> {% endcomment %}
                                 <span class="u-center">
                                     {{ this_dominion.aethertide_dict.direction_next_tick }}
                                 </span>

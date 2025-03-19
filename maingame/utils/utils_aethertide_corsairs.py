@@ -1,6 +1,6 @@
 from random import randint
 
-from models import Dominion
+from maingame.models import Dominion
 
 def get_number_of_times_to_tick(dominion: Dominion):
     if dominion.faction_name != "aethertide corsairs":
@@ -17,6 +17,7 @@ def get_number_of_times_to_tick(dominion: Dominion):
         if dominion.perk_dict["aethertide_coefficient"] <= 0:
             dominion.perk_dict["aethertide_increase_next_tick"] = True
             dominion.perk_dict["aethertide_coefficient_max"] = 18 + randint(-3, 3)
+            dominion.perk_dict["double_ticks_and_op_penalty"] = not dominion.perk_dict["double_ticks_and_op_penalty"]
     
     dominion.save()
     
@@ -30,7 +31,9 @@ def get_number_of_times_to_tick(dominion: Dominion):
     roll = randint(1,100)
     
     if roll <= percent_chance:
-        return 2 if double_ticks_and_op_penalty else 0
+        ticks = 2 if double_ticks_and_op_penalty else 0
     else:
-        return 1
+        ticks = 1
+
+    return ticks
     

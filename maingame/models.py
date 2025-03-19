@@ -417,24 +417,28 @@ class Dominion(models.Model):
     
     @property
     def aethertide_dict(self):
-        return_mod = 0
+        chance_to_trigger = 0
+        action = ""
         op_mod = 0
         direction_next_tick = ""
         
         if self.faction_name == "aethertide corsairs":
             aethertide_increase_next_tick = self.perk_dict["aethertide_increase_next_tick"]
-            
             aethertide_coefficient = self.perk_dict["aethertide_coefficient"]
             aethertide_coefficient_max = self.perk_dict["aethertide_coefficient_max"]
-            aethertide_max_modifier = self.perk_dict["aethertide_max_modifier"]
-            aethertide_mult = aethertide_max_modifier / aethertide_coefficient_max
             
-            return_mod = int(aethertide_coefficient * aethertide_mult)
-            op_mod = int(return_mod / 2)
+            chance_to_trigger = int(aethertide_coefficient / aethertide_coefficient_max * 50)
+            op_mod = int(chance_to_trigger / 2)
             direction_next_tick = "⬆️" if aethertide_increase_next_tick else "⬇️"
-            
+
+            double_ticks_and_op_penalty = self.perk_dict["double_ticks_and_op_penalty"]
+        
+            print(self.name)
+            print("chance_to_trigger", chance_to_trigger)
+
         aethertide_dict = {
-            "return_mod": return_mod,
+            "chance_to_trigger": chance_to_trigger,
+            "action": "double" if double_ticks_and_op_penalty else "skip",
             "op_mod": op_mod,
             "direction_next_tick": direction_next_tick,
         }
