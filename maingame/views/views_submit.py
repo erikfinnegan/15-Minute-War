@@ -3,7 +3,7 @@ from django.contrib import messages
 
 from maingame.formatters import create_or_add_to_key
 from maingame.models import Building, Dominion, Unit, Round, Resource, Discovery, Spell, UserSettings, Theme
-from maingame.utils.invasion import do_gsf_infiltration, do_invasion
+from maingame.utils.invasion import do_gsf_infiltration, do_invasion, get_op_and_dp_left
 from maingame.utils.utils import create_unit_dict, unlock_discovery, cast_spell
 
 
@@ -149,8 +149,15 @@ def submit_training(request):
                     messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
                     return redirect("military")
                 
-
-            if unit.is_trainable:
+            if unit.name == "Doom Prospector":
+                amount = int(string_amount)
+                
+                if amount > Unit.objects.get(ruler=dominion, name="Hammerer").quantity_at_home:
+                    messages.error(request, f"Not enough Hammerers")
+                    return redirect("military")
+                
+                total_trained += amount
+            elif unit.is_trainable:
                 amount = int(string_amount)
                 total_trained += amount
 
@@ -184,7 +191,11 @@ def submit_training(request):
                 unit = Unit.objects.get(ruler=dominion, id=key[6:])
                 amount = int(string_amount)
 
-                if "unit_training_time" in dominion.perk_dict:
+                if unit.name == "Doom Prospector":
+                    unit.gain(amount)
+                    hammerers = Unit.objects.get(ruler=dominion, name="Hammerer")
+                    hammerers.lose(amount)
+                elif "unit_training_time" in dominion.perk_dict:
                     unit_training_time = dominion.perk_dict["unit_training_time"]
                     unit.put_into_training(amount, unit_training_time)
                 else:
@@ -436,6 +447,7 @@ def submit_invasion(request):
     round = Round.objects.first()
     dominion_id = request.POST["target_dominion_id"]
     this_is_infiltration = "do_infiltration" in request.POST
+    is_plunder = "do_plunder" in request.POST
     
     if round.has_ended:
         messages.error(request, f"The round has already ended")
@@ -466,7 +478,8 @@ def submit_invasion(request):
         return redirect("world")
 
     if this_is_infiltration:
-        success, message = do_gsf_infiltration(units_sent_dict, my_dominion, target_dominion)
+        infiltration_power_gained, _, _ = get_op_and_dp_left(units_sent_dict, attacker=my_dominion, defender=target_dominion, is_infiltration=True)
+        success, message = do_gsf_infiltration(infiltration_power_gained, units_sent_dict, my_dominion, target_dominion)
         
         if success:
             messages.success(request, message)
@@ -475,7 +488,7 @@ def submit_invasion(request):
 
         return redirect("world")
     else:
-        battle_id, message = do_invasion(units_sent_dict, my_dominion, target_dominion)
+        battle_id, message = do_invasion(units_sent_dict, my_dominion, target_dominion, is_plunder=is_plunder)
 
         if battle_id == 0:
             messages.error(request, message)

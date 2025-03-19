@@ -17,17 +17,18 @@ class Command(BaseCommand):
         print()
         
         
-        gold_mercs = 20 * 1699
-        gold_crushers = 6 * 3000
-        
-        ticks = 0
-        
-        while gold_mercs > gold_crushers:
-            ticks += 1
-            gold_mercs += (20 * 3)
-            gold_crushers += (6 * 12)
+        # pages_to_gain = 55
+
+        # for x in range(96*7):
+        #     pages_to_gain *= 1.002
             
-        print(ticks)
+        #     if x % 96 == 0:
+        #         print(x/96, pages_to_gain)
+            
+        # return_ticks = 5
+        # op = 5
+        # dp = 5
+        # print(get_fast_return_cost_multiplier(return_ticks, op, dp))
         
         
         # attempts = 1000000
@@ -97,17 +98,7 @@ class Command(BaseCommand):
         # print("attacks", attacks)
         
         
-        
-        
-        
-        
-        
-        
-        
              
-        # costdict = generate_unit_cost_dict(1000, 1000, "gold", "research", "secondary", casualty_multiplier=0.01, return_ticks=12, cost_multiplier=1)
-        # print(costdict)
-        
         # total_ticks = 0
         # attempts = 100000
         

@@ -1,9 +1,11 @@
 from random import randint
+from maingame.formatters import generate_countdown_dict
 from maingame.models import Dominion, Round, Resource, Unit
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from maingame.utils.invasion import do_biclops_partner_attack, do_forced_attack
+from utils.utils_aethertide_corsairs import get_number_of_times_to_tick
 
 def normalize_trade_prices():
     round = Round.objects.first()
@@ -60,7 +62,10 @@ def do_global_tick():
         if Round.objects.first().allow_ticks:
             for dominion in Dominion.objects.all():
                 if dominion.is_oop and not dominion.is_abandoned:
-                    dominion.do_tick()
+                    number_of_ticks = get_number_of_times_to_tick(dominion)
+                    
+                    for _ in range(number_of_ticks):
+                        dominion.do_tick()
 
             # This has to be a separate loop or else multiple auto attacks against the same target get fucked up
             for dominion in Dominion.objects.all().order_by("?"):
@@ -89,20 +94,7 @@ def do_global_tick():
         if round.has_ended:
             for dominion in Dominion.objects.all():
                 dominion.gain_acres(dominion.incoming_acres)
-                dominion.incoming_acres_dict = {
-                    "1": 0,
-                    "2": 0,
-                    "3": 0,
-                    "4": 0,
-                    "5": 0,
-                    "6": 0,
-                    "7": 0,
-                    "8": 0,
-                    "9": 0,
-                    "10": 0,
-                    "11": 0,
-                    "12": 0,
-                }
+                dominion.incoming_acres_dict = generate_countdown_dict()
                 dominion.save()
 
     end_timestamp = datetime.now(ZoneInfo('America/New_York'))

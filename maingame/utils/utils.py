@@ -1,7 +1,7 @@
 from random import choice
 import random
 
-from maingame.formatters import get_casualty_mod_cost_multiplier, get_fast_return_cost_multiplier, get_low_turtle_cost_multiplier
+from maingame.formatters import generate_countdown_dict, get_casualty_mod_cost_multiplier, get_fast_return_cost_multiplier, get_low_turtle_cost_multiplier
 from maingame.models import Unit, Dominion, Discovery, Building, Resource, Spell, MechModule
 
 from maingame.utils.give_stuff import create_resource_for_dominion, give_dominion_building, give_dominion_module, give_dominion_spell, give_dominion_unit
@@ -195,6 +195,8 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Gingerbrute Man"))
         case "Mercenaries":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Mercenary"))
+        case "Hill Giants":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Hill Giant"))            
         case "Grudgestoker":
             grudgestoker = give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Grudgestoker"))
             grudgestoker.gain(1)
@@ -260,6 +262,7 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             dominion.perk_dict["max_custom_units"] += 2
         case "Sludgehoarder":
             dominion.perk_dict["max_custom_units"] += 3
+            dominion.perk_dict["max_custom_units"] = min(25, dominion.perk_dict["max_custom_units"])
         case "Recycling Center":
             dominion.perk_dict["recycling_refund"] = 0.97
         case "Magnum Goopus":
@@ -297,6 +300,12 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             give_dominion_module(dominion, MechModule.objects.get(ruler=None, name="PP# Pseudrenaline Pump"))
         case "THAC0 Comrade Carapace":
             give_dominion_module(dominion, MechModule.objects.get(ruler=None, name="THAC# Comrade Carapace"))
+        case "Tiamat-class Spirit Bomb PL9001":
+            give_dominion_module(dominion, MechModule.objects.get(ruler=None, name="Tiamat-class Spirit Bomb PL#001"))
+        case "Vox Shrieker":
+            give_dominion_module(dominion, MechModule.objects.get(ruler=None, name="Vox Shrieker"))
+        case "Gilded Veterans":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Gilded Veterans"))
 
     if not discovery.repeatable:
         dominion.available_discoveries.remove(discovery_name)
@@ -311,7 +320,10 @@ def round_x_to_nearest_y(x, round_to_nearest):
     return round_to_nearest * round(x/round_to_nearest)
 
 
-def get_acres_conquered(attacker: Dominion, target: Dominion):
+def get_acres_conquered(attacker: Dominion, target: Dominion, is_plunder=False):
+    if is_plunder:
+        return 1
+    
     base = 0.06 * target.acres
     land_ratio = target.acres / attacker.acres
     multiplier = land_ratio
@@ -384,20 +396,7 @@ def cast_spell(spell: Spell, target=None):
                         overwhelming_unit.gain(overwhelming_quantity)
                         unit.lose(overwhelming_quantity)
 
-                        timer_template = {
-                            "1": 0,
-                            "2": 0,
-                            "3": 0,
-                            "4": 0,
-                            "5": 0,
-                            "6": 0,
-                            "7": 0,
-                            "8": 0,
-                            "9": 0,
-                            "10": 0,
-                            "11": 0,
-                            "12": 0,
-                        }
+                        timer_template = generate_countdown_dict()
 
                         overwhelming_unit.training_dict = timer_template
                         overwhelming_unit.returning_dict = timer_template

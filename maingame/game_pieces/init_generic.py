@@ -13,7 +13,7 @@ def initialize_generic_units():
         upkeep_dict={
             "wood": 4,
         },
-        perk_dict={"gets_op_bonus_equal_to_percent_of_target_complacency": 15},
+        perk_dict={"gets_op_bonus_equal_to_percent_of_target_complacency": 33},
     )
 
     Unit.objects.create(
@@ -48,7 +48,7 @@ def initialize_generic_units():
         upkeep_dict={
             "mana": 0.3,
         },
-        perk_dict={"casualty_multiplier": 0.75},
+        perk_dict={"casualty_multiplier": 0.5},
     )
 
     Unit.objects.create(
@@ -60,7 +60,7 @@ def initialize_generic_units():
             "food": 1,
         },
         is_trainable=False,
-        perk_dict={"surplus_research_consumed_to_add_one_op_and_dp": 1900}
+        perk_dict={"surplus_research_consumed_to_add_one_op_and_dp": 1800}
     )
 
     Unit.objects.create(
@@ -105,6 +105,23 @@ def initialize_generic_units():
             "gold": 3,
             "food": 1,
         },
+    )
+    
+    Unit.objects.create(
+        name="Hill Giant",
+        op=100,
+        dp=50,
+        cost_dict={
+            "gold": 20000,
+            "food": 20000,
+        },
+        upkeep_dict={
+            "gold": 20,
+            "food": 20,
+        },
+        perk_dict={
+            "returns_in_ticks": 18,
+        }
     )
 
 
@@ -164,5 +181,12 @@ def initialize_generic_discoveries():
         name="Mercenaries",
         description="Got some gold burning a hole in your pocket? Hire mercenaries to burn a hole in your enemies!",
         associated_unit_name="Mercenary",
+        not_for_factions=["sludgeling"]
+    )
+    
+    Discovery.objects.create(
+        name="Hill Giants",
+        description="Big.",
+        associated_unit_name="Hill Giant",
         not_for_factions=["sludgeling"]
     )

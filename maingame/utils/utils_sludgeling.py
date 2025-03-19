@@ -1,7 +1,7 @@
 import random
 from random import randint
 
-from maingame.formatters import get_sludgeling_name, get_sludgene_name
+from maingame.formatters import generate_countdown_dict, get_sludgeling_name, get_sludgene_name
 from maingame.game_pieces.initialize import give_unit_timer_template
 from maingame.models import Unit, Dominion, Sludgene
 from maingame.utils.utils import generate_unit_cost_dict, get_unit_from_dict, round_x_to_nearest_y
@@ -85,11 +85,12 @@ def generate_random_sludgene_upkeep_dict(upkeep_type, extra_sludge=0):
             "food": 1
         },
         {
-            "sludge": 3.5,
+            "sludge": 5,
+            "food": 1
         },
         {
             "goop": 1.5,
-            "sludge": 2,
+            "sludge": 3,
         },
     ]
     
@@ -201,8 +202,18 @@ def breed_sludgenes(father: Sludgene, mother: Sludgene):
         
 
 def create_unit_from_sludgene(sludgene: Sludgene):
+    name = get_sludgeling_name()
+    current_names = []
+    
+    for unit in Unit.objects.filter(ruler=sludgene.ruler):
+        current_names.append(unit.name)
+    
+    if len(current_names) < 30:
+        while name in current_names:
+            name = get_sludgeling_name()
+    
     unit = Unit.objects.create(
-        name=get_sludgeling_name(),
+        name=name,
         ruler=sludgene.ruler,
         op=sludgene.op,
         dp=sludgene.dp,
@@ -220,7 +231,7 @@ def create_magnum_goopus(dominion: Dominion, units_included_dict, encore=False):
     total_quantity = 0
     total_op = 0
     total_dp = 0
-    food_upkeep = 0
+    sludge_upkeep = 0
     return_ticks = 1
 
     if encore:
@@ -237,8 +248,9 @@ def create_magnum_goopus(dominion: Dominion, units_included_dict, encore=False):
             total_op += quantity_included * unit.op
             total_dp += quantity_included * unit.dp
 
-            if "food" in unit.upkeep_dict:
-                food_upkeep += quantity_included * unit.upkeep_dict["food"]
+            # if "food" in unit.upkeep_dict:
+            #     food_upkeep += quantity_included * unit.upkeep_dict["food"]
+            sludge_upkeep += quantity_included * 2
                 
             try:
                 return_ticks = max(return_ticks, unit.perk_dict["returns_in_ticks"])
@@ -250,7 +262,7 @@ def create_magnum_goopus(dominion: Dominion, units_included_dict, encore=False):
     encore_suffixes = [" Mk II", " 2: Electric Goopaloo", " Remastered", ": the Remix", " 2", " Jr.", " Magnum Goopier"]
 
     if encore:
-        name = f"Magnum Goopus {random.choice(encore_suffixes)}"
+        name = f"Magnum Goopus{random.choice(encore_suffixes)}"
     else:
         name = "Magnum Goopus"
         
@@ -260,20 +272,7 @@ def create_magnum_goopus(dominion: Dominion, units_included_dict, encore=False):
     dominion.perk_dict["masterpieces_to_create"] -= 1
     dominion.save()
 
-    timer_template = {
-        "1": 0,
-        "2": 0,
-        "3": 0,
-        "4": 0,
-        "5": 0,
-        "6": 0,
-        "7": 0,
-        "8": 0,
-        "9": 0,
-        "10": 0,
-        "11": 0,
-        "12": 0,
-    }
+    timer_template = generate_countdown_dict()
 
     return Unit.objects.create(
         ruler=dominion,
@@ -281,7 +280,8 @@ def create_magnum_goopus(dominion: Dominion, units_included_dict, encore=False):
         op=total_op,
         dp=total_dp,
         upkeep_dict={
-            "food": food_upkeep,
+            # "food": food_upkeep,
+            "sludge": sludge_upkeep,
         },
         perk_dict=perk_dict,
         is_trainable=False,

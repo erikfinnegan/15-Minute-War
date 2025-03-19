@@ -9,8 +9,8 @@ def initialize_sludgeling_units():
         op=6,
         dp=7,
         cost_dict={
-            "goop": 1500,
-            "sludge": 800,
+            "goop": 1550,
+            "sludge": 1250,
         },
         upkeep_dict={
             "goop": 3,
@@ -36,7 +36,7 @@ def initialize_sludgeling_discoveries():
 
     Discovery.objects.create(
         name="Sludgehoarder",
-        description="What if every new creation is a masterpiece just waiting to be recognized? You shouldn't throw anything away ever! Adds three more extra slots for experimental units.",
+        description="What if every new creation is a masterpiece just waiting to be recognized? You shouldn't throw anything away ever! Adds three more extra slots for experimental units (up to 25).",
         repeatable=True,
         required_faction_name="sludgeling",
         required_discoveries=["Inspiration"],
@@ -72,9 +72,9 @@ def initialize_sludgeling_discoveries():
 
     Discovery.objects.create(
         name="Magnum Goopus",
-        description="""Behold your glorious magnum goopus! Go to the experiment page and combine any units at home with a sludge 
+        description="""Behold your glorious magnum goopus! Go to the experiment page and merge any units at home with a sludge 
             cost into a single unit with their combined offense and defense. Your incredible masterpiece requires no goop or sludge
-            upkeep and consumes just as much food as all of the units that went into making it. It will return from battle at the
+            upkeep but consumes 2 sludge per merged unit. It will return from battle at the
             speed of the slowest unit used to create it.""",
         required_faction_name="sludgeling",
         required_discoveries=["Recycling Center"],
@@ -83,7 +83,7 @@ def initialize_sludgeling_discoveries():
 
     Discovery.objects.create(
         name="Inspiration",
-        description="""Your creativity runs wild! Gain three times as many splices!.""",
+        description="""Your creativity runs wild! Gain twice the splices!.""",
         required_faction_name="sludgeling",
         required_discoveries=["Magnum Goopus"],
     )

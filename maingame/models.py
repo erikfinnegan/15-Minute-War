@@ -220,6 +220,9 @@ class Dominion(models.Model):
     @property
     def offense_multiplier(self):
         multiplier = 1 + (self.determination_bonus_percent / 100)
+        
+        if self.faction_name == "aethertide corsairs":
+            multiplier += (self.aethertide_dict["op_mod"] / 100)
 
         return multiplier
     
@@ -280,10 +283,12 @@ class Dominion(models.Model):
 
     @property
     def ticks_til_soonest_return(self):
-        soonest_return = 999
+        soonest_return = -1
 
         for unit in Unit.objects.filter(ruler=self):
             for ticks, value in unit.returning_dict.items():
+                if value > 0 and soonest_return == -1:
+                    soonest_return = int(ticks)
                 if value > 0:
                     soonest_return = min(soonest_return, int(ticks))
 
@@ -409,7 +414,33 @@ class Dominion(models.Model):
         text += f"18 ticks: {cost_after_x_ticks(self.void_return_cost, 18):2,}"
         
         return text
-
+    
+    @property
+    def aethertide_dict(self):
+        return_mod = 0
+        op_mod = 0
+        direction_next_tick = ""
+        
+        if self.faction_name == "aethertide corsairs":
+            aethertide_increase_next_tick = self.perk_dict["aethertide_increase_next_tick"]
+            
+            aethertide_coefficient = self.perk_dict["aethertide_coefficient"]
+            aethertide_coefficient_max = self.perk_dict["aethertide_coefficient_max"]
+            aethertide_max_modifier = self.perk_dict["aethertide_max_modifier"]
+            aethertide_mult = aethertide_max_modifier / aethertide_coefficient_max
+            
+            return_mod = int(aethertide_coefficient * aethertide_mult)
+            op_mod = int(return_mod / 2)
+            direction_next_tick = "⬆️" if aethertide_increase_next_tick else "⬇️"
+            
+        aethertide_dict = {
+            "return_mod": return_mod,
+            "op_mod": op_mod,
+            "direction_next_tick": direction_next_tick,
+        }
+        
+        return aethertide_dict
+    
     def get_production(self, resource_name):
         production = 0
 
@@ -564,11 +595,11 @@ class Dominion(models.Model):
             stoneshields.save()
             deep_apostles.save()
             
-        if "splices" in self.perk_dict and Round.objects.first().ticks_passed % 8 == 0 and self.is_oop:
+        if "splices" in self.perk_dict and Round.objects.first().ticks_passed % 12 == 0 and self.is_oop:
             self.perk_dict["splices"] += 1
-
-        if "Inspiration" in self.learned_discoveries and Round.objects.first().ticks_passed % 4 == 0:
-            self.perk_dict["splices"] += 1
+            
+            if "Inspiration" in self.learned_discoveries:
+                self.perk_dict["splices"] += 1    
 
         if "Always Be Digging" in self.learned_discoveries and Round.objects.first().ticks_passed % 4 == 0 and Round.objects.first().ticks_passed > 0:
             self.gain_acres(int(self.acres / 400))
@@ -581,6 +612,7 @@ class Dominion(models.Model):
 
             if self.perk_dict["biclopean_ambition_ticks_remaining"] == 0:
                 del self.perk_dict["biclopean_ambition_ticks_remaining"]
+                
 
     def update_capacity(self):
         used_capacity = 0
@@ -593,6 +625,13 @@ class Dominion(models.Model):
         
         mechadragon.op = 1 + module_power
         mechadragon.dp = module_power
+        
+        try:
+            spirit_bomb = MechModule.objects.get(ruler=self, name="Tiamat-class Spirit Bomb PL#001")
+            mechadragon.dp -= spirit_bomb.power
+        except:
+            pass
+        
         mechadragon.save()
 
         self.perk_dict["capacity_used"] = used_capacity
@@ -608,10 +647,21 @@ class Dominion(models.Model):
         for unit in Unit.objects.filter(ruler=self):
             unit.advance_training_and_returning()
             
-        for module in MechModule.objects.filter(ruler=self, battery_max__gt=0):
+        for module in MechModule.objects.filter(ruler=self):
             if module.battery_current < module.battery_max:
                 module.battery_current += 1
                 module.save()
+                
+            try:
+                op_growth_per_capacity_per_tick = module.perk_dict["op_growth_per_capacity_per_tick"]
+                
+                if module.version == 0:
+                    op_growth_per_capacity_per_tick = 10
+                    
+                module.base_power += op_growth_per_capacity_per_tick
+                module.save()
+            except:
+                pass
 
         self.void_return_cost = int(self.void_return_cost * 0.9281)
         do_tick_units(self)
@@ -1230,13 +1280,25 @@ class MechModule(models.Model):
             perk_text += f"Return from battle in {12 - self.version} ticks. "
 
         if "recall_instantly" in self.perk_dict:
-            perk_text += f"Activate from the mech hangar to instantly return the mecha-dragon home as long as all modules installed are of capacity {self.capacity} or less. This module will be removed from existence in the process to avoid paradoxes."
+            perk_text += f"When equipped on an invasion, activate from the mech hangar to instantly return the mecha-dragon home. This module will be removed from existence in the process to avoid paradoxes."
 
         if "modifies_determination" in self.perk_dict:
             perk_text += f"Rather than clearing your determination when invading, instead multiply it by {self.version_based_determination_multiplier}."
             
         if "allies_are_immortal" in self.perk_dict:
             perk_text += f"All units sent on this invasion suffer no casualties (unless they always die)."
+            
+        if "op_growth_per_capacity_per_tick" in self.perk_dict:
+            if self.version == 0:
+                op_growth_per_capacity_per_tick = 1
+            else:
+                op_growth_per_capacity_per_tick = self.perk_dict["op_growth_per_capacity_per_tick"]
+            
+            perk_text += f"Gains {op_growth_per_capacity_per_tick * self.capacity} OP per tick (does not apply on defense). Resets to zero on invasion."
+            
+        if "op_bonus_percent" in self.perk_dict:
+            op_bonus_percent = self.perk_dict["op_bonus_percent"]
+            perk_text += f"Increases all OP sent by {op_bonus_percent}%."
 
         return perk_text
     
@@ -1306,7 +1368,7 @@ class Sludgene(models.Model):
         if self.amount_secreted > 0:
             perk_dict[f"{self.resource_secreted_name}_per_tick"] = self.amount_secreted
             
-        if self.return_ticks < 12:
+        if self.return_ticks != 12:
             perk_dict["returns_in_ticks"] = self.return_ticks
             
         return perk_dict

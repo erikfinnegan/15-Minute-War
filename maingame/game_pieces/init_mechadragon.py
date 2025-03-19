@@ -61,7 +61,22 @@ def initialize_mechadragon_modules():
         fragility=40,
         faction=mechadragon,
     )
-
+    
+    MechModule.objects.create(
+        name="HL-# LASHR Tail Whip",
+        capacity=1,
+        base_power=380,
+        base_upgrade_cost_dict={
+            "ore": 59250,
+        },
+        base_repair_cost_dict={
+            "gold": 100,
+            "ore": 25,
+        },
+        fragility=30,
+        faction=mechadragon,
+    )
+    
     MechModule.objects.create(
         name="#XL Chompers",
         capacity=1,
@@ -110,16 +125,14 @@ def initialize_mechadragon_modules():
         name="AC# Magefield",
         capacity=1,
         base_power=0,
-        base_upgrade_cost_dict={
-            "mana": 15000,
-        },
         fragility=0,
         upgrade_increases_capacity=False,
         upgrade_increases_durability=False,
         battery_current=50,
         battery_max=50,
-        perk_dict={"durability_damage_percent_reduction_for_version_or_lesser": 100},
+        perk_dict={"durability_damage_percent_reduction": 100},
         faction=mechadragon,
+        is_upgradable=False,
     )
 
     MechModule.objects.create(
@@ -142,20 +155,16 @@ def initialize_mechadragon_modules():
     MechModule.objects.create(
         name="Back-#-U Town Portal System",
         capacity=1,
+        version=2,
         base_power=0,
-        base_upgrade_cost_dict={
-            "mana": 1,
-            "research": 1,
-        },
         base_repair_cost_dict={
-            "mana": 1,
             "research": 1,
         },
         fragility=100,
         durability_max=1,
         durability_current=1,
-        upgrade_increases_durability=False,
-        perk_dict={"recall_instantly": True}, # If all attached modules are the same version or less, return home instantly and destroy it
+        perk_dict={"recall_instantly": True},
+        is_upgradable=False,
     )
     
     MechModule.objects.create(
@@ -182,6 +191,31 @@ def initialize_mechadragon_modules():
         is_upgradable=False,
     )
     
+    MechModule.objects.create(
+        name="Tiamat-class Spirit Bomb PL#001",
+        capacity=1,
+        base_power=0,
+        base_upgrade_cost_dict={
+            "mana": 75000,
+        },
+        base_repair_cost_dict={
+            "mana": 100,
+        },
+        fragility=100,
+        faction=mechadragon,
+        perk_dict={"op_growth_per_capacity_per_tick": 15},
+    )
+    
+    MechModule.objects.create(
+        name="Vox Shrieker",
+        capacity=1,
+        base_power=0,
+        battery_current=66,
+        battery_max=66,
+        perk_dict={"op_bonus_percent": 30},
+        is_upgradable=False,
+    )
+    
 
 
 def initialize_mechadragon_discoveries():
@@ -205,5 +239,19 @@ def initialize_mechadragon_discoveries():
         description="All units sent on this invasion suffer no casualties (unless they always die).",
         required_faction_name="mecha-dragon",
         associated_module_name="THAC# Comrade Carapace",
+    )
+    
+    Discovery.objects.create(
+        name="Tiamat-class Spirit Bomb PL9001",
+        description="Channel mana into a mighty weapon. Power increases by 15 times the capacity per tick but resets to zero on invasion. Does not apply its power to the dragon's DP.",
+        required_faction_name="mecha-dragon",
+        associated_module_name="Tiamat-class Spirit Bomb PL#001",
+    )
+    
+    Discovery.objects.create(
+        name="Vox Shrieker",
+        description="Synthesize ear-splitting roar effects, engineered specifically to cause physical pain and stimulate a flight response.",
+        required_faction_name="mecha-dragon",
+        associated_module_name="Vox Shrieker",
     )
     

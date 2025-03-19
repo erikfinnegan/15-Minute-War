@@ -144,6 +144,24 @@
                                 {% endif %}
                             </span>
                         </div>
+                    {% comment %} aethertide corsairs {% endcomment %}
+                    {% elif "aethertide_coefficient" in this_dominion.perk_dict and dominion == this_dominion %}
+                        <div class="u-flex u-flex-row">
+                            <div class="u-flex u-flex-column">
+                                <span>
+                                    {% if this_dominion.aethertide_dict.op_mod >= 0 %}+{% endif %}{{ this_dominion.aethertide_dict.op_mod }}% OP
+                                </span>
+                                <span>
+                                    {% if this_dominion.aethertide_dict.return_mod >= 0 %}+{% endif %}{{ this_dominion.aethertide_dict.return_mod }}% return ticks
+                                </span>
+                                <span class="u-center">
+                                    {{ this_dominion.aethertide_dict.direction_next_tick }}
+                                </span>
+                            </div>
+                            {% comment %} <span class="u-center">
+                                {{ this_dominion.aethertide_dict.direction_next_tick }}
+                            </span> {% endcomment %}
+                        </div>
                     {% else %}
                         <span>-</span>
                     {% endif %}
@@ -204,6 +222,24 @@
                                 Calm
                             {% endif %}
                         </span>
+                    {% comment %} aethertide corsairs {% endcomment %}
+                    {% elif "aethertide_coefficient" in dominion.perk_dict %}
+                        <div class="u-flex u-flex-row">
+                            <div class="u-flex u-flex-column">
+                                <span>
+                                    {% if dominion.aethertide_dict.op_mod >= 0 %}+{% endif %}{{ dominion.aethertide_dict.op_mod }}% OP
+                                </span>
+                                <span>
+                                    {% if dominion.aethertide_dict.return_mod >= 0 %}+{% endif %}{{ dominion.aethertide_dict.return_mod }}% return ticks
+                                </span>
+                                <span class="u-center">
+                                    {{ dominion.aethertide_dict.direction_next_tick }}
+                                </span>
+                            </div>
+                            {% comment %} <span class="u-center">
+                                {{ dominion.aethertide_dict.direction_next_tick }}
+                            </span> {% endcomment %}
+                        </div>
                     {% else %}
                         <span>-</span>
                     {% endif %}

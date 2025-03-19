@@ -1,3 +1,4 @@
+from math import ceil
 from random import randint
 
 from maingame.formatters import get_goblin_ruler
@@ -14,6 +15,7 @@ def handle_grudges_from_attack(attacker: Dominion, defender: Dominion=None):
         for _ in range(round.ticks_passed):
             pages_to_gain *= 1.002
 
+        # This was mostly just a thing in the "everyone has grudges" era, as of 3/17/2025 it isn't currently used by anything
         if "grudge_page_multiplier" in defender.perk_dict:
             pages_to_gain *= defender.perk_dict["grudge_page_multiplier"]
         
@@ -43,7 +45,7 @@ def handle_grudges_from_attack(attacker: Dominion, defender: Dominion=None):
         attacker.save()
 
 
-def generate_battle(units_sent_dict, attacker: Dominion, defender: Dominion, offense_sent, defense_snapshot, acres_conquered):
+def generate_battle(units_sent_dict, attacker: Dominion, defender: Dominion, offense_sent, defense_snapshot, acres_conquered, is_plunder=False):
     battle_units_sent_dict = {}
     battle_units_defending_dict = {}
     
@@ -89,12 +91,20 @@ def get_conditional_op(unit: Unit, attacker: Dominion, defender: Dominion):
     return modified_unit_op
 
 
-def get_op_and_dp_left(units_sent_dict, attacker: Dominion, defender: Dominion=None, is_infiltration=False):
+def get_op_and_dp_left(units_sent_dict, attacker: Dominion, defender: Dominion=None, is_infiltration=False, is_plunder=False):
     offense_sent = 0
+    infiltration_power_sent = 0
+    infiltration_power_gained = 0
     raw_defense = attacker.raw_defense
 
     if defender and "infiltration_dict" in attacker.perk_dict and defender.strid in attacker.perk_dict["infiltration_dict"] and not is_infiltration:
         offense_sent += attacker.perk_dict["infiltration_dict"][defender.strid]
+        
+    if is_infiltration:
+        try:
+            current_infiltration_power = attacker.perk_dict["infiltration_dict"][defender.strid]
+        except:
+            current_infiltration_power = 0
 
     for unit_details_dict in units_sent_dict.values():
         unit = get_unit_from_dict(unit_details_dict)
@@ -108,27 +118,49 @@ def get_op_and_dp_left(units_sent_dict, attacker: Dominion, defender: Dominion=N
 
         if is_infiltration:
             if "invasion_plan_power" in unit.perk_dict:
-                offense_sent += unit.perk_dict["invasion_plan_power"] * quantity_sent
+                infiltration_power_sent += unit.perk_dict["invasion_plan_power"] * quantity_sent
+                
         else:
             offense_sent += modified_unit_op * quantity_sent
 
         raw_defense -= unit.dp * quantity_sent
+        
+    if is_infiltration:
+        new_infiltration_power = max(0, infiltration_power_sent - current_infiltration_power)
+        repeat_infiltration_power = infiltration_power_sent - new_infiltration_power
+        infiltration_power_gained = new_infiltration_power + int(repeat_infiltration_power / 2)
 
     grudge_bonus = 0
 
     if "book_of_grudges" in attacker.perk_dict:
         grudge_bonus = get_grudge_bonus(attacker, defender)
+        
+    if attacker.faction_name == "mecha-dragon":
+        try:
+            vox_shrieker = MechModule.objects.get(ruler=attacker, name="Vox Shrieker", zone="mech")
+            
+            if vox_shrieker.battery_percent == 100:
+                vox_shrieker_multiplier = 1 + (vox_shrieker.perk_dict["op_bonus_percent"] / 100)
+                offense_sent *= vox_shrieker_multiplier
+        except:
+            pass
 
     if not is_infiltration:
         offense_sent *= (attacker.offense_multiplier + grudge_bonus)
+        
+    if is_plunder:
+        offense_sent *= 2
 
     offense_sent = int(offense_sent)
     defense_left = int(raw_defense * attacker.defense_multiplier)
 
-    return offense_sent, defense_left, raw_defense
+    if is_infiltration:
+        return infiltration_power_gained, defense_left, raw_defense
+    else:
+        return offense_sent, defense_left, raw_defense
 
 
-def does_x_of_unit_break_defender(quantity_theorized, unit: Unit, units_sent_dict, attacker: Dominion, defender: Dominion):
+def does_x_of_unit_break_defender(quantity_theorized, unit: Unit, units_sent_dict, attacker: Dominion, defender: Dominion, is_plunder=False):
     faux_units_sent_dict = units_sent_dict.copy()
     strid = str(unit.id)
 
@@ -137,12 +169,12 @@ def does_x_of_unit_break_defender(quantity_theorized, unit: Unit, units_sent_dic
         "unit": unit
     }
 
-    faux_op, _, _ = get_op_and_dp_left(faux_units_sent_dict, attacker, defender)
+    faux_op, _, _ = get_op_and_dp_left(faux_units_sent_dict, attacker, defender, is_plunder=is_plunder)
     
     return faux_op >= defender.defense
 
 
-def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casualties):
+def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casualties, raw_defense_snapshot, is_plunder=False):
     handle_grudges_from_attack(attacker, defender)
 
     if attacker.faction_name == "sludgeling":
@@ -164,6 +196,11 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casu
         defender.perk_dict["rulers_favorite_resource"] = get_random_resource(
             defender, excluded_options=["gold", "corpses", "rats", current_favorite_name]
         ).name
+        
+    if attacker.faction_name == "aethertide corsairs" and is_plunder:
+        plunder = Resource.objects.get(ruler=attacker, name="plunder")
+        plunder_gained = raw_defense_snapshot if is_plunder else int(raw_defense_snapshot / 4)
+        plunder.gain(plunder_gained)
 
     # if defender.faction_name == "blessed order":
     #     faith = Resource.objects.get(ruler=defender, name="faith")
@@ -180,18 +217,13 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casu
 def handle_module_durability(mechadragon: Unit, is_attacker):
     try:
         magefield = MechModule.objects.get(ruler=mechadragon.ruler, name="AC# Magefield", zone="mech")
-        damage_reduction_percent = magefield.perk_dict["durability_damage_percent_reduction_for_version_or_lesser"] if magefield.battery_current >= magefield.battery_max else 0
+        damage_reduction_percent = magefield.perk_dict["durability_damage_percent_reduction"] if magefield.battery_current >= magefield.battery_max else 0
         perk_based_fragility_modifier = 1 - (damage_reduction_percent / 100)
-        damage_reduction_version_max = magefield.version if is_attacker else -1
     except:
         perk_based_fragility_modifier = 1
-        damage_reduction_version_max = -1
 
     for module in MechModule.objects.filter(ruler=mechadragon.ruler, zone="mech"):
-        modified_fragility = module.fragility
-
-        if module.version <= damage_reduction_version_max:
-            modified_fragility *= perk_based_fragility_modifier
+        modified_fragility = module.fragility * perk_based_fragility_modifier
 
         if not is_attacker:
             modified_fragility /= 2
@@ -206,7 +238,7 @@ def handle_module_durability(mechadragon: Unit, is_attacker):
         module.save()
 
 
-def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion, defender: Dominion, defense_snapshot):
+def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion, defender: Dominion, defense_snapshot, is_plunder=False):
     offensive_casualties = 0
     new_corpses = 0
     
@@ -225,11 +257,10 @@ def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion, defe
             do_instant_return = True
 
     for unit_details_dict in units_sent_dict.values():
-        offensive_casualty_rate = 0.1
+        offensive_casualty_rate = 0 if is_plunder else 0.1
         unit = get_unit_from_dict(unit_details_dict)
         quantity_sent = unit_details_dict["quantity_sent"]
         casualties = 0
-        offensive_casualty_rate = 0.1
 
         if units_dont_die and "always_dies_on_offense" not in unit.perk_dict:
             offensive_casualty_rate = 0
@@ -247,6 +278,15 @@ def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion, defe
             new_corpses += casualties
 
         return_ticks = str(unit.perk_dict["returns_in_ticks"]) if "returns_in_ticks" in unit.perk_dict else "12"
+        
+        if unit.ruler.faction_name == "aethertide corsairs":
+            return_mod = unit.ruler.aethertide_dict["return_mod"]
+            return_mod = 1 + (return_mod / 100)
+            return_ticks = str(ceil(int(return_ticks) * return_mod))
+        
+        if defender.faction_name == "aethertide corsairs":
+            return_mod = 1.5
+            return_ticks = str(ceil(int(return_ticks) * return_mod))
 
         if unit.name == "Mecha-Dragon":
             try:
@@ -280,12 +320,12 @@ def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion, defe
     return offensive_casualties, new_corpses
 
 
-def do_defensive_casualties(defender: Dominion):
+def do_defensive_casualties(defender: Dominion, is_plunder=False):
     defensive_casualties = 0
     new_corpses = 0
 
     for unit in Unit.objects.filter(ruler=defender, dp__gt=0, quantity_at_home__gt=0):
-        defensive_casualty_rate = 0.05
+        defensive_casualty_rate = 0 if is_plunder else 0.05
         casualties = 0
 
         if "immortal" in unit.perk_dict:
@@ -313,12 +353,13 @@ def do_defensive_casualties(defender: Dominion):
     return defensive_casualties, new_corpses
 
 
-def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion):
+def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion, is_plunder=False):
     raw_op_sent = 0
     defense_snapshot = defender.defense
+    raw_defense_snapshot = defender.raw_defense
     slowest_unit_return_ticks = 1
-    offense_sent, dp_left, _ = get_op_and_dp_left(units_sent_dict, attacker, defender=defender)
-    acres_conquered = get_acres_conquered(attacker, defender)
+    offense_sent, dp_left, _ = get_op_and_dp_left(units_sent_dict, attacker, defender=defender, is_plunder=is_plunder)
+    acres_conquered = get_acres_conquered(attacker, defender, is_plunder)
 
     if defender.defense > offense_sent:
         return 0, "No failed invasions allowed"
@@ -348,12 +389,14 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion):
             max_launches = min(quantity_sent, int(rats.quantity / unit.perk_dict["rats_launched"]))
             rats.spend(max_launches * unit.perk_dict["rats_launched"])
 
-    if "percent_complacency_to_determination_when_hit" in defender.perk_dict:
+    if "percent_complacency_to_determination_when_hit" in defender.perk_dict and not is_plunder:
         defender.determination += defender.complacency * (defender.perk_dict["percent_complacency_to_determination_when_hit"] / 100)
         defender.save()
 
-    defender.complacency = 0
-    defender.failed_defenses += 1
+    if not is_plunder:
+        defender.complacency = 0
+        defender.failed_defenses += 1
+        
     defender.lose_acres(acres_conquered)
     defender.save()
 
@@ -366,18 +409,29 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion):
     except:
         attacker.determination = 0
     
-    if attacker.faction_name == "aether confederacy":
-        attacker.acres_in_void += acres_conquered * 2
-    else:
-        ticks_for_land = str(slowest_unit_return_ticks)
-        attacker.incoming_acres_dict[ticks_for_land] += acres_conquered * 2
+    if attacker.faction_name == "aethertide corsairs":
+        return_mod = unit.ruler.aethertide_dict["return_mod"]
+        return_mod = 1 + (return_mod / 100)
+        slowest_unit_return_ticks = ceil(slowest_unit_return_ticks * return_mod)
+        
+    if defender.faction_name == "aethertide corsairs":
+        return_mod = 1.5
+        slowest_unit_return_ticks = ceil(slowest_unit_return_ticks * return_mod)
+        
+    ticks_for_land = str(slowest_unit_return_ticks)
+    attacker.incoming_acres_dict[ticks_for_land] += acres_conquered * 2
     
     attacker.save()
 
-    battle = generate_battle(units_sent_dict, attacker, defender, offense_sent, defense_snapshot, acres_conquered)
+    battle = generate_battle(units_sent_dict, attacker, defender, offense_sent, defense_snapshot, acres_conquered, is_plunder=is_plunder)
 
-    _, offensive_corpses = do_offensive_casualties_and_return(units_sent_dict, attacker, defender, defense_snapshot)
-    defensive_casualties, defensive_corpses = do_defensive_casualties(defender)
+    if is_plunder:
+        offensive_corpses = 0
+        defensive_corpses = 0
+        defensive_casualties = 0
+    else:
+        _, offensive_corpses = do_offensive_casualties_and_return(units_sent_dict, attacker, defender, defense_snapshot, is_plunder=is_plunder)
+        defensive_casualties, defensive_corpses = do_defensive_casualties(defender, is_plunder=is_plunder)
 
     new_corpses = offensive_corpses + defensive_corpses
 
@@ -389,35 +443,48 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion):
     except:
         pass
 
-    handle_invasion_perks(attacker, defender, defensive_casualties)
+    handle_invasion_perks(attacker, defender, defensive_casualties, raw_defense_snapshot, is_plunder=True)
 
     return battle.id, "-- Congratulations, your invasion didn't crash! --"
 
 
-def do_gsf_infiltration(units_sent_dict, attacker: Dominion, defender: Dominion):
-    infiltration_power_sent = 0
-
+def do_gsf_infiltration(infiltration_power_gained, units_sent_dict, attacker: Dominion, defender: Dominion):
     for unit_details_dict in units_sent_dict.values():
         unit = get_unit_from_dict(unit_details_dict)
         quantity_sent = unit_details_dict["quantity_sent"]
 
-        if "invasion_plan_power" in unit.perk_dict:
-            infiltration_power_sent += unit.perk_dict["invasion_plan_power"] * quantity_sent
-        else:
+        if "invasion_plan_power" not in unit.perk_dict:
             return False, f"You can't send {unit.name} to infiltrate."
+        
+    try:
+        current_infiltration_power = attacker.perk_dict["infiltration_dict"][defender.strid]
+    except:
+        current_infiltration_power = 0
+        
+    updated_infiltration_power = current_infiltration_power + infiltration_power_gained
     
-    if defender.strid not in attacker.perk_dict["infiltration_dict"] or infiltration_power_sent > attacker.perk_dict["infiltration_dict"][defender.strid]:
-        attacker.perk_dict["infiltration_dict"][defender.strid] = infiltration_power_sent
-        attacker.save()
+    attacker.perk_dict["infiltration_dict"][defender.strid] = updated_infiltration_power
+    attacker.save()
+    
+    for unit_details_dict in units_sent_dict.values():
+        unit.quantity_at_home -= quantity_sent
+        unit.returning_dict["12"] += quantity_sent
+        unit.save()
+    
+    return True, f"Successfully infiltrated {defender.name} for {infiltration_power_gained:2,} bonus OP."
+    
+    # if defender.strid not in attacker.perk_dict["infiltration_dict"] or infiltration_power_sent > attacker.perk_dict["infiltration_dict"][defender.strid]:
+    #     attacker.perk_dict["infiltration_dict"][defender.strid] = infiltration_power_sent
+    #     attacker.save()
 
-        for unit_details_dict in units_sent_dict.values():
-            unit.quantity_at_home -= quantity_sent
-            unit.returning_dict["12"] += quantity_sent
-            unit.save()
+    #     for unit_details_dict in units_sent_dict.values():
+    #         unit.quantity_at_home -= quantity_sent
+    #         unit.returning_dict["12"] += quantity_sent
+    #         unit.save()
 
-        return True, f"Successfully infiltrated {defender.name} for {infiltration_power_sent:2,} bonus OP."
-    else:
-        return False, "You already have a greater infiltration against that target."
+    #     return True, f"Successfully infiltrated {defender.name} for {infiltration_power_sent:2,} bonus OP."
+    # else:
+    #     return False, "You already have a greater infiltration against that target."
         
 
 def do_biclops_partner_attack(dominion: Dominion):

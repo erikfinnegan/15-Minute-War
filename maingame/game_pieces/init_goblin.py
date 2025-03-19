@@ -9,8 +9,8 @@ def initialize_goblin_units():
         op=0,
         dp=3,
         cost_dict={
-            "gold": 700,
-            "wood": 425,
+            "gold": 650,
+            "wood": 400,
         },
         upkeep_dict={
             "gold": 1,
@@ -36,8 +36,8 @@ def initialize_goblin_units():
         op=3,
         dp=1,
         cost_dict={
-            "gold": 900,
-            "wood": 550,
+            "gold": 850,
+            "wood": 500,
         },
         upkeep_dict={
             "gold": 1,
