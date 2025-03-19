@@ -1,4 +1,5 @@
-from maingame.formatters import get_goblin_ruler
+import random
+from maingame.formatters import generate_countdown_dict, get_goblin_ruler
 from maingame.models import Dominion, Faction, Spell, Resource, Unit, Event, User, Building, UserSettings, MechModule
 from maingame.utils.give_stuff import create_resource_for_dominion, give_dominion_module, give_dominion_spell, give_dominion_unit
 from maingame.utils.utils import get_random_resource, update_available_discoveries
@@ -38,7 +39,13 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
         dominion.perk_dict["capacity_max"] = 1
         dominion.perk_dict["capacity_used"] = 0
         dominion.perk_dict["capacity_upgrade_cost"] = 100000
-    # elif faction.name == "aether confederacy":
+    elif faction.name == "aethertide corsairs":
+        dominion.perk_dict["aethertide_coefficient"] = 0
+        dominion.perk_dict["aethertide_coefficient_max"] = 18 + random.randint(-3, 3)
+        dominion.perk_dict["aethertide_max_modifier"] = 50
+        dominion.perk_dict["aethertide_max_chance"] = 50
+        dominion.perk_dict["aethertide_increase_next_tick"] = True
+        dominion.perk_dict["double_ticks_and_op_penalty"] = True
 
     dominion.save()
 
@@ -80,26 +87,16 @@ def initialize_dominion(user: User, faction: Faction, display_name):
     elif dominion.faction_name == "mecha-dragon":
         mechadragon = Unit.objects.get(ruler=dominion, name="Mecha-Dragon")
         mechadragon.gain(1)
+    elif dominion.faction_name == "aethertide corsairs":
+        plunder = Resource.objects.get(ruler=dominion, name="plunder")
+        plunder.gain(7777)
 
     for spell in Spell.objects.filter(ruler=None, is_starter=True):
         give_dominion_spell(dominion, spell)
 
     dominion.primary_resource_name = faction.primary_resource_name
     dominion.primary_resource_per_acre = faction.primary_resource_per_acre
-    dominion.incoming_acres_dict = {
-        "1": 0,
-        "2": 0,
-        "3": 0,
-        "4": 0,
-        "5": 0,
-        "6": 0,
-        "7": 0,
-        "8": 0,
-        "9": 0,
-        "10": 0,
-        "11": 0,
-        "12": 0,
-    }
+    dominion.incoming_acres_dict = generate_countdown_dict()
 
     user_settings, _ = UserSettings.objects.get_or_create(associated_user=user)
 

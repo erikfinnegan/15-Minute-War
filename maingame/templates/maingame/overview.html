@@ -199,6 +199,22 @@
                         <th>10</th>
                         <th>11</th>
                         <th>12</th>
+                        {% if dominion.ticks_til_soonest_return > 12 %}
+                            <th>13</th>
+                            <th>14</th>
+                            <th>15</th>
+                            <th>16</th>
+                            <th>17</th>
+                            <th>18</th>
+                        {% endif %}
+                        {% if dominion.ticks_til_soonest_return > 18 %}
+                            <th>19</th>
+                            <th>20</th>
+                            <th>21</th>
+                            <th>22</th>
+                            <th>23</th>
+                            <th>24</th>
+                        {% endif %}
                         <th>Total</th>
                     </tr>
                 </thead>
@@ -219,6 +235,22 @@
                             <td class="u-align-middle">{{ unit.returning_dict.10|no_zeroes|intcomma }}</td>
                             <td class="u-align-middle">{{ unit.returning_dict.11|no_zeroes|intcomma }}</td>
                             <td class="u-align-middle">{{ unit.returning_dict.12|no_zeroes|intcomma }}</td>
+                            {% if dominion.ticks_til_all_units_return > 12 %}
+                                <td class="u-align-middle">{{ unit.returning_dict.13|no_zeroes|intcomma }}</td>
+                                <td class="u-align-middle">{{ unit.returning_dict.14|no_zeroes|intcomma }}</td>
+                                <td class="u-align-middle">{{ unit.returning_dict.15|no_zeroes|intcomma }}</td>
+                                <td class="u-align-middle">{{ unit.returning_dict.16|no_zeroes|intcomma }}</td>
+                                <td class="u-align-middle">{{ unit.returning_dict.17|no_zeroes|intcomma }}</td>
+                                <td class="u-align-middle">{{ unit.returning_dict.18|no_zeroes|intcomma }}</td>
+                            {% endif %}
+                            {% if dominion.ticks_til_all_units_return > 18 %}
+                                <td class="u-align-middle">{{ unit.returning_dict.19|no_zeroes|intcomma }}</td>
+                                <td class="u-align-middle">{{ unit.returning_dict.20|no_zeroes|intcomma }}</td>
+                                <td class="u-align-middle">{{ unit.returning_dict.21|no_zeroes|intcomma }}</td>
+                                <td class="u-align-middle">{{ unit.returning_dict.22|no_zeroes|intcomma }}</td>
+                                <td class="u-align-middle">{{ unit.returning_dict.23|no_zeroes|intcomma }}</td>
+                                <td class="u-align-middle">{{ unit.returning_dict.24|no_zeroes|intcomma }}</td>
+                            {% endif %}
                             <td class="u-align-middle">{{ unit.quantity_returning|no_zeroes|intcomma }}</td>
                         </tr>
                     {% endif %}
@@ -250,6 +282,22 @@
                         <th>10</th>
                         <th>11</th>
                         <th>12</th>
+                        {% if dominion.ticks_til_all_acres_return > 12 %}
+                            <th>13</th>
+                            <th>14</th>
+                            <th>15</th>
+                            <th>16</th>
+                            <th>17</th>
+                            <th>18</th>
+                        {% endif %}
+                        {% if dominion.ticks_til_all_acres_return > 18 %}
+                            <th>19</th>
+                            <th>20</th>
+                            <th>21</th>
+                            <th>22</th>
+                            <th>23</th>
+                            <th>24</th>
+                        {% endif %}
                         <th>Total</th>
                     </tr>
                 </thead>
@@ -269,6 +317,22 @@
                         <td class="u-align-middle">{{ dominion.incoming_acres_dict.10|no_zeroes|intcomma }}</td>
                         <td class="u-align-middle">{{ dominion.incoming_acres_dict.11|no_zeroes|intcomma }}</td>
                         <td class="u-align-middle">{{ dominion.incoming_acres_dict.12|no_zeroes|intcomma }}</td>
+                        {% if dominion.ticks_til_all_acres_return > 12 %}
+                            <td class="u-align-middle">{{ dominion.incoming_acres_dict.13|no_zeroes|intcomma }}</td>
+                            <td class="u-align-middle">{{ dominion.incoming_acres_dict.14|no_zeroes|intcomma }}</td>
+                            <td class="u-align-middle">{{ dominion.incoming_acres_dict.15|no_zeroes|intcomma }}</td>
+                            <td class="u-align-middle">{{ dominion.incoming_acres_dict.16|no_zeroes|intcomma }}</td>
+                            <td class="u-align-middle">{{ dominion.incoming_acres_dict.17|no_zeroes|intcomma }}</td>
+                            <td class="u-align-middle">{{ dominion.incoming_acres_dict.18|no_zeroes|intcomma }}</td>
+                        {% endif %}
+                        {% if dominion.ticks_til_all_acres_return > 18 %}
+                            <td class="u-align-middle">{{ dominion.incoming_acres_dict.19|no_zeroes|intcomma }}</td>
+                            <td class="u-align-middle">{{ dominion.incoming_acres_dict.20|no_zeroes|intcomma }}</td>
+                            <td class="u-align-middle">{{ dominion.incoming_acres_dict.21|no_zeroes|intcomma }}</td>
+                            <td class="u-align-middle">{{ dominion.incoming_acres_dict.22|no_zeroes|intcomma }}</td>
+                            <td class="u-align-middle">{{ dominion.incoming_acres_dict.23|no_zeroes|intcomma }}</td>
+                            <td class="u-align-middle">{{ dominion.incoming_acres_dict.24|no_zeroes|intcomma }}</td>
+                        {% endif %}
                         <td class="u-align-middle">{{ dominion.incoming_acres|no_zeroes|intcomma }}</td>
                     </tr>
                     {% endif %}
@@ -361,6 +425,13 @@
                             (Repeatable)
                         {% endif %}
                     </span>
+                </div>
+                {% endfor %}
+            </div>
+            <div>
+                {% for discovery in repeated_discoveries %}
+                <div class="card card_colors p-1 u-flex u-flex-column u-gap-1">
+                    <span>{{ discovery }}
                 </div>
                 {% endfor %}
             </div>

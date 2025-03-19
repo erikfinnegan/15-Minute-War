@@ -98,9 +98,36 @@
                         </label>
                     </div>
                 </div>
+            {% elif active_dominion.faction_name == "aethertide corsairs" %}
+                <div class="max-w-md">
+                    <div class="form-ext-control pl-0 w-24 u-center">
+                        <label class="form-ext-toggle__label u-flex u-flex-row u-gap-2">
+                            <span>Plunder</span>
+                            <div class="form-ext-toggle">
+                                <input 
+                                    name="do_plunder"
+                                    id="do_plunder"
+                                    type="checkbox" 
+                                    class="form-ext-input" 
+                                    hx-get="/calculate_op"
+                                    hx-trigger="change"
+                                    hx-target="#readoutSection"
+                                />
+                                <div class="form-ext-toggle__toggler"><i></i></div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
             {% endif %}
 
-            <div class="u-flex u-flex-row u-center py-2">
+            <div 
+                class="u-flex u-flex-row u-center py-2"
+                name="set_to_1_acre_if_plunder_mode_is_on" 
+                hx-get="/calculate_acres_from_invasion"
+                hx-trigger="change from:#do_plunder"
+                hx-target="#acre_count_number"
+                hx-include="[name='do_plunder'],[name='target_dominion_id']"
+            >
                 <select 
                     class="max-w-xs" 
                     name="target_dominion_id" 
@@ -108,6 +135,7 @@
                     hx-get="/calculate_acres_from_invasion"
                     hx-trigger="change"
                     hx-target="#acre_count_number"
+                    hx-include="[name='do_plunder']"
                 >
                     <option value="0">Select a target to plan an invasion</option>
                     {% for dominion in dominions %}

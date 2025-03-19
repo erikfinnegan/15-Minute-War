@@ -8,6 +8,6 @@ class Command(BaseCommand):
     help = "Initiates a battle"
 
     def handle(self, *args, **options):
-        testdominion = test_me("aether confederacy")
+        testdominion = test_me("aethertide corsairs")
 
         print("Done generating stuff.")

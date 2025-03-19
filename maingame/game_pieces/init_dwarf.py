@@ -33,7 +33,7 @@ def initialize_dwarf_units():
         },
         faction=dwarf
     )
-
+    
     Unit.objects.create(
         name="Grudgestoker",
         op=0,
@@ -105,17 +105,17 @@ def initialize_dwarf_units():
 
     Unit.objects.create(
         name="Doom Prospector",
-        op=14,
+        op=10,
         dp=0,
         cost_dict={
-            "gold": 2300,
-            "ore": 800,
+            "Hammerer": 1,
         },
         upkeep_dict={
             "gold": 3,
             "food": 1,
         },
         perk_dict={"casualty_multiplier": 3},
+        is_trainable=False,
     )
 
 
@@ -159,7 +159,7 @@ def initialize_dwarf_discoveries():
 
     Discovery.objects.create(
         name="Doom Prospectors",
-        description='The dwarf language lacks a distinction between "seeking" and "prospecting". Doom Prospectors are dwarves whose grudges against themselves have grown too heavy to bear and prospect for glorious death in battle.',
+        description='The dwarf language lacks a distinction between "seeking" and "prospecting". Doom Prospectors are hammerers whose grudges against themselves have grown too heavy to bear and prospect for glorious death in battle. Train instantly.',
         required_faction_name="dwarf",
         associated_unit_name="Doom Prospector",
     )

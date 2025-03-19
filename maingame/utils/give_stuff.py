@@ -65,15 +65,18 @@ def give_dominion_building(dominion: Dominion, building: Building):
 def create_resource_for_dominion(resource_identifier, dominion: Dominion) -> Resource:
     resource_name = resource_identifier
 
-    resource_name = Resource.objects.get(name=resource_identifier, ruler=None).name
+    try:
+        resource_name = Resource.objects.get(name=resource_identifier, ruler=None).name
 
-    if not Resource.objects.filter(ruler=dominion, name=resource_name).exists():
-        base_resource = Resource.objects.get(name=resource_name, ruler=None)
-        dominions_resource = base_resource
-        dominions_resource.pk = None
-        dominions_resource.ruler = dominion
-        dominions_resource.save()
+        if not Resource.objects.filter(ruler=dominion, name=resource_name).exists():
+            base_resource = Resource.objects.get(name=resource_name, ruler=None)
+            dominions_resource = base_resource
+            dominions_resource.pk = None
+            dominions_resource.ruler = dominion
+            dominions_resource.save()
 
-        return dominions_resource
-    else:
+            return dominions_resource
+        else:
+            return None
+    except:
         return None

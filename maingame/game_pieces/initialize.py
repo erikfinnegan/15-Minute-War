@@ -1,3 +1,5 @@
+from maingame.game_pieces.init_aethertide_corsairs import initialize_aethertide_corsairs_discoveries, initialize_aethertide_corsairs_units
+from maingame.formatters import generate_countdown_dict
 from maingame.game_pieces.init_aether_confederacy import initialize_aether_confederacy_discoveries, initialize_aether_confederacy_units
 from maingame.game_pieces.init_biclops import initialize_biclops_discoveries, initialize_biclops_units
 from maingame.game_pieces.init_blessed_order import initialize_blessed_order_discoveries, initialize_blessed_order_units
@@ -56,6 +58,9 @@ def initialize_resources():
         },
         {
             "name": "blasphemy",
+        },
+        {
+            "name": "plunder",
         },
     ]
 
@@ -219,6 +224,19 @@ def initialize_factions():
     #     invasion_consequences="""Your units and land will be trapped in the void until you spend mana to recall them. If you wait 15-18 ticks, it should only
     #     require a few percent of land as towers."""
     # )
+    
+    Faction.objects.create(
+        name="aethertide corsairs",
+        primary_resource_name="gold",
+        primary_resource_per_acre="50",
+        starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"],
+        description="""Gets a decrease/increase to OP and return ticks that oscillates between -25% OP, -50% return time and +25% OP, +50% return time. A full cycle
+        takes between 30 and 42 ticks (changes randomly over the round). Starts with 7,777 plunder and gains more based on the raw defense of dominions that
+        they invade or plunder. Plundering is an alternate attack type that always steals one acre, causes no casualties, and has +100% OP. Plundering generates
+        plunder equal to the raw DP of the target and invasions grant a quarter of that.
+        Enemies attacking them will have their return time increased by 50%.""",
+        invasion_consequences="Your units and land will take 50% longer to return (rounded up)."
+    )
 
 
 def initialize_units():
@@ -231,6 +249,7 @@ def initialize_units():
     initialize_gnomish_special_forces_units()
     initialize_mechadragon_units()
     # initialize_aether_confederacy_units()
+    initialize_aethertide_corsairs_units()
 
     for unit in Unit.objects.all():
         give_unit_timer_template(unit)
@@ -241,20 +260,7 @@ def initialize_modules():
 
 
 def give_unit_timer_template(unit: Unit):
-    timer_template = {
-        "1": 0,
-        "2": 0,
-        "3": 0,
-        "4": 0,
-        "5": 0,
-        "6": 0,
-        "7": 0,
-        "8": 0,
-        "9": 0,
-        "10": 0,
-        "11": 0,
-        "12": 0,
-    }
+    timer_template = generate_countdown_dict()
 
     unit.training_dict = timer_template
     unit.returning_dict = timer_template
@@ -291,6 +297,7 @@ def initialize_discoveries():
     initialize_gnomish_special_forces_discoveries()
     initialize_mechadragon_discoveries()
     # initialize_aether_confederacy_discoveries()
+    initialize_aethertide_corsairs_discoveries()
 
 
 def initialize_game_pieces():

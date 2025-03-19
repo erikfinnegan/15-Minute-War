@@ -143,8 +143,15 @@ def military(request):
     except:
         return redirect("register")
     
+    try:
+        hammerers = Unit.objects.get(ruler=dominion, name="Hammerer")
+        hammerer_count = hammerers.quantity_at_home
+    except:
+        hammerer_count = 0
+    
     context = {
-        "units": dominion.sorted_units
+        "units": dominion.sorted_units,
+        "hammerer_count": hammerer_count,
     }
 
     return render(request, "maingame/military.html", context)
@@ -301,7 +308,15 @@ def overview(request, dominion_id):
     for discovery in Discovery.objects.all():
         if discovery.name in dominion.learned_discoveries:
             learned_discoveries.append(discovery)
-
+            
+    repeated_discoveries = []
+    for discovery in set(dominion.learned_discoveries):
+        discovery_name = discovery
+        
+        if dominion.learned_discoveries.count(discovery_name) > 1:
+            discovery_name += f" x{dominion.learned_discoveries.count(discovery_name)}"
+            repeated_discoveries.append(discovery_name)
+        
     resources_dict = {}
 
     for resource in Resource.objects.filter(ruler=dominion):
@@ -332,6 +347,7 @@ def overview(request, dominion_id):
         "minimum_defense_left": my_dominion.acres * 5,
         "spells": Spell.objects.filter(ruler=dominion),
         "learned_discoveries": learned_discoveries,
+        "repeated_discoveries": repeated_discoveries,
         "acres_conquered": get_acres_conquered(my_dominion, dominion),
         "battles_with_this_dominion": battles_with_this_dominion.order_by("-timestamp"),
         "modules": MechModule.objects.filter(ruler=dominion),
@@ -450,12 +466,13 @@ def calculate_op(request):
     
     dominion_id = request.GET.get("target_dominion_id")
     is_infiltration = "do_infiltration" in request.GET
+    is_plunder = "do_plunder" in request.GET
 
     # Not sure how to get the form-wide hx-trigger to fire on repeated use of the checkbox - it only picks up on the first.
 
     units_sent_dict, _ = create_unit_dict(request.GET, "send_")
     target_dominion = Dominion.objects.filter(id=dominion_id).first()
-    op_sent, dp_left, raw_dp_left = get_op_and_dp_left(units_sent_dict, my_dominion, target_dominion, is_infiltration)
+    op_sent, dp_left, raw_dp_left = get_op_and_dp_left(units_sent_dict, attacker=my_dominion, defender=target_dominion, is_infiltration=is_infiltration, is_plunder=is_plunder)
 
     larger_enemy_has_lower_defense = False
     left_lowest_defense = True
@@ -476,7 +493,7 @@ def calculate_op(request):
             unit_sent_entry = units_sent_dict.get(str(unit.id))
             quantity_queued = 0 if unit_sent_entry == None else unit_sent_entry.get("quantity_sent")
             def check(x):
-                return does_x_of_unit_break_defender(x, unit, units_sent_dict, attacker=my_dominion, defender=target_dominion)
+                return does_x_of_unit_break_defender(x, unit, units_sent_dict, attacker=my_dominion, defender=target_dominion, is_plunder=is_plunder)
 
             if not check(unit.quantity_at_home):
                 units_needed_to_break_list.append({
@@ -490,6 +507,10 @@ def calculate_op(request):
                 })
             else:
                 mod_op = unit.op * my_dominion.offense_multiplier
+                
+                if is_plunder:
+                    mod_op *= 2
+                
                 test_quantity = min(unit.quantity_at_home, int((target_dominion.defense - op_sent) / mod_op) + 1 + quantity_queued)
                 test_quantity = max(0, test_quantity)
                 keep_going = True
@@ -539,11 +560,12 @@ def calculate_acres_from_invasion(request):
         return redirect("register")
     
     target_id = request.GET.get("target_dominion_id")
+    is_plunder = "do_plunder" in request.GET
     acres_gained = 0
-
+    
     try:
         target_dominion = Dominion.objects.get(id=target_id)
-        acres_gained = get_acres_conquered(attacker=my_dominion, target=target_dominion)
+        acres_gained = 1 if is_plunder else get_acres_conquered(attacker=my_dominion, target=target_dominion)
     except:
         pass
     

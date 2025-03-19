@@ -36,7 +36,7 @@ def initialize_sludgeling_discoveries():
 
     Discovery.objects.create(
         name="Sludgehoarder",
-        description="What if every new creation is a masterpiece just waiting to be recognized? You shouldn't throw anything away ever! Adds three more extra slots for experimental units.",
+        description="What if every new creation is a masterpiece just waiting to be recognized? You shouldn't throw anything away ever! Adds three more extra slots for experimental units (up to 25).",
         repeatable=True,
         required_faction_name="sludgeling",
         required_discoveries=["Inspiration"],

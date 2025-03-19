@@ -106,6 +106,23 @@ def initialize_generic_units():
             "food": 1,
         },
     )
+    
+    Unit.objects.create(
+        name="Hill Giant",
+        op=100,
+        dp=50,
+        cost_dict={
+            "gold": 20000,
+            "food": 20000,
+        },
+        upkeep_dict={
+            "gold": 20,
+            "food": 20,
+        },
+        perk_dict={
+            "returns_in_ticks": 18,
+        }
+    )
 
 
 def initialize_generic_discoveries():
@@ -164,5 +181,12 @@ def initialize_generic_discoveries():
         name="Mercenaries",
         description="Got some gold burning a hole in your pocket? Hire mercenaries to burn a hole in your enemies!",
         associated_unit_name="Mercenary",
+        not_for_factions=["sludgeling"]
+    )
+    
+    Discovery.objects.create(
+        name="Hill Giants",
+        description="Big.",
+        associated_unit_name="Hill Giant",
         not_for_factions=["sludgeling"]
     )

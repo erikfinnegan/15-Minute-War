@@ -99,12 +99,6 @@ class Command(BaseCommand):
         
         
              
-        costdict = generate_unit_cost_dict(12, 8, "gold", "mithril", "hybrid", casualty_multiplier=0.5, return_ticks=12, cost_multiplier=1)
-        print(costdict)
-        
-        
-        
-        
         # total_ticks = 0
         # attempts = 100000
         
