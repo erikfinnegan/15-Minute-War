@@ -8,7 +8,7 @@ from maingame.utils.give_stuff import create_resource_for_dominion, give_dominio
 
 
 def get_primary_type_base_costs(power, secondary_resource_name, is_offense):
-    building = Building.objects.get(ruler=None, resource_produced_name=secondary_resource_name)
+    building = Building.objects.filter(ruler=None, resource_produced_name=secondary_resource_name).first()
     btick_amount = building.amount_produced + 10
     
     if power == 1:
@@ -27,7 +27,7 @@ def get_primary_type_base_costs(power, secondary_resource_name, is_offense):
 
 
 def get_secondary_type_base_costs(power, secondary_resource_name, is_offense):
-    building = Building.objects.get(ruler=None, resource_produced_name=secondary_resource_name)
+    building = Building.objects.filter(ruler=None, resource_produced_name=secondary_resource_name).first()
     btick_amount = building.amount_produced + 10
     
     if power == 1:
@@ -306,6 +306,12 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             give_dominion_module(dominion, MechModule.objects.get(ruler=None, name="Vox Shrieker"))
         case "Gilded Veterans":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Gilded Veterans"))
+        case "Impressment":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Realitylubber Crew"))
+        case "Laeviathans":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Laeviathan"))
+        case "Chronokrakens":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Chronokraken"))
 
     if not discovery.repeatable:
         dominion.available_discoveries.remove(discovery_name)

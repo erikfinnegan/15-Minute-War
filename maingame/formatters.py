@@ -122,6 +122,14 @@ def get_perk_text(perk_dict, resource_name_list, faction_name="none"):
 
     if "repairs_mechadragons" in perk_dict:
         perk_text += f"Repairs 1 durability/tick to a damaged mecha-dragon module. "
+        
+    if "hides_for_ticks_after_defense" in perk_dict:
+        hides_for_ticks_after_defense = perk_dict["hides_for_ticks_after_defense"]
+        perk_text += f"After a failed defense, goes into the units returning queue for {hides_for_ticks_after_defense} ticks."
+        
+    if "op_modified_by_aethertide" in perk_dict:
+        op_modified_by_aethertide = perk_dict["op_modified_by_aethertide"]
+        perk_text += f"OP increased {op_modified_by_aethertide}x when losing a tick, decreased by {op_modified_by_aethertide}x when doubling one, otherwise slowly returned towards normal."
 
     return perk_text
 

@@ -56,6 +56,8 @@
         <a href="{% url 'other_head' %}" class="">Other Head</a>
     {% elif active_dominion.faction_name == "mecha-dragon" %}
         <a href="{% url 'mech_hangar' %}" class="">Mech Hangar</a>
+    {% elif active_dominion.faction_name == "aethertide corsairs" %}
+        <a href="{% url 'captains_quarters' %}" class="">Captain's Quarters</a>
     {% endif %}
 
     {% if active_user_settings.tutorial_step >= 11 %}

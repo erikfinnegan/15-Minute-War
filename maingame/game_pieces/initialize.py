@@ -62,6 +62,9 @@ def initialize_resources():
         {
             "name": "plunder",
         },
+        {
+            "name": "press gangers",
+        },
     ]
 
     for resource_template in resource_templates:
@@ -72,6 +75,11 @@ def initialize_buildings():
     building_templates = [
         {
             "name": "farm",
+            "resource_produced_name": "food",
+            "amount_produced": 100,
+        },
+        {
+            "name": "fishery",
             "resource_produced_name": "food",
             "amount_produced": 100,
         },
@@ -206,7 +214,7 @@ def initialize_factions():
         name="mecha-dragon",
         primary_resource_name="gold",
         primary_resource_per_acre="50",
-        starting_buildings=["farm", "lumberyard", "school", "tower", "quarry",],
+        starting_buildings=["fishery", "lumberyard", "school", "tower", "quarry",],
         description="""Inspired by mythical creatures, they set out to construct the ultimate war machine. It is difficult to deny they've succeeded. The bulk of
         their offense comes from a single, powerful mecha-dragon comprised of modules that are upgraded and installed from the mech hangar."""
     )
@@ -229,9 +237,11 @@ def initialize_factions():
         name="aethertide corsairs",
         primary_resource_name="gold",
         primary_resource_per_acre="50",
-        starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"],
-        description="""Gets a decrease/increase to OP and return ticks that oscillates between -25% OP, -50% return time and +25% OP, +50% return time. A full cycle
-        takes between 30 and 42 ticks (changes randomly over the round). Starts with 7,777 plunder and gains more based on the raw defense of dominions that
+        starting_buildings=["fishery", "lumberyard", "school", "tower", "quarry"],
+        description="""Has a chance to double tick that scales up from 0% to 50% and back down, also getting a penalty to your OP equal to half the chance. 
+        When it gets back to 0% it repeats, but now as a chance to skip ticks and a bonus to OP instead. It continues alternating, slightly changing the speed at
+        which it scales up and down each time, but always 15-21 ticks to go from 0 to 50 and the same again to go 50 to 0.
+        Starts with 7,777 plunder and gains more based on the raw defense of dominions that
         they invade or plunder. Plundering is an alternate attack type that always steals one acre, causes no casualties, and has +100% OP. Plundering generates
         plunder equal to the raw DP of the target and invasions grant a quarter of that.
         Enemies attacking them will have their return time increased by 50%.""",

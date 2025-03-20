@@ -17,6 +17,13 @@
         </p>
     </details>
 
+    <details class="accordion card card_colors max-w-md">
+        <summary class="accordion__summary">Aethertide history</summary>
+        {% for roll in active_dominion.perk_dict.aethertide_roll_history %}
+            <p>{{ roll }}</p>
+        {% endfor %}
+    </details>
+
     <div>
     {% for event in displayed_events %}
         <div class="card {% if active_dominion in event.event.notified_dominions_list %}header_colors{% else %}card_colors{% endif %} p-1 max-w-md">

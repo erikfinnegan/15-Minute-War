@@ -197,10 +197,19 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casu
             defender, excluded_options=["gold", "corpses", "rats", current_favorite_name]
         ).name
         
-    if attacker.faction_name == "aethertide corsairs" and is_plunder:
+    if attacker.faction_name == "aethertide corsairs":
         plunder = Resource.objects.get(ruler=attacker, name="plunder")
         plunder_gained = raw_defense_snapshot if is_plunder else int(raw_defense_snapshot / 4)
         plunder.gain(plunder_gained)
+        
+        try:
+            press_gangers = Resource.objects.get(ruler=attacker, name="press gangers")
+            press_gangers.gain(int(plunder_gained * 0.02))
+        except:
+            pass
+        
+    if defender.faction_name == "aethertide corsairs":
+        attacker.perk_dict["time_curse"] = 12
 
     # if defender.faction_name == "blessed order":
     #     faith = Resource.objects.get(ruler=defender, name="faith")
@@ -279,15 +288,6 @@ def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion, defe
 
         return_ticks = str(unit.perk_dict["returns_in_ticks"]) if "returns_in_ticks" in unit.perk_dict else "12"
         
-        if unit.ruler.faction_name == "aethertide corsairs":
-            return_mod = unit.ruler.aethertide_dict["return_mod"]
-            return_mod = 1 + (return_mod / 100)
-            return_ticks = str(ceil(int(return_ticks) * return_mod))
-        
-        if defender.faction_name == "aethertide corsairs":
-            return_mod = 1.5
-            return_ticks = str(ceil(int(return_ticks) * return_mod))
-
         if unit.name == "Mecha-Dragon":
             try:
                 hyperwings = MechModule.objects.get(ruler=attacker, name='"# fast # furious" Hyperwings', zone="mech")
@@ -349,6 +349,11 @@ def do_defensive_casualties(defender: Dominion, is_plunder=False):
 
         unit.lose(casualties)
         defensive_casualties += casualties
+        
+        if "hides_for_ticks_after_defense" in unit.perk_dict:
+            return_ticks = str(unit.perk_dict["hides_for_ticks_after_defense"])
+            unit.returning_dict[return_ticks] = unit.quantity_at_home
+            unit.save()
 
     return defensive_casualties, new_corpses
 
@@ -409,15 +414,6 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion, is_plun
     except:
         attacker.determination = 0
     
-    if attacker.faction_name == "aethertide corsairs":
-        return_mod = unit.ruler.aethertide_dict["return_mod"]
-        return_mod = 1 + (return_mod / 100)
-        slowest_unit_return_ticks = ceil(slowest_unit_return_ticks * return_mod)
-        
-    if defender.faction_name == "aethertide corsairs":
-        return_mod = 1.5
-        slowest_unit_return_ticks = ceil(slowest_unit_return_ticks * return_mod)
-        
     ticks_for_land = str(slowest_unit_return_ticks)
     attacker.incoming_acres_dict[ticks_for_land] += acres_conquered * 2
     
@@ -443,7 +439,7 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion, is_plun
     except:
         pass
 
-    handle_invasion_perks(attacker, defender, defensive_casualties, raw_defense_snapshot, is_plunder=True)
+    handle_invasion_perks(attacker, defender, defensive_casualties, raw_defense_snapshot, is_plunder=is_plunder)
 
     return battle.id, "-- Congratulations, your invasion didn't crash! --"
 

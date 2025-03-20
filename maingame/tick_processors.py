@@ -62,7 +62,7 @@ def do_global_tick():
         if Round.objects.first().allow_ticks:
             for dominion in Dominion.objects.all():
                 if dominion.is_oop and not dominion.is_abandoned:
-                    number_of_ticks = get_number_of_times_to_tick(dominion)
+                    number_of_ticks = get_number_of_times_to_tick(dominion, start_timestamp)
 
                     for _ in range(number_of_ticks):
                         dominion.do_tick()
@@ -75,7 +75,7 @@ def do_global_tick():
                 if "biclopean_ambition_ticks_remaining" in dominion.perk_dict and dominion.can_attack:
                     do_forced_attack(dominion, use_always_dies_units=False)
             
-            # print("Dominions done", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
+            print("Dominions done", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
 
         now = datetime.now(ZoneInfo('America/New_York'))
 

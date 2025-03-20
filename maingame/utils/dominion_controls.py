@@ -7,6 +7,7 @@ from maingame.utils.utils import get_random_resource, update_available_discoveri
 
 def create_faction_perk_dict(dominion: Dominion, faction: Faction):
     # dominion.perk_dict["book_of_grudges"] = {}
+    dominion.perk_dict["aethertide_roll_history"] = []
 
     if faction.name == "dwarf":
         dominion.perk_dict["book_of_grudges"] = {}
@@ -42,7 +43,6 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
     elif faction.name == "aethertide corsairs":
         dominion.perk_dict["aethertide_coefficient"] = 0
         dominion.perk_dict["aethertide_coefficient_max"] = 18 + random.randint(-3, 3)
-        dominion.perk_dict["aethertide_max_modifier"] = 50
         dominion.perk_dict["aethertide_max_chance"] = 50
         dominion.perk_dict["aethertide_increase_next_tick"] = True
         dominion.perk_dict["double_ticks_and_op_penalty"] = True

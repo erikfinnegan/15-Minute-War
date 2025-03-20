@@ -432,13 +432,13 @@ class Dominion(models.Model):
             direction_next_tick = "⬆️" if aethertide_increase_next_tick else "⬇️"
 
             double_ticks_and_op_penalty = self.perk_dict["double_ticks_and_op_penalty"]
+            
+            op_mod = (-1 * op_mod) if double_ticks_and_op_penalty else op_mod
+            action = "double" if double_ticks_and_op_penalty else "skip"
         
-            print(self.name)
-            print("chance_to_trigger", chance_to_trigger)
-
         aethertide_dict = {
             "chance_to_trigger": chance_to_trigger,
-            "action": "double" if double_ticks_and_op_penalty else "skip",
+            "action": action,
             "op_mod": op_mod,
             "direction_next_tick": direction_next_tick,
         }

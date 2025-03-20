@@ -16,27 +16,27 @@ class Command(BaseCommand):
         print("UNIT COST CALCULATOR")
         print()
         
-        op = 8
-        dp = 4
+        op = 1000
+        dp = 0
         secondary_resource_name = "food"
-        casualty_multiplier = 1
-        return_ticks = 12
+        casualty_multiplier = 0
+        return_ticks = 14
         
         # primary secondary hybrid
-        cost_type = "hybrid"
+        cost_type = "secondary"
         
         
         # Goblin is 1/3, biclops is 4, etc.
-        unit_chunks = 1
+        units_in_bundle = 15
         primary_resource_name = "gold"
-        cost_multiplier = 1
+        cost_multiplier = 1 # WARNING
         
-        cost_dict = generate_unit_cost_dict(op, dp, primary_resource_name, secondary_resource_name, cost_type, casualty_multiplier, return_ticks, cost_multiplier)
+        cost_dict = generate_unit_cost_dict(op/units_in_bundle, dp/units_in_bundle, primary_resource_name, secondary_resource_name, cost_type, casualty_multiplier, return_ticks, cost_multiplier)
         
         for k, v in cost_dict.items():
-            cost_dict[k] = int(v * unit_chunks)
+            cost_dict[k] = int(v * units_in_bundle)
         
-        output_str = "" if unit_chunks == 1 else f"{unit_chunks} of a "
+        output_str = "" if units_in_bundle == 1 else f"{units_in_bundle} bundle "
         output_str += f"{op}/{dp} using {secondary_resource_name}, cost type {cost_type}. Takes {casualty_multiplier}x casualties and returns in {return_ticks} ticks."
         print(output_str)
         print()
