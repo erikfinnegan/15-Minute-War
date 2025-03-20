@@ -9,8 +9,8 @@ def initialize_goblin_units():
         op=0,
         dp=3,
         cost_dict={
-            "gold": 650,
-            "wood": 400,
+            "gold": 700,
+            "wood": 425,
         },
         upkeep_dict={
             "gold": 1,
@@ -36,7 +36,7 @@ def initialize_goblin_units():
         op=3,
         dp=1,
         cost_dict={
-            "gold": 850,
+            "gold": 825,
             "wood": 500,
         },
         upkeep_dict={
@@ -75,7 +75,7 @@ def initialize_goblin_units():
             "food": 0.3,
             "rats": 1,
         },
-        perk_dict={"food_per_tick": 15},
+        perk_dict={"food_per_tick": 18},
     )
 
     Unit.objects.create(
@@ -103,7 +103,6 @@ def initialize_goblin_units():
         },
         upkeep_dict={
             "wood": 4,
-            "rats": 1,
         },
         perk_dict={"immortal": True, "rats_launched": 100, "op_if_rats_launched": 100},
     )

@@ -294,7 +294,6 @@ def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion, defe
                 return_ticks = 12 - hyperwings.version if hyperwings.battery_current >= hyperwings.battery_max else 12
             except:
                 return_ticks = 12
-                
             handle_module_durability(unit, is_attacker=True)
 
         if do_instant_return:

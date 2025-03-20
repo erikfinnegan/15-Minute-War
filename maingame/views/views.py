@@ -532,8 +532,7 @@ def calculate_op(request):
     # End win button stuff
     
     try:
-        target_faction = Faction.objects.get(name=target_dominion.faction_name)
-        invasion_consequences = target_faction.invasion_consequences
+        invasion_consequences = target_dominion.invasion_consequences
     except:
         invasion_consequences = ""
 

@@ -138,6 +138,7 @@ class Dominion(models.Model):
     successful_invasions = models.IntegerField(default=0)
     failed_defenses = models.IntegerField(default=0)
     highest_raw_op_sent = models.IntegerField(default=0, null=True, blank=True)
+    invasion_consequences = models.CharField(max_length=1000, null=True, blank=True)
 
     acres = models.IntegerField(default=500)
     acres_gained = models.IntegerField(default=0)
@@ -405,7 +406,7 @@ class Dominion(models.Model):
         if self.faction_name != "goblin":
             return 0
         else:
-            return 10 + (1 * self.failed_defenses)
+            return 20 + (1 * self.failed_defenses)
         
     @property
     def void_cost_preview_text(self):

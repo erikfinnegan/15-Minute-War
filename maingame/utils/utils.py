@@ -288,6 +288,12 @@ def unlock_discovery(dominion: Dominion, discovery_name):
         case "Growing Determination":
             if "bonus_determination" in dominion.perk_dict:
                 dominion.perk_dict["bonus_determination"] += 0.1
+        case "Spurred to Action":
+            dominion.perk_dict["percent_complacency_to_determination_when_hit"] += 20
+            dominion.invasion_consequences = f"This dominion will add {dominion.perk_dict['percent_complacency_to_determination_when_hit']}% of their complacency penalty to their determination bonus."
+        case "Pay It Forward":
+            dominion.perk_dict["percent_complacency_to_determination_when_hit"] += 30
+            dominion.invasion_consequences = f"This dominion will add {dominion.perk_dict['percent_complacency_to_determination_when_hit']}% of their complacency penalty to their determination bonus."
         case "Juggernaut Tanks":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Juggernaut Tank"))
         case "Inferno Mines":

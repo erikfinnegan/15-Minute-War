@@ -129,7 +129,7 @@ def get_perk_text(perk_dict, resource_name_list, faction_name="none"):
         
     if "op_modified_by_aethertide" in perk_dict:
         op_modified_by_aethertide = perk_dict["op_modified_by_aethertide"]
-        perk_text += f"OP increased {op_modified_by_aethertide}x when losing a tick, decreased by {op_modified_by_aethertide}x when doubling one, otherwise slowly returned towards normal."
+        perk_text += f"OP increased {op_modified_by_aethertide}x when you skip a tick, divided by {op_modified_by_aethertide} when you double one, otherwise multiplied/divided by 1.03 to get back towards 1,000."
 
     return perk_text
 
@@ -294,6 +294,27 @@ def shorten_number(num):
     else:
         return f"{round(num/one_million, 1)}m"
     
+
+def get_roman_numeral(number):
+    num = [1, 4, 5, 9, 10, 40, 50, 90,
+        100, 400, 500, 900, 1000]
+    sym = ["I", "IV", "V", "IX", "X", "XL",
+        "L", "XC", "C", "CD", "D", "CM", "M"]
+    i = 12
+    
+    roman_numeral = ""
+    
+    while number:
+        div = number // num[i]
+        number %= num[i]
+
+        while div:
+            roman_numeral += sym[i]
+            div -= 1
+        i -= 1
+        
+    return roman_numeral
+
 
 def generate_countdown_dict():
     return {

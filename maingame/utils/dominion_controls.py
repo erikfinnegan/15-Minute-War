@@ -54,7 +54,8 @@ def initialize_dominion(user: User, faction: Faction, display_name):
     dominion = Dominion.objects.create(
         associated_user=user, 
         name=display_name, 
-        faction_name=faction.name, 
+        faction_name=faction.name,
+        invasion_consequences=faction.invasion_consequences,
     )
 
     update_available_discoveries(dominion)

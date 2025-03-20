@@ -42,14 +42,14 @@ def initialize_biclops_units():
         cost_dict={
             "gold": 3400+0,
             "wood": 0+7000,
-            "ore": 6500+1800,
+            "ore": 6500+1200,
         },
         upkeep_dict={
             "gold": 12,
             "food": 4,
             "wood": 4,
         },
-        perk_dict={"casualty_multiplier": 0.5, "gets_op_bonus_equal_to_percent_of_target_complacency": 50},
+        perk_dict={"casualty_multiplier": 0.5, "gets_op_bonus_equal_to_percent_of_target_complacency": 40},
     )
 
 
@@ -81,4 +81,17 @@ def initialize_biclops_discoveries():
         description="""Biclops hate not attacking. Increases determination gained by 10% of the base rate.""",
         required_faction_name="biclops",
         repeatable=True,
+    )
+    
+    Discovery.objects.create(
+        name="Spurred to Action",
+        description="""Finish what they started. Increase the bonus determination you get when invaded from 50% of complaceny to 70%.""",
+        required_faction_name="biclops",
+    )
+    
+    Discovery.objects.create(
+        name="Pay It Forward",
+        description="""Violence is its own reward. Increase the bonus determination you get when invaded from 70% of complaceny to 100%.""",
+        required_faction_name="biclops",
+        required_discoveries=["Spurred to Action"],
     )

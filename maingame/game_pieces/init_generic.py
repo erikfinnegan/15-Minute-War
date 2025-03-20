@@ -8,12 +8,12 @@ def initialize_generic_units():
         dp=0,
         cost_dict={
             "wood": 7000,
-            "ore": 1800,
+            "ore": 1200,
         },
         upkeep_dict={
             "wood": 4,
         },
-        perk_dict={"gets_op_bonus_equal_to_percent_of_target_complacency": 33},
+        perk_dict={"gets_op_bonus_equal_to_percent_of_target_complacency": 30},
     )
 
     Unit.objects.create(

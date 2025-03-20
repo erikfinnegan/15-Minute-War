@@ -242,10 +242,10 @@ def initialize_factions():
         When it gets back to 0% it repeats, but now as a chance to skip ticks and a bonus to OP instead. It continues alternating, slightly changing the speed at
         which it scales up and down each time, but always 15-21 ticks to go from 0 to 50 and the same again to go 50 to 0.
         Starts with 7,777 plunder and gains more based on the raw defense of dominions that
-        they invade or plunder. Plundering is an alternate attack type that always steals one acre, causes no casualties, and has +100% OP. Plundering generates
-        plunder equal to the raw DP of the target and invasions grant a quarter of that.
-        Enemies attacking them will have their return time increased by 50%.""",
-        invasion_consequences="Your units and land will take 50% longer to return (rounded up)."
+        they invade or plunder. Plundering is an alternate attack type that always steals one acre, causes no casualties (except for units that always die on offense), 
+        and has +100% OP. Plundering generates plunder equal to the raw DP of the target and invasions grant a quarter of that.
+        Enemies attacking them will be time-cursed for 12 ticks. During this time, they have a 1-in-6 chance of getting double ticks but a 3-in-6 chance of skipping ticks.""",
+        invasion_consequences="You will be time-cursed for 12 ticks. During this time, you'll have a 1-in-6 chance of getting double ticks but a 3-in-6 chance of skipping ticks. "
     )
 
 
@@ -291,7 +291,7 @@ def initialize_spells():
         name="Bestow Biclopean Ambition",
         description="""For the next 11 ticks, the target dominion will attack anyone within 75% of their size if they can do so successfully using
         only units with OP > DP and without the "always dies on offense" perk.""",
-        mana_cost_per_acre=50,
+        mana_cost_per_acre=20,
         is_targeted=True,
         cooldown=24,
     )
