@@ -1305,9 +1305,9 @@ class MechModule(models.Model):
     def perk_text(self):
         perk_text = ""
 
-        if "durability_damage_percent_reduction_for_version_or_lesser" in self.perk_dict:
+        if "durability_damage_percent_reduction" in self.perk_dict:
             damage_reduction_percent = self.perk_dict["durability_damage_percent_reduction_for_version_or_lesser"]
-            perk_text += f"Reduces durability loss for modules of version {self.version} or less by {damage_reduction_percent}%. "
+            perk_text += f"Reduces durability loss for modules by {damage_reduction_percent}%. "
 
         if "returns_faster" in self.perk_dict:
             perk_text += f"Return from battle in {12 - self.version} ticks. "
