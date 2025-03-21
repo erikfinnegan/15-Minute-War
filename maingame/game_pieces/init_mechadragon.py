@@ -202,7 +202,6 @@ def initialize_mechadragon_modules():
             "mana": 100,
         },
         fragility=100,
-        faction=mechadragon,
         perk_dict={"op_growth_per_capacity_per_tick": 15},
     )
     

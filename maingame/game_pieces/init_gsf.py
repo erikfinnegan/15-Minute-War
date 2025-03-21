@@ -104,7 +104,7 @@ def initialize_gnomish_special_forces_discoveries():
     Discovery.objects.create(
         name="Red Beret",
         description="""There are very few red berets in the GSF, but you can requisition one from High Command.""",
-        associated_unit_name="Inferno Mine",
+        associated_unit_name="Red Beret",
         required_faction_name="gnomish special forces",
         required_discoveries=["Rapid Deployment"],
     )

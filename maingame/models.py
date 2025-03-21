@@ -655,7 +655,7 @@ class Dominion(models.Model):
         mechadragon.dp = module_power
         
         try:
-            spirit_bomb = MechModule.objects.get(ruler=self, name="Tiamat-class Spirit Bomb PL#001")
+            spirit_bomb = MechModule.objects.get(ruler=self, name="Tiamat-class Spirit Bomb PL#001", zone="mech")
             mechadragon.dp -= spirit_bomb.power
         except:
             pass
