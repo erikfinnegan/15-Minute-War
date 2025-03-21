@@ -114,6 +114,10 @@ def get_perk_text(perk_dict, resource_name_list, faction_name="none"):
     if "invasion_plan_power" in perk_dict:
         invasion_plan_power = perk_dict["invasion_plan_power"]
         perk_text += f"Can be sent to infiltrate a target, increasing your offense on your next attack against them by {invasion_plan_power}. "
+        
+    if "subverted_target_id" in perk_dict:
+        # op_modified_by_aethertide = perk_dict["op_modified_by_aethertide"]
+        perk_text += f"Does not return from infiltration until you invade the target or recall manually from the target's Overview page. Until then, the target subtracts your infiltration against them from their OP against you (after any modifiers)."
 
     if "rats_launched" in perk_dict and "op_if_rats_launched" in perk_dict:
         rats_launched = perk_dict["rats_launched"]
@@ -130,7 +134,7 @@ def get_perk_text(perk_dict, resource_name_list, faction_name="none"):
     if "op_modified_by_aethertide" in perk_dict:
         op_modified_by_aethertide = perk_dict["op_modified_by_aethertide"]
         perk_text += f"OP increased {op_modified_by_aethertide}x when you skip a tick, divided by {op_modified_by_aethertide} when you double one, otherwise multiplied/divided by 1.03 to get back towards 1,000."
-
+        
     return perk_text
 
 

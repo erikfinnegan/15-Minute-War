@@ -25,6 +25,7 @@ urlpatterns = [
     path("protection_restart", views.protection_restart, name="protection_restart"),
     path("goblin_restart/<str:resource>", views.goblin_restart, name="goblin_restart"),
     path("world", views.world, name="world"),
+    path("world_debug", views.world_debug, name="world_debug"),
     path("overview/invade", views.submit_invasion, name="submit_invasion"),
     path("overview/<int:dominion_id>", views.overview, name="overview"),
     path("discoveries/submit", views.submit_discovery, name="submit_discovery"),
@@ -39,7 +40,7 @@ urlpatterns = [
     path("abandon", views.abandon, name="abandon"),
     path("calculate_op", views.calculate_op, name="calculate_op"),
     path("calculate_acres_from_invasion", views.calculate_acres_from_invasion, name="calculate_acres_from_invasion"),
-    path("submit_void_return", views.submit_void_return, name="submit_void_return"),
+    # path("submit_void_return", views.submit_void_return, name="submit_void_return"),
     
     # path("church_affairs", views.church_affairs, name="church_affairs"),
     # path("submit_inquisition", views.submit_inquisition, name="submit_inquisition"),
@@ -60,4 +61,6 @@ urlpatterns = [
     
     path("captains_quarters", views.captains_quarters, name="captains_quarters"),
     path("corpsify_press_gangers", views.corpsify_press_gangers, name="corpsify_press_gangers"),
+    
+    path("recall_red_beret", views.recall_red_beret, name="recall_red_beret"),
 ]

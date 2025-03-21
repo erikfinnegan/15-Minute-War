@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from maingame.formatters import cost_after_x_ticks, divide_hack, format_minutes, get_perk_text, shorten_number
+from maingame.formatters import cost_after_x_ticks, divide_hack, format_minutes, get_perk_text, get_roman_numeral, shorten_number
 
 
 class Deity(models.Model):
@@ -139,6 +139,10 @@ class Dominion(models.Model):
     failed_defenses = models.IntegerField(default=0)
     highest_raw_op_sent = models.IntegerField(default=0, null=True, blank=True)
     invasion_consequences = models.CharField(max_length=1000, null=True, blank=True)
+    score = models.IntegerField(default=0)
+
+    times_ruler_killed = models.IntegerField(default=0)
+    ruler_respawn_timer = models.IntegerField(default=0)
 
     acres = models.IntegerField(default=500)
     acres_gained = models.IntegerField(default=0)
@@ -168,8 +172,19 @@ class Dominion(models.Model):
         return self.protection_ticks_remaining == 0
 
     @property
+    def ruler_is_dead(self):
+        return self.ruler_respawn_timer > 0
+    
+    @property
     def rulers_display_name(self):
-        return UserSettings.objects.get(associated_user=self.associated_user).display_name
+        display_name = UserSettings.objects.get(associated_user=self.associated_user).display_name
+        
+        if self.ruler_is_dead:
+            return f"💀 ({self.ruler_respawn_timer})"
+        elif self.times_ruler_killed > 0:
+            return display_name + " " + get_roman_numeral(self.times_ruler_killed)
+        else:
+            return display_name
     
     @property
     def rulers_theme_name(self):
@@ -415,6 +430,14 @@ class Dominion(models.Model):
         text += f"18 ticks: {cost_after_x_ticks(self.void_return_cost, 18):2,}"
         
         return text
+    
+    @property
+    def red_beret_target_id(self):
+        try:
+            red_beret = Unit.objects.get(ruler=self, name="Red Beret")
+            return red_beret.perk_dict["subverted_target_id"]
+        except:
+            return 0
     
     @property
     def aethertide_dict(self):
@@ -686,6 +709,11 @@ class Dominion(models.Model):
             if self.faction_name == "mecha-dragon":
                 self.update_capacity()
                 
+            self.score += self.acres
+                
+        if self.ruler_respawn_timer > 0:
+            self.ruler_respawn_timer -= 1
+            
         self.save()
 
     def gain_acres(self, quantity):

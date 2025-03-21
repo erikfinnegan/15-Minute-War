@@ -23,6 +23,15 @@
         </p>
     </details>
 
+    {% if show_red_beret_recall %}
+    <form action="{% url 'recall_red_beret' %}" method="post" class="u-flex u-flex-row u-gap-1 card card_colors p-1 max-w-sm">
+        {% csrf_token %}
+        <button class="header_colors w-32 h-12 p-0 u-center" type="submit">
+            <span class="font-bold">Recall red beret</span>
+        </button>
+    </form>
+    {% endif %}
+
     <div class="top-info">
         {% if dominion.faction_name == "goblin" %}
         <h6>All hail {{ dominion.perk_dict.goblin_ruler }} who loves {{ dominion.perk_dict.rulers_favorite_resource }} and rules over</h6>

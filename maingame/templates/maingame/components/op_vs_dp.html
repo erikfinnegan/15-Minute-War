@@ -5,11 +5,14 @@
         <span class="u-center">Please try again soon, the round is ticking</span>
     {% else %}
         <div>
-            <div class="u-center u-gap-1 {% if op >= dp or is_infiltration and op > 0 %}text-green-400{% else %}text-red-400{% endif %}">
+            <div class="u-center u-gap-1 u-flex u-flex-column {% if op >= dp or is_infiltration and op > 0 %}text-green-400{% else %}text-red-400{% endif %}">
                 {% if is_infiltration %}
                     <span>{{ op|intcomma }} infiltration</span>
                 {% else %}
                     <span>{{ op|intcomma }} OP vs. {{ dp|intcomma }} DP</span>
+                    {% if red_beret_op_reduction > 0 %}
+                    <span>The target's red beret is reducing your OP against them by {{ red_beret_op_reduction }}.</span>
+                    {% endif %}
                 {% endif %}
             </div>
 

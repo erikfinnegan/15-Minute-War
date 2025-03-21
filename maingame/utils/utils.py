@@ -300,6 +300,9 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Inferno Mine"))
         case "Rapid Deployment":
             dominion.perk_dict["unit_training_time"] = "6"
+        case "Red Beret":
+            red_beret = give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Red Beret"))
+            red_beret.gain(1)
         case "Back-2-U Town Portal System":
             give_dominion_module(dominion, MechModule.objects.get(ruler=None, name="Back-#-U Town Portal System"))
         case "PP0 Pseudrenaline Pump":

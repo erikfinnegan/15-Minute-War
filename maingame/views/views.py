@@ -334,6 +334,12 @@ def overview(request, dominion_id):
         dominion.save()
 
     battles_with_this_dominion = Battle.objects.filter(attacker=dominion) | Battle.objects.filter(defender=dominion)
+    
+    try:
+        red_beret = Unit.objects.get(ruler=my_dominion, name="Red Beret")
+        show_red_beret_recall = dominion.strid == red_beret.perk_dict["subverted_target_id"]
+    except:
+        show_red_beret_recall = False
 
     context = {
         "dominion": dominion,
@@ -351,6 +357,7 @@ def overview(request, dominion_id):
         "acres_conquered": get_acres_conquered(my_dominion, dominion),
         "battles_with_this_dominion": battles_with_this_dominion.order_by("-timestamp"),
         "modules": MechModule.objects.filter(ruler=dominion),
+        "show_red_beret_recall": show_red_beret_recall,
     }
 
     return render(request, "maingame/overview.html", context)
@@ -413,9 +420,86 @@ def world(request):
         "lowest_defense_larger_than_you": lowest_defense_larger_than_you,
         "lowest_defense_in_game": lowest_defense_in_game,
         "largest_with_incoming": largest_with_incoming,
+        "is_debug": False,
     }
 
     return render(request, "maingame/world.html", context)
+
+
+def world_debug(request):
+    ##### DEBUG
+    try:
+        my_dominion = Dominion.objects.get(associated_user=request.user)
+    except:
+        return redirect("register")
+    
+    dominions = Dominion.objects.filter(is_abandoned=False).order_by('protection_ticks_remaining', '-acres')
+    dominion_list = list(dominions)
+    
+    ##### DEBUG
+    
+    def sort_dominions(dominion: Dominion):
+        if dominion.protection_ticks_remaining > 0:
+            return 0
+        
+        sort_val = dominion.score * 1000000000000
+        sort_val = dominion.acres * 1000000000
+        sort_val += dominion.incoming_acres * 100000
+        sort_val += dominion.defense
+        return sort_val
+        
+    dominion_list.sort(key=sort_dominions, reverse=True)
+    my_units = my_dominion.sorted_units
+    
+    ##### DEBUG
+
+    # If you don't have grudge values set for someone, set them now
+    if "book_of_grudges" in my_dominion.perk_dict:
+        for dominion in dominions:
+            if str(dominion.id) not in my_dominion.perk_dict["book_of_grudges"]:
+                my_dominion.perk_dict["book_of_grudges"][str(dominion.id)] = {}
+                my_dominion.perk_dict["book_of_grudges"][str(dominion.id)]["pages"] = 0
+                my_dominion.perk_dict["book_of_grudges"][str(dominion.id)]["animosity"] = 0
+
+    land_conquered_dict = {}
+    lowest_defense_larger_than_you = 99999999999
+    lowest_defense_in_game = 99999999999
+    largest_with_incoming = my_dominion
+    
+    ##### DEBUG
+
+    for dominion in dominions:
+        land_conquered_dict[str(dominion.id)] = get_acres_conquered(my_dominion, dominion)
+
+        if dominion.acres >= my_dominion.acres and dominion.is_oop:
+            lowest_defense_larger_than_you = min(dominion.defense, lowest_defense_larger_than_you)
+
+        if dominion.is_oop:
+            lowest_defense_in_game = min(dominion.defense, lowest_defense_in_game)
+
+        if dominion.acres_with_incoming > largest_with_incoming.acres_with_incoming:
+            largest_with_incoming = dominion
+
+    ##### DEBUG
+
+    context = {
+        "dominions": dominion_list,
+        "minimum_defense_left": my_dominion.acres * 5,
+        "my_units": my_units,
+        "base_offense_multiplier": my_dominion.offense_multiplier,
+        "land_conquered_dict": json.dumps(land_conquered_dict),
+        "raw_defense": my_dominion.raw_defense,
+        "defense_multiplier": my_dominion.defense_multiplier,
+        "lowest_defense_larger_than_you": lowest_defense_larger_than_you,
+        "lowest_defense_in_game": lowest_defense_in_game,
+        "largest_with_incoming": largest_with_incoming,
+        "is_debug": True,
+    }
+    
+    ##### DEBUG
+
+    return render(request, "maingame/world.html", context)
+    ##### DEBUG
 
 
 def options(request):
@@ -535,6 +619,14 @@ def calculate_op(request):
         invasion_consequences = target_dominion.invasion_consequences
     except:
         invasion_consequences = ""
+        
+    try:
+        if target_dominion.red_beret_target_id == my_dominion.strid:
+            red_beret_op_reduction = target_dominion.perk_dict["infiltration_dict"][my_dominion.strid]
+        else:
+            red_beret_op_reduction = 0
+    except:
+        red_beret_op_reduction = 0
 
     context = {
         "op": op_sent,
@@ -547,6 +639,7 @@ def calculate_op(request):
         "is_infiltration": is_infiltration,
         "units_needed_to_break_list": units_needed_to_break_list,
         "invasion_consequences": invasion_consequences,
+        "red_beret_op_reduction": red_beret_op_reduction,
     }
         
     return render(request, "maingame/components/op_vs_dp.html", context)

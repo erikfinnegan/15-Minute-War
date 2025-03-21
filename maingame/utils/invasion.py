@@ -150,6 +150,13 @@ def get_op_and_dp_left(units_sent_dict, attacker: Dominion, defender: Dominion=N
         
     if is_plunder:
         offense_sent *= 2
+        
+    try:
+        red_beret = Unit.objects.get(ruler=defender, name="Red Beret")
+        if red_beret.perk_dict["subverted_target_id"] == attacker.strid:
+            offense_sent -= defender.perk_dict["infiltration_dict"][attacker.strid]
+    except:
+        pass
 
     offense_sent = int(offense_sent)
     defense_left = int(raw_defense * attacker.defense_multiplier)
@@ -302,18 +309,28 @@ def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion, defe
             unit.quantity_at_home -= quantity_sent
             unit.lost += casualties
             
-            if attacker.faction_name == "aether confederacy":
-                unit.quantity_in_void += survivors
-                attacker.void_return_cost += (300 * survivors)
-            else:
-                unit.returning_dict[return_ticks] = survivors
+            # if attacker.faction_name == "aether confederacy":
+            #     unit.quantity_in_void += survivors
+            #     attacker.void_return_cost += (300 * survivors)
+            # else:
+            unit.returning_dict[return_ticks] = survivors
 
         unit.save()
         offensive_casualties += casualties
         
     # if defender.faction_name == "aether confederacy" and attacker.faction_name != "aether confederacy":
     #     attacker.void_return_cost += (defense_snapshot * 10)
+    
+    try:
+        red_beret = Unit.objects.get(ruler=attacker, name="Red Beret")
         
+        if red_beret["subverted_target_id"] == defender.id:
+            red_beret["subverted_target_id"] = 0
+            red_beret.returning_dict["12"] = 12
+            red_beret.save()
+    except:
+        pass
+    
     attacker.save()
 
     return offensive_casualties, new_corpses
@@ -463,7 +480,13 @@ def do_gsf_infiltration(infiltration_power_gained, units_sent_dict, attacker: Do
     
     for unit_details_dict in units_sent_dict.values():
         unit.quantity_at_home -= quantity_sent
-        unit.returning_dict["12"] += quantity_sent
+        
+        if "subverted_target_id" in unit.perk_dict:
+            unit.quantity_in_void += 1
+            unit.perk_dict["subverted_target_id"] = defender.strid
+        else:
+            unit.returning_dict["12"] += quantity_sent
+        
         unit.save()
     
     return True, f"Successfully infiltrated {defender.name} for {infiltration_power_gained:2,} bonus OP."

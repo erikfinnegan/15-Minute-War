@@ -65,6 +65,18 @@ def initialize_gnomish_special_forces_units():
         },
         perk_dict={"always_dies_on_defense": True},
     )
+    
+    Unit.objects.create(
+        name="Red Beret",
+        op=50,
+        dp=0,
+        upkeep_dict={
+            "gold": 3,
+            "food": 1,
+        },
+        perk_dict={"invasion_plan_power": 500, "subverted_target_id": 0},
+        is_trainable=False,
+    )
 
 
 def initialize_gnomish_special_forces_discoveries():
@@ -87,4 +99,12 @@ def initialize_gnomish_special_forces_discoveries():
         name="Rapid Deployment",
         description="""Careful planning and clever strategy keeps the GSF ahead of their enemies at all times. Units are trained in 6 ticks.""",
         required_faction_name="gnomish special forces",
+    )
+    
+    Discovery.objects.create(
+        name="Red Beret",
+        description="""There are very few red berets in the GSF, but you can requisition one from High Command.""",
+        associated_unit_name="Inferno Mine",
+        required_faction_name="gnomish special forces",
+        required_discoveries=["Rapid Deployment"],
     )

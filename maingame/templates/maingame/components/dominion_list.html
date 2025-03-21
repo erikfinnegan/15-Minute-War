@@ -11,6 +11,9 @@
                         <small>Click for overview</small>
                     </div>
                 </th>
+                {% if is_debug %}
+                <th class="u-align-middle">Score</th>
+                {% endif %}
                 <th class="u-align-middle">Land</th>
                 <th class="u-align-middle">Defense</th>
                 <th class="u-align-middle">Bonuses</th>
@@ -45,6 +48,11 @@
                         <a href="{% url 'overview' dominion.id %}"><small class="{% if dominion == this_dominion %}font-bold{% endif %}">{{ dominion.faction_name|title }}</small></a>
                     </div>
                 </td>
+
+                {% comment %} Score {% endcomment %}
+                {% if is_debug %}
+                    <td class="u-align-middle">{{ dominion.score|intcomma }}</td>
+                {% endif %}
 
                 {% comment %} Land {% endcomment %}
                 <td class="u-align-middle">
@@ -120,6 +128,9 @@
                         {% else %}
                             <span>-</span>
                         {% endif %}
+                        {% if dominion.strid == this_dominion.red_beret_target_id %}
+                            <span>Red beret infiltrated</span>
+                        {% endif %}
                     {% comment %} goblin {% endcomment %}
                     {% elif "rulers_favorite_resource" in this_dominion.perk_dict and dominion == this_dominion %}
                         <span style="white-space:nowrap">
@@ -154,16 +165,10 @@
                                 <span>
                                     {% if this_dominion.aethertide_dict.op_mod >= 0 %}+{% endif %}{{ this_dominion.aethertide_dict.op_mod }}% OP
                                 </span>
-                                {% comment %} <span>
-                                    {% if this_dominion.aethertide_dict.return_mod >= 0 %}+{% endif %}{{ this_dominion.aethertide_dict.return_mod }}% return ticks
-                                </span> {% endcomment %}
                                 <span class="u-center">
                                     {{ this_dominion.aethertide_dict.direction_next_tick }}
                                 </span>
                             </div>
-                            {% comment %} <span class="u-center">
-                                {{ this_dominion.aethertide_dict.direction_next_tick }}
-                            </span> {% endcomment %}
                         </div>
                     {% else %}
                         <span>-</span>
@@ -205,6 +210,9 @@
                             {% if dominion.ticks_til_infiltrators_return > 0 %}
                                 <small>Infiltrators return in {{ dominion.ticks_til_infiltrators_return }} ticks</small>
                             {% endif %}
+                            {% if this_dominion.strid == dominion.red_beret_target_id %}
+                                <span>Red beret infiltrated</span>
+                            {% endif %}
                         </div>
                     {% elif "rulers_favorite_resource" in dominion.perk_dict %}
                         <div style="white-space:nowrap">
@@ -230,18 +238,15 @@
                         <div class="u-flex u-flex-row">
                             <div class="u-flex u-flex-column">
                                 <span>
-                                    {% if dominion.aethertide_dict.op_mod >= 0 %}+{% endif %}{{ dominion.aethertide_dict.op_mod }}% OP
+                                    {{ dominion.aethertide_dict.chance_to_trigger }}% to {{ dominion.aethertide_dict.action }} next tick
                                 </span>
                                 <span>
-                                    {% if dominion.aethertide_dict.return_mod >= 0 %}+{% endif %}{{ dominion.aethertide_dict.return_mod }}% return ticks
+                                    {% if dominion.aethertide_dict.op_mod >= 0 %}+{% endif %}{{ dominion.aethertide_dict.op_mod }}% OP
                                 </span>
                                 <span class="u-center">
                                     {{ dominion.aethertide_dict.direction_next_tick }}
                                 </span>
                             </div>
-                            {% comment %} <span class="u-center">
-                                {{ dominion.aethertide_dict.direction_next_tick }}
-                            </span> {% endcomment %}
                         </div>
                     {% else %}
                         <span>-</span>

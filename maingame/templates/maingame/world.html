@@ -58,7 +58,7 @@
     </div>
     {% endif %}
 
-    {% include "maingame/components/dominion_list.html" with this_dominion=active_dominion all_dominions=dominions my_view=True %}
+    {% include "maingame/components/dominion_list.html" with this_dominion=active_dominion all_dominions=dominions my_view=True is_debug=is_debug %}
 
     {% comment %} Invasion form {% endcomment %}
     <div id="invasionForm">
