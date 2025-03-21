@@ -6,10 +6,6 @@
 
 {% block content %}
 <div>
-    <div class="max-w-md">
-        <p>Yarrr</p>
-    </div>
-
     {% if "Grim Pragmatism" in active_dominion.learned_discoveries %}
     <div class="max-w-md">
         <form action="{% url 'corpsify_press_gangers' %}" method="post" class="u-flex u-flex-row u-gap-1 card card_colors p-1 max-w-sm">
@@ -27,6 +23,10 @@
                 <span class="font-bold">Submit</span>
             </button>
         </form>
+    </div>
+    {% else %}
+    <div class="max-w-md">
+        <p>Yarrr, this page be only used for the "Grim Pragmatism" discovery.</p>
     </div>
     {% endif %}
 </div>

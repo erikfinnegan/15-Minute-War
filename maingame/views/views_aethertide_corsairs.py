@@ -10,8 +10,13 @@ def captains_quarters(request):
     except:
         return redirect("register")
     
+    try:
+        press_gangers = Resource.objects.get(ruler=dominion, name="press gangers").quantity
+    except:
+        press_gangers = 0
+    
     context = {
-        "press_gangers": Resource.objects.get(ruler=dominion, name="press gangers").quantity,
+        "press_gangers": press_gangers,
     }
     
     return render(request, "maingame/faction_pages/captains_quarters.html", context)
