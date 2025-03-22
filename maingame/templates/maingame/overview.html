@@ -108,34 +108,36 @@
     {% endif %}
 
     {% if dominion.faction_name == "mecha-dragon" %}
-        <div class="text-lg">
-            <span>Module capacity:</span>
-            <span id="current-capacity">{{ dominion.perk_dict.capacity_used }}</span>
-            <span>/ {{ dominion.perk_dict.capacity_max }}</span>
-        </div>
-        <div class="u-flex u-flex-row u-gap-4">
-            <div class="u-flex u-flex-column u-gap-1">
-                <span class="u-center">Equipped modules</span>
-                <div id="mech" class="u-border-1 u-flex u-flex-column u-gap-2 p-2 min-h-90p" style="width: 290px;">
-                    {% for module in modules %}
-                        {% if module.zone == "mech" %}
-                            {% include "maingame/components/mech_module_card.html" with module=module %}
-                        {% endif %}
-                    {% endfor %}
+        {% if dominion == active_dominion or round.has_started and dominion.is_oop %}
+            <div class="text-lg">
+                <span>Module capacity:</span>
+                <span id="current-capacity">{{ dominion.perk_dict.capacity_used }}</span>
+                <span>/ {{ dominion.perk_dict.capacity_max }}</span>
+            </div>
+            <div class="u-flex u-flex-row u-gap-4">
+                <div class="u-flex u-flex-column u-gap-1">
+                    <span class="u-center">Equipped modules</span>
+                    <div id="mech" class="u-border-1 u-flex u-flex-column u-gap-2 p-2 min-h-90p" style="width: 290px;">
+                        {% for module in modules %}
+                            {% if module.zone == "mech" %}
+                                {% include "maingame/components/mech_module_card.html" with module=module %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="u-flex u-flex-column u-gap-1">
+                    <span class="u-center">Module storage</span>
+                    <div id="hangar" class="u-border-1 u-flex u-flex-wrap u-gap-2 p-2 min-h-20p" style="min-width: 290px;">
+                        {% for module in modules %}
+                            {% if not module.zone == "mech" %}
+                                {% include "maingame/components/mech_module_card.html" with module=module %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
-            
-            <div class="u-flex u-flex-column u-gap-1">
-                <span class="u-center">Module storage</span>
-                <div id="hangar" class="u-border-1 u-flex u-flex-wrap u-gap-2 p-2 min-h-20p" style="min-width: 290px;">
-                    {% for module in modules %}
-                        {% if not module.zone == "mech" %}
-                            {% include "maingame/components/mech_module_card.html" with module=module %}
-                        {% endif %}
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
+        {% endif %}
     {% endif %}
 
     {% comment %} Resource production {% endcomment %}

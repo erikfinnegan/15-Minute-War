@@ -16,10 +16,10 @@ class Command(BaseCommand):
         print("UNIT COST CALCULATOR")
         print()
         
-        op = 0
-        dp = 1000
+        op = 1000
+        dp = 0
         secondary_resource_name = "food"
-        casualty_multiplier = 1
+        casualty_multiplier = 0
         return_ticks = 12
         
         # primary secondary hybrid
@@ -27,7 +27,7 @@ class Command(BaseCommand):
         
         
         # Goblin is 1/3, biclops is 4, etc.
-        units_in_bundle = 18
+        units_in_bundle = 10
         primary_resource_name = "gold"
         cost_multiplier = 1 # WARNING
         
