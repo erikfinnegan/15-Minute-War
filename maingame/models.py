@@ -1321,7 +1321,7 @@ class MechModule(models.Model):
             
         if "op_growth_per_capacity_per_tick" in self.perk_dict:
             if self.version == 0:
-                op_growth_per_capacity_per_tick = 1
+                op_growth_per_capacity_per_tick = 1.5
             else:
                 op_growth_per_capacity_per_tick = self.perk_dict["op_growth_per_capacity_per_tick"]
             

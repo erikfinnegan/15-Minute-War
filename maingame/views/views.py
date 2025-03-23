@@ -442,9 +442,9 @@ def world_debug(request):
         if dominion.protection_ticks_remaining > 0:
             return 0
         
-        sort_val = dominion.score * 1000000000000
-        sort_val = dominion.acres * 1000000000
-        sort_val += dominion.incoming_acres * 100000
+        sort_val = dominion.score * (10 ** 100)
+        sort_val = dominion.acres * (10 ** 10)
+        sort_val += dominion.incoming_acres * (10 ** 5)
         sort_val += dominion.defense
         return sort_val
         
