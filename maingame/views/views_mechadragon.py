@@ -31,6 +31,7 @@ def mech_hangar(request):
     
     has_town_portal = MechModule.objects.filter(ruler=dominion, name="Back-#-U Town Portal System").exists()
     can_use_town_portal = MechModule.objects.filter(ruler=dominion, name="Back-#-U Town Portal System", zone="mech").exists() and mechadragon_not_home
+    dominion.update_capacity()
 
     context = {
         "capacity_upgrade_cost": capacity_upgrade_cost,
@@ -105,6 +106,7 @@ def submit_mech_hangar(request):
             module.zone = "hangar"
         
         module.save()
+        dominion.update_capacity()
     
     return redirect("mech_hangar")
 

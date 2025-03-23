@@ -250,6 +250,9 @@ def handle_module_durability(mechadragon: Unit, is_attacker):
         
         if is_attacker and module.battery_current == module.battery_max:
             module.battery_current = 0
+            
+        if is_attacker and "op_growth_per_capacity_per_tick" in module.perk_dict:
+            module.base_power = 0
         
         module.save()
 
