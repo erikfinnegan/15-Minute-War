@@ -683,8 +683,9 @@ class Dominion(models.Model):
             try:
                 op_growth_per_capacity_per_tick = module.perk_dict["op_growth_per_capacity_per_tick"]
                 
-                module.base_power += op_growth_per_capacity_per_tick
-                module.save()
+                if module.durability_percent >= 100:
+                    module.base_power += op_growth_per_capacity_per_tick
+                    module.save()
             except:
                 pass
 
@@ -1324,7 +1325,7 @@ class MechModule(models.Model):
             else:
                 op_growth_per_capacity_per_tick = self.perk_dict["op_growth_per_capacity_per_tick"]
             
-            perk_text += f"Gains {op_growth_per_capacity_per_tick * self.capacity} OP per tick (does not apply on defense). Resets to zero on invasion."
+            perk_text += f"Gains {op_growth_per_capacity_per_tick * self.capacity} OP per tick while at full durability. Resets to zero on invasion. Does not provide DP."
             
         if "op_bonus_percent" in self.perk_dict:
             op_bonus_percent = self.perk_dict["op_bonus_percent"]
