@@ -437,13 +437,16 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion, is_plun
 
     battle = generate_battle(units_sent_dict, attacker, defender, offense_sent, defense_snapshot, acres_conquered, is_plunder=is_plunder)
 
-    if is_plunder:
-        offensive_corpses = 0
-        defensive_corpses = 0
-        defensive_casualties = 0
-    else:
-        _, offensive_corpses = do_offensive_casualties_and_return(units_sent_dict, attacker, defender, defense_snapshot, is_plunder=is_plunder)
-        defensive_casualties, defensive_corpses = do_defensive_casualties(defender, is_plunder=is_plunder)
+    # if is_plunder:
+    #     offensive_corpses = 0
+    #     defensive_corpses = 0
+    #     defensive_casualties = 0
+    # else:
+    #     _, offensive_corpses = do_offensive_casualties_and_return(units_sent_dict, attacker, defender, defense_snapshot, is_plunder=is_plunder)
+    #     defensive_casualties, defensive_corpses = do_defensive_casualties(defender, is_plunder=is_plunder)
+    
+    _, offensive_corpses = do_offensive_casualties_and_return(units_sent_dict, attacker, defender, defense_snapshot, is_plunder=is_plunder)
+    defensive_casualties, defensive_corpses = do_defensive_casualties(defender, is_plunder=is_plunder)
 
     new_corpses = offensive_corpses + defensive_corpses
 

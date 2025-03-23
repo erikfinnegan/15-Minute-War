@@ -214,7 +214,7 @@ def initialize_factions():
         name="mecha-dragon",
         primary_resource_name="gold",
         primary_resource_per_acre="50",
-        starting_buildings=["fishery", "lumberyard", "school", "tower", "quarry",],
+        starting_buildings=["farm", "lumberyard", "school", "tower", "quarry",],
         description="""Inspired by mythical creatures, they set out to construct the ultimate war machine. It is difficult to deny they've succeeded. The bulk of
         their offense comes from a single, powerful mecha-dragon comprised of modules that are upgraded and installed from the mech hangar."""
     )
