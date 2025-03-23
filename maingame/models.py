@@ -683,9 +683,6 @@ class Dominion(models.Model):
             try:
                 op_growth_per_capacity_per_tick = module.perk_dict["op_growth_per_capacity_per_tick"]
                 
-                if module.version == 0:
-                    op_growth_per_capacity_per_tick = 10
-                    
                 module.base_power += op_growth_per_capacity_per_tick
                 module.save()
             except:
