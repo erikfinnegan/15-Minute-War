@@ -256,6 +256,10 @@ class Dominion(models.Model):
         multiplier = 1 - (self.complacency_penalty_percent / 100)
 
         return multiplier
+    
+    @property
+    def score_short(self):
+        return shorten_number(self.score)
 
     @property
     def defense(self):
