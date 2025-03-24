@@ -16,28 +16,48 @@ class Command(BaseCommand):
         print("IT'S DEBUG TIME BABY")
         print()
         
-        def romanize(number):
-            num = [1, 4, 5, 9, 10, 40, 50, 90,
-                100, 400, 500, 900, 1000]
-            sym = ["I", "IV", "V", "IX", "X", "XL",
-                "L", "XC", "C", "CD", "D", "CM", "M"]
-            i = 12
-            
-            roman_numeral = ""
-            
-            while number:
-                div = number // num[i]
-                number %= num[i]
         
-                while div:
-                    # print(sym[i], end = "")
-                    roman_numeral += sym[i]
-                    div -= 1
-                i -= 1
+        
+        occurrences = 0
+        # attempts = 100000
+        attempts = 1000000
+        
+        for _ in range(attempts):
+            ticks_in_a_row = 0
+            increase_next_tick = True
+            coefficient = 0
+            coefficient_max = 18 + randint(-3, 3)
+            keep_going = True
+            
+            while keep_going:
+                percent_chance = int((coefficient/coefficient_max) * 50)
+                roll = randint(1,100)
                 
-            return roman_numeral
+                if roll <= percent_chance:
+                    # ticks_in_a_row += 1
+                    occurrences += 1
+                else:
+                    ticks_in_a_row = 0
+                    
+                # if ticks_in_a_row >= 3:
+                #     occurrences += 1
+                #     ticks_in_a_row = 0
+                    
+                if increase_next_tick:
+                    coefficient += 1
+                else:
+                    coefficient -= 1
+                    
+                if coefficient >= coefficient_max:
+                    increase_next_tick = False
+                    
+                if coefficient <= 0 and not increase_next_tick:
+                    keep_going = False
+            
+        print(occurrences/attempts)
+                
+            
         
-        print(romanize(39))
         
         
         # pages_to_gain = 55

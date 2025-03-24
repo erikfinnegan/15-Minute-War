@@ -125,6 +125,8 @@
                             {% else %}
                                 <span>-</span>
                             {% endif %}
+                        {% elif dominion.strid == this_dominion.red_beret_target_id %}
+                            {% comment %} Don't show the dash {% endcomment %}
                         {% else %}
                             <span>-</span>
                         {% endif %}
@@ -203,6 +205,8 @@
                                 </span>
                             {% elif dominion == this_dominion %}
                                 <span>-</span>
+                            {% elif dominion.strid == this_dominion.red_beret_target_id or dominion.ticks_til_infiltrators_return > 0 %}
+                                {% comment %} Don't show the dash {% endcomment %}
                             {% else %}
                                 <span>-</span>
                             {% endif %}
