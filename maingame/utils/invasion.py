@@ -364,7 +364,7 @@ def do_defensive_casualties(defender: Dominion, is_plunder=False):
         if "food" in unit.upkeep_dict:
             new_corpses += casualties
 
-        if unit.name == "Mecha-Dragon":
+        if unit.name == "Mecha-Dragon" and not is_plunder:
             handle_module_durability(unit, is_attacker=False)
 
         unit.lose(casualties)
