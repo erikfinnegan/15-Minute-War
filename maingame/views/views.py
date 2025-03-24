@@ -443,7 +443,7 @@ def world_debug(request):
             return 0
         
         sort_val = dominion.score * (10 ** 100)
-        sort_val = dominion.acres * (10 ** 10)
+        sort_val += dominion.acres * (10 ** 10)
         sort_val += dominion.incoming_acres * (10 ** 5)
         sort_val += dominion.defense
         return sort_val
