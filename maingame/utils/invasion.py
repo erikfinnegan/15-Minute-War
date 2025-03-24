@@ -327,10 +327,10 @@ def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion, defe
     try:
         red_beret = Unit.objects.get(ruler=attacker, name="Red Beret")
         
-        if red_beret["subverted_target_id"] == defender.id:
-            red_beret["subverted_target_id"] = 0
+        if red_beret.perk_dict["subverted_target_id"] == defender.strid:
+            red_beret.perk_dict["subverted_target_id"] = 0
             red_beret.quantity_in_void -= 1
-            red_beret.returning_dict["12"] = 12
+            red_beret.returning_dict["12"] = 1
             red_beret.save()
     except:
         pass
