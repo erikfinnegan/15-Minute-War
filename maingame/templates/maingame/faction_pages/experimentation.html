@@ -167,7 +167,7 @@
                     <select name="experiment_to_terminate" class="w-48 u-center mb-2">
                         <option></option>
                         {% for unit in experimental_units %}
-                        <option value="{{ unit.id }}">{{ unit.name }} {{ unit.op|intcomma}}/{{ unit.dp|intcomma }}</option>
+                        <option value="{{ unit.id }}">{{ unit.name }} {{ unit.op|intcomma}}/{{ unit.dp|intcomma }} (x{{ unit.quantity_at_home|intcomma }}){% if unit.quantity_at_home >= 1000 %} -- ⚠️⚠️⚠️ --{% endif %}</option>
                         {% endfor %}
                     </select>
                 </label>
