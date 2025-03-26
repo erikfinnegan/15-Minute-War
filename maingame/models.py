@@ -1542,45 +1542,49 @@ def do_tick_units(dominion: Dominion):
                     unit.lose(quantity_becomes_500_blasphemy_each)
                     blasphemy.gain(quantity_becomes_500_blasphemy_each * 500)
                 case "repairs_mechadragons":
+                    repairs = unit.quantity_at_home
+                    gold = Resource.objects.get(ruler=unit.ruler, name="gold")
+                    ore = Resource.objects.get(ruler=unit.ruler, name="ore")
+                    mana = Resource.objects.get(ruler=unit.ruler, name="mana")
+                    research = Resource.objects.get(ruler=unit.ruler, name="research")
+                    
                     if Unit.objects.get(ruler=unit.ruler, name="Mecha-Dragon").quantity_at_home > 0:
-                        repairs = unit.quantity_at_home
-                        gold = Resource.objects.get(ruler=unit.ruler, name="gold")
-                        ore = Resource.objects.get(ruler=unit.ruler, name="ore")
-                        mana = Resource.objects.get(ruler=unit.ruler, name="mana")
-                        research = Resource.objects.get(ruler=unit.ruler, name="research")
-
-                        for module in MechModule.objects.filter(ruler=unit.ruler).order_by("order"):
-                            gold_cost = module.repair_cost_dict["gold"] if "gold" in module.repair_cost_dict else 0
-                            ore_cost = module.repair_cost_dict["ore"] if "ore" in module.repair_cost_dict else 0
-                            mana_cost = module.repair_cost_dict["mana"] if "mana" in module.repair_cost_dict else 0
-                            research_cost = module.repair_cost_dict["research"] if "research" in module.repair_cost_dict else 0
+                        repairable_modules = MechModule.objects.filter(ruler=unit.ruler).order_by("order")
+                    else:
+                        repairable_modules = MechModule.objects.filter(ruler=unit.ruler, zone="hangar").order_by("order")
+                        
+                    for module in repairable_modules:
+                        gold_cost = module.repair_cost_dict["gold"] if "gold" in module.repair_cost_dict else 0
+                        ore_cost = module.repair_cost_dict["ore"] if "ore" in module.repair_cost_dict else 0
+                        mana_cost = module.repair_cost_dict["mana"] if "mana" in module.repair_cost_dict else 0
+                        research_cost = module.repair_cost_dict["research"] if "research" in module.repair_cost_dict else 0
+                        
+                        while (
+                            gold.quantity >= gold_cost and 
+                            ore.quantity >= ore_cost and 
+                            mana.quantity >= mana_cost and 
+                            research.quantity >= research_cost and 
+                            module.durability_current < module.durability_max and 
+                            repairs > 0
+                        ):
+                            repairs_needed = module.durability_max - module.durability_current
+                            repairs_possible = min(
+                                repairs, 
+                                repairs_needed,
+                                int(divide_hack(gold.quantity, gold_cost)),
+                                int(divide_hack(ore.quantity, ore_cost)),
+                                int(divide_hack(mana.quantity, mana_cost)),
+                                int(divide_hack(research.quantity, research_cost)),
+                            )
                             
-                            while (
-                                gold.quantity >= gold_cost and 
-                                ore.quantity >= ore_cost and 
-                                mana.quantity >= mana_cost and 
-                                research.quantity >= research_cost and 
-                                module.durability_current < module.durability_max and 
-                                repairs > 0
-                            ):
-                                repairs_needed = module.durability_max - module.durability_current
-                                repairs_possible = min(
-                                    repairs, 
-                                    repairs_needed,
-                                    int(divide_hack(gold.quantity, gold_cost)),
-                                    int(divide_hack(ore.quantity, ore_cost)),
-                                    int(divide_hack(mana.quantity, mana_cost)),
-                                    int(divide_hack(research.quantity, research_cost)),
-                                )
-                                
-                                repairs -= repairs_possible
-                                gold.spend(gold_cost * repairs_possible)
-                                ore.spend(ore_cost * repairs_possible)
-                                mana.spend(mana_cost * repairs_possible)
-                                research.spend(research_cost * repairs_possible)
-                                module.durability_current += repairs_possible
+                            repairs -= repairs_possible
+                            gold.spend(gold_cost * repairs_possible)
+                            ore.spend(ore_cost * repairs_possible)
+                            mana.spend(mana_cost * repairs_possible)
+                            research.spend(research_cost * repairs_possible)
+                            module.durability_current += repairs_possible
 
-                            module.save()
+                        module.save()
 
         if update_harbingers:
             del unit.perk_dict["sacrifices_brothers_amount"]
