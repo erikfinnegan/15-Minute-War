@@ -13,7 +13,7 @@ def recall_red_beret(request):
     try:
         red_beret = Unit.objects.get(ruler=dominion, name="Red Beret")
         
-        if red_beret.quantity_returning == 1:
+        if red_beret.quantity_in_void == 1:
             red_beret.returning_dict["12"] = 1
             red_beret.quantity_in_void -= 1
             red_beret.perk_dict["subverted_target_id"] = 0

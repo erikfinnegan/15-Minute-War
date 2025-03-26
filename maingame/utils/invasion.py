@@ -188,7 +188,7 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casu
         create_random_sludgene(attacker)
 
     if "partner_patience" in attacker.perk_dict:
-        attacker.perk_dict["partner_patience"] = int(24 * attacker.acres / (defender.acres))
+        attacker.perk_dict["partner_patience"] = int(24 * (attacker.acres / defender.acres))
 
     if "infiltration_dict" in attacker.perk_dict:
         if defender.strid in attacker.perk_dict["infiltration_dict"]:
