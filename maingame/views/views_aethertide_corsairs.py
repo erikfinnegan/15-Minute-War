@@ -28,14 +28,17 @@ def corpsify_press_gangers(request):
     except:
         return redirect("register")
     
-    print(request.POST)
     quantity_corpsified = int(request.POST.get("quantity_corpsified"))
+    
+    if quantity_corpsified < 0:
+        messages.error(request, "You are sentenced to walk the timeplank")
+        return redirect("captains_quarters")
     
     try:
         press_gangers = Resource.objects.get(ruler=dominion, name="press gangers")
         
         if quantity_corpsified > press_gangers.quantity:
-            messages.error(request, "Walk the timeplank")
+            messages.error(request, "You are sentenced to walk the timeplank")
             return redirect("captains_quarters")
         
         press_gangers.spend(quantity_corpsified)
