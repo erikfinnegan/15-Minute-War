@@ -344,7 +344,7 @@ def do_defensive_casualties(defender: Dominion, is_plunder=False):
 
         if "immortal" in unit.perk_dict:
             defensive_casualty_rate = 0
-        elif "always_dies_on_defense" in unit.perk_dict:
+        elif "always_dies_on_defense" in unit.perk_dict and not is_plunder:
             defensive_casualty_rate = 1
         elif "casualty_multiplier" in unit.perk_dict:
             defensive_casualty_rate *= unit.perk_dict["casualty_multiplier"]
@@ -364,7 +364,7 @@ def do_defensive_casualties(defender: Dominion, is_plunder=False):
         unit.lose(casualties)
         defensive_casualties += casualties
         
-        if "hides_for_ticks_after_defense" in unit.perk_dict:
+        if "hides_for_ticks_after_defense" in unit.perk_dict and not is_plunder:
             return_ticks = str(unit.perk_dict["hides_for_ticks_after_defense"])
             unit.returning_dict[return_ticks] = unit.quantity_at_home
             unit.save()
