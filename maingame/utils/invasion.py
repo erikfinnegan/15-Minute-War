@@ -1,4 +1,3 @@
-from math import ceil
 from random import randint
 
 from maingame.formatters import get_goblin_ruler
@@ -421,13 +420,16 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion, is_plun
     defender.save()
 
     attacker.highest_raw_op_sent = max(raw_op_sent, attacker.highest_raw_op_sent)
-    attacker.successful_invasions += 1
+    
+    if not is_plunder:
+        attacker.successful_invasions += 1
     
     try:
         adrenaline_pump = MechModule.objects.get(ruler=attacker, name="PP# Pseudrenaline Pump", zone="mech")
         attacker.determination = int(attacker.determination * adrenaline_pump.version_based_determination_multiplier) if adrenaline_pump.battery_current >= adrenaline_pump.battery_max else 0
     except:
-        attacker.determination = 0
+        if not is_plunder:
+            attacker.determination = 0
     
     ticks_for_land = str(slowest_unit_return_ticks)
     attacker.incoming_acres_dict[ticks_for_land] += acres_conquered * 2
