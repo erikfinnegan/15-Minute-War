@@ -193,10 +193,10 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casu
         if defender.strid in attacker.perk_dict["infiltration_dict"]:
             del attacker.perk_dict["infiltration_dict"][defender.strid]
 
-    if defender.faction_name == "sludgeling":
+    if defender.faction_name == "sludgeling" and not is_plunder:
         create_random_sludgene(defender)
 
-    if "goblin_ruler" in defender.perk_dict:
+    if "goblin_ruler" in defender.perk_dict and not is_plunder:
         defender.perk_dict["goblin_ruler"] = get_goblin_ruler()
         current_favorite_name = defender.perk_dict["rulers_favorite_resource"]
         defender.perk_dict["rulers_favorite_resource"] = get_random_resource(
@@ -214,7 +214,7 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casu
         except:
             pass
         
-    if defender.faction_name == "aethertide corsairs":
+    if defender.faction_name == "aethertide corsairs" and not is_plunder:
         attacker.perk_dict["time_curse"] = 12
 
     # if defender.faction_name == "blessed order":

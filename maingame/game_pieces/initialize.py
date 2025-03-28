@@ -243,8 +243,8 @@ def initialize_factions():
         the tick. This means everyone else processes the tick as normal, but you get nothing, as if you were frozen in time. This also scales up to 50% and down to 
         0% on the same time span. This cycle repeats throughout the whole round.
         Starts with 7,777 plunder and gains more based on the raw defense of dominions that
-        they invade or plunder. Plundering is an alternate attack type that always steals one acre, causes no casualties (except for units that always die on offense), 
-        and has +100% OP. Plundering generates plunder equal to the raw DP of the target and invasions grant a quarter of that.
+        they invade or plunder. Plundering is an alternate attack type that always steals one acre, causes no casualties (except for units that always die on offense),
+        has +100% OP, and does not trigger defensive faction abilities. Plundering generates plunder equal to the raw DP of the target and invasions grant a quarter of that.
         Enemies attacking them will be time-cursed for 12 ticks. During this time, they have a 1-in-6 chance of getting double ticks but a 3-in-6 chance of skipping ticks.""",
         invasion_consequences="You will be time-cursed for 12 ticks. During this time, you'll have a 1-in-6 chance of getting double ticks but a 3-in-6 chance of skipping ticks. "
     )
