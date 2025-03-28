@@ -367,6 +367,7 @@ def do_defensive_casualties(defender: Dominion, is_plunder=False):
         if "hides_for_ticks_after_defense" in unit.perk_dict and not is_plunder:
             return_ticks = str(unit.perk_dict["hides_for_ticks_after_defense"])
             unit.returning_dict[return_ticks] = unit.quantity_at_home
+            unit.quantity_at_home = 0
             unit.save()
 
     return defensive_casualties, new_corpses
