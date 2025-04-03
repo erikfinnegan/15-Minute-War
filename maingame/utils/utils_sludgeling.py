@@ -55,7 +55,13 @@ def generate_random_sludgene_discount_percent():
 
 
 def generate_random_sludgene_cost_type():
-    return random.choice(["primary", "secondary", "hybrid"])
+    return random.choice(
+        [
+            "primary",
+            "secondary",
+            "hybrid",
+        ]
+    )
 
     
 def generate_random_sludgene_resource_secreted():
@@ -109,14 +115,20 @@ def generate_random_sludgene_upkeep_dict(upkeep_type, extra_sludge=0):
         return upkeep_options[2]
     
 
-def create_random_sludgene(ruler: Dominion):
+def create_two_same_type_sludgenes(ruler: Dominion):
+    cost_type = generate_random_sludgene_cost_type()
+    create_random_sludgene(ruler, cost_type)
+    create_random_sludgene(ruler, cost_type)
+
+
+def create_random_sludgene(ruler: Dominion, cost_type_override="random"):
     name = get_sludgene_name()
     op = generate_random_sludgene_op_or_dp()
     dp = generate_random_sludgene_op_or_dp()
     return_ticks = generate_random_sludgene_return_ticks()
     casualty_rate = generate_random_sludgene_casualty_rate()
     resource_secreted_name, amount_secreted = generate_random_sludgene_resource_secreted()
-    cost_type = generate_random_sludgene_cost_type()
+    cost_type = generate_random_sludgene_cost_type() if cost_type_override == "random" else cost_type_override
     upkeep_type = generate_random_sludgene_cost_type()
     upkeep_dict = generate_random_sludgene_upkeep_dict(upkeep_type, amount_secreted > 0)
     discount_percent = generate_random_sludgene_discount_percent()

@@ -408,6 +408,13 @@ def world(request):
 
         if dominion.acres_with_incoming > largest_with_incoming.acres_with_incoming:
             largest_with_incoming = dominion
+            
+    plunder_unit_ids = []
+    
+    if my_dominion.faction_name == "aethertide corsairs":
+        for unit in Unit.objects.filter(ruler=my_dominion):
+            if unit.name in ["Pirate Crew", "Realitylubber Crew"]:
+                plunder_unit_ids.append(unit.id)
 
     context = {
         "dominions": dominion_list,
@@ -421,6 +428,7 @@ def world(request):
         "lowest_defense_in_game": lowest_defense_in_game,
         "largest_with_incoming": largest_with_incoming,
         "is_debug": False,
+        "plunder_unit_ids": plunder_unit_ids,
     }
 
     return render(request, "maingame/world.html", context)

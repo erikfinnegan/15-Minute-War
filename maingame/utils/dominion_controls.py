@@ -25,6 +25,7 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
         # dominion.perk_dict["experiments_done"] = 0
         dominion.perk_dict["recycling_refund"] = 0.8
         dominion.perk_dict["masterpieces_to_create"] = 0
+        dominion.perk_dict["get_sludgenes"] = True
     elif faction.name == "goblin":
         dominion.perk_dict["rats_per_acre_per_tick"] = 0.3333
         dominion.perk_dict["goblin_ruler"] = get_goblin_ruler()
@@ -46,6 +47,7 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
         dominion.perk_dict["aethertide_max_chance"] = 50
         dominion.perk_dict["aethertide_increase_next_tick"] = True
         dominion.perk_dict["double_ticks_and_op_penalty"] = True
+        dominion.perk_dict["ticks_until_next_share_change"] = 0
 
     dominion.save()
 

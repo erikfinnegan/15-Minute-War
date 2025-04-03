@@ -3,7 +3,7 @@ from random import randint
 from django.core.management.base import BaseCommand
 
 from maingame.formatters import get_fast_return_cost_multiplier
-from maingame.models import UserSettings, Resource, Round, Event, Dominion, Unit, MechModule
+from maingame.models import UserSettings, Resource, Round, Event, Dominion, Unit, MechModule, Faction
 from django.contrib.auth.models import User
 
 from maingame.utils.utils_sludgeling import create_random_sludgene
@@ -17,44 +17,72 @@ class Command(BaseCommand):
         print()
         
         
+        for faction in Faction.objects.all():
+            print(faction.description)        
         
-        occurrences = 0
-        # attempts = 100000
-        attempts = 1000000
         
-        for _ in range(attempts):
-            ticks_in_a_row = 0
-            increase_next_tick = True
-            coefficient = 0
-            coefficient_max = 18 + randint(-3, 3)
-            keep_going = True
+        
+        # crit_chance_percent = 32
+        
+        # total_halfsecs = 100000
+        # uptime_halfsecs = 0
+        # buff_halfsecs_left = 0
+        
+        # for _ in range(total_halfsecs):
+        #     buff_halfsecs_left = max(0, buff_halfsecs_left - 1)
             
-            while keep_going:
-                percent_chance = int((coefficient/coefficient_max) * 50)
-                roll = randint(1,100)
+        #     is_crit = randint(1,100) <= crit_chance_percent
+            
+        #     if is_crit:
+        #         buff_halfsecs_left = 8
                 
-                if roll <= percent_chance:
-                    # ticks_in_a_row += 1
-                    occurrences += 1
-                else:
-                    ticks_in_a_row = 0
-                    
-                # if ticks_in_a_row >= 3:
-                #     occurrences += 1
-                #     ticks_in_a_row = 0
-                    
-                if increase_next_tick:
-                    coefficient += 1
-                else:
-                    coefficient -= 1
-                    
-                if coefficient >= coefficient_max:
-                    increase_next_tick = False
-                    
-                if coefficient <= 0 and not increase_next_tick:
-                    keep_going = False
+        #     if buff_halfsecs_left > 0:
+        #         uptime_halfsecs += 1
+                
+        # print(uptime_halfsecs/total_halfsecs)
+        
+        
+        
+        
+        
+        
+        # occurrences = 0
+        # # attempts = 100000
+        # attempts = 1000000
+        
+        # for _ in range(attempts):
+        #     ticks_in_a_row = 0
+        #     increase_next_tick = True
+        #     coefficient = 0
+        #     coefficient_max = 18 + randint(-3, 3)
+        #     keep_going = True
             
-        print(occurrences/attempts)
+        #     while keep_going:
+        #         percent_chance = int((coefficient/coefficient_max) * 50)
+        #         roll = randint(1,100)
+                
+        #         if roll <= percent_chance:
+        #             # ticks_in_a_row += 1
+        #             occurrences += 1
+        #         else:
+        #             ticks_in_a_row = 0
+                    
+        #         # if ticks_in_a_row >= 3:
+        #         #     occurrences += 1
+        #         #     ticks_in_a_row = 0
+                    
+        #         if increase_next_tick:
+        #             coefficient += 1
+        #         else:
+        #             coefficient -= 1
+                    
+        #         if coefficient >= coefficient_max:
+        #             increase_next_tick = False
+                    
+        #         if coefficient <= 0 and not increase_next_tick:
+        #             keep_going = False
+            
+        # print(occurrences/attempts)
                 
             
         

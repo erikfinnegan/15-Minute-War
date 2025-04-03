@@ -25,9 +25,9 @@ class Command(BaseCommand):
                 round.bugs.append(msg)
 
         for unit in Unit.objects.all():
-            if unit.quantity_trained_and_alive != unit.net:
+            if unit.quantity_total != unit.net:
                 unit_bugs = True
-                msg = f"{start_timestamp.strftime('%H:%M:%S')}: {unit.ruler}'s {unit.name} expected {unit.net} -vs- current {unit.quantity_trained_and_alive}"
+                msg = f"{start_timestamp.strftime('%H:%M:%S')}: {unit.ruler}'s {unit.name} expected {unit.net} -vs- current {unit.quantity_total}"
                 print(msg)
                 round.bugs.append(msg)
 

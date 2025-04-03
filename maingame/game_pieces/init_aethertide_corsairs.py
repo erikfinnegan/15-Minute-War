@@ -19,31 +19,30 @@ def initialize_aethertide_corsairs_units():
         faction=aethertide_corsairs,
     )
     
-    Unit.objects.create(
-        name="Gilded Veterans",
-        op=50,
-        dp=60,
-        cost_dict={
-            "gold": 14750,
-            "wood": 4500,
-            "ore": 4500,
-            "plunder": 250,
-        },
-        upkeep_dict={
-            "gold": 15,
-            "food": 5,
-            "plunder": 15,
-        },
-        perk_dict={"casualty_multiplier": 0.5, "returns_in_ticks": 8},
-    )
+    # Unit.objects.create(
+    #     name="Gilded Veterans",
+    #     op=50,
+    #     dp=60,
+    #     cost_dict={
+    #         "gold": 14750,
+    #         "wood": 4500,
+    #         "ore": 4500,
+    #         "plunder": 250,
+    #     },
+    #     upkeep_dict={
+    #         "gold": 15,
+    #         "food": 5,
+    #         "plunder": 15,
+    #     },
+    #     perk_dict={"casualty_multiplier": 0.5, "returns_in_ticks": 8},
+    # )
     
     Unit.objects.create(
         name="Realitylubber Crew",
         op=24,
         dp=28,
         cost_dict={
-            "gold": 2000,
-            "wood": 9000,
+            "wood": 6000,
             "press gangers": 5,
         },
         upkeep_dict={
@@ -81,12 +80,12 @@ def initialize_aethertide_corsairs_units():
     
     
 def initialize_aethertide_corsairs_discoveries():
-    Discovery.objects.create(
-        name="Gilded Veterans",
-        description="Some pirates just deserve more.",
-        required_faction_name="aethertide corsairs",
-        associated_unit_name="Gilded Veterans",
-    )
+    # Discovery.objects.create(
+    #     name="Gilded Veterans",
+    #     description="Some pirates just deserve more.",
+    #     required_faction_name="aethertide corsairs",
+    #     associated_unit_name="Gilded Veterans",
+    # )
     
     Discovery.objects.create(
         name="Impressment",

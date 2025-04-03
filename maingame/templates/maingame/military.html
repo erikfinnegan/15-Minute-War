@@ -52,7 +52,7 @@
                         <td class="u-align-middle" id="power_{{ unit.id }}" style="white-space:nowrap">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
 
                         <td class="u-align-middle u-none md:u-table-cell">
-                            {% include "maingame/components/current_incoming.html" with current=unit.quantity_trained_and_alive incoming=unit.quantity_in_training %}
+                            {% include "maingame/components/current_incoming.html" with current=unit.quantity_total incoming=unit.quantity_in_training %}
                         </td>
 
                         <td class="u-align-middle">
@@ -98,7 +98,7 @@
                         </td>
 
                         <td class="u-align-middle md:u-none">
-                            {% include "maingame/components/current_incoming.html" with current=unit.quantity_trained_and_alive incoming=unit.quantity_in_training %}
+                            {% include "maingame/components/current_incoming.html" with current=unit.quantity_total incoming=unit.quantity_in_training %}
                         </td>
 
                         <td class="u-align-middle">
@@ -167,7 +167,7 @@
                         <div class="col">
                             {% if active_user_settings.show_tutorials %}<span class="u-center font-bold">Quantity</span>{% endif %}
                             <span class="u-center">
-                                {{ unit.quantity_trained_and_alive}}{% if unit.quantity_in_training > 0 %} ({{ unit.quantity_in_training }}){% endif %}
+                                {{ unit.quantity_total}}{% if unit.quantity_in_training > 0 %} ({{ unit.quantity_in_training }}){% endif %}
                             </span>
                         </div>
 

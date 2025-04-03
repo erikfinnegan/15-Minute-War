@@ -524,8 +524,8 @@ class Dominion(models.Model):
         for unit in Unit.objects.filter(ruler=self):
             for upkeep_resource_name, upkeep in unit.upkeep_dict.items():
                 if resource_name == upkeep_resource_name:
-                    consumption += int(unit.quantity_trained_and_alive * upkeep)
-
+                    consumption += int(unit.quantity_total * upkeep)
+                    
         # if resource_name == "faith":
         #     try:
         #         heretics = Resource.objects.get(ruler=self, name="heretics")
@@ -645,6 +645,9 @@ class Dominion(models.Model):
             if self.perk_dict["biclopean_ambition_ticks_remaining"] == 0:
                 del self.perk_dict["biclopean_ambition_ticks_remaining"]
                 
+        if "ticks_until_next_share_change" in self.perk_dict:
+            self.perk_dict["ticks_until_next_share_change"] -= 1
+                
 
     def update_capacity(self):
         used_capacity = 0
@@ -732,6 +735,7 @@ class Dominion(models.Model):
 class Faction(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
     description = models.CharField(max_length=1000, null=True, blank=True, default="Placeholder description")
+    description_list = models.JSONField(default=list, blank=True)
     primary_resource_name = models.CharField(max_length=50, null=True, blank=True)
     primary_resource_per_acre = models.IntegerField(default=0)
     starting_buildings = models.JSONField(default=list, blank=True)
@@ -782,6 +786,10 @@ class Building(models.Model):
             perks.append("Counts as whichever building produces the ruler's favorite resource.")
 
         return " ".join(perks)
+    
+    @property
+    def derived_quantity(self):
+        return int((self.percent_of_land / 100) * self.ruler.acres)
     
 
 class Resource(models.Model):
@@ -868,7 +876,7 @@ class Unit(models.Model):
         return f"{self.op:2,} / {self.dp:2,}"
     
     @property
-    def quantity_trained_and_alive(self):
+    def quantity_total(self):
         return self.quantity_at_home + self.quantity_returning
     
     @property

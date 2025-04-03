@@ -112,6 +112,7 @@
                                     hx-get="/calculate_op"
                                     hx-trigger="change"
                                     hx-target="#readoutSection"
+                                    onChange="togglePlunder()"
                                 />
                                 <div class="form-ext-toggle__toggler"><i></i></div>
                             </div>
@@ -166,7 +167,7 @@
                 <tbody>
                     {% for unit in my_units %}
                     {% if unit.op > 0 %}
-                    <tr>
+                    <tr class="invasion_form_unit_row" id="row_for_unit_id_{{ unit.id }}">
                         {% include "maingame/components/unit_name_row.html" %}
                         <td class="u-align-middle" id="power_{{ unit.id }}" style="white-space:nowrap">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
                         <td class="u-align-middle">{{ unit.quantity_at_home|intcomma }}</td>
@@ -246,6 +247,23 @@
             thisInput.value = ""
         } else {
             thisInput.value = quantity_at_home;
+        }
+    }
+
+    function togglePlunder() {
+        plunderUnitIDs = {{ plunder_unit_ids }}
+        const isPlunder = document.getElementById("do_plunder").checked
+        invasionFormUnitRows = document.getElementsByClassName("invasion_form_unit_row")
+
+        for (const invasionFormUnitRow of invasionFormUnitRows) {
+            const unitID = parseInt(invasionFormUnitRow.id.slice(16))
+
+            if (isPlunder) {
+                invasionFormUnitRow.hidden = !plunderUnitIDs.includes(unitID)
+            }
+            else {
+                invasionFormUnitRow.hidden = false
+            }
         }
     }
 </script>

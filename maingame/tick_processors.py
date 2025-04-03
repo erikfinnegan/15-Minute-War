@@ -29,9 +29,9 @@ def audit_for_bugs():
             round.bugs.append(f"{start_timestamp.strftime('%H:%M:%S')}: {resource.ruler}'s {resource.name} expected {resource.net} -vs- current {resource.quantity}")
 
     for unit in Unit.objects.all():
-        if unit.quantity_trained_and_alive != unit.net:
+        if unit.quantity_total != unit.net:
             unit_bugs = True
-            round.bugs.append(f"{start_timestamp.strftime('%H:%M:%S')}: {unit.ruler}'s {unit.name} expected {unit.net} -vs- current {unit.quantity_trained_and_alive}")
+            round.bugs.append(f"{start_timestamp.strftime('%H:%M:%S')}: {unit.ruler}'s {unit.name} expected {unit.net} -vs- current {unit.quantity_total}")
 
     for dominion in Dominion.objects.all():
         if dominion.net_acres + 500 != dominion.acres:

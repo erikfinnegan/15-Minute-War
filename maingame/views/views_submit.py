@@ -4,7 +4,7 @@ from django.contrib import messages
 from maingame.formatters import create_or_add_to_key
 from maingame.models import Building, Dominion, Unit, Round, Resource, Discovery, Spell, UserSettings, Theme
 from maingame.utils.invasion import do_gsf_infiltration, do_invasion, get_op_and_dp_left
-from maingame.utils.utils import create_unit_dict, unlock_discovery, cast_spell
+from maingame.utils.utils import create_unit_dict, get_unit_from_dict, unlock_discovery, cast_spell
 
 
 def submit_discovery(request):
@@ -432,6 +432,14 @@ def submit_invasion(request):
     if total_units_sent < 1:
         messages.error(request, f"Zero units sent")
         return redirect("world")
+    
+    if is_plunder:
+        for unit_details_dict in units_sent_dict.values():
+            unit = get_unit_from_dict(unit_details_dict)
+            
+            if unit.name not in ["Pirate Crew", "Realitylubber Crew"]:
+                messages.error(request, f"Only pirates can plunder")
+                return redirect("world")
 
     target_dominion = Dominion.objects.get(id=dominion_id)
     

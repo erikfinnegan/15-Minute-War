@@ -3,7 +3,10 @@
 <div class="card card_colors px-2 py-1 u-flex u-flex-column md:w-64 {% if building.percent_of_land > 0 %} u-border-1 u-border-gray-700{% endif %}">
     <div class="u-flex u-justify-space-between">
         <span class="text-xl">{{ building.name|title }}</span>
-        <span>{{ building.percent_of_land }}%</span>
+        {% comment %} <span>{{ building.percent_of_land }}%</span> {% endcomment %}
+        <div>
+            {% include "maingame/components/mouseover_change.html" with normal=building.percent_of_land mouseover=building.derived_quantity %}
+        </div>
     </div>
     
     <div class="u-flex u-flex-row u-justify-space-between">

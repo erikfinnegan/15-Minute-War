@@ -6,29 +6,53 @@
 
 {% block content %}
 <div>
-    {% if "Grim Pragmatism" in active_dominion.learned_discoveries %}
     <div class="max-w-md">
-        <form action="{% url 'corpsify_press_gangers' %}" method="post" class="u-flex u-flex-row u-gap-1 card card_colors p-1 max-w-sm">
+        {% if no_changing_shares %}
+            <span>You can change shares in {{ ticks_until_next_share_change }} ticks.</span>
+        {% else %}
+            <div class="u-flex u-flex-column">
+                <span>Allocate the share of plunder your pirate crews get each tick.</span>
+                <span>Each share above 1 will grant +5 OP and +6 DP.</span>
+                <span>NOTE: You will have to wait 48 ticks before changing it again.</span>
+            </div>
+        {% endif %}
+        <form action="{% url 'submit_plunder_shares' %}" method="post" class="u-flex u-flex-row u-gap-1 card card_colors p-1 max-w-sm">
             {% csrf_token %}
-            <label for="quantity_corpsified" class="u-center">Execute press gangers for their corpses</label>
+            <label for="shares_per_pirate" class="u-center">Plunder shares per pirate per tick</label>
             <input 
-                name="quantity_corpsified" 
-                placeholder="{{ press_gangers }}" 
+                name="shares_per_pirate" 
+                placeholder="{{ shares }}" 
                 type="number" 
-                min="0"
-                max="{{ press_gangers }}" 
+                min="1"
+                max="{{ max_shares }}" 
                 class="w-12 md:w-20"
             >
 
-            <button class="header_colors w-16 h-6 p-0 u-center" type="submit">
+            <button class="header_colors w-16 h-6 p-0 u-center" type="submit" {% if no_changing_shares %}disabled{% endif %}>
                 <span class="font-bold">Submit</span>
             </button>
         </form>
     </div>
-    {% else %}
-    <div class="max-w-md">
-        <p>Yarrr, this page be only used for the "Grim Pragmatism" discovery.</p>
-    </div>
+
+    {% if "Grim Pragmatism" in active_dominion.learned_discoveries %}
+        <div class="max-w-md">
+            <form action="{% url 'corpsify_press_gangers' %}" method="post" class="u-flex u-flex-row u-gap-1 card card_colors p-1 max-w-sm">
+                {% csrf_token %}
+                <label for="quantity_corpsified" class="u-center">Execute press gangers for their corpses</label>
+                <input 
+                    name="quantity_corpsified" 
+                    placeholder="{{ press_gangers }}" 
+                    type="number" 
+                    min="0"
+                    max="{{ press_gangers }}" 
+                    class="w-12 md:w-20"
+                >
+
+                <button class="header_colors w-16 h-6 p-0 u-center" type="submit">
+                    <span class="font-bold">Submit</span>
+                </button>
+            </form>
+        </div>
     {% endif %}
 </div>
 {% endblock %}

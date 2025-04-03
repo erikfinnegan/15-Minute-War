@@ -144,11 +144,9 @@ def initialize_factions():
         primary_resource_name="gold",
         primary_resource_per_acre="50",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry"],
-        # description="""Dwarves keep the most meticulous grudges, gaining 50% more pages than anyone else. They also unlock unique abilities to expand
-        # their grudges and even retain a bit of them instead of forgiving and forgetting like less stalwart folk."""
-        description="""Dwarves keep a book of grudges, chronicling any slight against them, no matter how minor. When a dominion invades a dwarf, pages of 
+        description_list=["""Dwarves keep a book of grudges, chronicling any slight against them, no matter how minor. When a dominion invades a dwarf, pages of 
         grudges are added about that dominion. Every tick, those grudges simmer and the dwarf's offense bonus against that dominion increases by 0.003% per page,
-        accumulating until the dwarf invades that player successfully. 0.003% may not sound like much, but it adds up quickly.""",
+        accumulating until the dwarf invades that player successfully. 0.003% may not sound like much, but it adds up quickly."""],
         invasion_consequences="This dominion will gain a growing OP bonus against you."
     )
 
@@ -168,10 +166,10 @@ def initialize_factions():
         primary_resource_name="goop",
         primary_resource_per_acre="50",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry", "cesspool"],
-        description="""Most alchemists pursue the creation of potions or the transmutation of cheap materials into gold, but some opt instead to work
+        description_list=["""Most alchemists pursue the creation of potions or the transmutation of cheap materials into gold, but some opt instead to work
         with goop and sludge. The "masterminds" behind the sludgelings experiment with vile substances to see what sort of awful creatures they might create.
         Sludelings uncover new sludgene sequences when attacking and being attacked that can be used to create units. They can also splice these
-        sludgene sequences together to work towards creating the perfect units.""",
+        sludgene sequences together to work towards creating the perfect units."""],
         invasion_consequences="This dominion will gain a sludgene sequence."
     )
 
@@ -180,10 +178,10 @@ def initialize_factions():
         primary_resource_name="gold",
         primary_resource_per_acre="50",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry", "ruler's favorite",],
-        description="""Goblins are nasty little creatures. Whether they like it or not (though they definitely do), they produce 1 rat for every 3 acres.
+        description_list=["""Goblins are nasty little creatures. Whether they like it or not (though they definitely do), they produce 1 rat for every 3 acres.
         Each is ruled by an ambitious little wretch who favors one resource above all others, getting a 10% bonus to production. Every time goblins are 
         invaded, they eat their leader and replace them with a new one who favors a new resource and increases the production bonus by 1%. Leaders will 
-        never favor gold or rats as it would be seen as too unoriginal.""",
+        never favor gold or rats as it would be seen as too unoriginal."""],
         invasion_consequences="This dominion will change the resource they get a bonus to producing and the bonus will increase by 1%."
     )
 
@@ -192,12 +190,13 @@ def initialize_factions():
         primary_resource_name="gold",
         primary_resource_per_acre="50",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry",],
-        description="""Fifteen feet tall, two heads, one eye apiece, and as greedy as they are cruel. Biclops have two distinct minds and their success in life almost always
+        description_list=["""Fifteen feet tall, two heads, one eye apiece, and as greedy as they are cruel. Biclops have two distinct minds and their success in life almost always
         hinges on their ability to avoid conflict with themselves. You'll be playing just one half of a biclops leader and will need to share control over your dominion
-        with your mostly-cooperative other head. Your other head will gain patience any time you invade another dominion (see Overview page), but if they run out of
+        with your mostly-cooperative other head.""", 
+        """Your other head will gain patience any time you invade another dominion (see Overview page), but if they run out of
         patience, they'll wait until you stop actively managing your dominion (i.e. have no units in training) and take over choosing when and who to invade (anyone 
         over 75% of your size who you can beat using only units with OP > DP). If they get TOO impatient, they'll ignore the restriction about units training. When biclops get invaded,
-        they add half of their lost complacency penalty to their determination bonus.""",
+        they add half of their lost complacency penalty to their determination bonus."""],
         invasion_consequences="This dominion will add half their complacency penalty to their determination bonus."
     )
 
@@ -206,8 +205,8 @@ def initialize_factions():
         primary_resource_name="gold",
         primary_resource_per_acre="50",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry",],
-        description="""The GSF are as tricky as they are small. What they lack in power they make up for with their devious schemes, strategically undermining
-        the defenses of their targets before striking a decisive blow."""
+        description_list=["""The GSF are as tricky as they are small. What they lack in power they make up for with their devious schemes, strategically undermining
+        the defenses of their targets before striking a decisive blow."""],
     )
 
     Faction.objects.create(
@@ -215,37 +214,24 @@ def initialize_factions():
         primary_resource_name="gold",
         primary_resource_per_acre="50",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry",],
-        description="""Inspired by mythical creatures, they set out to construct the ultimate war machine. It is difficult to deny they've succeeded. The bulk of
-        their offense comes from a single, powerful mecha-dragon comprised of modules that are upgraded and installed from the mech hangar."""
+        description_list=["""Inspired by mythical creatures, they set out to construct the ultimate war machine. It is difficult to deny they've succeeded. The bulk of
+        their offense comes from a single, powerful mecha-dragon comprised of modules that are upgraded and installed from the mech hangar."""]
     )
-    
-    # Faction.objects.create(
-    #     name="aether confederacy",
-    #     primary_resource_name="gold",
-    #     primary_resource_per_acre="50",
-    #     starting_buildings=["farm", "lumberyard", "school", "tower", "quarry",],
-    #     description="""In the void of unreality, the small nation states hate each other... but not nearly so much as they hate realscum, and the enemy of
-    #     my enemy is my friend. Their offensive units (including ones gained via universal discoveries) have no upkeep, but their units and land do not 
-    #     return from battle on their own and instead cost 300 mana per unit that decreases rapidly over time. Do you pay extra for fast return or leave
-    #     your army in the void for effectively reduced upkeep? Enemies who attack you also have their units consigned to the void with a starting return
-    #     cost equal to ten times your defense, also decreasing rapidly.""",
-    #     invasion_consequences="""Your units and land will be trapped in the void until you spend mana to recall them. If you wait 15-18 ticks, it should only
-    #     require a few percent of land as towers."""
-    # )
     
     Faction.objects.create(
         name="aethertide corsairs",
         primary_resource_name="gold",
         primary_resource_per_acre="50",
         starting_buildings=["fishery", "lumberyard", "school", "tower", "quarry"],
-        description="""The aethertide goes in cycles. First, you have a chance to double the tick. When this happens, your dominion processes two ticks while everyone 
+        description_list=["""The aethertide goes in cycles. First, you have a chance to double the tick. When this happens, your dominion processes two ticks while everyone 
         else processes one as normal. That chance scales up to 50% over ~18 ticks and back down to 0% over 18 ticks. The second half of the cycle is a chance to skip 
         the tick. This means everyone else processes the tick as normal, but you get nothing, as if you were frozen in time. This also scales up to 50% and down to 
-        0% on the same time span. This cycle repeats throughout the whole round.
-        Starts with 7,777 plunder and gains more based on the raw defense of dominions that
+        0% on the same time span. This cycle repeats throughout the whole round.""",
+        """Starts with a supply of plunder and gains more based on the raw defense of dominions that
         they invade or plunder. Plundering is an alternate attack type that always steals one acre, causes no casualties (except for units that always die on offense),
         has +100% OP, and does not trigger defensive faction abilities. Plundering generates plunder equal to the raw DP of the target and invasions grant a quarter of that.
-        Enemies attacking them will be time-cursed for 12 ticks. During this time, they have a 1-in-6 chance of getting double ticks but a 3-in-6 chance of skipping ticks.""",
+        Only units with 'Crew' in the name can plunder.""",
+        """Enemies attacking them will be time-cursed for 12 ticks. During this time, they have a 1-in-6 chance of getting double ticks but a 3-in-6 chance of skipping ticks."""],
         invasion_consequences="You will be time-cursed for 12 ticks. During this time, you'll have a 1-in-6 chance of getting double ticks but a 3-in-6 chance of skipping ticks. "
     )
 

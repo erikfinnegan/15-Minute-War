@@ -69,7 +69,12 @@
                 </tr>
                 {% endfor %}
             </table>
-            <span>{{ faction_dict.faction.description }}</span>
+            <div class="u-flex u-flex-column">
+                {% for description_text in faction_dict.faction.description_list %}
+                    <span>{{ description_text }}</span>
+                {% endfor %}
+            </div>
+            {% comment %} <span>{{ faction_dict.faction.description }}</span> {% endcomment %}
         </div>
         {% endfor %}
     </div>

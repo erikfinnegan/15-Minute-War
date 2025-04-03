@@ -80,7 +80,7 @@
                         <td class="u-align-middle" style="white-space:nowrap">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
 
                         <td class="u-align-middle">
-                            {% include "maingame/components/current_incoming.html" with current=unit.quantity_trained_and_alive incoming=unit.quantity_in_training %}
+                            {% include "maingame/components/current_incoming.html" with current=unit.quantity_total incoming=unit.quantity_in_training %}
                         </td>
                         
                         <td class="u-align-middle">{{ unit.quantity_at_home|intcomma }}</td>

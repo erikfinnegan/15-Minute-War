@@ -167,7 +167,7 @@
                     <select name="experiment_to_terminate" class="w-48 u-center mb-2">
                         <option></option>
                         {% for unit in experimental_units %}
-                        <option value="{{ unit.id }}">{{ unit.name }} {{ unit.op|intcomma}}/{{ unit.dp|intcomma }} (x{{ unit.quantity_trained_and_alive|intcomma }}){% if unit.quantity_trained_and_alive >= 1000 %} -- ⚠️⚠️⚠️ --{% endif %}</option>
+                        <option value="{{ unit.id }}">{{ unit.name }} {{ unit.op|intcomma}}/{{ unit.dp|intcomma }} (x{{ unit.quantity_total|intcomma }}){% if unit.quantity_total >= 1000 %} -- ⚠️⚠️⚠️ --{% endif %}</option>
                         {% endfor %}
                     </select>
                 </label>
@@ -233,7 +233,7 @@
                             </td>
 
                             <td class="u-align-middle md:u-none">
-                                {% include "maingame/components/current_incoming.html" with current=unit.quantity_trained_and_alive incoming=unit.quantity_in_training %}
+                                {% include "maingame/components/current_incoming.html" with current=unit.quantity_total incoming=unit.quantity_in_training %}
                             </td>
                         </tr>
                         {% endfor %}

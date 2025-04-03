@@ -61,6 +61,7 @@ urlpatterns = [
     
     path("captains_quarters", views.captains_quarters, name="captains_quarters"),
     path("corpsify_press_gangers", views.corpsify_press_gangers, name="corpsify_press_gangers"),
+    path("submit_plunder_shares", views.submit_plunder_shares, name="submit_plunder_shares"),
     
     path("recall_red_beret", views.recall_red_beret, name="recall_red_beret"),
 ]

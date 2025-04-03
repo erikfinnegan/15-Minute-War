@@ -3,7 +3,7 @@ from random import randint
 from maingame.formatters import get_goblin_ruler
 from maingame.models import Battle, Unit, Dominion, Event, Round, Resource, MechModule
 from maingame.utils.utils import get_acres_conquered, get_grudge_bonus, get_random_resource, get_unit_from_dict
-from maingame.utils.utils_sludgeling import create_random_sludgene
+from maingame.utils.utils_sludgeling import create_random_sludgene, create_two_same_type_sludgenes
 
 
 def handle_grudges_from_attack(attacker: Dominion, defender: Dominion=None):
@@ -184,7 +184,14 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casu
     handle_grudges_from_attack(attacker, defender)
 
     if attacker.faction_name == "sludgeling":
-        create_random_sludgene(attacker)
+        try:
+            if attacker.perk_dict["get_sludgenes"] == True:
+                create_two_same_type_sludgenes(attacker)
+                attacker.perk_dict["get_sludgenes"] = False
+            else:
+                attacker.perk_dict["get_sludgenes"] == True
+        except:
+            pass
 
     if "partner_patience" in attacker.perk_dict:
         attacker.perk_dict["partner_patience"] = int(24 * (defender.acres / attacker.acres))
@@ -194,7 +201,14 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casu
             del attacker.perk_dict["infiltration_dict"][defender.strid]
 
     if defender.faction_name == "sludgeling" and not is_plunder:
-        create_random_sludgene(defender)
+        try:
+            if defender.perk_dict["get_sludgenes"] == True:
+                create_two_same_type_sludgenes(defender)
+                defender.perk_dict["get_sludgenes"] = False
+            else:
+                defender.perk_dict["get_sludgenes"] == True
+        except:
+            pass
 
     if "goblin_ruler" in defender.perk_dict and not is_plunder:
         defender.perk_dict["goblin_ruler"] = get_goblin_ruler()
