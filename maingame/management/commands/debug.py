@@ -3,7 +3,7 @@ from random import randint
 from django.core.management.base import BaseCommand
 
 from maingame.formatters import get_fast_return_cost_multiplier
-from maingame.models import UserSettings, Resource, Round, Event, Dominion, Unit, MechModule, Faction
+from maingame.models import UserSettings, Resource, Round, Event, Dominion, Unit, MechModule, Faction, Theme
 from django.contrib.auth.models import User
 
 from maingame.utils.utils_sludgeling import create_random_sludgene
@@ -17,8 +17,9 @@ class Command(BaseCommand):
         print()
         
         
-        for faction in Faction.objects.all():
-            print(faction.description)        
+        for user in User.objects.all():
+            open_dominion_theme = Theme.objects.get(name="OpenDominion")
+            UserSettings.objects.create(associated_user=user, display_name=user.username, theme_model=open_dominion_theme)    
         
         
         
