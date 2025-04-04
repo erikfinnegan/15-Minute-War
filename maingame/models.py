@@ -736,7 +736,6 @@ class Faction(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
     description = models.CharField(max_length=1000, null=True, blank=True, default="Placeholder description")
     description_list = models.JSONField(default=list, blank=True)
-    description_paragraphs = models.JSONField(default=list, blank=True)
     primary_resource_name = models.CharField(max_length=50, null=True, blank=True)
     primary_resource_per_acre = models.IntegerField(default=0)
     starting_buildings = models.JSONField(default=list, blank=True)
