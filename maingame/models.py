@@ -1317,13 +1317,13 @@ class MechModule(models.Model):
 
         if "durability_damage_percent_reduction" in self.perk_dict:
             damage_reduction_percent = self.perk_dict["durability_damage_percent_reduction"]
-            perk_text += f"Reduces durability loss for modules by {damage_reduction_percent}%. "
+            perk_text += f"Reduces durability loss for modules by {damage_reduction_percent}% (except the Tiamat-class Spirit Bomb). "
 
         if "returns_faster" in self.perk_dict:
             perk_text += f"Return from battle in {12 - self.version} ticks. "
 
         if "recall_instantly" in self.perk_dict:
-            perk_text += f"When equipped on an invasion, activate from the mech hangar to instantly return the mecha-dragon home. This module will be removed from existence in the process to avoid paradoxes."
+            perk_text += f"When equipped on an invasion, activate from the mech hangar to instantly return the mecha-dragon home. This module will be removed from existence in the process to avoid paradoxes and all modules will be reduced to 0 durability. The Magefield cannot prevent this."
 
         if "modifies_determination" in self.perk_dict:
             perk_text += f"Rather than clearing your determination when invading, instead multiply it by {self.version_based_determination_multiplier}."

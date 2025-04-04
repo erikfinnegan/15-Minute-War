@@ -123,6 +123,10 @@ def submit_town_portal(request):
         messages.error(request, "Brrr-ZAP! Oh no, misfire :(")
         return redirect("mech_hangar")
     
+    for module in MechModule.objects.filter(ruler=dominion, zone="mech"):
+        module.durability_current = 0
+        module.save()
+    
     while mechadragon.quantity_at_home == 0:
         mechadragon.advance_training_and_returning()
 

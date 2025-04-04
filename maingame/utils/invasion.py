@@ -252,7 +252,8 @@ def handle_module_durability(mechadragon: Unit, is_attacker):
         perk_based_fragility_modifier = 1
 
     for module in MechModule.objects.filter(ruler=mechadragon.ruler, zone="mech"):
-        modified_fragility = module.fragility * perk_based_fragility_modifier
+        # The spirit bomb doesn't get protected by magefield
+        modified_fragility = module.fragility if module.name == "Tiamat-class Spirit Bomb PL#001" else module.fragility * perk_based_fragility_modifier
 
         if not is_attacker:
             modified_fragility /= 2
