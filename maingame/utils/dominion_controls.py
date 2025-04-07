@@ -27,7 +27,7 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
         dominion.perk_dict["masterpieces_to_create"] = 0
         dominion.perk_dict["get_sludgenes"] = True
     elif faction.name == "goblin":
-        dominion.perk_dict["rats_per_acre_per_tick"] = 0.3333
+        dominion.perk_dict["rats_per_acre_per_tick"] = 0.3334
         dominion.perk_dict["goblin_ruler"] = get_goblin_ruler()
         dominion.perk_dict["rulers_favorite_resource"] = get_random_resource(dominion).name
     elif faction.name == "biclops":

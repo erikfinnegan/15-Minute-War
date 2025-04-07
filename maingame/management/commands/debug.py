@@ -6,7 +6,7 @@ from maingame.formatters import get_fast_return_cost_multiplier
 from maingame.models import UserSettings, Resource, Round, Event, Dominion, Unit, MechModule, Faction, Theme
 from django.contrib.auth.models import User
 
-from maingame.utils.utils_sludgeling import create_random_sludgene
+from maingame.utils.utils_sludgeling import create_random_sludgene, create_two_same_type_sludgenes
 from maingame.utils.utils import generate_unit_cost_dict
 
 class Command(BaseCommand):
@@ -16,12 +16,9 @@ class Command(BaseCommand):
         print("IT'S DEBUG TIME BABY")
         print()
         
-        
-        for user in User.objects.all():
-            open_dominion_theme = Theme.objects.get(name="OpenDominion")
-            UserSettings.objects.create(associated_user=user, display_name=user.username, theme_model=open_dominion_theme)    
-        
-        
+        jota = Dominion.objects.get(name="The Tet")
+        create_two_same_type_sludgenes(jota)
+        create_two_same_type_sludgenes(jota)
         
         # crit_chance_percent = 32
         
