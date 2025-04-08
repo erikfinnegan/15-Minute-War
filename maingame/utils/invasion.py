@@ -189,7 +189,7 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casu
                 create_two_same_type_sludgenes(attacker)
                 attacker.perk_dict["get_sludgenes"] = False
             else:
-                attacker.perk_dict["get_sludgenes"] == True
+                attacker.perk_dict["get_sludgenes"] = True
         except:
             pass
 
@@ -206,7 +206,7 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casu
                 create_two_same_type_sludgenes(defender)
                 defender.perk_dict["get_sludgenes"] = False
             else:
-                defender.perk_dict["get_sludgenes"] == True
+                defender.perk_dict["get_sludgenes"] = True
         except:
             pass
 
