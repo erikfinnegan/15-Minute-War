@@ -19,6 +19,7 @@ class Command(BaseCommand):
         jota = Dominion.objects.get(name="The Tet")
         create_two_same_type_sludgenes(jota)
         create_two_same_type_sludgenes(jota)
+        create_two_same_type_sludgenes(jota)
         
         # crit_chance_percent = 32
         
