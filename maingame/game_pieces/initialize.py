@@ -179,7 +179,7 @@ def initialize_factions():
         primary_resource_per_acre="50",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry", "ruler's favorite",],
         description_list=["""Goblins are nasty little creatures. Whether they like it or not (though they definitely do), they produce 1 rat for every 3 acres.
-        Each is ruled by an ambitious little wretch who favors one resource above all others, getting a 10% bonus to production. Every time goblins are 
+        Each is ruled by an ambitious little wretch who favors one resource above all others, getting a 20% bonus to production. Every time goblins are 
         invaded, they eat their leader and replace them with a new one who favors a new resource and increases the production bonus by 1%. Leaders will 
         never favor gold or rats as it would be seen as too unoriginal."""],
         invasion_consequences="This dominion will change the resource they get a bonus to producing and the bonus will increase by 1%."
@@ -280,7 +280,7 @@ def initialize_spells():
         only units with OP > DP and without the "always dies on offense" perk.""",
         mana_cost_per_acre=20,
         is_targeted=True,
-        cooldown=24,
+        cooldown=36,
     )
 
 

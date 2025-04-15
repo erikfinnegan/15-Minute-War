@@ -56,7 +56,7 @@ def initialize_biclops_units():
 def initialize_biclops_discoveries():
     Discovery.objects.create(
         name="Bestow Biclopean Ambition",
-        description="""Share the gift of desperate, biclopean ambition with another dominion. Unlocks a spell with a 48-tick cooldown that gives 
+        description="""Share the gift of desperate, biclopean ambition with another dominion. Unlocks a spell with a 36-tick cooldown that gives 
         the target dominion 11 ticks of an impatient second head hungry for invasion, except it won't use units that always die on offense.""",
         required_faction_name="biclops",
     )

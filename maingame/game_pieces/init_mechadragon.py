@@ -209,9 +209,9 @@ def initialize_mechadragon_modules():
         name="Vox Shrieker",
         capacity=1,
         base_power=0,
-        battery_current=66,
-        battery_max=66,
-        perk_dict={"op_bonus_percent": 30},
+        battery_current=84,
+        battery_max=84,
+        perk_dict={"op_bonus_percent": 20},
         is_upgradable=False,
     )
     
