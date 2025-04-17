@@ -454,16 +454,15 @@ class Dominion(models.Model):
             aethertide_increase_next_tick = self.perk_dict["aethertide_increase_next_tick"]
             aethertide_coefficient = self.perk_dict["aethertide_coefficient"]
             aethertide_coefficient_max = self.perk_dict["aethertide_coefficient_max"]
+            double_ticks_and_op_penalty = self.perk_dict["double_ticks_and_op_penalty"]
             
             chance_to_trigger = int(aethertide_coefficient / aethertide_coefficient_max * 50)
-            op_mod = int(chance_to_trigger / 2)
+            op_mod = int((chance_to_trigger / 2) * 0.67) if double_ticks_and_op_penalty else int((chance_to_trigger / 2) * 1.33)
             direction_next_tick = "⬆️" if aethertide_increase_next_tick else "⬇️"
-
-            double_ticks_and_op_penalty = self.perk_dict["double_ticks_and_op_penalty"]
             
             op_mod = (-1 * op_mod) if double_ticks_and_op_penalty else op_mod
             action = "double" if double_ticks_and_op_penalty else "skip"
-        
+            
         aethertide_dict = {
             "chance_to_trigger": chance_to_trigger,
             "action": action,

@@ -227,6 +227,8 @@ def initialize_factions():
         else processes one as normal. That chance scales up to 50% over ~18 ticks and back down to 0% over 18 ticks. The second half of the cycle is a chance to skip 
         the tick. This means everyone else processes the tick as normal, but you get nothing, as if you were frozen in time. This also scales up to 50% and down to 
         0% on the same time span. This cycle repeats throughout the whole round.""",
+        """While you have a chance to double ticks, you have a penalty to your offense. While you have a chance to skip ticks, you get a bonus to your offense. These
+        scale with the chance to skip/double ticks."""
         """Starts with a supply of plunder and gains more based on the raw defense of dominions that
         they invade or plunder. Plundering is an alternate attack type that always steals one acre, causes no casualties (except for units that always die on offense),
         has +100% OP, and does not trigger defensive faction abilities. Plundering generates plunder equal to the raw DP of the target and invasions grant a quarter of that.

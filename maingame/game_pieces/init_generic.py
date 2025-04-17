@@ -79,7 +79,7 @@ def initialize_generic_units():
         op=6,
         dp=4,
         cost_dict={
-            "food": 3150,
+            "food": 4000,
         },
         perk_dict={"returns_in_ticks": 4, "casualty_multiplier": 1.5}
     )
