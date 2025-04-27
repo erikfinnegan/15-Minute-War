@@ -8,6 +8,7 @@ from maingame.utils.utils import get_random_resource, update_available_discoveri
 def create_faction_perk_dict(dominion: Dominion, faction: Faction):
     # dominion.perk_dict["book_of_grudges"] = {}
     dominion.perk_dict["aethertide_roll_history"] = []
+    dominion.perk_dict["aethertide_net_ticks"] = 0
 
     if faction.name == "dwarf":
         dominion.perk_dict["book_of_grudges"] = {}

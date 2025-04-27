@@ -417,7 +417,7 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion, is_plun
             
             slowest_unit_return_ticks = max(slowest_unit_return_ticks, return_ticks)
         else:
-            slowest_unit_return_ticks = 12
+            slowest_unit_return_ticks = max(slowest_unit_return_ticks, 12)
 
         if "rats_launched" in unit.perk_dict and "op_if_rats_launched" in unit.perk_dict:
             rats = Resource.objects.get(ruler=attacker, name="rats")

@@ -10,6 +10,7 @@ def initialize_aethertide_corsairs_units():
         cost_dict={
             "gold": 14750,
             "wood": 9000,
+            "plunder": 1,
         },
         upkeep_dict={
             "gold": 15,

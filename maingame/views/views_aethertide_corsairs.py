@@ -13,8 +13,8 @@ def captains_quarters(request):
     try:
         pirate_crews = Unit.objects.get(ruler=dominion, name="Pirate Crew")
         shares = pirate_crews.upkeep_dict["plunder"]
-        plunder = Resource.objects.get(ruler=dominion, name="plunder").quantity
-        max_shares = int(plunder / pirate_crews.quantity_total)
+        min_shares = max(1, shares - 2)
+        max_shares = min(10, shares + 2)
     except:
         shares = 0
         messages.error(request, "You are sentenced to walk the timeplank")
@@ -33,6 +33,7 @@ def captains_quarters(request):
     context = {
         "press_gangers": press_gangers,
         "shares": shares,
+        "min_shares": min_shares,
         "max_shares": max_shares,
         "ticks_until_next_share_change": ticks_until_next_share_change,
         "can_change_shares": ticks_until_next_share_change == 0,

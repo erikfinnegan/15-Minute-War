@@ -63,6 +63,8 @@ def do_global_tick():
             for dominion in Dominion.objects.all():
                 if dominion.is_oop and not dominion.is_abandoned:
                     number_of_ticks = get_number_of_times_to_tick(dominion, start_timestamp)
+                    
+                    dominion.perk_dict["aethertide_net_ticks"] += (number_of_ticks - 1)
 
                     for _ in range(number_of_ticks):
                         dominion.do_tick()

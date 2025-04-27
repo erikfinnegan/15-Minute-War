@@ -438,7 +438,7 @@ def submit_invasion(request):
             unit = get_unit_from_dict(unit_details_dict)
             
             if unit.name not in ["Pirate Crew", "Realitylubber Crew"]:
-                messages.error(request, f"Only pirates can plunder")
+                messages.error(request, f"You left some non-pirates on the form, try again.")
                 return redirect("world")
 
     target_dominion = Dominion.objects.get(id=dominion_id)

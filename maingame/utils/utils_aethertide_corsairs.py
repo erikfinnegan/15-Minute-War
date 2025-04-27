@@ -56,7 +56,7 @@ def get_number_of_times_to_tick(dominion: Dominion, start_timestamp):
     try:
         chronokrakens = Unit.objects.get(ruler=dominion, name="Chronokraken")
         big_mult = chronokrakens.perk_dict["op_modified_by_aethertide"]
-        small_mult = 1 + ((big_mult - 1) / 3)
+        small_mult = 1 + ((big_mult - 1) / 5)
         
         if ticks == 0:
             chronokrakens.op *= big_mult

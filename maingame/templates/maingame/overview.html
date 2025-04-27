@@ -18,13 +18,15 @@
             This shows just about everything about this dominion at a glance.
         </p>
         <p>
-            Some units have special perks. These are marked by differently-colored text and the description can be seen by mousing over the name (desktop)
+            Some units have special perks. These are marked by differently-colored text and the description can be seen
+            by mousing over the name (desktop)
             or tapping on the name (mobile).
         </p>
     </details>
 
     {% if show_red_beret_recall %}
-    <form action="{% url 'recall_red_beret' %}" method="post" class="u-flex u-flex-row u-gap-1 card card_colors p-1 max-w-sm">
+    <form action="{% url 'recall_red_beret' %}" method="post"
+        class="u-flex u-flex-row u-gap-1 card card_colors p-1 max-w-sm">
         {% csrf_token %}
         <button class="header_colors w-32 h-12 p-0 u-center" type="submit">
             <span class="font-bold">Recall red beret</span>
@@ -34,9 +36,10 @@
 
     <div class="top-info">
         {% if dominion.faction_name == "goblin" %}
-        <h6>All hail {{ dominion.perk_dict.goblin_ruler }} who loves {{ dominion.perk_dict.rulers_favorite_resource }} and rules over</h6>
+        <h6>All hail {{ dominion.perk_dict.goblin_ruler }} who loves {{ dominion.perk_dict.rulers_favorite_resource }}
+            and rules over</h6>
         {% endif %}
-        
+
         <h6>{{ dominion.name }}</h6>
         <h6>{{ dominion.acres }} acres</h6>
         {% if dominion == active_dominion or round.has_started and dominion.is_oop %}
@@ -45,18 +48,19 @@
         {% else %}
         <h6>Defense hidden while under magical protection</h6>
         {% endif %}
-        <h6>{{ dominion.successful_invasions }} successful invasions, {{ dominion.failed_defenses }} failed defenses</h6>
+        <h6>{{ dominion.successful_invasions }} successful invasions, {{ dominion.failed_defenses }} failed defenses
+        </h6>
 
         {% if dominion.faction_name == "biclops" %}
-            <h6>Ruled by Right {{ dominion.rulers_display_name }} and Left {{ dominion.rulers_display_name }}</h6>
-            {% if dominion.perk_dict.partner_patience > 0 %}
-                <h6>(one of whom will only be patient for {{ dominion.perk_dict.partner_patience }} more ticks)</h6>
-            {% elif dominion.perk_dict.partner_patience <= 0 %}
-                <h6>(one of whom has lost patience with the other)</h6>
+        <h6>Ruled by Right {{ dominion.rulers_display_name }} and Left {{ dominion.rulers_display_name }}</h6>
+        {% if dominion.perk_dict.partner_patience > 0 %}
+        <h6>(one of whom will only be patient for {{ dominion.perk_dict.partner_patience }} more ticks)</h6>
+        {% elif dominion.perk_dict.partner_patience <= 0 %} <h6>(one of whom has lost patience with the other)</h6>
             {% endif %}
-        {% else %}
+            {% else %}
             <h6>Ruled by {{ dominion.rulers_display_name }}</h6>
-        {% endif %}
+            {% endif %}
+            <h6>Net ticks: {{ dominion.perk_dict.aethertide_net_ticks }}</h6>
     </div>
 
     {% comment %} Units {% endcomment %}
@@ -75,30 +79,32 @@
             </thead>
             <tbody>
                 {% for unit in units %}
-                    <tr>
-                        {% include "maingame/components/unit_name_row.html" %}
-                        <td class="u-align-middle" style="white-space:nowrap">{{ unit.op|intcomma }} / {{ unit.dp|intcomma }}</td>
+                <tr>
+                    {% include "maingame/components/unit_name_row.html" %}
+                    <td class="u-align-middle" style="white-space:nowrap">{{ unit.op|intcomma }} / {{ unit.dp|intcomma
+                        }}</td>
 
-                        <td class="u-align-middle">
-                            {% include "maingame/components/current_incoming.html" with current=unit.quantity_total incoming=unit.quantity_in_training %}
-                        </td>
-                        
-                        <td class="u-align-middle">{{ unit.quantity_at_home|intcomma }}</td>
+                    <td class="u-align-middle">
+                        {% include "maingame/components/current_incoming.html" with current=unit.quantity_total
+                        incoming=unit.quantity_in_training %}
+                    </td>
 
-                        <td class="u-align-middle">
-                            {% if unit.is_trainable %}
-                            {% for resource, amount in unit.cost_dict.items %}
-                            <span class="u-center">{{ amount|intcomma }}&nbsp;{{ resource|depluralize:amount }}</span>
-                            {% endfor %}
-                            {% endif %}
-                        </td>
+                    <td class="u-align-middle">{{ unit.quantity_at_home|intcomma }}</td>
 
-                        <td class="u-align-middle">
-                            {% for resource, amount in unit.upkeep_dict.items %}
-                            <span class="u-center">{{ amount|intcomma }}&nbsp;{{ resource|depluralize:amount }}</span>
-                            {% endfor %}
-                        </td>
-                    </tr>
+                    <td class="u-align-middle">
+                        {% if unit.is_trainable %}
+                        {% for resource, amount in unit.cost_dict.items %}
+                        <span class="u-center">{{ amount|intcomma }}&nbsp;{{ resource|depluralize:amount }}</span>
+                        {% endfor %}
+                        {% endif %}
+                    </td>
+
+                    <td class="u-align-middle">
+                        {% for resource, amount in unit.upkeep_dict.items %}
+                        <span class="u-center">{{ amount|intcomma }}&nbsp;{{ resource|depluralize:amount }}</span>
+                        {% endfor %}
+                    </td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -108,36 +114,36 @@
     {% endif %}
 
     {% if dominion.faction_name == "mecha-dragon" %}
-        {% if dominion == active_dominion or round.has_started and dominion.is_oop %}
-            <div class="text-lg">
-                <span>Module capacity:</span>
-                <span id="current-capacity">{{ dominion.perk_dict.capacity_used }}</span>
-                <span>/ {{ dominion.perk_dict.capacity_max }}</span>
+    {% if dominion == active_dominion or round.has_started and dominion.is_oop %}
+    <div class="text-lg">
+        <span>Module capacity:</span>
+        <span id="current-capacity">{{ dominion.perk_dict.capacity_used }}</span>
+        <span>/ {{ dominion.perk_dict.capacity_max }}</span>
+    </div>
+    <div class="u-flex u-flex-row u-gap-4">
+        <div class="u-flex u-flex-column u-gap-1">
+            <span class="u-center">Equipped modules</span>
+            <div id="mech" class="u-border-1 u-flex u-flex-column u-gap-2 p-2 min-h-90p" style="width: 290px;">
+                {% for module in modules %}
+                {% if module.zone == "mech" %}
+                {% include "maingame/components/mech_module_card.html" with module=module %}
+                {% endif %}
+                {% endfor %}
             </div>
-            <div class="u-flex u-flex-row u-gap-4">
-                <div class="u-flex u-flex-column u-gap-1">
-                    <span class="u-center">Equipped modules</span>
-                    <div id="mech" class="u-border-1 u-flex u-flex-column u-gap-2 p-2 min-h-90p" style="width: 290px;">
-                        {% for module in modules %}
-                            {% if module.zone == "mech" %}
-                                {% include "maingame/components/mech_module_card.html" with module=module %}
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                </div>
-                
-                <div class="u-flex u-flex-column u-gap-1">
-                    <span class="u-center">Module storage</span>
-                    <div id="hangar" class="u-border-1 u-flex u-flex-wrap u-gap-2 p-2 min-h-20p" style="min-width: 290px;">
-                        {% for module in modules %}
-                            {% if not module.zone == "mech" %}
-                                {% include "maingame/components/mech_module_card.html" with module=module %}
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                </div>
+        </div>
+
+        <div class="u-flex u-flex-column u-gap-1">
+            <span class="u-center">Module storage</span>
+            <div id="hangar" class="u-border-1 u-flex u-flex-wrap u-gap-2 p-2 min-h-20p" style="min-width: 290px;">
+                {% for module in modules %}
+                {% if not module.zone == "mech" %}
+                {% include "maingame/components/mech_module_card.html" with module=module %}
+                {% endif %}
+                {% endfor %}
             </div>
-        {% endif %}
+        </div>
+    </div>
+    {% endif %}
     {% endif %}
 
     {% comment %} Resource production {% endcomment %}
@@ -159,13 +165,14 @@
                     <td class="u-align-middle">{{ value.quantity|intcomma }}</td>
                     <td class="u-align-middle text-green-400">{{ value.produced|intcomma }}</td>
                     <td class="u-align-middle text-red-400">{{ value.consumed|intcomma }}</td>
-                    <td class="u-align-middle {% if value.net < 0 %}text-red-400{% else %}text-green-400{% endif %}">{{ value.net|intcomma }}</td>
+                    <td class="u-align-middle {% if value.net < 0 %}text-red-400{% else %}text-green-400{% endif %}">{{
+                        value.net|intcomma }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-    
+
     {% comment %} Buildings {% endcomment %}
     <div>
         <table class="table striped small max-w-xs">
@@ -178,11 +185,12 @@
             </thead>
             <tbody>
                 {% for building in buildings %}
-                    <tr>
-                        {% include "maingame/components/tooltip_td.html" with have_tooltip=True main_text=building.name tooltip_text=building.description %}
-                        <td class="u-align-middle">{{ building.percent_of_land }}%</th>
-                        <td class="u-align-middle">{{ building.upgrades }}</th>
-                    </tr>
+                <tr>
+                    {% include "maingame/components/tooltip_td.html" with have_tooltip=True main_text=building.name
+                    tooltip_text=building.description %}
+                    <td class="u-align-middle">{{ building.percent_of_land }}%</th>
+                    <td class="u-align-middle">{{ building.upgrades }}</th>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -211,20 +219,20 @@
                         <th>11</th>
                         <th>12</th>
                         {% if dominion.ticks_til_soonest_return > 12 %}
-                            <th>13</th>
-                            <th>14</th>
-                            <th>15</th>
-                            <th>16</th>
-                            <th>17</th>
-                            <th>18</th>
+                        <th>13</th>
+                        <th>14</th>
+                        <th>15</th>
+                        <th>16</th>
+                        <th>17</th>
+                        <th>18</th>
                         {% endif %}
                         {% if dominion.ticks_til_soonest_return > 18 %}
-                            <th>19</th>
-                            <th>20</th>
-                            <th>21</th>
-                            <th>22</th>
-                            <th>23</th>
-                            <th>24</th>
+                        <th>19</th>
+                        <th>20</th>
+                        <th>21</th>
+                        <th>22</th>
+                        <th>23</th>
+                        <th>24</th>
                         {% endif %}
                         <th>Total</th>
                     </tr>
@@ -232,38 +240,38 @@
                 <tbody>
                     {% for unit in units %}
                     {% if unit.quantity_returning > 0 %}
-                        <tr>
-                            <th class="u-align-middle">{{ unit.name }}</th>
-                            <td class="u-align-middle">{{ unit.returning_dict.1|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ unit.returning_dict.2|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ unit.returning_dict.3|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ unit.returning_dict.4|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ unit.returning_dict.5|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ unit.returning_dict.6|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ unit.returning_dict.7|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ unit.returning_dict.8|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ unit.returning_dict.9|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ unit.returning_dict.10|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ unit.returning_dict.11|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ unit.returning_dict.12|no_zeroes|intcomma }}</td>
-                            {% if dominion.ticks_til_all_units_return > 12 %}
-                                <td class="u-align-middle">{{ unit.returning_dict.13|no_zeroes|intcomma }}</td>
-                                <td class="u-align-middle">{{ unit.returning_dict.14|no_zeroes|intcomma }}</td>
-                                <td class="u-align-middle">{{ unit.returning_dict.15|no_zeroes|intcomma }}</td>
-                                <td class="u-align-middle">{{ unit.returning_dict.16|no_zeroes|intcomma }}</td>
-                                <td class="u-align-middle">{{ unit.returning_dict.17|no_zeroes|intcomma }}</td>
-                                <td class="u-align-middle">{{ unit.returning_dict.18|no_zeroes|intcomma }}</td>
-                            {% endif %}
-                            {% if dominion.ticks_til_all_units_return > 18 %}
-                                <td class="u-align-middle">{{ unit.returning_dict.19|no_zeroes|intcomma }}</td>
-                                <td class="u-align-middle">{{ unit.returning_dict.20|no_zeroes|intcomma }}</td>
-                                <td class="u-align-middle">{{ unit.returning_dict.21|no_zeroes|intcomma }}</td>
-                                <td class="u-align-middle">{{ unit.returning_dict.22|no_zeroes|intcomma }}</td>
-                                <td class="u-align-middle">{{ unit.returning_dict.23|no_zeroes|intcomma }}</td>
-                                <td class="u-align-middle">{{ unit.returning_dict.24|no_zeroes|intcomma }}</td>
-                            {% endif %}
-                            <td class="u-align-middle">{{ unit.quantity_returning|no_zeroes|intcomma }}</td>
-                        </tr>
+                    <tr>
+                        <th class="u-align-middle">{{ unit.name }}</th>
+                        <td class="u-align-middle">{{ unit.returning_dict.1|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.2|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.3|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.4|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.5|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.6|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.7|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.8|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.9|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.10|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.11|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.12|no_zeroes|intcomma }}</td>
+                        {% if dominion.ticks_til_all_units_return > 12 %}
+                        <td class="u-align-middle">{{ unit.returning_dict.13|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.14|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.15|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.16|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.17|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.18|no_zeroes|intcomma }}</td>
+                        {% endif %}
+                        {% if dominion.ticks_til_all_units_return > 18 %}
+                        <td class="u-align-middle">{{ unit.returning_dict.19|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.20|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.21|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.22|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.23|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.returning_dict.24|no_zeroes|intcomma }}</td>
+                        {% endif %}
+                        <td class="u-align-middle">{{ unit.quantity_returning|no_zeroes|intcomma }}</td>
+                    </tr>
                     {% endif %}
                     {% endfor %}
                 </tbody>
@@ -294,20 +302,20 @@
                         <th>11</th>
                         <th>12</th>
                         {% if dominion.ticks_til_all_acres_return > 12 %}
-                            <th>13</th>
-                            <th>14</th>
-                            <th>15</th>
-                            <th>16</th>
-                            <th>17</th>
-                            <th>18</th>
+                        <th>13</th>
+                        <th>14</th>
+                        <th>15</th>
+                        <th>16</th>
+                        <th>17</th>
+                        <th>18</th>
                         {% endif %}
                         {% if dominion.ticks_til_all_acres_return > 18 %}
-                            <th>19</th>
-                            <th>20</th>
-                            <th>21</th>
-                            <th>22</th>
-                            <th>23</th>
-                            <th>24</th>
+                        <th>19</th>
+                        <th>20</th>
+                        <th>21</th>
+                        <th>22</th>
+                        <th>23</th>
+                        <th>24</th>
                         {% endif %}
                         <th>Total</th>
                     </tr>
@@ -329,20 +337,20 @@
                         <td class="u-align-middle">{{ dominion.incoming_acres_dict.11|no_zeroes|intcomma }}</td>
                         <td class="u-align-middle">{{ dominion.incoming_acres_dict.12|no_zeroes|intcomma }}</td>
                         {% if dominion.ticks_til_all_acres_return > 12 %}
-                            <td class="u-align-middle">{{ dominion.incoming_acres_dict.13|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ dominion.incoming_acres_dict.14|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ dominion.incoming_acres_dict.15|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ dominion.incoming_acres_dict.16|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ dominion.incoming_acres_dict.17|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ dominion.incoming_acres_dict.18|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres_dict.13|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres_dict.14|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres_dict.15|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres_dict.16|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres_dict.17|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres_dict.18|no_zeroes|intcomma }}</td>
                         {% endif %}
                         {% if dominion.ticks_til_all_acres_return > 18 %}
-                            <td class="u-align-middle">{{ dominion.incoming_acres_dict.19|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ dominion.incoming_acres_dict.20|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ dominion.incoming_acres_dict.21|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ dominion.incoming_acres_dict.22|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ dominion.incoming_acres_dict.23|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ dominion.incoming_acres_dict.24|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres_dict.19|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres_dict.20|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres_dict.21|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres_dict.22|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres_dict.23|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ dominion.incoming_acres_dict.24|no_zeroes|intcomma }}</td>
                         {% endif %}
                         <td class="u-align-middle">{{ dominion.incoming_acres|no_zeroes|intcomma }}</td>
                     </tr>
@@ -381,22 +389,22 @@
                 <tbody>
                     {% for unit in units %}
                     {% if unit.quantity_in_training > 0 %}
-                        <tr>
-                            <th class="u-align-middle">{{ unit.name }}</th>
-                            <td class="u-align-middle">{{ unit.training_dict.1|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ unit.training_dict.2|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ unit.training_dict.3|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ unit.training_dict.4|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ unit.training_dict.5|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ unit.training_dict.6|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ unit.training_dict.7|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ unit.training_dict.8|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ unit.training_dict.9|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ unit.training_dict.10|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ unit.training_dict.11|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ unit.training_dict.12|no_zeroes|intcomma }}</td>
-                            <td class="u-align-middle">{{ unit.quantity_in_training|no_zeroes|intcomma }}</td>
-                        </tr>
+                    <tr>
+                        <th class="u-align-middle">{{ unit.name }}</th>
+                        <td class="u-align-middle">{{ unit.training_dict.1|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.2|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.3|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.4|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.5|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.6|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.7|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.8|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.9|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.10|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.11|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.training_dict.12|no_zeroes|intcomma }}</td>
+                        <td class="u-align-middle">{{ unit.quantity_in_training|no_zeroes|intcomma }}</td>
+                    </tr>
                     {% endif %}
                     {% endfor %}
                 </tbody>
@@ -425,7 +433,8 @@
             </div>
         </details>
         <details class="accordion">
-            <summary class="accordion__summary header_colors u-round-xs"><span class="u-center">Discoveries</span></summary>
+            <summary class="accordion__summary header_colors u-round-xs"><span class="u-center">Discoveries</span>
+            </summary>
             <div>
                 {% for discovery in learned_discoveries %}
                 <div class="card card_colors p-1 u-flex u-flex-column u-gap-1">
@@ -433,7 +442,7 @@
                     <span>
                         {{ discovery.description }}
                         {% if discovery.repeatable %}
-                            (Repeatable)
+                        (Repeatable)
                         {% endif %}
                     </span>
                 </div>
@@ -467,20 +476,20 @@
                     <td class="u-align-middle">{{ dominion.net_acres|intcomma }}</td>
                 </tr>
                 {% for key, resource in resources_dict.items %}
-                    <tr>
-                        <td class="u-align-middle">{{ resource.resource.name|title }}</td>
-                        <td class="u-align-middle text-green-400">{{ resource.resource.produced|intcomma }}</td>
-                        <td class="u-align-middle text-red-400">{{ resource.resource.spent|intcomma }}</td>
-                        <td class="u-align-middle">{{ resource.resource.net|intcomma }}</td>
-                    </tr>
+                <tr>
+                    <td class="u-align-middle">{{ resource.resource.name|title }}</td>
+                    <td class="u-align-middle text-green-400">{{ resource.resource.produced|intcomma }}</td>
+                    <td class="u-align-middle text-red-400">{{ resource.resource.spent|intcomma }}</td>
+                    <td class="u-align-middle">{{ resource.resource.net|intcomma }}</td>
+                </tr>
                 {% endfor %}
                 {% for unit in units %}
-                    <tr>
-                        <td class="u-align-middle">{{ unit.name|title }}</td>
-                        <td class="u-align-middle text-green-400">{{ unit.gained|intcomma }}</td>
-                        <td class="u-align-middle text-red-400">{{ unit.lost|intcomma }}</td>
-                        <td class="u-align-middle">{{ unit.net|intcomma }}</td>
-                    </tr>
+                <tr>
+                    <td class="u-align-middle">{{ unit.name|title }}</td>
+                    <td class="u-align-middle text-green-400">{{ unit.gained|intcomma }}</td>
+                    <td class="u-align-middle text-red-400">{{ unit.lost|intcomma }}</td>
+                    <td class="u-align-middle">{{ unit.net|intcomma }}</td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
