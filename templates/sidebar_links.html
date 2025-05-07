@@ -1,4 +1,5 @@
 {% load extra_tags %}
+{% load tz %}
 {% load humanize %}
 
 {% if active_dominion %}
@@ -103,3 +104,18 @@
 {% else %}
     <span class="mx-1 pt-4 font-bold">The round does not have a planned start time yet.</span>
 {% endif %}
+
+{% if round.ticks_passed > 0 %}
+<div class="u-center mt-2 u-flex u-flex-column">
+    <span>Last tick finished at:</span>
+    <span>
+        {% if active_user_settings.use_am_pm %}
+            {{ round.last_tick_finished|timezone:active_user_settings.timezone|date:"F j, g:i:s a" }}
+        {% else %}
+            {{ round.last_tick_finished|timezone:active_user_settings.timezone|date:"F j, G:i:s" }}
+        {% endif %}
+    </span>
+</div>
+{% endif %}
+
+

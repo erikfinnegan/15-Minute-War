@@ -2,7 +2,7 @@ from random import choice
 import random
 
 from maingame.formatters import generate_countdown_dict, get_casualty_mod_cost_multiplier, get_fast_return_cost_multiplier, get_low_turtle_cost_multiplier
-from maingame.models import Unit, Dominion, Discovery, Building, Resource, Spell, MechModule
+from maingame.models import Event, Unit, Dominion, Discovery, Building, Resource, Spell, MechModule
 
 from maingame.utils.give_stuff import create_resource_for_dominion, give_dominion_building, give_dominion_module, give_dominion_spell, give_dominion_unit
 
@@ -287,7 +287,7 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Gatesmasher"))
         case "Growing Determination":
             if "bonus_determination" in dominion.perk_dict:
-                dominion.perk_dict["bonus_determination"] += 0.1
+                dominion.perk_dict["bonus_determination"] += 0.15
         case "Spurred to Action":
             dominion.perk_dict["percent_complacency_to_determination_when_hit"] += 20
             dominion.invasion_consequences = f"This dominion will add {dominion.perk_dict['percent_complacency_to_determination_when_hit']}% of their complacency penalty to their determination bonus."
@@ -386,9 +386,18 @@ def cast_spell(spell: Spell, target=None):
 
     match spell.name:
         case "Bestow Biclopean Ambition":
+            duration = 11
+            
             if target:
-                target.perk_dict["biclopean_ambition_ticks_remaining"] = 11
+                target.perk_dict["biclopean_ambition_ticks_remaining"] = duration
                 target.save()
+                event = Event.objects.create(
+                    reference_id=target.id, 
+                    reference_type="spell", 
+                    category="spell",
+                    message_override=f"{dominion} bestowed biclopean ambition on {target} for {duration} ticks."
+                )
+                event.notified_dominions.add(target)
         case "Power Overwhelming":
             for unit in Unit.objects.filter(ruler=dominion):
                 if unit.is_trainable and unit.op > unit.dp and "always_dies_on_offense" not in unit.perk_dict:

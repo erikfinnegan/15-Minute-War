@@ -1033,6 +1033,8 @@ class Event(models.Model):
             return self.message_override
         elif self.reference_type == "abandon":
             return self.message_override
+        elif self.reference_type == "spell":
+            return self.message_override
         
         return "Unknown event type"
     
@@ -1049,6 +1051,7 @@ class Round(models.Model):
     base_price_dict = models.JSONField(default=dict, blank=True)
     resource_bank_dict = models.JSONField(default=dict, blank=True)
     start_time = models.DateTimeField(null=True, blank=True)
+    last_tick_finished = models.DateTimeField(null=True, blank=True)
     ticks_passed = models.IntegerField(default=0)
     ticks_to_end = models.IntegerField(default=672)
     is_ticking = models.BooleanField(default=False)

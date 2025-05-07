@@ -2,6 +2,7 @@ from random import randint
 from maingame.formatters import generate_countdown_dict
 from maingame.models import Dominion, Round, Resource, Unit
 from datetime import datetime
+from django.utils.timezone import make_aware
 from zoneinfo import ZoneInfo
 
 from maingame.utils.invasion import do_biclops_partner_attack, do_forced_attack
@@ -107,4 +108,5 @@ def do_global_tick():
     print(f"Tick processing time: {printable_delta}")
 
     round.is_ticking = False
+    round.last_tick_finished = make_aware(datetime.now())
     round.save()

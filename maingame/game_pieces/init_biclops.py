@@ -78,7 +78,7 @@ def initialize_biclops_discoveries():
 
     Discovery.objects.create(
         name="Growing Determination",
-        description="""Biclops hate not attacking. Increases determination gained by 10% of the base rate.""",
+        description="""Biclops hate not attacking. Increases determination gained by 15% of the base rate.""",
         required_faction_name="biclops",
         repeatable=True,
     )
