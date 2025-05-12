@@ -499,6 +499,9 @@ def do_gsf_infiltration(infiltration_power_gained, units_sent_dict, attacker: Do
     attacker.save()
     
     for unit_details_dict in units_sent_dict.values():
+        unit = get_unit_from_dict(unit_details_dict)
+        quantity_sent = unit_details_dict["quantity_sent"]
+        
         unit.quantity_at_home -= quantity_sent
         
         if "subverted_target_id" in unit.perk_dict:
