@@ -1596,6 +1596,12 @@ def do_tick_units(dominion: Dominion):
                             module.durability_current += repairs_possible
 
                         module.save()
+                case "subverted_target_id":
+                    if unit.perk_dict["subverted_target_id"] == 0 and unit.quantity_in_void != 0:
+                        unit.returning_dict["11"] = 1
+                        unit.quantity_in_void = 0
+                        unit.quantity_at_home = 0
+                        unit.save()
 
         if update_harbingers:
             del unit.perk_dict["sacrifices_brothers_amount"]
