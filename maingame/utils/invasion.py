@@ -591,7 +591,7 @@ def do_forced_attack(dominion: Dominion, use_always_dies_units=False):
                     raw_dp_at_home * own_dp_multiplier >= dominion.acres * 5
                 ):
                     this_unit_dict["quantity_sent"] += 1
-                    raw_op_sent += offensive_unit.op
+                    raw_op_sent += get_conditional_op(offensive_unit, dominion, other_dominion)
                     raw_dp_at_home -= offensive_unit.dp
                 
                 if this_unit_dict["quantity_sent"] > 0:
