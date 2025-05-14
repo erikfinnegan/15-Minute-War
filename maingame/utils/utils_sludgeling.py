@@ -172,8 +172,11 @@ def breed_sludgenes(father: Sludgene, mother: Sludgene):
     if randint(1,3) == 1:
         casualty_rate = min(father.casualty_rate, mother.casualty_rate)
     else:
-        casualty_rate = randint(min(father.casualty_rate, mother.casualty_rate) * 100, max(father.casualty_rate, mother.casualty_rate) * 100)
-        casualty_rate = round_x_to_nearest_y(casualty_rate, 5) / 100
+        try:
+            casualty_rate = randint(min(father.casualty_rate, mother.casualty_rate) * 100, max(father.casualty_rate, mother.casualty_rate) * 100)
+            casualty_rate = round_x_to_nearest_y(casualty_rate, 5) / 100
+        except:
+            casualty_rate = 1
         
     cost_type = random.choice([father.cost_type, mother.cost_type])
     upkeep_type = random.choice([father.upkeep_type, mother.upkeep_type])
