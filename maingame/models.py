@@ -1266,8 +1266,6 @@ class MechModule(models.Model):
     
     @property
     def power(self):
-        durability_modifier = 0.5 + (0.5 * (self.durability_percent / 100))
-
         a = 0.5 * min(100, self.durability_percent+50) / 100
         b = 0.5 * (self.durability_percent / 100)
         durability_modifier = a + b
