@@ -266,6 +266,7 @@ def news(request):
     TIMEZONES_CHOICES = [tz for tz in zoneinfo.available_timezones()]
     try:
         dominion = Dominion.objects.get(associated_user=request.user)
+        round = Round.objects.first()
     except:
         return redirect("register")
     
@@ -277,8 +278,9 @@ def news(request):
             "involves_dominion": event.notified_dominions.filter(id=dominion.id).count() > 0,
         })
 
-    dominion.has_unread_events = False
-    dominion.save()
+    if not round.is_ticking:
+        dominion.has_unread_events = False
+        dominion.save()
 
     context = {
         "displayed_events": displayed_events,
