@@ -569,7 +569,12 @@ def do_forced_attack(dominion: Dominion, use_always_dies_units=False):
 
     for other_dominion in Dominion.objects.filter(is_abandoned=False).order_by("-acres", "?"):
         op_multiplier = dominion.offense_multiplier + get_grudge_bonus(dominion, other_dominion)
-        op_against_this_dominion = op_from_offensive_units_at_home * op_multiplier
+        
+        infiltration = 0
+        if "infiltration_dict" in dominion.perk_dict and other_dominion.strid in dominion.perk_dict["infiltration_dict"]:
+            infiltration = dominion.perk_dict["infiltration_dict"][other_dominion.strid]
+        
+        op_against_this_dominion = (op_from_offensive_units_at_home + infiltration) * op_multiplier
 
         if (other_dominion != dominion and 
             other_dominion.is_oop and 
@@ -591,6 +596,8 @@ def do_forced_attack(dominion: Dominion, use_always_dies_units=False):
                     raw_dp_at_home * own_dp_multiplier >= dominion.acres * 5
                 ):
                     this_unit_dict["quantity_sent"] += 1
+                    raw_op_sent += infiltration
+                    infiltration = 0
                     raw_op_sent += get_conditional_op(offensive_unit, dominion, other_dominion)
                     raw_dp_at_home -= offensive_unit.dp
                 
