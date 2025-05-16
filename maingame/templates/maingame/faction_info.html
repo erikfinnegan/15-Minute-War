@@ -94,6 +94,9 @@
                                     (Repeatable)
                                 {% endif %}
                             </p>
+                            {% if discovery.requirement_string %}
+                                <p class="text-xs">Requires: {{ discovery.requirement_string }}</p>
+                            {% endif %}
 
                             {% if discovery.associated_unit_name %}
                             <details class="px-1 py-0 accordion md:u-none">

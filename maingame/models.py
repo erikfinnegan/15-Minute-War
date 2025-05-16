@@ -1155,7 +1155,42 @@ class Discovery(models.Model):
             return MechModule.objects.get(name=self.associated_module_name, ruler=None)
         
         return None
+    
+    @property
+    def requirement_string(self):
+        and_requirements_left = []
+        or_requirements_left = []
+        
+        if self.required_discoveries:                    
+            for requirement_name in self.required_discoveries:
+                and_requirements_left.append(requirement_name)
 
+        if self.required_discoveries_or:
+            for requirement_name in self.required_discoveries_or:
+                or_requirements_left.append(requirement_name)
+
+        requirement_string = ""
+
+        if len(or_requirements_left) == 1:
+            requirement_string = or_requirements_left[0]
+        elif len(or_requirements_left) > 1:
+            requirement_string = f"one of {', '.join(or_requirements_left)}"
+
+        if len(and_requirements_left) == 1:
+            requirement_string = and_requirements_left[0]
+        elif len(and_requirements_left) > 1:
+            requirement_string = f"{', '.join(and_requirements_left)}"
+
+        if "mining_depth" in self.required_perk_dict:
+            required_depth = self.required_perk_dict["mining_depth"]
+            
+            if len(requirement_string) > 0:
+                requirement_string += ", "
+                
+            requirement_string += f"mining depth {int(required_depth):2,} torchbrights"
+
+        return requirement_string
+    
 
 class Spell(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
