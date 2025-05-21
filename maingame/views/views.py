@@ -582,46 +582,46 @@ def calculate_op(request):
     
     # Build the dict that powers the win button. If this is slow, delete this part
     units_needed_to_break_list = []
-    if target_dominion:
-        for unit in Unit.objects.filter(ruler=my_dominion, op__gt=0):
-            unit_sent_entry = units_sent_dict.get(str(unit.id))
-            quantity_queued = 0 if unit_sent_entry == None else unit_sent_entry.get("quantity_sent")
-            def check(x):
-                return does_x_of_unit_break_defender(x, unit, units_sent_dict, attacker=my_dominion, defender=target_dominion, is_plunder=is_plunder)
+    # if target_dominion:
+    #     for unit in Unit.objects.filter(ruler=my_dominion, op__gt=0):
+    #         unit_sent_entry = units_sent_dict.get(str(unit.id))
+    #         quantity_queued = 0 if unit_sent_entry == None else unit_sent_entry.get("quantity_sent")
+    #         def check(x):
+    #             return does_x_of_unit_break_defender(x, unit, units_sent_dict, attacker=my_dominion, defender=target_dominion, is_plunder=is_plunder)
 
-            if not check(unit.quantity_at_home):
-                units_needed_to_break_list.append({
-                    "id": unit.id,
-                    "quantity_needed": unit.quantity_at_home,
-                })
-            elif check(quantity_queued):
-                units_needed_to_break_list.append({
-                    "id": unit.id,
-                    "quantity_needed": quantity_queued,
-                })
-            else:
-                mod_op = unit.op * my_dominion.offense_multiplier
+    #         if not check(unit.quantity_at_home):
+    #             units_needed_to_break_list.append({
+    #                 "id": unit.id,
+    #                 "quantity_needed": unit.quantity_at_home,
+    #             })
+    #         elif check(quantity_queued):
+    #             units_needed_to_break_list.append({
+    #                 "id": unit.id,
+    #                 "quantity_needed": quantity_queued,
+    #             })
+    #         else:
+    #             mod_op = unit.op * my_dominion.offense_multiplier
                 
-                if is_plunder:
-                    mod_op *= 2
+    #             if is_plunder:
+    #                 mod_op *= 2
                 
-                test_quantity = min(unit.quantity_at_home, int((target_dominion.defense - op_sent) / mod_op) + 1 + quantity_queued)
-                test_quantity = max(0, test_quantity)
-                keep_going = True
-                counter = 0
+    #             test_quantity = min(unit.quantity_at_home, int((target_dominion.defense - op_sent) / mod_op) + 1 + quantity_queued)
+    #             test_quantity = max(0, test_quantity)
+    #             keep_going = True
+    #             counter = 0
 
-                while keep_going and counter < 1000:
-                    counter += 1
-                    if check(test_quantity) and not check(test_quantity - 1):
-                        keep_going = False
-                        units_needed_to_break_list.append({
-                            "id": unit.id,
-                            "quantity_needed": test_quantity,
-                        })
-                    elif check(test_quantity):
-                        test_quantity -= 1
-                    else:
-                        test_quantity += 1
+    #             while keep_going and counter < 1000:
+    #                 counter += 1
+    #                 if check(test_quantity) and not check(test_quantity - 1):
+    #                     keep_going = False
+    #                     units_needed_to_break_list.append({
+    #                         "id": unit.id,
+    #                         "quantity_needed": test_quantity,
+    #                     })
+    #                 elif check(test_quantity):
+    #                     test_quantity -= 1
+    #                 else:
+    #                     test_quantity += 1
 
     # End win button stuff
     

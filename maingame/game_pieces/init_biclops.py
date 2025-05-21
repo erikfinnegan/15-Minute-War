@@ -17,6 +17,7 @@ def initialize_biclops_units():
             "food": 4,
         },
         faction=biclops,
+        perk_dict={"reduced_gold_upkeep_per_big_hit": 0.2},
     )
 
     Unit.objects.create(
@@ -32,7 +33,7 @@ def initialize_biclops_units():
             "food": 4,
         },
         faction=biclops,
-        perk_dict={"casualty_multiplier": 0.5},
+        perk_dict={"casualty_multiplier": 0.5, "reduced_gold_upkeep_per_big_hit": 0.2},
     )
 
     Unit.objects.create(
@@ -49,7 +50,7 @@ def initialize_biclops_units():
             "food": 4,
             "wood": 4,
         },
-        perk_dict={"casualty_multiplier": 0.5, "gets_op_bonus_equal_to_percent_of_target_complacency": 40},
+        perk_dict={"casualty_multiplier": 0.5, "gets_op_bonus_equal_to_percent_of_target_complacency": 40, "reduced_gold_upkeep_per_big_hit": 0.2},
     )
 
 

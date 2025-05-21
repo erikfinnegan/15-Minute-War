@@ -180,7 +180,7 @@ def does_x_of_unit_break_defender(quantity_theorized, unit: Unit, units_sent_dic
     return faux_op >= defender.defense
 
 
-def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casualties, raw_defense_snapshot, is_plunder=False):
+def handle_invasion_perks(attacker: Dominion, defender: Dominion, defender_land_snapshot, raw_defense_snapshot, is_plunder=False):
     handle_grudges_from_attack(attacker, defender)
 
     if attacker.faction_name == "sludgeling":
@@ -194,7 +194,14 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defensive_casu
             pass
 
     if "partner_patience" in attacker.perk_dict:
-        attacker.perk_dict["partner_patience"] = int(24 * (defender.acres / attacker.acres))
+        attacker.perk_dict["partner_patience"] = int(24 * (defender_land_snapshot / attacker.acres))
+        
+    if attacker.faction_name == "biclops" and defender_land_snapshot > attacker.acres:
+        for unit in Unit.objects.filter(ruler=attacker):
+            if "reduced_gold_upkeep_per_big_hit" in unit.perk_dict and "gold" in unit.upkeep_dict:
+                reduced_gold_upkeep_per_big_hit = unit.perk_dict["reduced_gold_upkeep_per_big_hit"]
+                unit.upkeep_dict["gold"] -= reduced_gold_upkeep_per_big_hit
+                unit.save()
 
     if "infiltration_dict" in attacker.perk_dict:
         if defender.strid in attacker.perk_dict["infiltration_dict"]:
@@ -271,7 +278,7 @@ def handle_module_durability(mechadragon: Unit, is_attacker):
         module.save()
 
 
-def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion, defender: Dominion, defense_snapshot, is_plunder=False):
+def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion, defender: Dominion, defender_land_snapshot, is_plunder=False):
     offensive_casualties = 0
     new_corpses = 0
     
@@ -391,6 +398,7 @@ def do_defensive_casualties(defender: Dominion, is_plunder=False):
 def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion, is_plunder=False):
     raw_op_sent = 0
     defense_snapshot = defender.defense
+    defender_land_snapshot = defender.acres
     raw_defense_snapshot = defender.raw_defense
     slowest_unit_return_ticks = 1
     offense_sent, dp_left, _ = get_op_and_dp_left(units_sent_dict, attacker, defender=defender, is_plunder=is_plunder)
@@ -462,7 +470,7 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion, is_plun
     #     _, offensive_corpses = do_offensive_casualties_and_return(units_sent_dict, attacker, defender, defense_snapshot, is_plunder=is_plunder)
     #     defensive_casualties, defensive_corpses = do_defensive_casualties(defender, is_plunder=is_plunder)
     
-    _, offensive_corpses = do_offensive_casualties_and_return(units_sent_dict, attacker, defender, defense_snapshot, is_plunder=is_plunder)
+    _, offensive_corpses = do_offensive_casualties_and_return(units_sent_dict, attacker, defender, raw_defense_snapshot, is_plunder=is_plunder)
     defensive_casualties, defensive_corpses = do_defensive_casualties(defender, is_plunder=is_plunder)
 
     new_corpses = offensive_corpses + defensive_corpses
@@ -475,7 +483,7 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion, is_plun
     except:
         pass
 
-    handle_invasion_perks(attacker, defender, defensive_casualties, raw_defense_snapshot, is_plunder=is_plunder)
+    handle_invasion_perks(attacker, defender, defender_land_snapshot, raw_defense_snapshot, is_plunder)
 
     return battle.id, "-- Congratulations, your invasion didn't crash! --"
 

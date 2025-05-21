@@ -117,7 +117,7 @@ def get_perk_text(perk_dict, resource_name_list, faction_name="none"):
         
     if "subverted_target_id" in perk_dict:
         # op_modified_by_aethertide = perk_dict["op_modified_by_aethertide"]
-        perk_text += f"Does not return from infiltration until you invade the target or recall manually from the target's Overview page. Until then, the target subtracts your infiltration against them from their OP against you (after any modifiers)."
+        perk_text += f"Does not return from infiltration until you invade the target or recall manually from the target's Overview page. Until then, the target subtracts your infiltration against them from their OP against you (after any modifiers). "
 
     if "rats_launched" in perk_dict and "op_if_rats_launched" in perk_dict:
         rats_launched = perk_dict["rats_launched"]
@@ -129,11 +129,16 @@ def get_perk_text(perk_dict, resource_name_list, faction_name="none"):
         
     if "hides_for_ticks_after_defense" in perk_dict:
         hides_for_ticks_after_defense = perk_dict["hides_for_ticks_after_defense"]
-        perk_text += f"After a failed defense, goes into the units returning queue for {hides_for_ticks_after_defense} ticks."
+        perk_text += f"After a failed defense, goes into the units returning queue for {hides_for_ticks_after_defense} ticks. "
         
     if "op_modified_by_aethertide" in perk_dict:
         op_modified_by_aethertide = perk_dict["op_modified_by_aethertide"]
-        perk_text += f"OP increased {op_modified_by_aethertide}x when you skip a tick, divided by {op_modified_by_aethertide} when you double one, otherwise multiplied/divided by 1.03 to get back towards 1,000."
+        perk_text += f"OP increased {op_modified_by_aethertide}x when you skip a tick, divided by {op_modified_by_aethertide} when you double one, otherwise multiplied/divided by 1.03 to get back towards 1,000. "
+        
+    if "reduced_gold_upkeep_per_big_hit" in perk_dict:
+        reduced_gold_upkeep_per_big_hit = perk_dict["reduced_gold_upkeep_per_big_hit"]
+        # perk_text += f"-{reduced_gold_upkeep_per_big_hit} gold upkeep for each invasion against a player larger than you. "
+        perk_text += f"Reduce gold upkeep by {reduced_gold_upkeep_per_big_hit} each time you invade a larger opponent. "
         
     return perk_text
 

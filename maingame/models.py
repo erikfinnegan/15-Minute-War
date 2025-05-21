@@ -965,7 +965,13 @@ class Unit(models.Model):
     @property
     def quantity_in_training_and_returning(self):
         return self.quantity_in_training + self.quantity_returning
-
+    
+    @property 
+    def op_dp_ratio(self):
+        if self.dp == 0:
+            return 999999
+        else:
+            return self.op/self.dp
 
     @property
     def net(self):
