@@ -127,7 +127,7 @@ class UserSettings(models.Model):
 
 class Dominion(models.Model):
     associated_user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, unique=True)
-    name = models.CharField(max_length=40, null=True, blank=True, unique=True)
+    name = models.CharField(max_length=40, null=True, blank=False, unique=True)
     is_starving = models.BooleanField(default=False)
     has_unread_events = models.BooleanField(default=False)
     protection_ticks_remaining = models.IntegerField(default=72)

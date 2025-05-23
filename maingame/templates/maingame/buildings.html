@@ -22,6 +22,15 @@
         <p>
             When allocating building percentages, the total must equal exactly 100%.
         </p>
+        {% if active_dominion.faction_name == "sludgeling" %}
+        <p>
+            Goop isn't produced by buildings. You get 50 goop per acre per tick.
+        </p>
+        {% else %}
+        <p>
+            Gold isn't produced by buildings. You get 50 gold per acre per tick.
+        </p>
+        {% endif %}
         <p>
             Some things spend resources every tick, primarily unit upkeep costs. Note that if you run out of
             a resource that's being consumed, you'll slowly lose units until you can afford all of your upkeeps.
