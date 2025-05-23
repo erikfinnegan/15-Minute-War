@@ -170,7 +170,8 @@ def initialize_factions():
         with goop and sludge. The "masterminds" behind the sludgelings experiment with vile substances to see what sort of awful creatures they might create.
         Sludelings uncover new sludgene sequences when attacking and being attacked that can be used to create units. They can also splice these
         sludgene sequences together to work towards creating the perfect units.""",
-        """They gain two sludgenes of the same family the first time they invade or get invaded, and then gain two more other invasion/time invaded after that."""
+        """They gain two sludgenes of the same family the first time they invade or get invaded, and then gain two more other invasion/time invaded 
+        after that. Every three hours, they're able to splice yet another experiment together."""
         ],
         invasion_consequences="This dominion will gain a sludgene sequence."
     )
