@@ -201,6 +201,7 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defender_land_
             if "reduced_gold_upkeep_per_big_hit" in unit.perk_dict and "gold" in unit.upkeep_dict:
                 reduced_gold_upkeep_per_big_hit = unit.perk_dict["reduced_gold_upkeep_per_big_hit"]
                 unit.upkeep_dict["gold"] -= reduced_gold_upkeep_per_big_hit
+                unit.upkeep_dict["gold"] = round(unit.upkeep_dict["gold"], 1)
                 unit.save()
 
     if "infiltration_dict" in attacker.perk_dict:
