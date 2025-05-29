@@ -115,7 +115,6 @@ def initialize_dwarf_units():
             "food": 1,
         },
         perk_dict={"casualty_multiplier": 3},
-        is_trainable=False,
     )
 
 
