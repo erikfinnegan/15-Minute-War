@@ -22,8 +22,7 @@
             <label for="shares_per_pirate" class="u-center">Plunder shares per pirate per tick</label>
             <input name="shares_per_pirate" placeholder="{{ shares }}" type="number" min="{{ min_shares }}"
                 max="{{ max_shares }}" class="w-12 md:w-20">
-            <button class="header_colors w-16 h-6 p-0 u-center" type="submit" {% if no_changing_shares %}disabled{%
-                endif %}>
+            <button class="header_colors w-16 h-6 p-0 u-center" type="submit" {% if no_changing_shares %}disabled{% endif %}>
                 <span class="font-bold">Submit</span>
             </button>
         </form>
