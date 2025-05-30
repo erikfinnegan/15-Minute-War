@@ -194,7 +194,7 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defender_land_
             pass
 
     if "partner_patience" in attacker.perk_dict:
-        attacker.perk_dict["partner_patience"] = int(24 * (defender_land_snapshot / attacker.acres))
+        attacker.perk_dict["partner_patience"] = int(36 * (defender_land_snapshot / attacker.acres))
         
     if attacker.faction_name == "biclops" and defender_land_snapshot > attacker.acres:
         for unit in Unit.objects.filter(ruler=attacker):
