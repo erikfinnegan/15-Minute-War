@@ -181,7 +181,8 @@ def does_x_of_unit_break_defender(quantity_theorized, unit: Unit, units_sent_dic
 
 
 def handle_invasion_perks(attacker: Dominion, defender: Dominion, defender_land_snapshot, raw_defense_snapshot, is_plunder=False):
-    handle_grudges_from_attack(attacker, defender)
+    if not is_plunder:
+        handle_grudges_from_attack(attacker, defender)
 
     if attacker.faction_name == "sludgeling":
         try:
