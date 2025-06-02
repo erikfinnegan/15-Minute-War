@@ -296,10 +296,13 @@ def overview(request, dominion_id):
     except:
         return redirect("register")
     
+    round = Round.objects.first()
     dominion = Dominion.objects.get(id=dominion_id)
 
-    if dominion_id != my_dominion.id and dominion.protection_ticks_remaining > 0:
-        return redirect("world")
+    if dominion_id != my_dominion.id:
+        if dominion.protection_ticks_remaining > 0 or not round.has_started:
+            messages.error(request, f"You may not view this dominion at this time.")
+            return redirect("world")
 
     dominion = Dominion.objects.get(id=dominion_id)
     units = dominion.sorted_units
