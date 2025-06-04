@@ -46,7 +46,7 @@ def experimentation(request):
         "has_experimental_units": len(experimental_units) > 0,
         # "units": dominion.sorted_units,
         "masterpieces_available": masterpieces_available,
-        "sludgenes": Sludgene.objects.filter(ruler=dominion),
+        "sludgenes": Sludgene.objects.filter(ruler=dominion).order_by("-is_favorite"),
         "splices": dominion.perk_dict.get("splices"),
     }
     
@@ -181,10 +181,10 @@ def submit_sludgenes(request):
             mother = selected_sludgenes[1]
             
             if father.cost_type == mother.cost_type:
-                breed_sludgenes(father, mother)
+                child = breed_sludgenes(father, mother)
                 dominion.perk_dict["splices"] -= 1
                 dominion.save()
-                messages.success(request, f"Spliced {selected_sludgenes[0].name} and {selected_sludgenes[1].name}")
+                messages.success(request, f"Created {child.name} ({child.op}/{child.dp}) - {child.perk_text} (discount: {child.discount_percent}%)")
             else:
                 messages.error(request, f"Those sludgenes are from different sludgenotypes")
         else:
@@ -214,6 +214,11 @@ def submit_sludgenes(request):
         messages.success(request, f"Sludgenes deleted")
         for sludgene in selected_sludgenes:
             sludgene.delete()
+    elif action == "favorites":
+        messages.success(request, f"Favorites updated")
+        for sludgene in selected_sludgenes:
+            sludgene.is_favorite = not sludgene.is_favorite
+            sludgene.save()
     else:
         messages.error(request, f"No action selected")
         

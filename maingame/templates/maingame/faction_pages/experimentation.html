@@ -6,6 +6,26 @@
 {% block title %}News{% endblock %}
 
 {% block content %}
+<style>
+    .star {
+        visibility:hidden;
+        font-size:30px;
+        cursor:pointer;
+    }
+    .star:before {
+        content: "\2605";
+        position: absolute;
+        visibility:visible;
+    }
+    .star:checked:before {
+        content: "\2606";
+        position: absolute;
+    }
+    .checked {
+        color: orange;
+    }
+</style>
+
 <div class="u-flex u-flex-column u-gap-2">
     <details class="accordion card card_colors">
         <summary class="accordion__summary">Details</summary>
@@ -40,6 +60,7 @@
                         <th class="u-text-no-wrap">Cost</th>
                         <th class="u-text-no-wrap">Upkeep</th>
                         <th>Selected</th>
+                        <th>Favorite</th>
                     </tr>
 
                     {% for sludgene in sludgenes %}
@@ -62,6 +83,11 @@
                                 <td class="u-align-middle">
                                     <input type="checkbox" id="breed_{{ sludgene.id }}" name="breed_{{ sludgene.id }}" style="pointer-events: none;">
                                 </td>
+                                <td class="u-align-middle">
+                                    {% if sludgene.is_favorite %}
+                                        <span class="fa fa-star checked"></span>
+                                    {% endif %}
+                                </td>
                             </tr>
                         {% endif %}
                     {% endfor %}
@@ -74,6 +100,7 @@
                         <th>Cost</th>
                         <th>Upkeep</th>
                         <th>Selected</th>
+                        <th>Favorite</th>
                     </tr>
 
                     {% for sludgene in sludgenes %}
@@ -96,6 +123,11 @@
                                 <td class="u-align-middle">
                                     <input type="checkbox" id="breed_{{ sludgene.id }}" name="breed_{{ sludgene.id }}" style="pointer-events: none;">
                                 </td>
+                                <td class="u-align-middle">
+                                    {% if sludgene.is_favorite %}
+                                        <span class="fa fa-star checked"></span>
+                                    {% endif %}
+                                </td>
                             </tr>
                         {% endif %}
                     {% endfor %}
@@ -108,6 +140,7 @@
                         <th class="u-text-no-wrap">Cost</th>
                         <th class="u-text-no-wrap">Upkeep</th>
                         <th>Selected</th>
+                        <th>Favorite</th>
                     </tr>
 
                     {% for sludgene in sludgenes %}
@@ -130,6 +163,11 @@
                                 <td class="u-align-middle">
                                     <input type="checkbox" id="breed_{{ sludgene.id }}" name="breed_{{ sludgene.id }}" style="pointer-events: none;">
                                 </td>
+                                <td class="u-align-middle">
+                                    {% if sludgene.is_favorite %}
+                                        <span class="fa fa-star checked"></span>
+                                    {% endif %}
+                                </td>
                             </tr>
                         {% endif %}
                     {% endfor %}
@@ -140,6 +178,7 @@
                 <select name="action" class="w-32 h-6 u-center mb-2">
                     <option value="splice">Splice</option>
                     <option value="spawn">Spawn unit</option>
+                    <option value="favorites">Toggle favorites</option>
                     <option value="delete">Delete</option>
                 </select>
                 <button class="header_colors w-16 h-6 p-0 u-center" type="submit">

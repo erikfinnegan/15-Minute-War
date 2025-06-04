@@ -1430,6 +1430,7 @@ class Sludgene(models.Model):
     cost_dict = models.JSONField(default=dict, blank=True)
     upkeep_dict = models.JSONField(default=dict, blank=True)
     discount_percent = models.IntegerField(default=0)
+    is_favorite = models.BooleanField(default=False)
     
     def __str__(self):
         base_name = f"{self.name} {self.op}/{self.dp}"
