@@ -62,7 +62,7 @@
     <div class="h-2 bg-white-400 u-border-1 mb-1">
         {% if module.battery_max > 0 %}
             <div class="bg-teal-300" style="width: {{ module.battery_percent }}%;">
-                <span class="u-center text-xs leading-none h-100p">{{ module.battery_percent|intcomma }}</span>
+                <span class="u-center text-xs leading-none h-100p">{{ module.battery_current|intcomma }}/ {{ module.battery_max|intcomma }}</span>
             </div>
         {% else %}
             <div class="bg-red-400" style="width: {{ module.durability_percent }}%;">
