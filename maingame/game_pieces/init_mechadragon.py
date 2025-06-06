@@ -175,8 +175,8 @@ def initialize_mechadragon_modules():
             "food": 500000,
             "research": 500000,
         },
-        battery_current=100,
-        battery_max=100,
+        battery_current=95,
+        battery_max=95,
         upgrade_increases_durability=False,
         perk_dict={"modifies_determination": True},
     )
