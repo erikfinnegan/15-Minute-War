@@ -1409,7 +1409,7 @@ class MechModule(models.Model):
                 self.capacity *= 2
                 
             if self.upgrade_increases_durability:
-                self.durability_current *= 2
+                self.durability_current += self.durability_max
                 self.durability_max *= 2
 
         self.save()
