@@ -9,14 +9,16 @@ def get_number_of_times_to_tick(dominion: Dominion, start_timestamp):
         if dominion.perk_dict["time_curse"] <= 0:
             del dominion.perk_dict["time_curse"]
             
-        roll = randint(1,6)
+        roll = randint(1,5)
         
-        if roll <= 3:
+        if roll == 1:
             ticks = 0
-        elif roll >= 6:
-            ticks = 2
         else:
             ticks = 1
+        # elif roll >= 6:
+        #     ticks = 2
+        # else:
+        #     ticks = 1
         
         dominion.perk_dict["aethertide_roll_history"].insert(0, f"{start_timestamp.strftime('%H:%M:%S')} ... rolled {roll} => 1-3 skip, 4-5 normal, 6 double... running {ticks} ticks")
         dominion.save()

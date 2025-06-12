@@ -21,7 +21,7 @@ def initialize_generic_units():
         op=0,
         dp=5,
         cost_dict={
-            "wood": 1900,
+            "wood": 1750,
         },
         upkeep_dict={
             "wood": 4,

@@ -96,7 +96,7 @@ def initialize_goblin_units():
     Unit.objects.create(
         name="Ratapult",
         op=1,
-        dp=0,
+        dp=1,
         cost_dict={
             "ore": 30000,
             "wood": 30000,
