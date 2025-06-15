@@ -236,7 +236,7 @@ def initialize_factions():
         they invade or plunder. Plundering is an alternate attack type that always steals one acre, causes no casualties (except for units that always die on offense),
         has +100% OP, and does not trigger defensive faction abilities. Plundering generates plunder equal to the raw DP of the target and invasions grant a quarter of that.
         Only units with 'Crew' in the name can plunder.""",
-        """Enemies attacking them will be time-cursed for 12 ticks. During this time, they have a 1-in-6 chance of getting double ticks but a 3-in-6 chance of skipping ticks."""],
+        """Enemies attacking them will be time-cursed for 12 ticks. During this time, they have a 20% chance to skip each tick."""],
         invasion_consequences="You will be time-cursed for 12 ticks. During this time, you'll have a 20% chance to skip each tick. "
     )
 

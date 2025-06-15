@@ -29,7 +29,13 @@
         </thead>
         <tbody class="u-text-left">
             <tr>
-                <td>{% if module.base_power > 0 %}*{% endif %}Power: {{ module.power_short }}</span>
+                <td>
+                    {% if module.base_power > 0 %}*{% endif %}
+                    Power: {{ module.power_short }} 
+                    {% if module.power < module.versioned_power %}
+                        ({{ module.versioned_power_short }})
+                    {% endif %}
+                </td>
             </tr>
             <tr>
                 <td class="capacity">{% if module.upgrade_increases_capacity %}*{% endif %}Capacity: {{ module.capacity }}</td>

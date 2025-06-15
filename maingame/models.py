@@ -1271,6 +1271,10 @@ class MechModule(models.Model):
         return versioned_power
     
     @property
+    def versioned_power_short(self):
+        return shorten_number(self.versioned_power)
+    
+    @property
     def power(self):
         a = 0.5 * min(100, self.durability_percent+50) / 100
         b = 0.5 * (self.durability_percent / 100)
