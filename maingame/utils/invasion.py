@@ -410,6 +410,8 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion, is_plun
         return 0, "No failed invasions allowed"
     if dp_left < attacker.acres * 5:
         return 0, "Insufficient defense left by attacker"
+    if attacker.is_abandoned:
+        return 0, "Abandoned dominions can't attack"
     
     # Get slowest return time for land return time, raw OP sent for updating max
     for unit_details_dict in units_sent_dict.values():
@@ -552,7 +554,7 @@ def do_biclops_partner_attack(dominion: Dominion):
     
 
 def do_forced_attack(dominion: Dominion, use_always_dies_units=False):
-    if dominion.incoming_acres > 0:
+    if dominion.incoming_acres > 0 or dominion.is_abandoned:
         return    
     
     op_from_offensive_units_at_home = 0
