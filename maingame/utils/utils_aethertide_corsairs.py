@@ -20,7 +20,7 @@ def get_number_of_times_to_tick(dominion: Dominion, start_timestamp):
         # else:
         #     ticks = 1
         
-        dominion.perk_dict["aethertide_roll_history"].insert(0, f"{start_timestamp.strftime('%H:%M:%S')} ... rolled {roll} => 1-3 skip, 4-5 normal, 6 double... running {ticks} ticks")
+        dominion.perk_dict["aethertide_roll_history"].insert(0, f"{start_timestamp.strftime('%H:%M:%S')} ... rolled {roll} => 1 skip, 2-5 normal... running {ticks} ticks")
         dominion.save()
     elif dominion.faction_name != "aethertide corsairs":
         return 1
