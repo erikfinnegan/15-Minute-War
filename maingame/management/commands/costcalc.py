@@ -17,9 +17,9 @@ class Command(BaseCommand):
         print()
         
         op = 0
-        dp = 4
-        secondary_resource_name = "wood"
-        casualty_multiplier = 1
+        dp = 35
+        secondary_resource_name = "mithril"
+        casualty_multiplier = 0.5
         return_ticks = 12
         
         # primary secondary hybrid

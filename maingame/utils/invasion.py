@@ -180,7 +180,7 @@ def does_x_of_unit_break_defender(quantity_theorized, unit: Unit, units_sent_dic
     return faux_op >= defender.defense
 
 
-def handle_invasion_perks(attacker: Dominion, defender: Dominion, defender_land_snapshot, raw_defense_snapshot, is_plunder=False):
+def handle_invasion_perks(attacker: Dominion, defender: Dominion, defender_land_snapshot, raw_defense_snapshot, is_plunder=False, was_forced=False):
     if not is_plunder:
         handle_grudges_from_attack(attacker, defender)
 
@@ -197,11 +197,20 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defender_land_
     if "partner_patience" in attacker.perk_dict:
         attacker.perk_dict["partner_patience"] = int(36 * (defender_land_snapshot / attacker.acres))
         
-    if attacker.faction_name == "biclops" and defender_land_snapshot > attacker.acres:
+    if attacker.faction_name == "biclops":
+        if was_forced:
+            attacker.perk_dict["partner_attacks"] += 1
+        else:
+            attacker.perk_dict["own_attacks"] += 1
+            
+        own_attacks = attacker.perk_dict["own_attacks"]
+        partner_attacks = attacker.perk_dict["partner_attacks"]
+        reduction_multiplier = min(own_attacks, partner_attacks)
+        
         for unit in Unit.objects.filter(ruler=attacker):
-            if "reduced_gold_upkeep_per_big_hit" in unit.perk_dict and "gold" in unit.upkeep_dict:
-                reduced_gold_upkeep_per_big_hit = unit.perk_dict["reduced_gold_upkeep_per_big_hit"]
-                unit.upkeep_dict["gold"] -= reduced_gold_upkeep_per_big_hit
+            if "reduced_gold_upkeep_by_teamwork" in unit.perk_dict and "gold" in unit.upkeep_dict:
+                reduced_gold_upkeep_by_teamwork = unit.perk_dict["reduced_gold_upkeep_by_teamwork"]
+                unit.upkeep_dict["gold"] = 12 - (reduced_gold_upkeep_by_teamwork * reduction_multiplier)
                 unit.upkeep_dict["gold"] = round(unit.upkeep_dict["gold"], 1)
                 unit.save()
 
@@ -397,7 +406,7 @@ def do_defensive_casualties(defender: Dominion, is_plunder=False):
     return defensive_casualties, new_corpses
 
 
-def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion, is_plunder=False):
+def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion, is_plunder=False, was_forced=False):
     raw_op_sent = 0
     defense_snapshot = defender.defense
     defender_land_snapshot = defender.acres
@@ -487,7 +496,7 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion, is_plun
     except:
         pass
 
-    handle_invasion_perks(attacker, defender, defender_land_snapshot, raw_defense_snapshot, is_plunder)
+    handle_invasion_perks(attacker, defender, defender_land_snapshot, raw_defense_snapshot, is_plunder, was_forced)
 
     return battle.id, "-- Congratulations, your invasion didn't crash! --"
 
@@ -619,7 +628,7 @@ def do_forced_attack(dominion: Dominion, use_always_dies_units=False):
             op_to_send, defense_left, _ = get_op_and_dp_left(units_sent_dict, attacker=dominion, defender=other_dominion)
 
             if op_to_send >= other_dominion.defense and defense_left >= dominion.acres * 5:
-                do_invasion(units_sent_dict, attacker=dominion, defender=other_dominion)
+                do_invasion(units_sent_dict, attacker=dominion, defender=other_dominion, was_forced=True)
                 hasnt_attacked_yet = False
                 
 

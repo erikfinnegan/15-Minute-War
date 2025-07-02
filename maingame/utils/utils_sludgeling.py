@@ -192,7 +192,7 @@ def breed_sludgenes(father: Sludgene, mother: Sludgene):
         resource_secreted_name = "none"
         amount_secreted = 0
         
-    if randint(1, 2) == 1:
+    if randint(1, 3) > 1:
         discount_percent = randint(min(father.discount_percent, mother.discount_percent), max(father.discount_percent, mother.discount_percent))
     else:
         discount_percent = 0
@@ -210,7 +210,14 @@ def breed_sludgenes(father: Sludgene, mother: Sludgene):
         upkeep_type=upkeep_type,
         resource_secreted_name=resource_secreted_name,
         amount_secreted=amount_secreted,
-        cost_dict=generate_unit_cost_dict(op, dp, "goop", "sludge", cost_type, cost_multiplier=cost_multiplier),
+        cost_dict=generate_unit_cost_dict(op, 
+                                          dp, 
+                                          "goop", 
+                                          "sludge", 
+                                          cost_type, 
+                                          casualty_rate=casualty_rate, 
+                                          return_ticks=return_ticks, 
+                                          cost_multiplier=cost_multiplier),
         upkeep_dict=generate_random_sludgene_upkeep_dict(upkeep_type, amount_secreted > 0),
         discount_percent=discount_percent,
     )

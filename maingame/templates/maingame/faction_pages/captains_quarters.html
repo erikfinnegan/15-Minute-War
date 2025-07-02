@@ -7,15 +7,12 @@
 {% block content %}
 <div>
     <div class="max-w-md">
-        {% if no_changing_shares %}
-        <span>You can change shares in {{ ticks_until_next_share_change }} ticks.</span>
-        {% else %}
-        <div class="u-flex u-flex-column">
-            <span>Allocate the share of plunder your pirate crews get each tick.</span>
-            <span>Each share above 1 will grant +5 OP and +6 DP.</span>
-            <span>NOTE: You will have to wait 48 ticks before changing it again.</span>
+        <div class="u-flex u-flex-column"></div>
+            <p>Allocate the share of plunder your pirate crews get each tick (min 1, max 10).</p>
+            <p>Each share above 1 will grant +5 OP and +6 DP.</p>
+            <p>NOTE: You will have to wait 48 ticks before changing it again.</p>
         </div>
-        {% endif %}
+        
         <form action="{% url 'submit_plunder_shares' %}" method="post"
             class="u-flex u-flex-row u-gap-1 card card_colors p-1 max-w-sm">
             {% csrf_token %}
@@ -26,6 +23,10 @@
                 <span class="font-bold">Submit</span>
             </button>
         </form>
+
+        {% if no_changing_shares %}
+        <h6>You can change shares again in {{ ticks_until_next_share_change }} ticks.</h6>
+        {% endif %}
     </div>
 
     {% if "Grim Pragmatism" in active_dominion.learned_discoveries %}

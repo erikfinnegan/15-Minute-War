@@ -44,5 +44,10 @@
             <span class="font-bold">Submit</span>
         </button>
     </form>
+
+    <div>
+        <p>Own head victories: {{ active_dominion.perk_dict.own_attacks }}</p>
+        <p>Other head victories: {{ active_dominion.perk_dict.partner_attacks }}</p>
+    </div>
 </div>
 {% endblock %}

@@ -52,15 +52,21 @@
         </h6>
 
         {% if dominion.faction_name == "biclops" %}
+        <h6>Own head: {{ active_dominion.perk_dict.own_attacks }} vs other head: {{ active_dominion.perk_dict.partner_attacks }}</h6>
+        <!-- <div>
+            <p>Own head victories: {{ active_dominion.perk_dict.own_attacks }}</p>
+            <p>Other head victories: {{ active_dominion.perk_dict.partner_attacks }}</p>
+        </div> -->
         <h6>Ruled by Right {{ dominion.rulers_display_name }} and Left {{ dominion.rulers_display_name }}</h6>
-        {% if dominion.perk_dict.partner_patience > 0 %}
-        <h6>(one of whom will only be patient for {{ dominion.perk_dict.partner_patience }} more ticks)</h6>
-        {% elif dominion.perk_dict.partner_patience <= 0 %} <h6>(one of whom has lost patience with the other)</h6>
+            {% if dominion.perk_dict.partner_patience > 0 %}
+            <h6>(one of whom will only be patient for {{ dominion.perk_dict.partner_patience }} more ticks)</h6>
+            {% elif dominion.perk_dict.partner_patience <= 0 %}
+            <h6>(one of whom has lost patience with the other)</h6>
             {% endif %}
-            {% else %}
-            <h6>Ruled by {{ dominion.rulers_display_name }}</h6>
-            {% endif %}
-            <h6>Net ticks: {{ dominion.perk_dict.aethertide_net_ticks }}</h6>
+        {% else %}
+        <h6>Ruled by {{ dominion.rulers_display_name }}</h6>
+        {% endif %}
+        <h6>Net ticks: {{ dominion.perk_dict.aethertide_net_ticks }}</h6>
     </div>
 
     {% comment %} Units {% endcomment %}

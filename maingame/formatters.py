@@ -135,10 +135,10 @@ def get_perk_text(perk_dict, resource_name_list, faction_name="none"):
         op_modified_by_aethertide = perk_dict["op_modified_by_aethertide"]
         perk_text += f"OP increased {op_modified_by_aethertide}x when you skip a tick, divided by {op_modified_by_aethertide} when you double one, otherwise multiplied/divided by 1.03 to get back towards 1,000. "
         
-    if "reduced_gold_upkeep_per_big_hit" in perk_dict:
-        reduced_gold_upkeep_per_big_hit = perk_dict["reduced_gold_upkeep_per_big_hit"]
-        # perk_text += f"-{reduced_gold_upkeep_per_big_hit} gold upkeep for each invasion against a player larger than you. "
-        perk_text += f"Reduce gold upkeep by {reduced_gold_upkeep_per_big_hit} each time you invade a larger opponent. "
+    if "reduced_gold_upkeep_by_teamwork" in perk_dict:
+        reduced_gold_upkeep_by_teamwork = perk_dict["reduced_gold_upkeep_by_teamwork"]
+        # perk_text += f"-{reduced_gold_upkeep_by_teamwork} gold upkeep for each invasion against a player larger than you. "
+        perk_text += f"Reduce gold upkeep by {reduced_gold_upkeep_by_teamwork} times the lowest number of attacks made by you compared to your other head. "
         
     return perk_text
 
