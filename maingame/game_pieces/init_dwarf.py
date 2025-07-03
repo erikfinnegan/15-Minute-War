@@ -116,6 +116,32 @@ def initialize_dwarf_units():
         },
         perk_dict={"casualty_multiplier": 3},
     )
+    
+    Unit.objects.create(
+        name="Hatetheist",
+        op=0,
+        dp=0,
+        upkeep_dict={
+            "gold": 3,
+            "food": 1,
+            "research": 1,
+        },
+        perk_dict={"keeps_grudges_updated": True},
+        is_trainable=False,
+    )
+    
+    Unit.objects.create(
+        name="Hateriarch",
+        op=0,
+        dp=0,
+        upkeep_dict={
+            "gold": 3,
+            "food": 1,
+            "research": 1,
+        },
+        perk_dict={"bonus_percent_to_animosity": 10},
+        is_trainable=False,
+    )
 
 
 def initialize_dwarf_discoveries():
@@ -167,4 +193,35 @@ def initialize_dwarf_discoveries():
         name="Always Be Digging",
         description="All dwarves love digging, but some truly can't help it. Once the round starts, expand your dominion vertically by one acre every hour for every 400 acres you have.",
         required_faction_name="dwarf",
+    )
+    
+    Discovery.objects.create(
+        name="Hatetheism",
+        description="When you attack someone against whom you've recorded at least 50 pages of grudges and send at least one Doom Prospector per page, recruit one Hatetheist per 200 acres you control (rounding down).",
+        required_faction_name="dwarf",
+        associated_unit_name="Hatetheist",
+        required_discoveries=["Never Forget", "Doom Prospectors"],
+    )
+    
+    Discovery.objects.create(
+        name="Hatetheism Spreads",
+        description="When recruiting Hatetheists, instead recruit one per 150 acres you control (rounding down).",
+        required_faction_name="dwarf",
+        required_discoveries=["Hatetheism"],
+    )
+    
+    Discovery.objects.create(
+        name="Hatetheism Rising",
+        description="When recruiting Hatetheists, instead recruit one per 100 acres you control (rounding down).",
+        required_faction_name="dwarf",
+        required_discoveries=["Hatetheism Spreads"],
+    )
+    
+    Discovery.objects.create(
+        name="Hateriarchy",
+        description="Gain a Hateriarch.",
+        required_faction_name="dwarf",
+        associated_unit_name="Hateriarch",
+        required_discoveries=["Hatetheism Rising"],
+        repeatable=True,
     )

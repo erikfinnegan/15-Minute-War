@@ -576,9 +576,15 @@ class Dominion(models.Model):
 
     def do_perks(self):
         if "book_of_grudges" in self.perk_dict and self.is_oop:
+            hateriarch_multiplier = 1
+            
+            if "Hateriarchy" in self.learned_discoveries:
+                hateriarch_count = Unit.objects.get(ruler=self, name="Hateriarch").quantity_at_home
+                hateriarch_multiplier = 1 + (0.1 * hateriarch_count)
+                
             for dominion in Dominion.objects.filter(~Q(id=self.id), protection_ticks_remaining=0):
                 if str(dominion.id) in self.perk_dict["book_of_grudges"]:
-                    self.perk_dict["book_of_grudges"][str(dominion.id)]["animosity"] += self.perk_dict["book_of_grudges"][str(dominion.id)]["pages"] * 0.003
+                    self.perk_dict["book_of_grudges"][str(dominion.id)]["animosity"] += self.perk_dict["book_of_grudges"][str(dominion.id)]["pages"] * 0.003 * hateriarch_multiplier
                     
                     if self.perk_dict["book_of_grudges"][str(dominion.id)]["pages"] >= 100:
                         rounding = 2
@@ -1519,6 +1525,16 @@ def do_tick_units(dominion: Dominion):
                         unit.dp += instances_consumed
                         research.save()
                         unit.save()
+                case "keeps_grudges_updated":
+                    for other_dominion in Dominion.objects.all():
+                        if dominion != other_dominion:
+                            if other_dominion.strid not in dominion.perk_dict["book_of_grudges"].keys():
+                                dominion.perk_dict["book_of_grudges"][other_dominion.strid]["pages"] = 1
+                                dominion.perk_dict["book_of_grudges"][other_dominion.strid] = {}
+                                dominion.perk_dict["book_of_grudges"][other_dominion.strid]["pages"] = 1
+                                dominion.perk_dict["book_of_grudges"][other_dominion.strid]["animosity"] = 0
+                            elif dominion.perk_dict["book_of_grudges"][other_dominion.strid]["pages"] < unit.quantity_at_home:
+                                dominion.perk_dict["book_of_grudges"][other_dominion.strid]["pages"] += 1
                 case "random_grudge_book_pages_per_tick":
                     keys_list = list(dominion.perk_dict["book_of_grudges"].keys())
 

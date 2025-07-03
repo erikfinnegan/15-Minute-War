@@ -159,7 +159,7 @@ def get_grudge_bonus(my_dominion: Dominion, other_dominion: Dominion):
         # Offense gets calculated as 1 + this
         # 0.003 gets added to animosity per page, which makes sense as it's +0.003% per page
         # X animosity is +X% OP, so we need to turn 0.003 into 0.00003 because that's how percents work
-        return my_dominion.perk_dict["book_of_grudges"][str(other_dominion.id)]["animosity"] / 100
+        return hateriarch_multiplier * my_dominion.perk_dict["book_of_grudges"][str(other_dominion.id)]["animosity"] / 100
     except:
         return 0
     
@@ -214,6 +214,16 @@ def unlock_discovery(dominion: Dominion, discovery_name):
         case "The Deep Angels":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Deep Angel"))
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Deep Apostle"))
+        case "Hatetheism":
+            give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Hatetheist"))
+            dominion.perk_dict["hatetheist_per_acres"] = 200
+        case "Hatetheism Spreads":
+            dominion.perk_dict["hatetheist_per_acres"] = 150
+        case "Hatetheism Rising":
+            dominion.perk_dict["hatetheist_per_acres"] = 100
+        case "Hateriarchy":
+            hateriarch = give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Hateriarch"))
+            hateriarch.gain(1)
         # case "Gem Mines":
         #     give_dominion_building(dominion, Building.objects.get(ruler=None, name="mine"))
         case "Living Saints":

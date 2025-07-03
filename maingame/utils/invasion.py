@@ -1,3 +1,4 @@
+import math
 from random import randint
 
 from maingame.formatters import get_goblin_ruler
@@ -180,9 +181,18 @@ def does_x_of_unit_break_defender(quantity_theorized, unit: Unit, units_sent_dic
     return faux_op >= defender.defense
 
 
-def handle_invasion_perks(attacker: Dominion, defender: Dominion, defender_land_snapshot, raw_defense_snapshot, is_plunder=False, was_forced=False):
-    if not is_plunder:
-        handle_grudges_from_attack(attacker, defender)
+def handle_invasion_perks(attacker: Dominion, defender: Dominion, defender_land_snapshot, raw_defense_snapshot, units_sent_dict, is_plunder=False, was_forced=False):
+    if "hatetheist_per_acres" in attacker.perk_dict and defender.strid in attacker.perk_dict["book_of_grudges"]:
+        pages = attacker.perk_dict["book_of_grudges"][defender.strid]["pages"]
+        hatetheist_per_acres = attacker.perk_dict["hatetheist_per_acres"]
+        
+        for unit_details_dict in units_sent_dict.values():
+            unit = get_unit_from_dict(unit_details_dict)
+            quantity_sent = unit_details_dict["quantity_sent"]
+            
+            if unit.name == "Doom Prospector" and quantity_sent >= pages and pages > 50:
+                hatetheists = Unit.objects.get(ruler=attacker, name="Hatetheist")
+                hatetheists.gain(math.floor(attacker.acres / hatetheist_per_acres))
 
     if attacker.faction_name == "sludgeling":
         try:
@@ -256,6 +266,9 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defender_land_
     #     faith.spend(defender.perk_dict["martyr_cost"] * martyrs_gained)
     #     martyrs = Unit.objects.get(ruler=defender, name="Blessed Martyr")
     #     martyrs.gain(martyrs_gained)
+    
+    if not is_plunder:
+        handle_grudges_from_attack(attacker, defender)
 
     attacker.save()
     defender.save()
@@ -496,7 +509,7 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion, is_plun
     except:
         pass
 
-    handle_invasion_perks(attacker, defender, defender_land_snapshot, raw_defense_snapshot, is_plunder, was_forced)
+    handle_invasion_perks(attacker, defender, defender_land_snapshot, raw_defense_snapshot, units_sent_dict, is_plunder, was_forced)
 
     return battle.id, "-- Congratulations, your invasion didn't crash! --"
 

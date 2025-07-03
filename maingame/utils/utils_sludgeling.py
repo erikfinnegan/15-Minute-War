@@ -192,10 +192,7 @@ def breed_sludgenes(father: Sludgene, mother: Sludgene):
         resource_secreted_name = "none"
         amount_secreted = 0
         
-    if randint(1, 3) > 1:
-        discount_percent = randint(min(father.discount_percent, mother.discount_percent), max(father.discount_percent, mother.discount_percent))
-    else:
-        discount_percent = 0
+    discount_percent = randint(min(father.discount_percent, mother.discount_percent), max(father.discount_percent, mother.discount_percent))
         
     cost_multiplier = (100 - discount_percent) / 100
         

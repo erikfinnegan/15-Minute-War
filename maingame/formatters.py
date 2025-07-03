@@ -140,6 +140,13 @@ def get_perk_text(perk_dict, resource_name_list, faction_name="none"):
         # perk_text += f"-{reduced_gold_upkeep_by_teamwork} gold upkeep for each invasion against a player larger than you. "
         perk_text += f"Reduce gold upkeep by {reduced_gold_upkeep_by_teamwork} times the lowest number of attacks made by you compared to your other head. "
         
+    if "keeps_grudges_updated" in perk_dict:
+        perk_text += f"Each tick, gain one page of grudges against each dominion with fewer pages than the number of Hatetheists in your lands. "
+        
+    if "bonus_percent_to_animosity" in perk_dict:
+        bonus_percent_to_animosity = perk_dict["bonus_percent_to_animosity"]
+        perk_text += f"Each Hateriarch increases the rate at which pages generate bonus OP by {bonus_percent_to_animosity}%. "
+        
     return perk_text
 
 
