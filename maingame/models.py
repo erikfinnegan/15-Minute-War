@@ -1529,7 +1529,6 @@ def do_tick_units(dominion: Dominion):
                     for other_dominion in Dominion.objects.all():
                         if dominion != other_dominion:
                             if other_dominion.strid not in dominion.perk_dict["book_of_grudges"].keys():
-                                dominion.perk_dict["book_of_grudges"][other_dominion.strid]["pages"] = 1
                                 dominion.perk_dict["book_of_grudges"][other_dominion.strid] = {}
                                 dominion.perk_dict["book_of_grudges"][other_dominion.strid]["pages"] = 1
                                 dominion.perk_dict["book_of_grudges"][other_dominion.strid]["animosity"] = 0
