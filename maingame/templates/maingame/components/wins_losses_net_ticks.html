@@ -1,0 +1,31 @@
+{% load humanize %}
+
+<div class="current-incoming w-6 h-3 u-center">
+    <div class="u-center normal">
+        <span class="u-center">
+        {% if dominion.perk_dict.biclopean_ambition_ticks_remaining > 0 %}
+            Lashing out for {{ dominion.perk_dict.biclopean_ambition_ticks_remaining }} ticks
+        {% else %}
+            {{ dominion.successful_invasions }}-{{ dominion.failed_defenses }}
+        {% endif %}
+        </span>
+    </div>
+    
+    <div class="u-center mouseover u-absolute">
+        <span class="u-center">Net ticks: {{ dominion.perk_dict.aethertide_net_ticks }}</span>
+    </div>
+</div>
+
+<style>
+    .current-incoming:hover div.normal span {
+        display: none;
+    }
+
+    .current-incoming:hover div.mouseover span {
+        display: block;
+    }
+
+    .mouseover span {
+        display: none;
+    }
+</style>
