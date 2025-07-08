@@ -159,7 +159,7 @@ def get_grudge_bonus(my_dominion: Dominion, other_dominion: Dominion):
         # Offense gets calculated as 1 + this
         # 0.003 gets added to animosity per page, which makes sense as it's +0.003% per page
         # X animosity is +X% OP, so we need to turn 0.003 into 0.00003 because that's how percents work
-        return hateriarch_multiplier * my_dominion.perk_dict["book_of_grudges"][str(other_dominion.id)]["animosity"] / 100
+        return my_dominion.perk_dict["book_of_grudges"][str(other_dominion.id)]["animosity"] / 100
     except:
         return 0
     
