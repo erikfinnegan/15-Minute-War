@@ -212,7 +212,7 @@ def breed_sludgenes(father: Sludgene, mother: Sludgene):
                                           "goop", 
                                           "sludge", 
                                           cost_type, 
-                                          casualty_rate=casualty_rate, 
+                                          casualty_multiplier=casualty_rate, 
                                           return_ticks=return_ticks, 
                                           cost_multiplier=cost_multiplier),
         upkeep_dict=generate_random_sludgene_upkeep_dict(upkeep_type, amount_secreted > 0),
