@@ -50,6 +50,10 @@
         <script type="text/javascript" src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
         <div id="chartContainer" style="height: 300px; width: 100%;"></div>
 
+        <div>
+            <p>Total: {{ dominion_count }}</p>
+        </div>
+
     </details>
 
     {% if round.has_bugs and not round.is_ticking %}

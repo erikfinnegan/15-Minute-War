@@ -420,6 +420,8 @@ def world(request):
         for unit in Unit.objects.filter(ruler=my_dominion):
             if unit.name in ["Pirate Crew", "Realitylubber Crew"]:
                 plunder_unit_ids.append(unit.id)
+                
+    dominion_count = dominions.filter(protection_ticks_remaining=0).count()
 
     context = {
         "dominions": dominion_list,
@@ -434,6 +436,7 @@ def world(request):
         "largest_with_incoming": largest_with_incoming,
         "is_debug": False,
         "plunder_unit_ids": plunder_unit_ids,
+        "dominion_count": dominion_count,
     }
 
     return render(request, "maingame/world.html", context)
