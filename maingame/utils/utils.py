@@ -370,7 +370,8 @@ def create_unit_dict(request_data, id_prefix):
             unit = Unit.objects.get(id=key[len(id_prefix):])
             amount = int(string_amount)
 
-            if amount <= unit.quantity_at_home and amount > 0:
+            # if amount <= unit.quantity_at_home and amount > 0:
+            if amount > 0:
                 total_units += amount
                 unit_dict[str(unit.id)] = {
                     "unit": unit,

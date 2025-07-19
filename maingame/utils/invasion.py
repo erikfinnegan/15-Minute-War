@@ -96,6 +96,7 @@ def get_op_and_dp_left(units_sent_dict, attacker: Dominion, defender: Dominion=N
     infiltration_power_sent = 0
     infiltration_power_gained = 0
     raw_defense = attacker.raw_defense
+    invalid_invasion = False
 
     if defender and "infiltration_dict" in attacker.perk_dict and defender.strid in attacker.perk_dict["infiltration_dict"] and not is_infiltration:
         offense_sent += attacker.perk_dict["infiltration_dict"][defender.strid]
@@ -110,6 +111,9 @@ def get_op_and_dp_left(units_sent_dict, attacker: Dominion, defender: Dominion=N
         unit = get_unit_from_dict(unit_details_dict)
         modified_unit_op = get_conditional_op(unit, attacker, defender)
         quantity_sent = unit_details_dict["quantity_sent"]
+        
+        if quantity_sent > unit.quantity_at_home:
+            invalid_invasion = True
 
         if "rats_launched" in unit.perk_dict and "op_if_rats_launched" in unit.perk_dict:
             rats = Resource.objects.get(ruler=attacker, name="rats")
@@ -160,11 +164,11 @@ def get_op_and_dp_left(units_sent_dict, attacker: Dominion, defender: Dominion=N
 
     offense_sent = int(offense_sent)
     defense_left = int(raw_defense * attacker.defense_multiplier)
-
+    
     if is_infiltration:
-        return infiltration_power_gained, defense_left, raw_defense
+        return infiltration_power_gained, defense_left, raw_defense, invalid_invasion
     else:
-        return offense_sent, defense_left, raw_defense
+        return offense_sent, defense_left, raw_defense, invalid_invasion
 
 
 def does_x_of_unit_break_defender(quantity_theorized, unit: Unit, units_sent_dict, attacker: Dominion, defender: Dominion, is_plunder=False):
@@ -176,7 +180,7 @@ def does_x_of_unit_break_defender(quantity_theorized, unit: Unit, units_sent_dic
         "unit": unit
     }
 
-    faux_op, _, _ = get_op_and_dp_left(faux_units_sent_dict, attacker, defender, is_plunder=is_plunder)
+    faux_op, _, _, _ = get_op_and_dp_left(faux_units_sent_dict, attacker, defender, is_plunder=is_plunder)
     
     return faux_op >= defender.defense
 
@@ -426,7 +430,7 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion, is_plun
     defender_land_snapshot = defender.acres
     raw_defense_snapshot = defender.raw_defense
     slowest_unit_return_ticks = 1
-    offense_sent, dp_left, _ = get_op_and_dp_left(units_sent_dict, attacker, defender=defender, is_plunder=is_plunder)
+    offense_sent, dp_left, _, _ = get_op_and_dp_left(units_sent_dict, attacker, defender=defender, is_plunder=is_plunder)
     acres_conquered = get_acres_conquered(attacker, defender, is_plunder)
 
     if defender.defense > offense_sent:
@@ -639,7 +643,7 @@ def do_forced_attack(dominion: Dominion, use_always_dies_units=False):
                 if this_unit_dict["quantity_sent"] > 0:
                     units_sent_dict[str(offensive_unit.id)] = this_unit_dict
             
-            op_to_send, defense_left, _ = get_op_and_dp_left(units_sent_dict, attacker=dominion, defender=other_dominion)
+            op_to_send, defense_left, _, _ = get_op_and_dp_left(units_sent_dict, attacker=dominion, defender=other_dominion)
 
             if op_to_send >= other_dominion.defense and defense_left >= dominion.acres * 5:
                 do_invasion(units_sent_dict, attacker=dominion, defender=other_dominion, was_forced=True)

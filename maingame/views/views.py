@@ -572,7 +572,7 @@ def calculate_op(request):
 
     units_sent_dict, _ = create_unit_dict(request.GET, "send_")
     target_dominion = Dominion.objects.filter(id=dominion_id).first()
-    op_sent, dp_left, raw_dp_left = get_op_and_dp_left(units_sent_dict, attacker=my_dominion, defender=target_dominion, is_infiltration=is_infiltration, is_plunder=is_plunder)
+    op_sent, dp_left, raw_dp_left, invalid_invasion = get_op_and_dp_left(units_sent_dict, attacker=my_dominion, defender=target_dominion, is_infiltration=is_infiltration, is_plunder=is_plunder)
 
     larger_enemy_has_lower_defense = False
     left_lowest_defense = True
@@ -583,8 +583,9 @@ def calculate_op(request):
         
         if dominion.defense < dp_left:
             left_lowest_defense = False
-
-    invalid_invasion = False if is_infiltration else (not target_dominion or op_sent < target_dominion.defense or dp_left < my_dominion.acres * 5)
+    
+    if not invalid_invasion:
+        invalid_invasion = False if is_infiltration else (not target_dominion or op_sent < target_dominion.defense or dp_left < my_dominion.acres * 5)
     
     # Build the dict that powers the win button. If this is slow, delete this part
     units_needed_to_break_list = []
@@ -643,7 +644,7 @@ def calculate_op(request):
             red_beret_op_reduction = 0
     except:
         red_beret_op_reduction = 0
-
+        
     context = {
         "op": op_sent,
         "dp": target_dominion.defense if target_dominion else 0,

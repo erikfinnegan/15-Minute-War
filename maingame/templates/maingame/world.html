@@ -181,7 +181,6 @@
                                 id="send_{{ unit.id }}" 
                                 type="number" 
                                 min="0"
-                                max="{{ unit.quantity_at_home }}" 
                                 class="w-12 md:w-16 md:ml-auto md:mr-2 unitInput"
                             >
                             <button 
@@ -205,7 +204,7 @@
                 </tbody>
             </table>
             <div id="readoutSection">
-                {% include "maingame/components/op_vs_dp.html" with op=0 dp=0 dp_left=active_dominion.defense invalid_invasion=True %}
+                {% include "maingame/components/op_vs_dp.html" with op=0 dp=0 dp_left=active_dominion.defense %}
             </div>
         </form>
         {% endif %}

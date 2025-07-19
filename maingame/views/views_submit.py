@@ -433,13 +433,16 @@ def submit_invasion(request):
         messages.error(request, f"Zero units sent")
         return redirect("world")
     
-    if is_plunder:
-        for unit_details_dict in units_sent_dict.values():
-            unit = get_unit_from_dict(unit_details_dict)
-            
-            if unit.name not in ["Pirate Crew", "Realitylubber Crew"]:
-                messages.error(request, f"You left some non-pirates on the form, try again.")
-                return redirect("world")
+    for unit_details_dict in units_sent_dict.values():
+        unit = get_unit_from_dict(unit_details_dict)
+        
+        if unit_details_dict["quantity_sent"] > unit.quantity_at_home:
+            messages.error(request, f"You can't send more {unit.name} than you have at home.")
+            return redirect("world")
+    
+        if is_plunder and unit.name not in ["Pirate Crew", "Realitylubber Crew"]:
+            messages.error(request, f"You left some non-pirates on the form, try again.")
+            return redirect("world")
 
     target_dominion = Dominion.objects.get(id=dominion_id)
     
@@ -448,7 +451,7 @@ def submit_invasion(request):
         return redirect("world")
 
     if this_is_infiltration:
-        infiltration_power_gained, _, _ = get_op_and_dp_left(units_sent_dict, attacker=my_dominion, defender=target_dominion, is_infiltration=True)
+        infiltration_power_gained, _, _, _ = get_op_and_dp_left(units_sent_dict, attacker=my_dominion, defender=target_dominion, is_infiltration=True)
         success, message = do_gsf_infiltration(infiltration_power_gained, units_sent_dict, my_dominion, target_dominion)
         
         if success:
