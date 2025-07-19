@@ -1527,7 +1527,7 @@ def do_tick_units(dominion: Dominion):
                         unit.save()
                 case "keeps_grudges_updated":
                     for other_dominion in Dominion.objects.filter(protection_ticks_remaining=0):
-                        if dominion != other_dominion:
+                        if dominion != other_dominion and unit.quantity_at_home > 0:
                             if other_dominion.strid not in dominion.perk_dict["book_of_grudges"].keys():
                                 dominion.perk_dict["book_of_grudges"][other_dominion.strid] = {}
                                 dominion.perk_dict["book_of_grudges"][other_dominion.strid]["pages"] = 1
