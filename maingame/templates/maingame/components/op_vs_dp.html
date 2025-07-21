@@ -37,7 +37,6 @@
             <input type="submit" name="prevent-enter-submit" onclick="return false;">
         </div>
 
-        <p>{{ invalid_invasion }}</p>
         <button class="btn-danger mt-1 w-24 h-6 p-0 u-center" type="submit" id="invadeButton" {% if invalid_invasion %}disabled{% endif %}>
             <span id="invadeButtonText" class="font-bold" disabled>Submit</span>
         </button>
