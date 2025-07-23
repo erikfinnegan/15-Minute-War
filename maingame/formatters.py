@@ -300,15 +300,19 @@ def shorten_number(num):
     hundred_thousand = 100000
     one_million = 1000000
     ten_million = 10000000
+    hundred_million = 100000000
+    billion = 1000000000
     
     if num < hundred_thousand: # 100k
         return f"{num:2,}"
     elif num < one_million: # 1m
         return f"{int(num/1000)}k"
     elif num < ten_million: #10m
-        return f"{round(num/one_million, 2)}m"
-    else:
         return f"{round(num/one_million, 1)}m"
+    elif num < billion:
+        return f"{int(num/one_million)}m"
+    else:
+        return f"{round(num/billion, 2)}b"
     
 
 def get_roman_numeral(number):
