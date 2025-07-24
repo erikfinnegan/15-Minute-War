@@ -196,17 +196,13 @@ def does_x_of_unit_break_defender(quantity_theorized, unit: Unit, units_sent_dic
 
 
 def handle_invasion_perks(attacker: Dominion, defender: Dominion, defender_land_snapshot, raw_defense_snapshot, units_sent_dict, is_plunder=False, was_forced=False):
-    if "hatetheist_per_acres" in attacker.perk_dict and defender.strid in attacker.perk_dict["book_of_grudges"]:
+    if "hatetheists_gained" in attacker.perk_dict and defender.strid in attacker.perk_dict["book_of_grudges"]:
         pages = attacker.perk_dict["book_of_grudges"][defender.strid]["pages"]
-        hatetheist_per_acres = attacker.perk_dict["hatetheist_per_acres"]
         
-        for unit_details_dict in units_sent_dict.values():
-            unit = get_unit_from_dict(unit_details_dict)
-            quantity_sent = unit_details_dict["quantity_sent"]
-            
-            if unit.name == "Doom Prospector" and quantity_sent >= pages and pages > 50:
-                hatetheists = Unit.objects.get(ruler=attacker, name="Hatetheist")
-                hatetheists.gain(math.floor(attacker.acres / hatetheist_per_acres))
+        if pages > 50:
+            hatetheists = Unit.objects.get(ruler=attacker, name="Hatetheist")
+            hatetheists_gained = attacker.perk_dict["hatetheists_gained"]
+            hatetheists.gain(hatetheists_gained)
 
     if attacker.faction_name == "sludgeling":
         try:

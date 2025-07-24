@@ -216,11 +216,11 @@ def unlock_discovery(dominion: Dominion, discovery_name):
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Deep Apostle"))
         case "Hatetheism":
             give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Hatetheist"))
-            dominion.perk_dict["hatetheist_per_acres"] = 200
+            dominion.perk_dict["hatetheists_gained"] = 4
         case "Hatetheism Spreads":
-            dominion.perk_dict["hatetheist_per_acres"] = 150
+            dominion.perk_dict["hatetheists_gained"] = 7
         case "Hatetheism Rising":
-            dominion.perk_dict["hatetheist_per_acres"] = 100
+            dominion.perk_dict["hatetheists_gained"] = 10
         case "Hateriarchy":
             hateriarch = give_dominion_unit(dominion, Unit.objects.get(ruler=None, name="Hateriarch"))
             hateriarch.gain(1)
