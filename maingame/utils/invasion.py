@@ -45,6 +45,7 @@ def handle_grudges_from_attack(attacker: Dominion, defender: Dominion=None):
             hateriarch = Unit.objects.get(name="Hateriarch", ruler=attacker)
             retains_extra_grudge_percent = hateriarch.perk_dict["retains_extra_grudge_percent"]
             other_grudge_multiplier += (retains_extra_grudge_percent / 100)
+            other_grudge_multiplier = max(1, other_grudge_multiplier)
         except:
             pass
 
