@@ -382,7 +382,7 @@ def do_offensive_casualties_and_return(units_sent_dict, attacker: Dominion, defe
     
     attacker.save()
 
-    return offensive_casualties, new_corpses
+    return offensive_casualties, new_corpses, do_instant_return
 
 
 def do_defensive_casualties(defender: Dominion, is_plunder=False):
@@ -501,8 +501,12 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion, is_plun
     #     _, offensive_corpses = do_offensive_casualties_and_return(units_sent_dict, attacker, defender, defense_snapshot, is_plunder=is_plunder)
     #     defensive_casualties, defensive_corpses = do_defensive_casualties(defender, is_plunder=is_plunder)
     
-    _, offensive_corpses = do_offensive_casualties_and_return(units_sent_dict, attacker, defender, raw_defense_snapshot, is_plunder=is_plunder)
+    _, offensive_corpses, do_instant_return = do_offensive_casualties_and_return(units_sent_dict, attacker, defender, raw_defense_snapshot, is_plunder=is_plunder)
     defensive_casualties, defensive_corpses = do_defensive_casualties(defender, is_plunder=is_plunder)
+
+    if do_instant_return:
+        battle.battle_report_notes.append(f"Attacking troops returned instantly.")
+        battle.save()
 
     new_corpses = offensive_corpses + defensive_corpses
 
