@@ -139,7 +139,7 @@ def initialize_dwarf_units():
             "food": 1,
             "research": 1,
         },
-        perk_dict={"bonus_percent_to_animosity": 10, "retains_extra_grudge_percent": 10},
+        perk_dict={"bonus_percent_to_animosity": 10, "retains_extra_grudge_percent": 5},
         is_trainable=False,
     )
 

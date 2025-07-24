@@ -1033,6 +1033,7 @@ class Event(models.Model):
     category = models.CharField(max_length=50, default="?")
     message_override = models.CharField(max_length=150, default="")
     notified_dominions = models.ManyToManyField(Dominion)
+    extra_text = models.CharField(max_length=150, default="")
 
     def __str__(self):
         return f"{self.message}"

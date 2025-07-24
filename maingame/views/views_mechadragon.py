@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.shortcuts import redirect, render
 
-from maingame.models import Dominion, MechModule, Unit, Resource
+from maingame.models import Dominion, MechModule, Unit, Resource, Event, Battle
 
 
 def mech_hangar(request):
@@ -131,6 +131,11 @@ def submit_town_portal(request):
         mechadragon.advance_training_and_returning()
 
     town_portal.delete()
+    
+    battle = Battle.objects.filter(attacker=dominion).last()
+    event = Event.objects.get(reference_id=battle.id)
+    event.extra_text = "The mecha-dragon was returned home instantly via town portal."
+    event.save()
 
     messages.success(request, "POOF! The Mecha-Dragon has returned!")
     return redirect("mech_hangar")
