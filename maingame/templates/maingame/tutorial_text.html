@@ -21,9 +21,13 @@
         defense. Seriously consider invading, though - even if danger is a possibility. As long as there's an even more tempting target, you might be safe.
         Plus, it's fun!
     </p>
-    <p>
+    <h6>
         This is all I have to teach you. Please conside <a href="https://discord.gg/gMvY8up8Nt" class="text-blue-500">joining the Discord server</a> if you 
         have any questions, feedback, bug reports, or just want to enjoy some good-natured camaraderie.
+    </h6>
+    <p>
+        Note that this has guided you through a strategy where simplicity and education are prioritized over power. You may want to go to the bottom of
+        the Overview page to abandon this dominion and then restart.
     </p>
     {% endif %}
 {% endif %}
@@ -261,16 +265,11 @@
         These are all the dominions at the moment. You can click on anyone's name to see an overview of their dominion.
     </p>
     <p>
-        Each dominion has a penalty to their defense called "complacency". It worsens by 0.5% per tick and resets to zero when they get invaded.
+       Every tick, a dominion gains -0.33% defense. This resets when that dominion gets invaded. They also gain +0.33 offense, resetting when they successfully make an invasion.
     </p>
     <p>
         Highest OP tracks the greatest total offense that dominion has sent on an invasion. It doesn't represent their maximum potential, but it's
         a useful tool for determining if you have enough defense.
-    </p>
-    <p>
-        When one dominion invades another, the victim gains pages of grudges against their attacker. Every tick, they get a little extra bonus
-        offense against the subjects of their grudges - the more pages, the greater the gains. When they successfully retaliate, the
-        grudge is cleared.
     </p>
     <p>When you're ready, process your final tick of protection.</p>
     {% endif %}
@@ -296,11 +295,19 @@
                 This is all I have to teach you. Please consider <a href="https://discord.gg/gMvY8up8Nt" class="text-blue-500">joining the Discord server</a> if you 
                 have any questions, feedback, bug reports, or just want to enjoy some good-natured camaraderie.
             </p>
+            <h6>
+                Note that this has guided you through a strategy where simplicity and education are prioritized over power. You may want to go to the bottom of
+                the Overview page to abandon this dominion and then restart.
+            </h6>
         {% else %}
             <p>
                 The round hasn't started yet, but take a moment to look over who all has signed up. You won't be able to see too much detail about them on their
                 overview page until the round starts. Take a look at the menu to see the countdown until the round begins and come back then.
             </p>
+            <h6>
+                Note that this has guided you through a strategy where simplicity and education are prioritized over power. You may want to go to the bottom of
+                the Overview page to abandon this dominion and then restart.
+            </h6>
         {% endif %}
     {% endif %}
 {% endif %}

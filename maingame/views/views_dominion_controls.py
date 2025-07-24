@@ -54,18 +54,28 @@ def protection_tick(request, quantity):
         
         if user_settings.tutorial_step == 1:
             messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+            dominion.is_protection_ticking = False
+            dominion.save()
             return redirect("buildings")
         elif user_settings.tutorial_step == 2 and dominion.protection_ticks_remaining - quantity != 71:
             messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+            dominion.is_protection_ticking = False
+            dominion.save()
             return redirect("buildings")
         elif user_settings.tutorial_step == 3 and quantity != 12:
             messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+            dominion.is_protection_ticking = False
+            dominion.save()
             return redirect("buildings")
         elif user_settings.tutorial_step == 10 and dominion.protection_ticks_remaining - quantity < 1:
             messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+            dominion.is_protection_ticking = False
+            dominion.save()
             return redirect("buildings")
         elif user_settings.tutorial_step < 999 and user_settings.tutorial_step not in [1, 2, 3, 5, 10, 11]:
             messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+            dominion.is_protection_ticking = False
+            dominion.save()
             if user_settings.tutorial_step in [4]:
                 return redirect("upgrades")
             elif user_settings.tutorial_step in [6, 7, 10]:
