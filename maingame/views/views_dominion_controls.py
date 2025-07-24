@@ -45,6 +45,13 @@ def protection_tick(request, quantity):
         except:
             return redirect("register")
         
+        if dominion.is_protection_ticking:
+            messages.error(request, f"Stop clicking so fast")
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        
+        dominion.is_protection_ticking = True
+        dominion.save()
+        
         if user_settings.tutorial_step == 1:
             messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
             return redirect("buildings")
@@ -91,6 +98,9 @@ def protection_tick(request, quantity):
                     dominion.save()
     else:
         messages.error(request, f"Knock it off")
+    
+    dominion.is_protection_ticking = False
+    dominion.save()
     
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 

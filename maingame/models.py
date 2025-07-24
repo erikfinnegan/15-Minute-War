@@ -140,6 +140,7 @@ class Dominion(models.Model):
     highest_raw_op_sent = models.IntegerField(default=0, null=True, blank=True)
     invasion_consequences = models.CharField(max_length=1000, null=True, blank=True)
     score = models.IntegerField(default=0)
+    is_protection_ticking = models.BooleanField(default=False)
 
     times_ruler_killed = models.IntegerField(default=0)
     ruler_respawn_timer = models.IntegerField(default=0)
