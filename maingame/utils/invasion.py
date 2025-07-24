@@ -39,8 +39,17 @@ def handle_grudges_from_attack(attacker: Dominion, defender: Dominion=None):
         else:
             del attacker.perk_dict["book_of_grudges"][defender.strid]
 
+        other_grudge_multiplier = 0.5
+        
+        try:
+            hateriarch = Unit.objects.get(name="Hateriarch", ruler=attacker)
+            retains_extra_grudge_percent = hateriarch.perk_dict["retains_extra_grudge_percent"]
+            other_grudge_multiplier += (retains_extra_grudge_percent / 100)
+        except:
+            pass
+
         for grudge_dict in attacker.perk_dict["book_of_grudges"].values():
-            grudge_dict["animosity"] /= 2
+            grudge_dict["animosity"] *= other_grudge_multiplier
 
         attacker.save()
 

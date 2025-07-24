@@ -147,6 +147,10 @@ def get_perk_text(perk_dict, resource_name_list, faction_name="none"):
         bonus_percent_to_animosity = perk_dict["bonus_percent_to_animosity"]
         perk_text += f"Each Hateriarch increases the rate at which pages generate bonus OP by {bonus_percent_to_animosity}%. "
         
+    if "retains_extra_grudge_percent" in perk_dict:
+        retains_extra_grudge_percent = perk_dict["retains_extra_grudge_percent"]
+        perk_text += f"Reduces other grudge loss by {retains_extra_grudge_percent} percentage points when invading."
+        
     return perk_text
 
 
