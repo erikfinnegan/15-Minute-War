@@ -46,7 +46,7 @@ def protection_tick(request, quantity):
             return redirect("register")
         
         if dominion.is_protection_ticking:
-            messages.error(request, f"Stop clicking so fast")
+            messages.error(request, f"Your ticks are still processing, slow down")
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
         
         dominion.is_protection_ticking = True
