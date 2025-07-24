@@ -45,59 +45,57 @@ def protection_tick(request, quantity):
         except:
             return redirect("register")
         
-        # if dominion.is_protection_ticking:
-        #     messages.error(request, f"Stop clicking so fast")
-        #     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-        was_already_ticking = dominion.is_protection_ticking
+        if dominion.is_protection_ticking:
+            messages.error(request, f"Stop clicking so fast")
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
         
         dominion.is_protection_ticking = True
         dominion.save()
         
-        if not was_already_ticking:
-            if user_settings.tutorial_step == 1:
-                messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+        if user_settings.tutorial_step == 1:
+            messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+            return redirect("buildings")
+        elif user_settings.tutorial_step == 2 and dominion.protection_ticks_remaining - quantity != 71:
+            messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+            return redirect("buildings")
+        elif user_settings.tutorial_step == 3 and quantity != 12:
+            messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+            return redirect("buildings")
+        elif user_settings.tutorial_step == 10 and dominion.protection_ticks_remaining - quantity < 1:
+            messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+            return redirect("buildings")
+        elif user_settings.tutorial_step < 999 and user_settings.tutorial_step not in [1, 2, 3, 5, 10, 11]:
+            messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
+            if user_settings.tutorial_step in [4]:
+                return redirect("upgrades")
+            elif user_settings.tutorial_step in [6, 7, 10]:
+                return redirect("military")
+            elif user_settings.tutorial_step in [8]:
+                return redirect("discoveries")
+            else:
                 return redirect("buildings")
-            elif user_settings.tutorial_step == 2 and dominion.protection_ticks_remaining - quantity != 71:
-                messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
-                return redirect("buildings")
-            elif user_settings.tutorial_step == 3 and quantity != 12:
-                messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
-                return redirect("buildings")
-            elif user_settings.tutorial_step == 10 and dominion.protection_ticks_remaining - quantity < 1:
-                messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
-                return redirect("buildings")
-            elif user_settings.tutorial_step < 999 and user_settings.tutorial_step not in [1, 2, 3, 5, 10, 11]:
-                messages.error(request, f"Please follow the tutorial or disable tutorial mode in the Options page")
-                if user_settings.tutorial_step in [4]:
-                    return redirect("upgrades")
-                elif user_settings.tutorial_step in [6, 7, 10]:
-                    return redirect("military")
-                elif user_settings.tutorial_step in [8]:
-                    return redirect("discoveries")
-                else:
-                    return redirect("buildings")
-            
-            if dominion.protection_ticks_remaining - quantity < 12:
-                forgot_units = True
+        
+        if dominion.protection_ticks_remaining - quantity < 12:
+            forgot_units = True
 
-                for unit in Unit.objects.filter(ruler=dominion):
-                    if unit.quantity_at_home + unit.quantity_in_training > 0:
-                        forgot_units = False
+            for unit in Unit.objects.filter(ruler=dominion):
+                if unit.quantity_at_home + unit.quantity_in_training > 0:
+                    forgot_units = False
 
-                if forgot_units:
-                    messages.error(request, f"You may not leave protection without units and they take 12 ticks to train. You'll want at least a few hundred total defense.")
-                else:
-                    for _ in range(quantity):
-                        if dominion.protection_ticks_remaining > 0:
-                            dominion.do_tick()
-                            dominion.protection_ticks_remaining -= 1
-                            dominion.save()
+            if forgot_units:
+                messages.error(request, f"You may not leave protection without units and they take 12 ticks to train. You'll want at least a few hundred total defense.")
             else:
                 for _ in range(quantity):
                     if dominion.protection_ticks_remaining > 0:
                         dominion.do_tick()
                         dominion.protection_ticks_remaining -= 1
                         dominion.save()
+        else:
+            for _ in range(quantity):
+                if dominion.protection_ticks_remaining > 0:
+                    dominion.do_tick()
+                    dominion.protection_ticks_remaining -= 1
+                    dominion.save()
     else:
         messages.error(request, f"Knock it off")
     
