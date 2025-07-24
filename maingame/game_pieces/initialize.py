@@ -148,7 +148,8 @@ def initialize_factions():
         grudges are added about that dominion. Every tick, those grudges simmer and the dwarf's offense bonus against that dominion increases by 0.003% per page,
         accumulating until the dwarf invades that player successfully. 0.003% may not sound like much, but it adds up quickly. Attacking removes half of the
         accumulated bonus against each other dominion, as the grudge must not be that intense if you're fighting elsewhere."""],
-        invasion_consequences="This dominion will gain a growing OP bonus against you."
+        invasion_consequences="This dominion will gain a growing OP bonus against you.",
+        play_if_you="like unlocking new units and getting revenge."
     )
 
     # Faction.objects.create(
@@ -174,7 +175,8 @@ def initialize_factions():
         """They gain two sludgenes of the same family the first time they invade or get invaded, and then gain two more other invasion/time invaded 
         after that. Every three hours, they're able to splice yet another experiment together."""
         ],
-        invasion_consequences="This dominion will gain a sludgene sequence."
+        invasion_consequences="This dominion will gain a sludgene sequence.",
+        play_if_you="like customizing your units and creating your own strategy, plus a bit of gambling.",
     )
 
     Faction.objects.create(
@@ -186,7 +188,8 @@ def initialize_factions():
         Each is ruled by an ambitious little wretch who favors one resource above all others, getting a 20% bonus to production. Every time goblins are 
         invaded, they eat their leader and replace them with a new one who favors a new resource and increases the production bonus by 1%. Leaders will 
         never favor gold or rats as it would be seen as too unoriginal."""],
-        invasion_consequences="This dominion will change the resource they get a bonus to producing and the bonus will increase by 1%."
+        invasion_consequences="This dominion will change the resource they get a bonus to producing and the bonus will increase by 1%.",
+        play_if_you="don't want to feel bad about getting invaded and enjoy adapting your strategy as you go, rather than planning."
     )
 
     Faction.objects.create(
@@ -201,7 +204,8 @@ def initialize_factions():
         patience, they'll wait until you stop actively managing your dominion (i.e. have no units in training) and take over choosing when and who to invade (anyone 
         over 75% of your size who you can beat using only units with OP > DP). If they get TOO impatient, they'll ignore the restriction about units training. When biclops get invaded,
         they add half of their lost complacency penalty to their determination bonus."""],
-        invasion_consequences="This dominion will add half their complacency penalty to their determination bonus."
+        invasion_consequences="This dominion will add half their complacency penalty to their determination bonus.",
+        play_if_you="like being aggressive and causing a little chaos."
     )
 
     Faction.objects.create(
@@ -211,6 +215,7 @@ def initialize_factions():
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry",],
         description_list=["""The GSF are as tricky as they are small. What they lack in power they make up for with their devious schemes, strategically undermining
         the defenses of their targets before striking a decisive blow."""],
+        play_if_you="like carefully planning your moves and want to always have something to do."
     )
 
     Faction.objects.create(
@@ -219,7 +224,8 @@ def initialize_factions():
         primary_resource_per_acre="50",
         starting_buildings=["farm", "lumberyard", "school", "tower", "quarry",],
         description_list=["""Inspired by mythical creatures, they set out to construct the ultimate war machine. It is difficult to deny they've succeeded. The bulk of
-        their offense comes from a single, powerful mecha-dragon comprised of modules that are upgraded and installed from the mech hangar."""]
+        their offense comes from a single, powerful mecha-dragon comprised of modules that are upgraded and installed from the mech hangar."""],
+        play_if_you="like tinkering with one big unit and juggling abilities with cooldowns."
     )
     
     Faction.objects.create(
@@ -238,7 +244,8 @@ def initialize_factions():
         has +100% OP, and does not trigger defensive faction abilities. Plundering generates plunder equal to half of the raw DP of the target and invasions grant a quarter of that.
         Only units with 'Crew' in the name can plunder.""",
         """Enemies attacking them will be time-cursed for 12 ticks. During this time, they have a 20% chance to skip each tick."""],
-        invasion_consequences="You will be time-cursed for 12 ticks. During this time, you'll have a 20% chance to skip each tick. "
+        invasion_consequences="You will be time-cursed for 12 ticks. During this time, you'll have a 20% chance to skip each tick. ",
+        play_if_you="enjoy managing risk/reward for power and don't mind a bit of randomess."
     )
 
 
