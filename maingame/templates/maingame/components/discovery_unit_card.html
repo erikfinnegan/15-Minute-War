@@ -1,7 +1,7 @@
 {% load humanize %}
 {% load extra_tags %}
 
-<table class="table striped card_colors">
+<table class="table striped card_colors pb-4">
     <thead>
         <tr>
             <th>Name</th>
@@ -11,11 +11,6 @@
         </tr>
     </thead>
     <tbody>
-        {% comment %} <div class="modal card_colors w-32 h-24 u-center u-align-middle my-auto" id="test-modal">
-            <div class="modal-header u-flex u-flex-column u-justify-space-between">
-                <p>{{ unit.perk_text }}</p>
-            </div>
-        </div> {% endcomment %}
         <tr>
             {% include "maingame/components/unit_name_row.html" with unit=unit %}
             <td class="u-align-middle u-text-no-wrap">{{ unit.op|intcomma }}&nbsp;/&nbsp;{{ unit.dp|intcomma }}</td>
