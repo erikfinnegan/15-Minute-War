@@ -646,8 +646,8 @@ def do_forced_attack(dominion: Dominion, use_always_dies_units=False):
                 while (
                     raw_op_sent * op_multiplier <= other_dominion.defense and
                     this_unit_dict["quantity_sent"] < offensive_unit.quantity_at_home and
-                    raw_dp_at_home * own_dp_multiplier >= dominion.acres * 5 and
-                    raw_dp_at_home * own_dp_multiplier * 3 >= raw_op_sent * op_multiplier
+                    raw_dp_at_home >= dominion.acres * 5 and
+                    raw_dp_at_home * 3 >= raw_op_sent * op_multiplier
                 ):
                     this_unit_dict["quantity_sent"] += 1
                     raw_op_sent += infiltration
