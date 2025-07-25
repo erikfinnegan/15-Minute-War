@@ -13,7 +13,7 @@ def captains_quarters(request):
     try:
         pirate_crews = Unit.objects.get(ruler=dominion, name="Pirate Crew")
         shares = pirate_crews.upkeep_dict["plunder"]
-        min_shares = max(1, shares - 2)
+        min_shares = max(0, shares - 2)
         max_shares = min(10, shares + 2)
     except:
         shares = 0
@@ -83,8 +83,16 @@ def submit_plunder_shares(request):
     
     shares = int(request.POST.get("shares_per_pirate"))
     
-    if shares < 1 or not shares or dominion.perk_dict["ticks_until_next_share_change"] > 0:
+    if shares < 0:
+        messages.error(request, "You can't allocate negative shares")
+        return redirect("captains_quarters")
+    
+    if shares != 0 and not shares:
         messages.error(request, "You are sentenced to walk the timeplank")
+        return redirect("captains_quarters")
+    
+    if dominion.perk_dict["ticks_until_next_share_change"] > 0:
+        messages.error(request, "You must wait longer to change your crews' cut of the plunder")
         return redirect("captains_quarters")
     
     try:
@@ -94,10 +102,9 @@ def submit_plunder_shares(request):
         
         pirate_crews.op = template_pirate_crews.op + (5 * (shares - 1))
         pirate_crews.dp = template_pirate_crews.dp + (6 * (shares - 1))
-            
         pirate_crews.save()
         
-        dominion.perk_dict["ticks_until_next_share_change"] = 48
+        dominion.perk_dict["ticks_until_next_share_change"] = 36
         dominion.save()
     except:
         messages.error(request, "You are sentenced to walk the timeplank")
