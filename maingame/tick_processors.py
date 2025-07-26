@@ -19,7 +19,7 @@ def normalize_trade_prices():
 
 def audit_for_bugs():
     start_timestamp = datetime.now(ZoneInfo('America/New_York'))
-    round = Round.objects.first()
+    this_round = Round.objects.first()
     resource_bugs = False
     unit_bugs = False
     acre_bugs = False
@@ -27,17 +27,17 @@ def audit_for_bugs():
     for resource in Resource.objects.all():
         if resource.net != resource.quantity:
             resource_bugs = True
-            round.bugs.append(f"{start_timestamp.strftime('%H:%M:%S')}: {resource.ruler}'s {resource.name} expected {resource.net} -vs- current {resource.quantity}")
+            this_round.bugs.append(f"{start_timestamp.strftime('%H:%M:%S')}: {resource.ruler}'s {resource.name} expected {resource.net} -vs- current {resource.quantity}")
 
     for unit in Unit.objects.all():
         if unit.quantity_total != unit.net:
             unit_bugs = True
-            round.bugs.append(f"{start_timestamp.strftime('%H:%M:%S')}: {unit.ruler}'s {unit.name} expected {unit.net} -vs- current {unit.quantity_total}")
+            this_round.bugs.append(f"{start_timestamp.strftime('%H:%M:%S')}: {unit.ruler}'s {unit.name} expected {unit.net} -vs- current {unit.quantity_total}")
 
     for dominion in Dominion.objects.all():
         if dominion.net_acres + 500 != dominion.acres:
             acre_bugs = True
-            round.bugs.append(f"{start_timestamp.strftime('%H:%M:%S')}: {dominion} acres expected {dominion.net_acres + 500} -vs- current {dominion.acres}")
+            this_round.bugs.append(f"{start_timestamp.strftime('%H:%M:%S')}: {dominion} acres expected {dominion.net_acres + 500} -vs- current {dominion.acres}")
 
     has_bugs = resource_bugs or unit_bugs or acre_bugs
 
@@ -46,22 +46,28 @@ def audit_for_bugs():
     else:
         print("No bugs this tick")
 
-    round.has_bugs = has_bugs
-    round.save()
+    this_round.has_bugs = has_bugs
+    this_round.save()
+    
+    end_timestamp = datetime.now(ZoneInfo('America/New_York'))
+    print(f"Bug audit lasted:", round((end_timestamp - start_timestamp).total_seconds(), 3))
 
 
 def do_global_tick():
     start_timestamp = datetime.now(ZoneInfo('America/New_York'))
     print("Start global tick", start_timestamp.strftime('%H:%M:%S'))
-    round = Round.objects.first()
-    round.is_ticking = True
-    round.save()
+    this_round = Round.objects.first()
+    this_round.is_ticking = True
+    this_round.save()
 
-    if not round.has_ended:
+    if not this_round.has_ended:
+        
         audit_for_bugs()
+        all_dominions = Dominion.objects.all()
 
-        if Round.objects.first().allow_ticks:
-            for dominion in Dominion.objects.all():
+        if this_round.allow_ticks:
+            print("-----")
+            for dominion in all_dominions:
                 if dominion.is_oop and not dominion.is_abandoned:
                     number_of_ticks = get_number_of_times_to_tick(dominion, start_timestamp)
                     
@@ -69,10 +75,15 @@ def do_global_tick():
                     dominion.save()
 
                     for _ in range(number_of_ticks):
+                        start_tick_timestamp = datetime.now(ZoneInfo('America/New_York'))
                         dominion.do_tick()
-
+                        end_tick_timestamp = datetime.now(ZoneInfo('America/New_York'))
+                        print(f"{dominion.name} {dominion.faction_name} tick lasted:", round((end_tick_timestamp - start_tick_timestamp).total_seconds(), 3))
+            
+            print("-----")
+            
             # This has to be a separate loop or else multiple auto attacks against the same target get fucked up
-            for dominion in Dominion.objects.all().order_by("?"):
+            for dominion in all_dominions.order_by("?"):
                 if dominion.faction_name == "biclops" and not dominion.is_abandoned: 
                     do_biclops_partner_attack(dominion)
 
@@ -83,20 +94,20 @@ def do_global_tick():
 
         now = datetime.now(ZoneInfo('America/New_York'))
 
-        if not round.start_time:
+        if not this_round.start_time:
             pass
-        elif now > round.start_time and not round.has_started:
-            round.has_started = True
-        elif round.has_started:
-            round.ticks_passed += 1
+        elif now > this_round.start_time and not this_round.has_started:
+            this_round.has_started = True
+        elif this_round.has_started:
+            this_round.ticks_passed += 1
 
-            if round.ticks_passed >= round.ticks_to_end:
-                round.has_ended = randint(1,100) <= round.percent_chance_for_round_end
+            if this_round.ticks_passed >= this_round.ticks_to_end:
+                this_round.has_ended = randint(1,100) <= this_round.percent_chance_for_round_end
 
-        round.save()
+        this_round.save()
 
-        if round.has_ended:
-            for dominion in Dominion.objects.all():
+        if this_round.has_ended:
+            for dominion in all_dominions:
                 dominion.gain_acres(dominion.incoming_acres)
                 dominion.incoming_acres_dict = generate_countdown_dict()
                 dominion.save()
@@ -108,6 +119,6 @@ def do_global_tick():
     printable_delta = str(delta)
     print(f"Tick processing time: {printable_delta}")
 
-    round.is_ticking = False
-    round.last_tick_finished = make_aware(datetime.now())
-    round.save()
+    this_round.is_ticking = False
+    this_round.last_tick_finished = make_aware(datetime.now())
+    this_round.save()

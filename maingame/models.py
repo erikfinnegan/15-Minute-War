@@ -556,11 +556,9 @@ class Dominion(models.Model):
                             unit.returning_dict[tick] = new_amount_returning
 
                         unit.save()
-
-            if resource.quantity < 0:
+                        
                 resource.gain(resource.quantity * -1)
-            # resource.quantity = max(0, resource.quantity)
-            # resource.save()
+                
             self.save()
 
     def advance_land_returning(self):
@@ -687,22 +685,23 @@ class Dominion(models.Model):
 
         for unit in Unit.objects.filter(ruler=self):
             unit.advance_training_and_returning()
-            
-        for module in MechModule.objects.filter(ruler=self):
-            if module.battery_current < module.battery_max:
-                module.battery_current += 1
-                module.save()
-                
-            try:
-                op_growth_per_capacity_per_tick = module.perk_dict["op_growth_per_capacity_per_tick"]
-                
-                if module.durability_percent >= 100:
-                    module.base_power += op_growth_per_capacity_per_tick
+        
+        if self.faction_name == "mecha-dragon":
+            for module in MechModule.objects.filter(ruler=self):
+                if module.battery_current < module.battery_max:
+                    module.battery_current += 1
                     module.save()
-            except:
-                pass
+                    
+                try:
+                    op_growth_per_capacity_per_tick = module.perk_dict["op_growth_per_capacity_per_tick"]
+                    
+                    if module.durability_percent >= 100:
+                        module.base_power += op_growth_per_capacity_per_tick
+                        module.save()
+                except:
+                    pass
 
-        self.void_return_cost = int(self.void_return_cost * 0.9281)
+        # self.void_return_cost = int(self.void_return_cost * 0.9281)
         do_tick_units(self)
 
         for spell in Spell.objects.filter(ruler=self):
