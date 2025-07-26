@@ -443,7 +443,8 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion, is_plun
         return 0, "No failed invasions allowed"
     if dp_left < attacker.acres * 5:
         return 0, "Insufficient defense left by attacker"
-    if (offense_sent * 3) > dp_left:
+    if offense_sent > dp_left * 3:
+        print("offense", offense_sent * 3)
         return 0, "You can't send more OP than 3x your remaining defense"
     if attacker.is_abandoned:
         return 0, "Abandoned dominions can't attack"
