@@ -350,12 +350,14 @@ def get_acres_conquered(attacker: Dominion, target: Dominion, is_plunder=False):
         return 1
     
     base = 0.06 * target.acres
-    land_ratio = target.acres / attacker.acres
+    land_ratio = target.acres / max(1, attacker.acres)
     multiplier = land_ratio
     
     if land_ratio > 1:
         bonus_percent = land_ratio - 1
         multiplier = 1 + (0.8 * bonus_percent)
+        
+    multiplier = min(multiplier, 3)
 
     return int(base * multiplier)
 
