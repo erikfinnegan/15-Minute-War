@@ -197,7 +197,7 @@ def initialize_dwarf_discoveries():
     
     Discovery.objects.create(
         name="Hatetheism",
-        description="When you attack someone against whom you've recorded at least 50 pages of grudges, recruit 5 Hatetheists.",
+        description="When you attack someone against whom you've recorded at least 50 pages of grudges, recruit 4 Hatetheists.",
         required_faction_name="dwarf",
         associated_unit_name="Hatetheist",
         required_discoveries=["Never Forget", "Doom Prospectors"],
@@ -205,14 +205,14 @@ def initialize_dwarf_discoveries():
     
     Discovery.objects.create(
         name="Hatetheism Spreads",
-        description="When recruiting Hatetheists, get 8 instead of 5",
+        description="When recruiting Hatetheists, get 7 instead of 4",
         required_faction_name="dwarf",
         required_discoveries=["Hatetheism"],
     )
     
     Discovery.objects.create(
         name="Hatetheism Rising",
-        description="When recruiting Hatetheists, get 10 instead of 8.",
+        description="When recruiting Hatetheists, get 10 instead of 7.",
         required_faction_name="dwarf",
         required_discoveries=["Hatetheism Spreads"],
     )

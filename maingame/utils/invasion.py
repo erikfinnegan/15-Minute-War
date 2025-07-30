@@ -199,7 +199,7 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defender_land_
     if "hatetheists_gained" in attacker.perk_dict and defender.strid in attacker.perk_dict["book_of_grudges"]:
         pages = attacker.perk_dict["book_of_grudges"][defender.strid]["pages"]
         
-        if pages > 50:
+        if pages >= 50:
             hatetheists = Unit.objects.get(ruler=attacker, name="Hatetheist")
             hatetheists_gained = attacker.perk_dict["hatetheists_gained"]
             hatetheists.gain(hatetheists_gained)

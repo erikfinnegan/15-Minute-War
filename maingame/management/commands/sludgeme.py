@@ -18,4 +18,5 @@ class Command(BaseCommand):
             unit.gain(2000)
             
         testdominion.perk_dict["splices"] = 9999
+        testdominion.perk_dict["masterpieces_to_create"] = 1
         testdominion.save()
