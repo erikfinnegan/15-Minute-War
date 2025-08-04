@@ -1049,6 +1049,8 @@ class Event(models.Model):
             return self.message_override
         elif self.reference_type == "spell":
             return self.message_override
+        elif self.reference_type == "round_end":
+            return self.message_override
         
         return "Unknown event type"
     

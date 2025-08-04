@@ -1,6 +1,6 @@
 from random import randint
 from maingame.formatters import generate_countdown_dict
-from maingame.models import Dominion, Round, Resource, Unit
+from maingame.models import Dominion, Round, Resource, Unit, Event
 from datetime import datetime
 from django.utils.timezone import make_aware
 from zoneinfo import ZoneInfo
@@ -103,6 +103,14 @@ def do_global_tick():
 
             if this_round.ticks_passed >= this_round.ticks_to_end:
                 this_round.has_ended = randint(1,100) <= this_round.percent_chance_for_round_end
+                
+                if this_round.has_ended:
+                    event = Event.objects.create(
+                        reference_id=1, 
+                        reference_type="round_end", 
+                        category="Round end",
+                        message_override=f"The round has ended."
+                    )
 
         this_round.save()
 

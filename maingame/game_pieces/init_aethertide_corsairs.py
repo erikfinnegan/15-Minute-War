@@ -90,7 +90,7 @@ def initialize_aethertide_corsairs_discoveries():
     
     Discovery.objects.create(
         name="Impressment",
-        description="When plundering or invading, capture folk for use as press_gangers equal to 1% of the amount of plunder gained.",
+        description="When plundering or invading, capture folk for use as press gangers equal to 1% of the amount of plunder gained.",
         associated_unit_name="Realitylubber Crew",
         required_faction_name="aethertide corsairs",
     )
