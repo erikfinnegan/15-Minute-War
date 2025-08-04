@@ -585,7 +585,7 @@ def calculate_op(request):
             left_lowest_defense = False
     
     if not invalid_invasion:
-        invalid_invasion = False if is_infiltration else (not target_dominion or op_sent < target_dominion.defense or dp_left < my_dominion.acres * 5)
+        invalid_invasion = False if is_infiltration else (not target_dominion or op_sent < target_dominion.defense or raw_dp_left < my_dominion.acres * 5)
     
     # Build the dict that powers the win button. If this is slow, delete this part
     units_needed_to_break_list = []

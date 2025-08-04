@@ -441,7 +441,7 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion, is_plun
 
     if defender.defense > offense_sent:
         return 0, "No failed invasions allowed"
-    if dp_left < attacker.acres * 5:
+    if raw_dp_left < attacker.acres * 5:
         return 0, "Insufficient defense left by attacker"
     if offense_sent > raw_dp_left * 3:
         return 0, "You can't send more OP than 3x your remaining raw defense"
