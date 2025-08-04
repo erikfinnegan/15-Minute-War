@@ -120,5 +120,8 @@ def do_global_tick():
     print(f"Tick processing time: {printable_delta}")
 
     this_round.is_ticking = False
-    this_round.last_tick_finished = make_aware(datetime.now())
+    
+    if not this_round.has_ended:
+        this_round.last_tick_finished = make_aware(datetime.now())
+        
     this_round.save()

@@ -258,12 +258,11 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defender_land_
     if attacker.faction_name == "aethertide corsairs":
         plunder = Resource.objects.get(ruler=attacker, name="plunder")
         plunder_gained = raw_defense_snapshot if is_plunder else int(raw_defense_snapshot / 4)
-        plunder_gained = int(plunder_gained / 2)
         plunder.gain(plunder_gained)
         
         try:
             press_gangers = Resource.objects.get(ruler=attacker, name="press gangers")
-            press_gangers.gain(int(plunder_gained * 0.02))
+            press_gangers.gain(int(plunder_gained * 0.01))
         except:
             pass
         
