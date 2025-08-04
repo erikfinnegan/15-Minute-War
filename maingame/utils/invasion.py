@@ -436,16 +436,15 @@ def do_invasion(units_sent_dict, attacker: Dominion, defender: Dominion, is_plun
     defender_land_snapshot = defender.acres
     raw_defense_snapshot = defender.raw_defense
     slowest_unit_return_ticks = 1
-    offense_sent, dp_left, _, invalid_invasion = get_op_and_dp_left(units_sent_dict, attacker, defender=defender, is_plunder=is_plunder)
+    offense_sent, dp_left, raw_dp_left, invalid_invasion = get_op_and_dp_left(units_sent_dict, attacker, defender=defender, is_plunder=is_plunder)
     acres_conquered = get_acres_conquered(attacker, defender, is_plunder)
 
     if defender.defense > offense_sent:
         return 0, "No failed invasions allowed"
     if dp_left < attacker.acres * 5:
         return 0, "Insufficient defense left by attacker"
-    if offense_sent > dp_left * 3:
-        print("offense", offense_sent * 3)
-        return 0, "You can't send more OP than 3x your remaining defense"
+    if offense_sent > raw_dp_left * 3:
+        return 0, "You can't send more OP than 3x your remaining raw defense"
     if attacker.is_abandoned:
         return 0, "Abandoned dominions can't attack"
     if invalid_invasion:
