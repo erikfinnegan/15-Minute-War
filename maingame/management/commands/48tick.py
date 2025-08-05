@@ -8,9 +8,9 @@ class Command(BaseCommand):
     help = "Do a tick"
 
     def handle(self, *args, **options):
-        print("Running 96tick script", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
+        print("Running 48tick script", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))
         
-        for _ in range(96):
+        for _ in range(48):
             do_global_tick()
         
         print("Finished 12tick script", datetime.now(ZoneInfo('America/New_York')).strftime('%H:%M:%S'))

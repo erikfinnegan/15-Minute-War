@@ -879,6 +879,10 @@ class Unit(models.Model):
         return f"🟩Base --- {base_name}"
     
     @property
+    def strid(self):
+        return str(self.id)
+    
+    @property
     def power_display(self):
         return f"{self.op:2,} / {self.dp:2,}"
     

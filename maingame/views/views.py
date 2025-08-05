@@ -1,5 +1,7 @@
+import copy
 import json
 import zoneinfo
+import math
 
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -629,6 +631,35 @@ def calculate_op(request):
     #                     test_quantity -= 1
     #                 else:
     #                     test_quantity += 1
+
+    if target_dominion:
+        for unit in Unit.objects.filter(ruler=my_dominion):
+            # one_extra_unit_dict = units_sent_dict.copy()
+            one_extra_unit_dict = copy.deepcopy(units_sent_dict)
+            
+            try:
+                one_extra_unit_dict[str(unit.id)]["quantity_sent"] += 1
+            except:
+                one_extra_unit_dict[str(unit.id)] = {
+                    "unit": unit,
+                    "quantity_sent": 1
+                }
+                
+            op_sent_with_one_more, _, _, _ = get_op_and_dp_left(one_extra_unit_dict, attacker=my_dominion, defender=target_dominion, is_infiltration=is_infiltration, is_plunder=is_plunder)
+            op_from_one_unit = op_sent_with_one_more - op_sent
+            op_needed = target_dominion.defense - op_sent
+            extra_units_needed = max(0, math.ceil(op_needed / op_from_one_unit))
+            
+            try:
+                units_needed_to_break_list.append({
+                    "id": unit.id,
+                    "quantity_needed": units_sent_dict[unit.strid]["quantity_sent"] + extra_units_needed,
+                })
+            except:
+                units_needed_to_break_list.append({
+                    "id": unit.id,
+                    "quantity_needed": extra_units_needed,
+                })
 
     # End win button stuff
     
