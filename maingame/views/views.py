@@ -648,7 +648,11 @@ def calculate_op(request):
             op_sent_with_one_more, _, _, _ = get_op_and_dp_left(one_extra_unit_dict, attacker=my_dominion, defender=target_dominion, is_infiltration=is_infiltration, is_plunder=is_plunder)
             op_from_one_unit = op_sent_with_one_more - op_sent
             op_needed = target_dominion.defense - op_sent
-            extra_units_needed = max(0, math.ceil(op_needed / op_from_one_unit))
+            
+            if op_from_one_unit > 0:
+                extra_units_needed = max(0, math.ceil(op_needed / op_from_one_unit))
+            else:
+                extra_units_needed = 0
             
             try:
                 units_needed_to_break_list.append({
