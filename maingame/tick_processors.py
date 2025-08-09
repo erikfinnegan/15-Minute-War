@@ -69,7 +69,8 @@ def do_global_tick():
             print("-----")
             for dominion in all_dominions:
                 if dominion.is_oop and not dominion.is_abandoned:
-                    if dominion.last_tick_played + 96 < this_round.ticks_passed:
+                    # If you haven't accessed any pages in 36 hours, get put back into protection
+                    if dominion.last_tick_played + 144 < this_round.ticks_passed:
                         dominion.protection_ticks_remaining = 1
                         dominion.save()
                     else:
