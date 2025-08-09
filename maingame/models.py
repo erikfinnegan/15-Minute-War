@@ -559,10 +559,10 @@ class Dominion(models.Model):
                         
                 resource.gain(resource.quantity * -1)
                 
-            if resource.name in ["gold", "goop"] and self.protection_ticks_remaining == 0:
-                raw_gain = self.acres * 50
-                if resource.quantity > 96 * raw_gain:
-                    self.protection_ticks_remaining = 1
+            # if resource.name in ["gold", "goop"] and self.protection_ticks_remaining == 0:
+            #     raw_gain = self.acres * 50
+            #     if resource.quantity > 96 * raw_gain:
+            #         self.protection_ticks_remaining = 1
                 
             self.save()
 
