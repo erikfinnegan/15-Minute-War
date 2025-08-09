@@ -141,6 +141,7 @@ class Dominion(models.Model):
     invasion_consequences = models.CharField(max_length=1000, null=True, blank=True)
     score = models.IntegerField(default=0)
     is_protection_ticking = models.BooleanField(default=False)
+    last_tick_played = models.IntegerField(default=0)
 
     times_ruler_killed = models.IntegerField(default=0)
     ruler_respawn_timer = models.IntegerField(default=0)
@@ -558,11 +559,6 @@ class Dominion(models.Model):
                         unit.save()
                         
                 resource.gain(resource.quantity * -1)
-                
-            # if resource.name in ["gold", "goop"] and self.protection_ticks_remaining == 0:
-            #     raw_gain = self.acres * 50
-            #     if resource.quantity > 96 * raw_gain:
-            #         self.protection_ticks_remaining = 1
                 
             self.save()
 

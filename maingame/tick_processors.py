@@ -69,16 +69,20 @@ def do_global_tick():
             print("-----")
             for dominion in all_dominions:
                 if dominion.is_oop and not dominion.is_abandoned:
-                    number_of_ticks = get_number_of_times_to_tick(dominion, start_timestamp)
-                    
-                    dominion.perk_dict["aethertide_net_ticks"] += (number_of_ticks - 1)
-                    dominion.save()
+                    if dominion.last_tick_played + 96 < this_round.ticks_passed:
+                        dominion.protection_ticks_remaining = 1
+                        dominion.save()
+                    else:
+                        number_of_ticks = get_number_of_times_to_tick(dominion, start_timestamp)
+                        
+                        dominion.perk_dict["aethertide_net_ticks"] += (number_of_ticks - 1)
+                        dominion.save()
 
-                    for _ in range(number_of_ticks):
-                        start_tick_timestamp = datetime.now(ZoneInfo('America/New_York'))
-                        dominion.do_tick()
-                        end_tick_timestamp = datetime.now(ZoneInfo('America/New_York'))
-                        print(f"{dominion.name} {dominion.faction_name} tick lasted:", round((end_tick_timestamp - start_tick_timestamp).total_seconds(), 3))
+                        for _ in range(number_of_ticks):
+                            start_tick_timestamp = datetime.now(ZoneInfo('America/New_York'))
+                            dominion.do_tick()
+                            end_tick_timestamp = datetime.now(ZoneInfo('America/New_York'))
+                            print(f"{dominion.name} {dominion.faction_name} tick lasted:", round((end_tick_timestamp - start_tick_timestamp).total_seconds(), 3))
             
             print("-----")
             

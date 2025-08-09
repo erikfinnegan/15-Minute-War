@@ -40,7 +40,10 @@ def faction_info(request):
 
 def buildings(request):
     try:
-        dominion = Dominion.objects.get(associated_user=request.user)
+        my_dominion = Dominion.objects.get(associated_user=request.user)
+        this_round = Round.objects.first()
+        my_dominion.last_tick_played = this_round.ticks_passed
+        my_dominion.save()
     except:
         return redirect("register")
     
@@ -48,19 +51,19 @@ def buildings(request):
 
     resources_dict = {}
 
-    for resource in Resource.objects.filter(ruler=dominion):
+    for resource in Resource.objects.filter(ruler=my_dominion):
         if not resource.name == "corpses":
             resources_dict[resource.name] = {
                 "name": resource.name,
-                "produced": dominion.get_production(resource.name),
-                "consumed": dominion.get_consumption(resource.name),
+                "produced": my_dominion.get_production(resource.name),
+                "consumed": my_dominion.get_consumption(resource.name),
             }
 
             resources_dict[resource.name]["net"] = resources_dict[resource.name]["produced"] - resources_dict[resource.name]["consumed"]
 
     context = {
         "resources_dict": resources_dict,
-        "buildings": Building.objects.filter(ruler=dominion),
+        "buildings": Building.objects.filter(ruler=my_dominion),
     }
     
     return render(request, "maingame/buildings.html", context)
@@ -68,43 +71,46 @@ def buildings(request):
 
 def discoveries(request):
     try:
-        dominion = Dominion.objects.get(associated_user=request.user)
+        my_dominion = Dominion.objects.get(associated_user=request.user)
+        this_round = Round.objects.first()
+        my_dominion.last_tick_played = this_round.ticks_passed
+        my_dominion.save()
     except:
         return redirect("register")
     
-    new_discoveries_message = update_available_discoveries(dominion)
-    dominion.save()
+    new_discoveries_message = update_available_discoveries(my_dominion)
+    my_dominion.save()
 
     if new_discoveries_message:
         messages.success(request, f"New discoveries unlocked: {new_discoveries_message}")
 
     available_discoveries = []
 
-    for discovery_name in dominion.available_discoveries:
+    for discovery_name in my_dominion.available_discoveries:
         available_discoveries.append(Discovery.objects.get(name=discovery_name))
 
     depth = ""
 
-    if "mining_depth" in dominion.perk_dict:
-        mining_depth = dominion.perk_dict["mining_depth"]
+    if "mining_depth" in my_dominion.perk_dict:
+        mining_depth = my_dominion.perk_dict["mining_depth"]
         depth = f"{mining_depth:2,} torchbrights"
 
     future_discoveries = []
 
     for discovery in Discovery.objects.all():
-        if discovery.name not in dominion.available_discoveries and discovery.name not in dominion.learned_discoveries and dominion.faction_name not in discovery.not_for_factions:
-            if not discovery.required_faction_name or discovery.required_faction_name == dominion.faction_name:
+        if discovery.name not in my_dominion.available_discoveries and discovery.name not in my_dominion.learned_discoveries and my_dominion.faction_name not in discovery.not_for_factions:
+            if not discovery.required_faction_name or discovery.required_faction_name == my_dominion.faction_name:
                 and_requirements_left = []
                 or_requirements_left = []
                 
                 if discovery.required_discoveries:                    
                     for requirement_name in discovery.required_discoveries:
-                        if requirement_name not in dominion.learned_discoveries:
+                        if requirement_name not in my_dominion.learned_discoveries:
                             and_requirements_left.append(requirement_name)
 
                 if discovery.required_discoveries_or:
                     for requirement_name in discovery.required_discoveries_or:
-                        if requirement_name not in dominion.learned_discoveries:
+                        if requirement_name not in my_dominion.learned_discoveries:
                             or_requirements_left.append(requirement_name)
 
                 requirement_string = ""
@@ -141,18 +147,21 @@ def discoveries(request):
 
 def military(request):
     try:
-        dominion = Dominion.objects.get(associated_user=request.user)
+        my_dominion = Dominion.objects.get(associated_user=request.user)
+        this_round = Round.objects.first()
+        my_dominion.last_tick_played = this_round.ticks_passed
+        my_dominion.save()
     except:
         return redirect("register")
     
     try:
-        hammerers = Unit.objects.get(ruler=dominion, name="Hammerer")
+        hammerers = Unit.objects.get(ruler=my_dominion, name="Hammerer")
         hammerer_count = hammerers.quantity_at_home
     except:
         hammerer_count = 0
     
     context = {
-        "units": dominion.sorted_units,
+        "units": my_dominion.sorted_units,
         "hammerer_count": hammerer_count,
     }
 
@@ -213,12 +222,15 @@ def resources(request):
 
 def upgrades(request):
     try:
-        dominion = Dominion.objects.get(associated_user=request.user)
+        my_dominion = Dominion.objects.get(associated_user=request.user)
+        this_round = Round.objects.first()
+        my_dominion.last_tick_played = this_round.ticks_passed
+        my_dominion.save()
     except:
         return redirect("register")
     
-    research_resource = Resource.objects.get(ruler=dominion, name="research")
-    buildings = Building.objects.filter(ruler=dominion)
+    research_resource = Resource.objects.get(ruler=my_dominion, name="research")
+    buildings = Building.objects.filter(ruler=my_dominion)
 
     context = {
         "buildings": buildings,
@@ -267,8 +279,10 @@ def battle_report(request, battle_id):
 def news(request):
     TIMEZONES_CHOICES = [tz for tz in zoneinfo.available_timezones()]
     try:
-        dominion = Dominion.objects.get(associated_user=request.user)
-        round = Round.objects.first()
+        my_dominion = Dominion.objects.get(associated_user=request.user)
+        this_round = Round.objects.first()
+        my_dominion.last_tick_played = this_round.ticks_passed
+        my_dominion.save()
     except:
         return redirect("register")
     
@@ -277,12 +291,12 @@ def news(request):
     for event in Event.objects.all().order_by('-id')[:50]:
         displayed_events.append({
             "event": event,
-            "involves_dominion": event.notified_dominions.filter(id=dominion.id).count() > 0,
+            "involves_dominion": event.notified_dominions.filter(id=my_dominion.id).count() > 0,
         })
 
-    if not round.is_ticking:
-        dominion.has_unread_events = False
-        dominion.save()
+    if not this_round.is_ticking:
+        my_dominion.has_unread_events = False
+        my_dominion.save()
 
     context = {
         "displayed_events": displayed_events,
@@ -295,6 +309,9 @@ def news(request):
 def overview(request, dominion_id):
     try:
         my_dominion = Dominion.objects.get(associated_user=request.user)
+        this_round = Round.objects.first()
+        my_dominion.last_tick_played = this_round.ticks_passed
+        my_dominion.save()
     except:
         return redirect("register")
     
@@ -373,6 +390,9 @@ def overview(request, dominion_id):
 def world(request):
     try:
         my_dominion = Dominion.objects.get(associated_user=request.user)
+        this_round = Round.objects.first()
+        my_dominion.last_tick_played = this_round.ticks_passed
+        my_dominion.save()
     except:
         return redirect("register")
     
