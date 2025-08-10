@@ -239,10 +239,10 @@ def initialize_factions():
         0% on the same time span. This cycle repeats throughout the whole round.""",
         """While you have a chance to double ticks, you have a penalty to your offense. While you have a chance to skip ticks, you get a bonus to your offense. These
         scale with the chance to skip/double ticks."""
-        """Starts with a supply of plunder and gains more based on the raw defense of dominions that
-        they invade or plunder. Plundering is an alternate attack type that always steals one acre, causes no casualties (except for units that always die on offense),
-        has +100% OP, and does not trigger defensive faction abilities. Plundering generates plunder equal to the raw DP of the target and invasions grant a quarter of that.
+        """Starts with a supply of plunder and gains more by plundering. This is an alternate attack type that always conquers one acre, causes no casualties,
+        has +100% OP, and does not trigger defensive faction abilities. This generates plunder equal to the raw DP of the target. Regular invasions grant a quarter of that.
         Only units with 'Crew' in the name can plunder.""",
+        """You can change the amount of plunder upkeep of your pirate crews and they'll gain (or lose) power accordingly.""",
         """Enemies attacking them will be time-cursed for 12 ticks. During this time, they have a 20% chance to skip each tick."""],
         invasion_consequences="You will be time-cursed for 12 ticks. During this time, you'll have a 20% chance to skip each tick. ",
         play_if_you="enjoy managing risk/reward for power and don't mind a bit of randomess."
