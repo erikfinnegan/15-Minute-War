@@ -227,7 +227,13 @@
     {% endif %}
 
     {% if masterpieces_available > 0 %}
-        <div class="u-overflow-x-scroll md:u-overflow-x-hidden mt-6">
+        <p class="mt-6">
+            Merge any units at home with a sludge 
+            cost into a single unit with their combined offense and defense. Your incredible masterpiece requires no goop or food
+            upkeep but consumes 2 sludge per merged unit. It will return from battle at the
+            speed of the slowest unit used to create it.
+        </p>
+        <div class="u-overflow-x-scroll md:u-overflow-x-hidden">
             <form action="{% url 'submit_masterpiece' %}" method="post" class="max-w-md">
                 {% csrf_token %}
                 <table class="table striped">
