@@ -72,6 +72,7 @@ def do_global_tick():
                     # If you haven't accessed any pages in 36 hours, get put back into protection
                     if dominion.last_tick_played + 144 < this_round.ticks_passed:
                         dominion.protection_ticks_remaining = 1
+                        dominion.last_tick_played = this_round.ticks_passed
                         dominion.save()
                     else:
                         number_of_ticks = get_number_of_times_to_tick(dominion, start_timestamp)

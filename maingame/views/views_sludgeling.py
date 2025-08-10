@@ -132,6 +132,11 @@ def submit_masterpiece(request):
         return redirect("experimentation")
 
     unit_dict, _ = create_unit_dict(request.POST, "combine_")
+    
+    if not unit_dict:
+        messages.error(request, f"You didn't pick any units to combine. Re-read how this thing works.")
+        return redirect("experimentation")
+    
 
     is_encore = False
 
