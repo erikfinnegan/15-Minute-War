@@ -101,7 +101,7 @@ def get_conditional_op(unit: Unit, attacker: Dominion, defender: Dominion):
     return modified_unit_op
 
 
-def get_op_and_dp_left(units_sent_dict, attacker: Dominion, defender: Dominion=None, is_infiltration=False, is_plunder=False):
+def get_op_and_dp_left(units_sent_dict, attacker: Dominion, defender: Dominion=None, is_infiltration=False, is_plunder=False, round_result=True):
     offense_sent = 0
     infiltration_power_sent = 0
     infiltration_power_gained = 0
@@ -172,7 +172,9 @@ def get_op_and_dp_left(units_sent_dict, attacker: Dominion, defender: Dominion=N
     except:
         pass
 
-    offense_sent = int(offense_sent)
+    if round_result:
+        offense_sent = int(offense_sent)
+    
     defense_left = int(raw_defense * attacker.defense_multiplier)
     
     if is_infiltration:
@@ -262,7 +264,7 @@ def handle_invasion_perks(attacker: Dominion, defender: Dominion, defender_land_
         
         try:
             press_gangers = Resource.objects.get(ruler=attacker, name="press gangers")
-            press_gangers.gain(int(plunder_gained * 0.01))
+            press_gangers.gain(int(plunder_gained * 0.005))
         except:
             pass
         

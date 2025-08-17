@@ -100,8 +100,8 @@ def submit_plunder_shares(request):
         template_pirate_crews = Unit.objects.get(ruler=None, name="Pirate Crew")
         pirate_crews.upkeep_dict["plunder"] = shares
         
-        pirate_crews.op = template_pirate_crews.op + (5 * (shares - 1))
-        pirate_crews.dp = template_pirate_crews.dp + (6 * (shares - 1))
+        pirate_crews.op = template_pirate_crews.op + (2 * (shares - 1))
+        pirate_crews.dp = template_pirate_crews.dp + (2 * (shares - 1))
         pirate_crews.save()
         
         dominion.perk_dict["ticks_until_next_share_change"] = 36

@@ -594,7 +594,7 @@ def calculate_op(request):
 
     units_sent_dict, _ = create_unit_dict(request.GET, "send_")
     target_dominion = Dominion.objects.filter(id=dominion_id).first()
-    op_sent, dp_left, raw_dp_left, invalid_invasion = get_op_and_dp_left(units_sent_dict, attacker=my_dominion, defender=target_dominion, is_infiltration=is_infiltration, is_plunder=is_plunder)
+    op_sent, dp_left, raw_dp_left, invalid_invasion = get_op_and_dp_left(units_sent_dict, attacker=my_dominion, defender=target_dominion, is_infiltration=is_infiltration, is_plunder=is_plunder, round_result=False)
 
     larger_enemy_has_lower_defense = False
     left_lowest_defense = True
@@ -665,7 +665,7 @@ def calculate_op(request):
                     "quantity_sent": 1
                 }
                 
-            op_sent_with_one_more, _, _, _ = get_op_and_dp_left(one_extra_unit_dict, attacker=my_dominion, defender=target_dominion, is_infiltration=is_infiltration, is_plunder=is_plunder)
+            op_sent_with_one_more, _, _, _ = get_op_and_dp_left(one_extra_unit_dict, attacker=my_dominion, defender=target_dominion, is_infiltration=is_infiltration, is_plunder=is_plunder, round_result=False)
             op_from_one_unit = op_sent_with_one_more - op_sent
             op_needed = target_dominion.defense - op_sent
             
@@ -701,7 +701,7 @@ def calculate_op(request):
         red_beret_op_reduction = 0
         
     context = {
-        "op": op_sent,
+        "op": int(op_sent), # We have to round this here instead of from get_op_and_dp_left because we need the float for win button calculations
         "dp": target_dominion.defense if target_dominion else 0,
         "dp_left": dp_left,
         "raw_dp_left": raw_dp_left,
