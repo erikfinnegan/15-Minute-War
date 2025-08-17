@@ -26,6 +26,14 @@ def register(request):
 @login_required
 def submit_register(request):
     display_name = request.POST["dominionName"]
+    
+    if display_name.isspace():
+        messages.error(request, "Your dominion name must have characters besides spaces.")
+        return redirect("register")
+    if len(display_name) < 1:
+        messages.error(request, "Your dominion name must characters.")
+        return redirect("register")
+    
     faction = Faction.objects.get(name=request.POST["factionChoice"].lower())
 
     if Dominion.objects.filter(name=display_name).exists():
