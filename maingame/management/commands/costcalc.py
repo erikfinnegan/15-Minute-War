@@ -17,8 +17,8 @@ class Command(BaseCommand):
         print()
         
         op = 6
-        dp = 7
-        secondary_resource_name = "sludge"
+        dp = 5
+        secondary_resource_name = "research"
         casualty_multiplier = 0
         return_ticks = 12
         
