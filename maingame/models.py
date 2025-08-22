@@ -383,16 +383,17 @@ class Dominion(models.Model):
         header_rows = {}
 
         for resource in Resource.objects.filter(ruler=self):
-            iterator += 1
-            
-            if iterator % math.ceil(Resource.objects.filter(ruler=self).count() / 3) == 0:
-                row_number += 1
-                header_rows[str(row_number)] = []
+            if resource.should_show_in_header:
+                iterator += 1
+                
+                if iterator % math.ceil(Resource.objects.filter(ruler=self).count() / 3) == 0:
+                    row_number += 1
+                    header_rows[str(row_number)] = []
 
-            header_rows[str(row_number)].append({
-                "name": resource.name,
-                "quantity": f"{int(resource.quantity):,}"
-            })
+                header_rows[str(row_number)].append({
+                    "name": resource.name,
+                    "quantity": f"{int(resource.quantity):,}"
+                })
 
         return header_rows
     
