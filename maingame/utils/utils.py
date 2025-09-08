@@ -76,14 +76,18 @@ def generate_unit_cost_dict(op, dp, primary_resource_name, secondary_resource_na
     
     if primary_cost > 1000:
         primary_cost = round_x_to_nearest_y(primary_cost, 50)
-    else:
+    elif primary_cost > 500:
         primary_cost = round_x_to_nearest_y(primary_cost, 25)
+    else:
+        primary_cost = round_x_to_nearest_y(primary_cost, 5)
         
     if secondary_cost > 1000:
         secondary_cost = round_x_to_nearest_y(secondary_cost, 50)
-    else:
+    elif secondary_cost > 500:
         secondary_cost = round_x_to_nearest_y(secondary_cost, 25)
-    
+    else:
+        secondary_cost = round_x_to_nearest_y(secondary_cost, 5)
+        
     cost_dict = {}
     
     if primary_cost > 0:

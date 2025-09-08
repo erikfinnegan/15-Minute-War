@@ -35,6 +35,7 @@ def experimentation(request):
             experimental_units.append(unit)
 
     # latest_experiment_unit = Unit.objects.filter(id=dominion.perk_dict["latest_experiment_id"]).first()
+    preselect_last_parents = request.GET.get('preselect_last_parents', False)
     
     context = {
         # "research_cost": research_cost,
@@ -48,6 +49,7 @@ def experimentation(request):
         "masterpieces_available": masterpieces_available,
         "sludgenes": Sludgene.objects.filter(ruler=dominion).order_by("-is_favorite"),
         "splices": dominion.perk_dict.get("splices"),
+        "preselect_last_parents": preselect_last_parents,
     }
     
     return render(request, "maingame/faction_pages/experimentation.html", context)
@@ -169,6 +171,7 @@ def submit_sludgenes(request):
     
     selected_sludgenes = []
     action = request.POST.get("action")
+    preselect_last_parents = False
     
     for key in request.POST:
         # key is like "breed_123" where 123 is the ID of the Unit
@@ -188,6 +191,9 @@ def submit_sludgenes(request):
             if father.cost_type == mother.cost_type:
                 child = breed_sludgenes(father, mother)
                 dominion.perk_dict["splices"] -= 1
+                dominion.perk_dict["last_father_id"] = father.id
+                dominion.perk_dict["last_mother_id"] = mother.id
+                preselect_last_parents = True
                 dominion.save()
                 messages.success(request, f"Created {child.name} ({child.op}/{child.dp}) - {child.perk_text} (discount: {child.discount_percent}%)")
             else:
@@ -227,4 +233,4 @@ def submit_sludgenes(request):
     else:
         messages.error(request, f"No action selected")
         
-    return redirect("experimentation")
+    return redirect(f"experimentation/?preselect_last_parents={preselect_last_parents}")

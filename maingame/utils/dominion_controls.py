@@ -27,6 +27,8 @@ def create_faction_perk_dict(dominion: Dominion, faction: Faction):
         dominion.perk_dict["recycling_refund"] = 0.8
         dominion.perk_dict["masterpieces_to_create"] = 0
         dominion.perk_dict["get_sludgenes"] = True
+        dominion.perk_dict["last_mother_id"] = 0
+        dominion.perk_dict["last_father_id"] = 0
     elif faction.name == "goblin":
         dominion.perk_dict["rats_per_acre_per_tick"] = 0.3334
         dominion.perk_dict["goblin_ruler"] = get_goblin_ruler()
