@@ -721,7 +721,9 @@ class Dominion(models.Model):
             if self.faction_name == "mecha-dragon":
                 self.update_capacity()
                 
-            self.score += (self.acres * self.acres)
+            this_round = Round.objects.first()
+            if this_round.percent_chance_for_round_end > 0:
+                self.score += self.acres
                 
         if self.ruler_respawn_timer > 0:
             self.ruler_respawn_timer -= 1
