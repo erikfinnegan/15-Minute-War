@@ -121,6 +121,13 @@ def initialize_dominion(user: User, faction: Faction, display_name):
 
 
 def abandon_dominion(dominion: Dominion):
+    for red_beret in Unit.objects.filter(name="Red Beret"):
+        if red_beret.perk_dict["subverted_target_id"] == dominion.strid:
+            red_beret.returning_dict["12"] = 1
+            red_beret.quantity_in_void -= 1
+            red_beret.perk_dict["subverted_target_id"] = 0
+            red_beret.save()
+    
     event = Event.objects.create(
         reference_id=dominion.id, 
         reference_type="abandon", 
