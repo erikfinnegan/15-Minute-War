@@ -3,6 +3,7 @@ import random
 
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.urls import reverse
 
 from maingame.formatters import get_sludgeling_name
 from maingame.models import Dominion, Unit, Round, Resource, Sludgene
@@ -232,5 +233,10 @@ def submit_sludgenes(request):
             sludgene.save()
     else:
         messages.error(request, f"No action selected")
+    
+    if preselect_last_parents:
+        url = reverse("experimentation")  # Use the name of your URL pattern
+        redirect_url = f"{url}?preselect_last_parents=true"
+        return redirect(redirect_url)
         
-    return redirect(f"experimentation/?preselect_last_parents={preselect_last_parents}")
+    return redirect(f"experimentation")
