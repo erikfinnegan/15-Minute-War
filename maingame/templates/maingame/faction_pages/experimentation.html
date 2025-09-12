@@ -140,7 +140,17 @@
                                     {% endfor %}
                                 </td>
                                 <td class="u-align-middle">
-                                    <input type="checkbox" id="breed_{{ sludgene.id }}" name="breed_{{ sludgene.id }}" style="pointer-events: none;">
+                                    <input 
+                                        type="checkbox" 
+                                        id="breed_{{ sludgene.id }}" 
+                                        name="breed_{{ sludgene.id }}" 
+                                        style="pointer-events: none;" 
+                                        {% if preselect_last_parents %}
+                                        {% if active_dominion.perk_dict.last_mother_id == sludgene.id or active_dominion.perk_dict.last_father_id == sludgene.id %}
+                                        checked
+                                        {% endif %}
+                                        {% endif %}
+                                    >
                                 </td>
                                 <td class="u-align-middle">
                                     {% if sludgene.is_favorite %}
@@ -180,7 +190,17 @@
                                     {% endfor %}
                                 </td>
                                 <td class="u-align-middle">
-                                    <input type="checkbox" id="breed_{{ sludgene.id }}" name="breed_{{ sludgene.id }}" style="pointer-events: none;">
+                                    <input 
+                                        type="checkbox" 
+                                        id="breed_{{ sludgene.id }}" 
+                                        name="breed_{{ sludgene.id }}" 
+                                        style="pointer-events: none;" 
+                                        {% if preselect_last_parents %}
+                                        {% if active_dominion.perk_dict.last_mother_id == sludgene.id or active_dominion.perk_dict.last_father_id == sludgene.id %}
+                                        checked
+                                        {% endif %}
+                                        {% endif %}
+                                    >
                                 </td>
                                 <td class="u-align-middle">
                                     {% if sludgene.is_favorite %}
