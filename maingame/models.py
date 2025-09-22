@@ -139,7 +139,8 @@ class Dominion(models.Model):
     failed_defenses = models.IntegerField(default=0)
     highest_raw_op_sent = models.IntegerField(default=0, null=True, blank=True)
     invasion_consequences = models.CharField(max_length=1000, null=True, blank=True)
-    score = models.IntegerField(default=0)
+    # score = models.IntegerField(default=0)
+    score_list = models.JSONField(default=list, blank=True)
     is_protection_ticking = models.BooleanField(default=False)
     last_tick_played = models.IntegerField(default=0)
 
@@ -258,6 +259,10 @@ class Dominion(models.Model):
         multiplier = 1 - (self.complacency_penalty_percent / 100)
 
         return multiplier
+    
+    @property
+    def score(self):
+        return sum(self.score_list)
     
     @property
     def score_short(self):
@@ -723,7 +728,11 @@ class Dominion(models.Model):
                 
             this_round = Round.objects.first()
             if this_round.percent_chance_for_round_end > 0:
-                self.score += self.acres
+                # self.score += self.acres
+                self.score_list.append(self.acres)
+                
+                if len(self.score_list) > 48:
+                    self.score_list.pop(0)
                 
         if self.ruler_respawn_timer > 0:
             self.ruler_respawn_timer -= 1
